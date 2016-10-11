@@ -25,7 +25,7 @@ The biggest part of the new API will be an Action framework. Most of the Sense/N
 
 ## Used technologies and libraries so far
 
-Keep in mind that SN7 is a continuously developing and improving software, and because of it is in prealpha state now, nothing is set in stone. We are trying out new technologies and libraries during development, some of them look promising at the start but maybe will be dropped at some point. So far the ones listed here are looking to be part of our concept but we welcome every advice or criticism if it helps us on our journey. Feel free to contact us in Gitter chat (at the bottom right corner) and share your thoughts.
+Keep in mind that SN7 is a continuously developing and improving software, and because of it is in prealpha state now, nothing is set in stone. We are trying out new technologies and libraries during development, some of them look promising at the start but maybe will be dropped at some point. So far the ones listed here are looking to be part of our concept but we welcome every advice or criticism if it helps us on our journey.
 
 [SN7+](https://github.com/sensenetecm)
 
