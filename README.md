@@ -1,3 +1,5 @@
+[<img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg">](https://gitter.im/SenseNet/SN7ClientAPI)
+
 Introduction
 -----------------
 
@@ -41,14 +43,18 @@ your thoughts.
 
 [redux 3.5.2+](https://github.com/reactjs/redux)
 
-[redux-thunk 2.1.0+](https://github.com/gaearon/redux-thunk)
-
 [RxJS 5.0.0+](http://reactivex.io/rxjs/)
 
-## Quick Examples
+[redux-observable 0.12.1+](https://redux-observable.js.org/)
 
-### Creating a Folder with the name 'Hello world'
+[normalizr 2.2.0+](https://github.com/paularmstrong/normalizr)
 
+## sn-client-js
+
+### Quick Examples
+
+#### Creating a Folder with the name 'Hello world'
+ 
 ```ts
 let content = new SenseNet.ContentTypes.Folder({ DisplayName: 'Hello world!' });
 ```
@@ -59,7 +65,8 @@ or
 let content = SenseNet.Content.Create('Folder', { DisplayName: 'Hello world!' });
 ```
 
-### Load a Content by its id
+#### Load a Content by its id
+ 
 ```ts
 var content = SenseNet.Content.load(1234, 'A.1', { expand: 'Avatar' });
 content
@@ -73,12 +80,14 @@ content
 })
 ```
 
-### Get the Schema of the given ContentType
+#### Get the Schema of the given ContentType
+ 
 ```javascript
 let schema = SenseNet.Content.GetSchema('GenericContent');
 ```
 
-### Read Collection data
+#### Read Collection data
+ 
 ```ts
 let collection = new Collection([]);
 var options = new ODataHelper.ODataOptions({ 
@@ -98,7 +107,8 @@ let fetchContent = Collection.Read('/NewsDemo/External', options); //gets the li
 	});
 ```
 
-### Delete a Content from a Collection
+#### Delete a Content from a Collection
+ 
 ```ts
 let deleteContent = myCollection.Remove(3);
 	deleteContent
@@ -110,3 +120,17 @@ let deleteContent = myCollection.Remove(3);
 		complete: () => console.log('done'),
 	});
 ```
+
+## sn-redux
+
+## Example applications
+* Using Raw Javascript and HTML (TODO)
+* [Using React](http://download.sensenet.com/aniko/sn7/examples/react/index.html)
+* Using Angular (TODO)
+* Using Angular2 (TODO)
+* Using Vue (TODO)
+* Using Aurelia (TODO)
+* Using Ember (TODO)
+* Using Polymer (TODO)
+* Using React Native (TODO)
+
