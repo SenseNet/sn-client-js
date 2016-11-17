@@ -51,6 +51,15 @@ your thoughts.
 
 ## sn-client-js
 
+This component lets you work with the SenseNet ECM Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
+operations.
+
+This library connects to a SenseNet portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of 
+having to construct ajax requests yourself.
+
+It also provides you the full SenseNet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
+so that you can manage Content easy on client-side knowing the related fields and their settings.
+
 ### Quick Examples
 
 #### Creating a Folder with the name 'Hello world'
@@ -122,6 +131,14 @@ let deleteContent = myCollection.Remove(3);
 ```
 
 ## sn-redux
+sn-redux is a convention driven way of building SenseNet applications using Redux. It contains all the action types, actions and reducers for built-in 
+[SenseNet Actions and Functions](http://wiki.sensenet.com/Built-in_OData_actions_and_functions).
+
+sn-redux gives you an standard set of:
+
+action types: e.g. ADD_CONTENT_SUCCESS
+actions: e.g. updateContentSuccess, updateContentFailure
+reducers: for the action types above e.g. updateContentSuccess
 
 ## Example applications
 * Using Raw Javascript and HTML (TODO)
@@ -133,4 +150,3 @@ let deleteContent = myCollection.Remove(3);
 * Using Ember (TODO)
 * Using Polymer (TODO)
 * Using React Native (TODO)
-
