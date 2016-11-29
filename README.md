@@ -1,11 +1,11 @@
 # sn-client-js
 
-[![gitter](https://img.shields.io/gitter/room/SenseNet/SN7ClientAPI.svg)](https://gitter.im/SenseNet/SN7ClientAPI)
-[![travis](https://img.shields.io/travis/SenseNet/sn-client-js.svg)](https://travis-ci.org/SenseNet/sn-client-js)
-[![coverage](https://img.shields.io/codecov/c/github/SenseNet/sn-client-js.svg)](https://codecov.io/gh/SenseNet/sn-client-js)
-[![npm](https://img.shields.io/npm/v/sn-client-js.svg)](https://www.npmjs.com/package/sn-client-js)
-[![downloads](https://img.shields.io/github/downloads/SenseNet/sn-client-js/total.svg)](https://github.com/SenseNet/sn-client-js)
-[![license](https://img.shields.io/github/license/SenseNet/sn-client-js.svg)](https://github.com/SenseNet/sn-client-js/LICENSE.txt)
+[![Gitter chat](https://img.shields.io/gitter/room/SenseNet/SN7ClientAPI.svg)](https://gitter.im/SenseNet/SN7ClientAPI)
+[![Build status](https://img.shields.io/travis/SenseNet/sn-client-js.svg)](https://travis-ci.org/SenseNet/sn-client-js)
+[![Coverage](https://img.shields.io/codecov/c/github/SenseNet/sn-client-js.svg)](https://codecov.io/gh/SenseNet/sn-client-js)
+[![NPM version](https://img.shields.io/npm/v/sn-client-js.svg)](https://www.npmjs.com/package/sn-client-js)
+[![Downloads](https://img.shields.io/github/downloads/SenseNet/sn-client-js/total.svg)](https://github.com/SenseNet/sn-client-js)
+[![License](https://img.shields.io/github/license/SenseNet/sn-client-js.svg)](https://github.com/SenseNet/sn-client-js/LICENSE.txt)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
@@ -18,24 +18,72 @@ having to construct ajax requests yourself.
 It also provides you the full SenseNet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
 so that you can manage Content easy on client-side knowing the related fields and their settings.
 
+### Installation
+
+To install the latest stable version
+
+```
+npm install --save sn-client-js
+```
+
+### Import
+
+#### CommonJS
+
+```
+var SN = require('sn-client-js');
+
+SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+```
+
+### Typescript
+
+```
+import * as SN from 'sn-client-js';
+
+SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+```
+
+### Building sn-client-js
+
+Building the project, running all the unit tests and the ts linter and get the code coverage report, use:
+
+```
+gulp
+```
+
+### Running tests
+
+To execute all unit tests, use:
+
+```
+gulp test
+```
+
+### Generatings code coverage report
+
+```
+gulp test:coverage
+```
+
 ### Examples
 
-#### Creating a Folder with the name 'Hello world'
+##### Creating a Folder with the name 'Hello world'
  
 ```ts
-let content = new SenseNet.ContentTypes.Folder({ DisplayName: 'Hello world!' });
+let content = new SN.ContentTypes.Folder({ DisplayName: 'Hello world!' });
 ```
 
 or
 
 ```ts
-let content = SenseNet.Content.Create('Folder', { DisplayName: 'Hello world!' });
+let content = SN.Content.Create('Folder', { DisplayName: 'Hello world!' });
 ```
 
-#### Load a Content by its id
+##### Load a Content by its id
  
 ```ts
-var content = SenseNet.Content.load(1234, 'A.1', { expand: 'Avatar' });
+var content = SN.Content.load(1234, 'A.1', { expand: 'Avatar' });
 content
    .map(response => response.d)
    .subscribe({
@@ -47,17 +95,17 @@ content
 })
 ```
 
-#### Get the Schema of the given ContentType
- 
-```javascript
-let schema = SenseNet.Content.GetSchema('GenericContent');
-```
-
-#### Read Collection data
+##### Get the Schema of the given ContentType
  
 ```ts
-let collection = new Collection([]);
-var options = new ODataAPI.ODataParams({ 
+let schema = SN.Content.GetSchema('GenericContent');
+```
+
+##### Read Collection data
+ 
+```ts
+let collection = new SN.Collection([]);
+var options = new SN.ODataAPI.ODataParams({ 
 	select: ["DisplayName", "Lead"], 
 	orderby: 'DisplayName', 
 	metadata: 'no' });
@@ -74,7 +122,7 @@ let fetchContent = collection.Read('/NewsDemo/External', options); //gets the li
 	});
 ```
 
-#### Delete a Content from a Collection
+##### Delete a Content from a Collection
  
 ```ts
 let deleteContent = myCollection.Remove(3);
