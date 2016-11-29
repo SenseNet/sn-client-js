@@ -1,0 +1,66 @@
+{
+  "name": "sn-client-js",
+  "version": "1.0.0-beta.0",
+  "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
+  "main": "dist/SN.ts",
+  "scripts": {
+    "commit": "git-cz",
+    "report-coverage":"cat ./coverage/lcov.info | codecov",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SenseNet/sn-client-js.git"
+  },
+  "keywords": [
+    "sensenet",
+    "ecm",
+    "javascript",
+    "REST",
+    "ajax",
+    "API"
+  ],
+  "author": "Sense/Net <snteam@sensenet.com> (http://sensenet.com/)",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/SenseNet/sn-client-js/issues"
+  },
+  "homepage": "https://sensenet.com",
+  "dependencies": {
+    "@reactivex/rxjs": "5.0.0-rc.4",
+    "isomorphic-fetch": "2.2.1"
+  },
+  "devDependencies": {
+    "@types/chai": "3.4.34",
+    "@types/isomorphic-fetch": "0.0.31",
+    "@types/mocha": "2.2.33",
+    "@types/orchestrator": "0.0.30",
+    "@types/sinon": "1.16.32",
+    "chai": "3.5.0",
+    "codecov.io": "0.1.6",
+    "commitizen": "2.8.6",
+    "cz-conventional-changelog": "1.2.0",
+    "del": "2.2.2",
+    "gulp": "3.9.1",
+    "gulp-istanbul": "1.1.1",
+    "gulp-mocha": "3.0.1",
+    "gulp-standard": "8.0.2",
+    "gulp-tslint": "7.0.1",
+    "gulp-typedoc": "2.0.1",
+    "gulp-typescript": "3.1.3",
+    "istanbul": "0.4.5",
+    "mocha": "3.2.0",
+    "remap-istanbul": "0.7.0",
+    "semantic-release": "^6.3.2",
+    "sinon": "1.17.6",
+    "tslint": "4.0.2",
+    "typedoc": "0.5.1",
+    "typescript": "2.0.10"
+  },
+  "czConfig": {
+    "path": "node_modules/cz-conventional-changelog"
+  },
+  "publishConfig": {
+    "tag": "next"
+  }
+}
