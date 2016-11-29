@@ -1,3 +1,4 @@
 node_modules
 coverage
 documentation
+npm-debug.log
