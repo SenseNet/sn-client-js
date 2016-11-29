@@ -2,6 +2,7 @@ import * as Rx from '@reactivex/rxjs';
 import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import { ODataApi } from './ODataApi';
+import 'isomorphic-fetch';
 const { ajax } = Rx.Observable;
 
 /**
@@ -22,8 +23,7 @@ export module ODataApiActionObservables {
      */
     export const GetContent = (options: ODataApi.ODataRequestOptions) => {
         let Observable = Rx.Observable;
-        let jqueryXhr: JQueryXHR = $.getJSON(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
-        let promise: Promise<any> = Promise.resolve(jqueryXhr);
+        let promise: Promise<any> = fetch(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     }
@@ -136,12 +136,7 @@ export module ODataApiActionObservables {
         if (creation) {
             url = `${url}?create=1`;
         }
-        let jqueryXhr: JQueryXHR =
-            $.post(
-                url,
-                JSON.stringify(data)
-            );
-        let promise: Promise<any> = Promise.resolve(jqueryXhr);
+        let promise: Promise<any> = fetch(url, JSON.stringify(data));
         let source = Observable.fromPromise(promise);
         return source;
     }

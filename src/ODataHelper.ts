@@ -1,4 +1,3 @@
-import * as $ from 'jquery';
 /**
  * Module with helper methods related to OData requests.
  */

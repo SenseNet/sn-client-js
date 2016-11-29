@@ -1,14 +1,14 @@
 "use strict";
 const Rx = require('@reactivex/rxjs');
 const ODataHelper_1 = require('./ODataHelper');
+require('isomorphic-fetch');
 const { ajax } = Rx.Observable;
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {
     const ROOT_URL = 'https://daily.demo.sensenet.com/OData.svc';
     ODataApiActionObservables.GetContent = (options) => {
         let Observable = Rx.Observable;
-        let jqueryXhr = $.getJSON(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
-        let promise = Promise.resolve(jqueryXhr);
+        let promise = fetch(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     };
@@ -62,8 +62,7 @@ var ODataApiActionObservables;
         if (creation) {
             url = `${url}?create=1`;
         }
-        let jqueryXhr = $.post(url, JSON.stringify(data));
-        let promise = Promise.resolve(jqueryXhr);
+        let promise = fetch(url, JSON.stringify(data));
         let source = Observable.fromPromise(promise);
         return source;
     };
