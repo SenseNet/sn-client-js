@@ -62,5 +62,6 @@
   },
   "publishConfig": {
     "tag": "next"
-  }
+  },
+  "typings": "./src/SN.d.ts"
 }

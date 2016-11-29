@@ -39,7 +39,8 @@ gulp.task('build:clean', function () {
 gulp.task('build', ['build:clean'], function () {
     return gulp.src([
         './src/**/*.ts',
-        './test/**/*.ts'
+        './test/**/*.ts',
+        '!./src/SN.d.ts'
     ], { base: '.' })
         .pipe(sourcemaps.init())
         .pipe(tsProject())
@@ -76,7 +77,7 @@ function remapCoverageFiles() {
 
 gulp.task("typedoc", function () {
     return gulp
-        .src(["src/*.ts", "!src/SN.ts"])
+        .src(["src/*.ts", "!src/SN.ts",'!./src/SN.d.ts'])
         .pipe(typedoc({
             module: "commonjs",
             target: "es2015",
