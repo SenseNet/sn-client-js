@@ -9,7 +9,7 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-This component lets you work with the SenseNet ECM Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
+This component lets you work with the [SenseNet ECM](https://github.com/SenseNet) Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
 operations.
 
 This library connects to a SenseNet portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of 
@@ -18,13 +18,50 @@ having to construct ajax requests yourself.
 It also provides you the full SenseNet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
 so that you can manage Content easy on client-side knowing the related fields and their settings.
 
-### Installation
+### Installation on an existing Sense/Net portal
+
+Get the latest stable version with npm
+
+```
+npm install --save sn-client-js
+```
+
+or from the [GitHub repository](https://github.com/SenseNet/sn-client-js) and place the downloaded source into your project. If you want to use only the transpiled JavaScript
+modules, you can find them in the dist/src folder and import them like
+
+```
+var SN = require('/pathtomodule/sn-client-js');
+```
+
+If you want to use the module types you can find them in the src folder. Import them the following way:
+
+```
+import * as SN from 'sn-client-js';
+
+SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+```
+
+### Installation into an external app with node and npm
 
 To install the latest stable version
 
 ```
 npm install --save sn-client-js
 ```
+
+Check the ```properties.json``` file in your app's root and change to url to the url of your Sense/Net ECM instance:
+
+```
+{
+    "sensenet": {
+        "url": "https://mysite.com"
+    }
+}
+```
+
+So that you can set the url of your Sense/Net portal that you want to communicate with. To enable your external app to send request against your Sense/Net portal change
+your ```Portal.settings```. For further information about cross-origin resource sharing in Sense/Net check [this](http://wiki.sensenet.com/Cross-origin_resource_sharing#Origin_check)
+article.
 
 ### Import
 

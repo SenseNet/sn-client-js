@@ -4,16 +4,22 @@ import { Content } from './Content';
 import { ODataApi } from './ODataApi';
 import 'isomorphic-fetch';
 const { ajax } = Rx.Observable;
+import {Value, Properties} from 'ts-json-properties';
 
 /**
  * This module contains methods for sending requests and getting responses from the Content Repository through OData REST API. 
  * 
  * Following methods return Rxjs ActionObservables which are made from the ajax requests' promises. 
  */
-//TODO: leírni a module-t
+
 
 export module ODataApiActionObservables {
-    const ROOT_URL = 'https://daily.demo.sensenet.com/OData.svc';
+    const sensenetConfig = Properties.getValue('sensenet');
+    const config = Object.assign(sensenetConfig);
+    let ROOT_URL = '/';
+    if(typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined'){
+        ROOT_URL = config.url;
+    }
     /**
      * Method to get a Content from the Content Repository through OData REST API.
      * 

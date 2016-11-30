@@ -2,9 +2,15 @@
 const ODataHelper_1 = require('./ODataHelper');
 require('isomorphic-fetch');
 const Rx = require('@reactivex/rxjs');
+const ts_json_properties_1 = require('ts-json-properties');
 var ODataApi;
 (function (ODataApi) {
-    const ROOT_URL = 'https://daily.demo.sensenet.com/OData.svc';
+    const sensenetConfig = ts_json_properties_1.Properties.getValue('sensenet');
+    const config = Object.assign(sensenetConfig);
+    let ROOT_URL = '/';
+    if (typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined') {
+        ROOT_URL = config.url;
+    }
     ODataApi.GetContent = (options) => {
         let Observable = Rx.Observable;
         let promise = fetch(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);

@@ -2,6 +2,7 @@ import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import 'isomorphic-fetch';
 import * as Rx from '@reactivex/rxjs';
+import {Value, Properties} from 'ts-json-properties';
 
 /**
  * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API. 
@@ -10,8 +11,13 @@ import * as Rx from '@reactivex/rxjs';
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
 export module ODataApi {
-    //TODO: vhová kitenni
-    const ROOT_URL = 'https://daily.demo.sensenet.com/OData.svc';
+    
+    const sensenetConfig = Properties.getValue('sensenet');
+    const config = Object.assign(sensenetConfig);
+    let ROOT_URL = '/';
+    if(typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined'){
+        ROOT_URL = config.url;
+    }
     /**
      * Method to get a Content from the Content Repository through OData REST API.
      * 

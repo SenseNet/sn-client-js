@@ -38,5 +38,10 @@ var Resources_1 = require('./Resources');
 exports.Resources = Resources_1.Resources;
 var Security_1 = require('./Security');
 exports.Security = Security_1.Security;
+const ts_json_properties_1 = require('ts-json-properties');
+const appRoot = require('app-root-path');
+ts_json_properties_1.Properties.initialize();
+const rootPath = appRoot.path;
+ts_json_properties_1.Properties.initialize(appRoot.path + '/properties.json');
 
 //# sourceMappingURL=SN.js.map

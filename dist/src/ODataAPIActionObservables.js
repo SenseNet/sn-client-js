@@ -3,9 +3,15 @@ const Rx = require('@reactivex/rxjs');
 const ODataHelper_1 = require('./ODataHelper');
 require('isomorphic-fetch');
 const { ajax } = Rx.Observable;
+const ts_json_properties_1 = require('ts-json-properties');
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {
-    const ROOT_URL = 'https://daily.demo.sensenet.com/OData.svc';
+    const sensenetConfig = ts_json_properties_1.Properties.getValue('sensenet');
+    const config = Object.assign(sensenetConfig);
+    let ROOT_URL = '/';
+    if (typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined') {
+        ROOT_URL = config.url;
+    }
     ODataApiActionObservables.GetContent = (options) => {
         let Observable = Rx.Observable;
         let promise = fetch(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);

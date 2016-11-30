@@ -23,3 +23,10 @@ export { ODataApiActionObservables } from './ODataApiActionObservables';
 export { ODataApi } from './ODataApi';
 export { Resources } from './Resources';
 export { Security } from './Security';
+
+import {Properties} from 'ts-json-properties';
+import * as appRoot from 'app-root-path';
+
+Properties.initialize();
+const rootPath = appRoot.path;
+Properties.initialize(appRoot.path + '/properties.json');

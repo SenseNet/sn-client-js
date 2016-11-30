@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
-    "report-coverage":"cat ./coverage/lcov.info | codecov",
+    "report-coverage": "cat ./coverage/lcov.info | codecov",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
@@ -28,12 +28,15 @@
   "homepage": "https://sensenet.com",
   "dependencies": {
     "@reactivex/rxjs": "5.0.0-rc.4",
+    "app-root-path": "2.0.1",
     "isomorphic-fetch": "2.2.1"
   },
   "devDependencies": {
+    "@types/app-root-path": "1.2.4",
     "@types/chai": "3.4.34",
     "@types/isomorphic-fetch": "0.0.31",
     "@types/mocha": "2.2.33",
+    "@types/node": "0.0.1",
     "@types/orchestrator": "0.0.30",
     "@types/sinon": "1.16.32",
     "chai": "3.5.0",
