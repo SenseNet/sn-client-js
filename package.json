@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "1.0.2",
+  "version": "1.0.2-beta.1",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
   "scripts": {
@@ -66,9 +66,6 @@
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"
-  },
-  "publishConfig": {
-    "tag": "next"
   },
   "typings": "./src/SN.d.ts"
 }
