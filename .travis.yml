@@ -12,6 +12,7 @@ before_script:
   - npm prune
 before_script:
   - npm install -g gulp
+  - npm install --save-dev gulp
 script: gulp
 after_success:
   - npm run report-coverage
