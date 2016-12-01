@@ -8,11 +8,10 @@ node_js:
   - '7'
   - '6'
   - '4'
-before_install:
-  - npm i -g npm@^2.0.0
 before_script:
-  - npm prune
+  - npm install -g gulp
 script: 
+  - gulp test
   - gulp test:cover
 after_success:
   - npm run report-coverage
