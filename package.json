@@ -6,7 +6,7 @@
   "scripts": {
     "gulp": "gulp",
     "commit": "git-cz",
-    "test": "istanbul cover _mocha -- -R spec dist/test/CollectionTests.js",
+    "test": "istanbul cover _mocha -- -R spec dist/test/*Tests.js",
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "semantic-release": "semantic-release pre && semantic-release post"
