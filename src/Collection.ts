@@ -282,7 +282,7 @@ export class Collection<T> {
     public Copy(arg: any, targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
             let content = this.items[arg];
-            let action = new ODataApi.CustomAction({ name: 'MoCopyve', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            let action = new ODataApi.CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return ODataApi.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {

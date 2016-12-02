@@ -65,10 +65,10 @@ var ODataApi;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
-            path = `${ROOT_URL}${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
+            path = `${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
         }
         else {
-            path = `${ROOT_URL}${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
+            path = `${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`;
@@ -83,11 +83,11 @@ var ODataApi;
         }
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            promise = fetch(`${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`);
+            promise = fetch(`${ROOT_URL}${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`);
         }
         else {
             promise =
-                fetch(`${path}`, {
+                fetch(`${ROOT_URL}${path}`, {
                     method: 'POST',
                     body: body
                 });
@@ -97,7 +97,7 @@ var ODataApi;
     };
     ODataApi.Upload = (path, data, creation) => {
         let Observable = Rx.Observable;
-        let url = `${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
+        let url = `${ROOT_URL}${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;
         }

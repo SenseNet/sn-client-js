@@ -82,7 +82,7 @@ describe('Collection', () => {
   describe('#AllowedChildTypes()', () => {
     it("should return an observable", function () {
       collection['Path'] = '/workspaces/project';
-      expect(typeof collection.AllowedChildTypes({select: 'Name'})).to.be.eq('object');
+      expect(typeof collection.AllowedChildTypes({ select: 'Name' })).to.be.eq('object');
     });
   });
   describe('#Upload()', () => {

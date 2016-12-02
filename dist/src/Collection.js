@@ -89,7 +89,7 @@ class Collection {
     Copy(arg, targetPath) {
         if (typeof arg === 'number') {
             let content = this.items[arg];
-            let action = new ODataApi_1.ODataApi.CustomAction({ name: 'MoCopyve', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            let action = new ODataApi_1.ODataApi.CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return ODataApi_1.ODataApi.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
