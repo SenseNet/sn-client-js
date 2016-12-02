@@ -1,13 +1,13 @@
 # sn-client-js
 
-[![Gitter chat](https://img.shields.io/gitter/room/SenseNet/SN7ClientAPI.svg)](https://gitter.im/SenseNet/SN7ClientAPI)
-[![Build status](https://img.shields.io/travis/SenseNet/sn-client-js.svg)](https://travis-ci.org/SenseNet/sn-client-js)
-[![Coverage](https://img.shields.io/codecov/c/github/SenseNet/sn-client-js.svg)](https://codecov.io/gh/SenseNet/sn-client-js)
-[![NPM version](https://img.shields.io/npm/v/sn-client-js.svg)](https://www.npmjs.com/package/sn-client-js)
-[![Downloads](https://img.shields.io/github/downloads/SenseNet/sn-client-js/total.svg)](https://github.com/SenseNet/sn-client-js)
-[![License](https://img.shields.io/github/license/SenseNet/sn-client-js.svg)](https://github.com/SenseNet/sn-client-js/LICENSE.txt)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Gitter chat](https://img.shields.io/gitter/room/SenseNet/SN7ClientAPI.svg?style=flat)](https://gitter.im/SenseNet/SN7ClientAPI)
+[![Build status](https://img.shields.io/travis/SenseNet/sn-client-js.svg?style=flat)](https://travis-ci.org/SenseNet/sn-client-js)
+[![Coverage](https://img.shields.io/codecov/c/github/SenseNet/sn-client-js.svg?style=flat)](https://codecov.io/gh/SenseNet/sn-client-js)
+[![NPM version](https://img.shields.io/npm/v/sn-client-js.svg?style=flat)](https://www.npmjs.com/package/sn-client-js)
+[![NPM downloads](https://img.shields.io/npm/dt/sn-client-js.svg?style=flat)](https://www.npmjs.com/package/sn-client-js)
+[![License](https://img.shields.io/github/license/SenseNet/sn-client-js.svg?style=flat)](https://github.com/SenseNet/sn-client-js/LICENSE.txt)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat)](https://github.com/semantic-release/semantic-release)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat)](http://commitizen.github.io/cz-cli/)
 
 This component lets you work with the [SenseNet ECM](https://github.com/SenseNet) Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
 operations.
