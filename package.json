@@ -4,8 +4,8 @@
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
   "scripts": {
-    "gulp": "gulp",
     "commit": "git-cz",
+    "gulp": "gulp",
     "test": "istanbul cover _mocha -- -R spec dist/test/*Tests.js",
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",

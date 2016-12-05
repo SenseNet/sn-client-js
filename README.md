@@ -142,7 +142,7 @@ let schema = SN.Content.GetSchema('GenericContent');
  
 ```ts
 let collection = new SN.Collection([]);
-var options = new SN.ODataAPI.ODataParams({ 
+var options = new SN.ODataApi.ODataParams({ 
 	select: ["DisplayName", "Lead"], 
 	orderby: 'DisplayName', 
 	metadata: 'no' });
