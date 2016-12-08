@@ -99,7 +99,7 @@ class Content {
     }
     CheckIn(checkInComments) {
         let action;
-        (typeof checkInComments !== '') ?
+        (typeof checkInComments !== 'undefined') ?
             action = new ODataApi_1.ODataApi.CustomAction({ name: 'CheckIn', id: this.Id, isAction: true, params: ['checkInComments'] }) :
             action = new ODataApi_1.ODataApi.CustomAction({ name: 'CheckIn', id: this.Id, isAction: true });
         return ODataApi_1.ODataApi.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
@@ -190,7 +190,7 @@ class Content {
         }
         else {
             action = new ODataApi_1.ODataApi.CustomAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] });
-            return ODataApi_1.ODataApi.CreateCustomAction(action, { data: { 'entryList': arg } });
+            return ODataApi_1.ODataApi.CreateCustomAction(action, { data: { 'inheritance': arg } });
         }
     }
     ;

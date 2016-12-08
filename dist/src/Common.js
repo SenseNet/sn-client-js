@@ -16,5 +16,8 @@ exports.GetAllContentTypes = () => {
     let action = new ODataApi_1.ODataApi.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
     return ODataApi_1.ODataApi.CreateCustomAction(action);
 };
+exports.SetSiteUrl = (url = '/') => {
+    window['siteUrl'] = url;
+};
 
 //# sourceMappingURL=Common.js.map

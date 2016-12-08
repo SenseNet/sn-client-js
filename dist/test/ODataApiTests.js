@@ -4,6 +4,10 @@ const Content_1 = require('../src/Content');
 const Chai = require('chai');
 const expect = Chai.expect;
 describe('ODataApi', () => {
+    let window = {};
+    beforeEach(() => {
+        window['siteUrl'] = "https://daily.demo.sensenet.com";
+    });
     it("request a Content and returns an Observable object", function () {
         const options = new ODataApi_1.ODataApi.ODataRequestOptions({ path: '/workspace/project' });
         expect(typeof ODataApi_1.ODataApi.GetContent(options)).to.be.eq('object');

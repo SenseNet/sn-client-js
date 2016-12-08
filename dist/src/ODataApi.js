@@ -2,24 +2,18 @@
 const ODataHelper_1 = require('./ODataHelper');
 require('isomorphic-fetch');
 const Rx = require('@reactivex/rxjs');
-const ts_json_properties_1 = require('ts-json-properties');
 var ODataApi;
 (function (ODataApi) {
-    const sensenetConfig = ts_json_properties_1.Properties.getValue('sensenet');
-    const config = Object.assign(sensenetConfig);
-    let ROOT_URL = '/';
-    if (typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined') {
-        ROOT_URL = config.url;
-    }
+    ODataApi.ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc` : '/OData.svc';
     ODataApi.GetContent = (options) => {
         let Observable = Rx.Observable;
-        let promise = fetch(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
+        let promise = fetch(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     };
     ODataApi.FetchContent = (options) => {
         let Observable = Rx.Observable;
-        let promise = fetch(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
+        let promise = fetch(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     };
@@ -31,19 +25,19 @@ var ODataApi;
             }
         }
         let Observable = Rx.Observable;
-        let promise = fetch(`${ROOT_URL}${path}`, ODataHelper_1.ODataHelper.buildRequestBody(contentItem));
+        let promise = fetch(`${ODataApi.ROOT_URL()}${path}`, ODataHelper_1.ODataHelper.buildRequestBody(contentItem));
         let source = Observable.fromPromise(promise);
         return source;
     };
     ODataApi.DeleteContent = (id, permanent) => {
         let Observable = Rx.Observable;
-        let promise = fetch(`${ROOT_URL}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}/Delete`, JSON.stringify({ permanent: permanent }));
+        let promise = fetch(`${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}/Delete`, JSON.stringify({ permanent: permanent }));
         let source = Observable.fromPromise(promise);
         return source;
     };
     ODataApi.PatchContent = (id, fields) => {
         let Observable = Rx.Observable;
-        let promise = fetch(`${ROOT_URL}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}`, {
+        let promise = fetch(`${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}`, {
             method: 'PATCH',
             body: `models=[${JSON.stringify(fields)}]`
         });
@@ -52,7 +46,7 @@ var ODataApi;
     };
     ODataApi.PutContent = (id, fields) => {
         let Observable = Rx.Observable;
-        let promise = fetch(`${ROOT_URL}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}`, {
+        let promise = fetch(`${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}`, {
             method: 'PUT',
             body: `models=[${JSON.stringify(fields)}]`
         });
@@ -83,11 +77,11 @@ var ODataApi;
         }
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            promise = fetch(`${ROOT_URL}${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`);
+            promise = fetch(`${ODataApi.ROOT_URL()}${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`);
         }
         else {
             promise =
-                fetch(`${ROOT_URL}${path}`, {
+                fetch(`${ODataApi.ROOT_URL()}${path}`, {
                     method: 'POST',
                     body: body
                 });
@@ -97,7 +91,7 @@ var ODataApi;
     };
     ODataApi.Upload = (path, data, creation) => {
         let Observable = Rx.Observable;
-        let url = `${ROOT_URL}${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
+        let url = `${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;
         }
@@ -111,12 +105,12 @@ var ODataApi;
     class ODataRequestOptions {
         constructor(options) {
             this.params = options.params || [];
-            this.path = `${ROOT_URL}${options.path}`;
+            this.path = `${options.path}`;
             this.async = options.async || true;
             this.type = options.type || 'GET';
-            this.success = options.success || function (response) { return response; };
-            this.error = options.error || function (xhr) { return xhr; };
-            this.complete = options.complete || function () { return 'done'; };
+            this.success = options.success;
+            this.error = options.error;
+            this.complete = options.complete;
         }
     }
     ODataApi.ODataRequestOptions = ODataRequestOptions;

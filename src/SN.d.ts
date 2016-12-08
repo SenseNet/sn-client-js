@@ -17,7 +17,7 @@ export { Schemas } from './Schema';
 export { Content } from './Content';
 export { ContentTypes } from './ContentTypes';
 export { Collection } from './Collection';
-export { Login, Logout, GetVersionInfo, GetAllContentTypes } from './Common';
+export { Login, Logout, GetVersionInfo, GetAllContentTypes, SetSiteUrl } from './Common';
 export { ODataHelper } from './ODataHelper';
 export { ODataApiActionObservables } from './ODataApiActionObservables';
 export { ODataApi } from './ODataApi';

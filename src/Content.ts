@@ -405,7 +405,7 @@ export class Content {
     */
     CheckIn(checkInComments?: string): Observable<any> {
         let action;
-        (typeof checkInComments !== '') ?
+        (typeof checkInComments !== 'undefined') ?
             action = new ODataApi.CustomAction({ name: 'CheckIn', id: this.Id, isAction: true, params: ['checkInComments'] }) :
             action = new ODataApi.CustomAction({ name: 'CheckIn', id: this.Id, isAction: true });
         return ODataApi.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
@@ -804,7 +804,7 @@ export class Content {
         }
         else {
             action = new ODataApi.CustomAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] });
-            return ODataApi.CreateCustomAction(action, { data: { 'entryList': arg } });
+            return ODataApi.CreateCustomAction(action, { data: { 'inheritance': arg } });
         }
     };
     /**

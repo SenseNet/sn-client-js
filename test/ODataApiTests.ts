@@ -1,11 +1,17 @@
 ///<reference path="../node_modules/@types/mocha/index.d.ts"/>
 import { ODataApi } from '../src/ODataApi';
 import { Content } from '../src/Content';
+import { SetSiteUrl } from '../src/Common'
 import * as Chai from 'chai';
 import * as sinon from 'sinon';
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
+    
+    let window = {}
+    beforeEach(() => {
+        window['siteUrl'] = "https://daily.demo.sensenet.com";
+    })
     it("request a Content and returns an Observable object", function () {
         const options = new ODataApi.ODataRequestOptions({ path: '/workspace/project' })
         expect(typeof ODataApi.GetContent(options)).to.be.eq('object');

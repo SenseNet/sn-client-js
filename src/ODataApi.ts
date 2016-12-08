@@ -11,13 +11,7 @@ import {Value, Properties} from 'ts-json-properties';
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
 export module ODataApi {
-    
-    const sensenetConfig = Properties.getValue('sensenet');
-    const config = Object.assign(sensenetConfig);
-    let ROOT_URL = '/';
-    if(typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined'){
-        ROOT_URL = config.url;
-    }
+    export const ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc`: '/OData.svc';
     /**
      * Method to get a Content from the Content Repository through OData REST API.
      * 
@@ -27,7 +21,7 @@ export module ODataApi {
      */
     export let GetContent = (options: ODataRequestOptions) => {
         let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
+        let promise: Promise<any> = fetch(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     }
@@ -40,7 +34,7 @@ export module ODataApi {
      */
     export const FetchContent = (options: ODataRequestOptions) => {
         let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
+        let promise: Promise<any> = fetch(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     }
@@ -52,7 +46,7 @@ export module ODataApi {
             }
         }
         let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(`${ROOT_URL}${path}`, ODataHelper.buildRequestBody(contentItem));
+        let promise: Promise<any> = fetch(`${ROOT_URL()}${path}`, ODataHelper.buildRequestBody(contentItem));
         let source = Observable.fromPromise(promise);
         return source;
     }
@@ -67,7 +61,7 @@ export module ODataApi {
     export const DeleteContent = (id: number, permanent: boolean) => {
         let Observable = Rx.Observable;
         let promise: Promise<any> = fetch(
-            `${ROOT_URL}${ODataHelper.getContentUrlbyId(id)}/Delete`,
+            `${ROOT_URL()}${ODataHelper.getContentUrlbyId(id)}/Delete`,
             JSON.stringify({ permanent: permanent })
         );
         let source = Observable.fromPromise(promise);
@@ -84,7 +78,7 @@ export module ODataApi {
     export const PatchContent = (id: number, fields: Object) => {
         let Observable = Rx.Observable;
         let promise: Promise<any> = fetch(
-            `${ROOT_URL}${ODataHelper.getContentUrlbyId(id)}`,
+            `${ROOT_URL()}${ODataHelper.getContentUrlbyId(id)}`,
             {
                 method: 'PATCH',
                 body: `models=[${JSON.stringify(fields)}]`
@@ -104,7 +98,7 @@ export module ODataApi {
     export const PutContent = (id: number, fields: Object) => {
         let Observable = Rx.Observable;
         let promise: Promise<any> = fetch(
-            `${ROOT_URL}${ODataHelper.getContentUrlbyId(id)}`,
+            `${ROOT_URL()}${ODataHelper.getContentUrlbyId(id)}`,
             {
                 method: 'PUT',
                 body: `models=[${JSON.stringify(fields)}]`
@@ -147,11 +141,11 @@ export module ODataApi {
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            promise = fetch(`${ROOT_URL}${path}${ODataHelper.buildUrlParamString(action.params)}`);
+            promise = fetch(`${ROOT_URL()}${path}${ODataHelper.buildUrlParamString(action.params)}`);
         }
         else {
             promise =
-                fetch(`${ROOT_URL}${path}`, {
+                fetch(`${ROOT_URL()}${path}`, {
                     method: 'POST',
                     body: body
                 });
@@ -161,7 +155,7 @@ export module ODataApi {
     }
     export const Upload = (path: string, data: Object, creation: boolean) => {
         let Observable = Rx.Observable;
-        let url = `${ROOT_URL}${ODataHelper.getContentURLbyPath(path)}/Upload`;
+        let url = `${ROOT_URL()}${ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;
         }
@@ -184,12 +178,12 @@ export module ODataApi {
 
         constructor(options: IODataRequestOptions) {
             this.params = options.params || [];
-            this.path = `${ROOT_URL}${options.path}`; //${ODataHelper.buildUrlParamString(this.params)}
+            this.path = `${options.path}`;
             this.async = options.async || true;
             this.type = options.type || 'GET';
-            this.success = options.success || function (response) { return response };
-            this.error = options.error || function (xhr) { return xhr };
-            this.complete = options.complete || function () { return 'done' };
+            this.success = options.success;
+            this.error = options.error;
+            this.complete = options.complete;
         }
     }
 

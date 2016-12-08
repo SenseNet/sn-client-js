@@ -25,24 +25,30 @@ var ODataHelper;
             options.select = ['Id', 'Type'];
         }
         for (let key in options) {
-            if (ODATA_PARAMS.indexOf(key) > -1) {
-                params += `$${key}=`;
-                if (typeof options[key] === 'string') {
-                    params += options[key];
-                }
-                else {
-                    for (let x = 0; x < options[key].length; x++) {
-                        params += `${options[key][x]}`;
-                        if (x < options[key].length - 1) {
-                            params += `,`;
+            if (typeof options[key] !== 'undefined') {
+                if (ODATA_PARAMS.indexOf(key) > -1) {
+                    params += `$${key}=`;
+                    if (typeof options[key] === 'string') {
+                        params += options[key];
+                    }
+                    else if (typeof options[key] !== 'undefined') {
+                        for (let x = 0; x < options[key].length; x++) {
+                            if (typeof options[key] !== 'undefined') {
+                                params += `${options[key][x]}`;
+                                if (x < options[key].length - 1) {
+                                    params += `,`;
+                                }
+                            }
                         }
                     }
                 }
+                else {
+                    if (typeof options[key] !== 'undefined') {
+                        params += `${key}=${options[key]}`;
+                    }
+                }
+                params += `&`;
             }
-            else {
-                params += `${key}=${options[key]}`;
-            }
-            params += `&`;
         }
         if (typeof options.metadata === 'undefined') {
             params += 'metadata=no&';

@@ -3,44 +3,46 @@ const Rx = require('@reactivex/rxjs');
 const ODataHelper_1 = require('./ODataHelper');
 require('isomorphic-fetch');
 const { ajax } = Rx.Observable;
-const ts_json_properties_1 = require('ts-json-properties');
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {
-    const sensenetConfig = ts_json_properties_1.Properties.getValue('sensenet');
-    const config = Object.assign(sensenetConfig);
-    let ROOT_URL = '/';
-    if (typeof sensenetConfig !== 'undefined' && typeof sensenetConfig.url != 'undefined') {
-        ROOT_URL = config.url;
-    }
-    ODataApiActionObservables.GetContent = (options) => {
-        let Observable = Rx.Observable;
-        let promise = fetch(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
-        let source = Observable.fromPromise(promise);
-        return source;
-    };
-    ODataApiActionObservables.FetchContent = (path, params) => ajax.getJSON(`${path}${params}`);
-    ODataApiActionObservables.CreateContent = (path, content) => ajax.post(`${path}`, 'models=[" + JSON.stringify(content) + "]');
-    ODataApiActionObservables.DeleteContent = (id, permanently) => ajax.post(`${ROOT_URL}/content(${id})/Delete`, JSON.stringify({ 'permanent': permanently }));
+    ODataApiActionObservables.ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc` : '/OData.svc';
+    ODataApiActionObservables.crossDomainParam = () => (siteUrl === '/') ? false : true;
+    ODataApiActionObservables.GetContent = (options) => ajax({ url: `${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, crossDomain: ODataApiActionObservables.crossDomainParam(), method: 'GET' });
+    ODataApiActionObservables.FetchContent = (path, params) => ajax({ url: `${ODataApiActionObservables.ROOT_URL()}${path}${params}`, crossDomain: ODataApiActionObservables.crossDomainParam(), method: 'GET' });
+    ODataApiActionObservables.CreateContent = (path, content) => ajax({
+        url: `${ODataApiActionObservables.ROOT_URL()}${path}`,
+        method: 'POST',
+        crossDomain: ODataApiActionObservables.crossDomainParam(),
+        body: `models=[${JSON.stringify(content)}]`
+    });
+    ODataApiActionObservables.DeleteContent = (id, permanently = false) => ajax({
+        url: `${ODataApiActionObservables.ROOT_URL()}/content(${id})/Delete`,
+        method: 'POST',
+        crossDomain: ODataApiActionObservables.crossDomainParam(),
+        body: JSON.stringify({ 'permanent': permanently })
+    });
     ODataApiActionObservables.PatchContent = (id, fields) => ajax({
-        url: `${ROOT_URL}/content(${id})`,
+        url: `${ODataApiActionObservables.ROOT_URL()}/content(${id})`,
         method: 'PATCH',
         responseType: 'json',
-        body: 'models=[" + JSON.stringify(fields) + "]'
+        crossDomain: ODataApiActionObservables.crossDomainParam(),
+        body: `models=[${JSON.stringify(fields)}]`
     });
     ODataApiActionObservables.PutContent = (id, fields) => ajax({
-        url: `${ROOT_URL}/content(${id})`,
+        url: `${ODataApiActionObservables.ROOT_URL()}/content(${id})`,
         method: 'PUT',
         responseType: 'json',
-        body: 'models=[" + JSON.stringify(fields) + "]'
+        crossDomain: ODataApiActionObservables.crossDomainParam(),
+        body: `models=[${JSON.stringify(fields)}]`
     });
     ODataApiActionObservables.CreateCustomAction = (action, options) => {
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
-            path = `${ROOT_URL}${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
+            path = `${ODataApiActionObservables.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
         }
         else {
-            path = `${ROOT_URL}${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
+            path = `${ODataApiActionObservables.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`;
@@ -50,15 +52,25 @@ var ODataApiActionObservables;
             return ajax({
                 url: `${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`,
                 method: 'GET',
-                responseType: 'json'
+                responseType: 'json',
+                crossDomain: ODataApiActionObservables.crossDomainParam(),
             });
         }
         else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                return ajax.post(`${path}`, JSON.stringify(options.data));
+                return ajax({
+                    url: `${path}`,
+                    method: 'POST',
+                    crossDomain: ODataApiActionObservables.crossDomainParam(),
+                    body: JSON.stringify(options.data)
+                });
             }
             else {
-                return ajax.post(`${path}`);
+                return ajax({
+                    url: `${path}`,
+                    method: 'POST',
+                    crossDomain: ODataApiActionObservables.crossDomainParam()
+                });
             }
         }
     };

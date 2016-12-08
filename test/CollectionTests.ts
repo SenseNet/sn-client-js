@@ -7,9 +7,12 @@ const expect = Chai.expect;
 describe('Collection', () => {
   let collection,
     children;
+    let window = {}
   beforeEach(function () {
     children = [{ Id: 1, }, { Id: 2, }];
     collection = new Collection(children);
+    collection.Path = 'https://daily.demo.sensenet.com/lorem'
+    window['siteUrl'] = "https://daily.demo.sensenet.com";
   });
   describe('#Items()', () => {
     it('should return an array', function () {
@@ -47,8 +50,19 @@ describe('Collection', () => {
   });
   describe('#Remove()', () => {
     it("should return an observable", function () {
+      expect(typeof collection.Remove(1)).to.be.eq('object');
+    });
+  });
+  describe('#Remove()', () => {
+    it("should return an observable", function () {
       collection['Path'] = '/workspaces/project'
       expect(typeof collection.Remove([0, 1], true)).to.be.eq('object');
+    });
+  });
+  describe('#Remove()', () => {
+    it("should return an observable", function () {
+      collection['Path'] = '/workspaces/project'
+      expect(typeof collection.Remove([0, 1])).to.be.eq('object');
     });
   });
   describe('#Move()', () => {
@@ -86,15 +100,10 @@ describe('Collection', () => {
     });
   });
   describe('#Upload()', () => {
-    it("should return an observable", function () {
-      collection['Path'] = '/workspaces/project';
-      expect(typeof collection.Upload('File', 'filename', 'overwrite', true, 'Binary')).to.be.eq('object');
+    let c = new Collection(children);
+    c.Path = 'https://daily.demo.sensenet.com/lorem';
+        it('should return an Observable object', function () {
+            expect(typeof c.Upload('File', 'aaa.docx', true, true, 'Binary', 'test')).to.eq('object');
+        });
     });
-  });
-  describe('#Upload()', () => {
-    it("should return an observable", function () {
-      collection['Path'] = '/workspaces/project';
-      expect(typeof collection.Upload('File', 'filename', 'overwrite', true, 'Binary', 'test')).to.be.eq('object');
-    });
-  });
 });

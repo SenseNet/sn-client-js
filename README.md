@@ -49,14 +49,12 @@ To install the latest stable version
 npm install --save sn-client-js
 ```
 
-Check the ```properties.json``` file in your app's root and change to url to the url of your Sense/Net ECM instance:
+Set your Sense/Net portal's url with SetSiteUrl method
 
 ```
-{
-    "sensenet": {
-        "url": "https://mysite.com"
-    }
-}
+import { SetSiteUrl } from 'sn-client-js';
+
+SetSiteUrl('https://daily.demo.sensenet.com');
 ```
 
 So that you can set the url of your Sense/Net portal that you want to communicate with. To enable your external app to send request against your Sense/Net portal change
@@ -172,3 +170,8 @@ let deleteContent = myCollection.Remove(3);
 		complete: () => console.log('done'),
 	});
 ```
+
+### Related documents
+* [sn-client-js API reference](http://www.sensenet.com/documentation/sn-client-js/index.html)
+* [sn-redux API reference](http://www.sensenet.com/documentation/sn-redux/index.html)
+* [Todo App with React, Redux and Sense/Net ECM](http://www.sensenet.com/documentation/sn-react-todoapp/index.html)

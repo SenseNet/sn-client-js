@@ -1,6 +1,5 @@
 import { Observable } from '@reactivex/rxjs';
 import { ODataApi } from './ODataApi';
-
 /**
  * It is possible to send authentication requests using this action. You provide the username and password and will get the User object as the response if the login operation was 
  * successful or HTTP 403 Forbidden message if it wasn’t. If the username does not contain a domain prefix, the configured default domain will be used. After you logged in the user successfully, 
@@ -79,4 +78,8 @@ export const GetVersionInfo = (): Observable<any> => {
 export const GetAllContentTypes = (): Observable<any> => {
     let action = new ODataApi.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
     return ODataApi.CreateCustomAction(action);
+}
+
+export const SetSiteUrl = (url: string = '/') => {
+    window['siteUrl'] = url;
 }
