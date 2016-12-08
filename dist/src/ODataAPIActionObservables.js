@@ -5,8 +5,23 @@ require('isomorphic-fetch');
 const { ajax } = Rx.Observable;
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {
-    ODataApiActionObservables.ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc` : '/OData.svc';
-    ODataApiActionObservables.crossDomainParam = () => (siteUrl === '/') ? false : true;
+    ODataApiActionObservables.ROOT_URL = () => {
+        let a = '/';
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}/OData.svc`;
+        }
+        else {
+            return '/OData.svc';
+        }
+    };
+    ODataApiActionObservables.crossDomainParam = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
     ODataApiActionObservables.GetContent = (options) => ajax({ url: `${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, crossDomain: ODataApiActionObservables.crossDomainParam(), method: 'GET' });
     ODataApiActionObservables.FetchContent = (path, params) => ajax({ url: `${ODataApiActionObservables.ROOT_URL()}${path}${params}`, crossDomain: ODataApiActionObservables.crossDomainParam(), method: 'GET' });
     ODataApiActionObservables.CreateContent = (path, content) => ajax({

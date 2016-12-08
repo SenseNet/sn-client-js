@@ -97,13 +97,6 @@ describe('Collection', () => {
             expect(typeof collection.AllowedChildTypes({ select: 'Name' })).to.be.eq('object');
         });
     });
-    describe('#Upload()', () => {
-        let c = new Collection_1.Collection(children);
-        c.Path = 'https://daily.demo.sensenet.com/lorem';
-        it('should return an Observable object', function () {
-            expect(typeof c.Upload('File', 'aaa.docx', true, true, 'Binary', 'test')).to.eq('object');
-        });
-    });
 });
 
 //# sourceMappingURL=CollectionTests.js.map

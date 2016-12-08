@@ -13,8 +13,23 @@ import { Value, Properties } from 'ts-json-properties';
  */
 
 export module ODataApiActionObservables {
-    export const ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc` : '/OData.svc';
-    export const crossDomainParam = () => (siteUrl === '/') ? false : true;
+    export const ROOT_URL = () => {
+        let a = '/';
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}/OData.svc`;
+        }
+        else {
+            return '/OData.svc'
+        }
+    };
+    export const crossDomainParam = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     /**
      * Method to get a Content from the Content Repository through OData REST API.
      * 

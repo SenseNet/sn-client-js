@@ -2,7 +2,7 @@ import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import 'isomorphic-fetch';
 import * as Rx from '@reactivex/rxjs';
-import {Value, Properties} from 'ts-json-properties';
+import { Value, Properties } from 'ts-json-properties';
 
 /**
  * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API. 
@@ -11,7 +11,15 @@ import {Value, Properties} from 'ts-json-properties';
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
 export module ODataApi {
-    export const ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc`: '/OData.svc';
+    export const ROOT_URL = () => {
+        let a = '/';
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}/OData.svc`;
+        }
+        else {
+            return '/OData.svc'
+        }
+    };
     /**
      * Method to get a Content from the Content Repository through OData REST API.
      * 

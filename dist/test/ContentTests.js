@@ -454,12 +454,6 @@ describe('Content', () => {
             expect(typeof content.RemoveMembers([11, 22])).to.eq('object');
         });
     });
-    describe('#Upload()', () => {
-        let c = Content_1.Content.Create('Article', { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
-        it('should return an Observable object', function () {
-            expect(typeof c.Upload('File', 'aaa.docx', true, true, 'Binary', 'test')).to.eq('object');
-        });
-    });
 });
 
 //# sourceMappingURL=ContentTests.js.map

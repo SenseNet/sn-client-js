@@ -4,7 +4,15 @@ require('isomorphic-fetch');
 const Rx = require('@reactivex/rxjs');
 var ODataApi;
 (function (ODataApi) {
-    ODataApi.ROOT_URL = () => (typeof siteUrl !== 'undefined') ? `${siteUrl}/OData.svc` : '/OData.svc';
+    ODataApi.ROOT_URL = () => {
+        let a = '/';
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}/OData.svc`;
+        }
+        else {
+            return '/OData.svc';
+        }
+    };
     ODataApi.GetContent = (options) => {
         let Observable = Rx.Observable;
         let promise = fetch(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
