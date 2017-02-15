@@ -12,7 +12,7 @@ class Collection {
     }
     Item(id) {
         let item;
-        for (var i = 0; i < this.items.length; i++) {
+        for (let i = 0; i < this.items.length; i++) {
             if (this.items[i].Id === id) {
                 return this.items[i];
             }

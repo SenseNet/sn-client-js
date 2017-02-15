@@ -85,11 +85,11 @@ class Content {
         let optionList = this.deferredFunctionBuilder(this.Id, '', options ? options : null);
         return ODataApi_1.ODataApi.FetchContent(optionList);
     }
-    Versions(options) {
+    GetVersions(options) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Versions', options ? options : null);
         return ODataApi_1.ODataApi.GetContent(optionList);
     }
-    Workspace(options) {
+    GetWorkspace(options) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Workspace', options ? options : null);
         return ODataApi_1.ODataApi.GetContent(optionList);
     }

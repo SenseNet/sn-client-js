@@ -2,6 +2,7 @@ import { Observable } from '@reactivex/rxjs';
 import { ODataApi } from './ODataApi';
 import { ODataHelper } from './ODataHelper';
 import { Fields } from './Fields';
+import { Enums } from './Enums';
 import { FieldSettings } from './FieldSettings';
 import { Schemas } from './Schema';
 import { Security } from './Security';
@@ -55,8 +56,10 @@ export class Content {
     IsFolder?: boolean;
     Path?: string;
     Index?: number;
-    CreationDate?: string; //TODO
-    ModificationDate?: string; //TODO dátum
+    CreationDate?: Date;
+    ModificationDate?: Date;
+    Versions?: Fields.DeferredObject;
+    Workspace?: Fields.DeferredObject;
 
     /**
      * @constructs Content
@@ -333,7 +336,7 @@ export class Content {
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      * ```
-     * let versions = content.Versions();
+     * let versions = content.GetVersions();
      * versions.subscribe({
      *  next: response => {
      *      console.log(response);
@@ -343,7 +346,7 @@ export class Content {
      * });
      * ```
     */
-    Versions(options?: Object): Observable<any> {
+    GetVersions(options?: Object): Observable<any> {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Versions', options ? options : null);
         return ODataApi.GetContent(optionList);
     }
@@ -356,7 +359,7 @@ export class Content {
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      * ```
-     * let currentWorkspace = content.Workspace();
+     * let currentWorkspace = content.GetWorkspace();
      * currentWorkspace.subscribe({
      *  next: response => {
      *      console.log(response);
@@ -366,7 +369,7 @@ export class Content {
      * });
      * ```
     */
-    Workspace(options?: Object): Observable<any> {
+    GetWorkspace(options?: Object): Observable<any> {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Workspace', options ? options : null);
         return ODataApi.GetContent(optionList);
     }
@@ -892,7 +895,7 @@ export class Content {
     * });
     * ```
      */
-    SaveQuery(query: string, displayName: string, queryType: Fields.SavedQueryType): Observable<any> {
+    SaveQuery(query: string, displayName: string, queryType: Enums.QueryType): Observable<any> {
         let action = new ODataApi.CustomAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] });
         return ODataApi.CreateCustomAction(action, { data: { 'query': query, 'displayName': displayName ? displayName : '', queryType: queryType } });
     }
@@ -1337,7 +1340,7 @@ export class Content {
     private deferredFunctionBuilder(path: string, fieldName: string, options: Object);
     private deferredFunctionBuilder(arg, fieldName, options) {
         let contentURL;
-        if(typeof arg === 'string'){
+        if (typeof arg === 'string') {
             contentURL = ODataHelper.getContentURLbyPath(arg);
         }
         else {
@@ -1410,8 +1413,10 @@ export interface IContentOptions {
     Description?: string;
     Icon?: string;
     Index?: number;
-    CreationDate?: string;
-    ModificationDate?: string;
+    CreationDate?: Date;
+    ModificationDate?: Date;
     IsFolder?: boolean;
     Path?: string;
+    Versions?: Fields.DeferredObject;
+    Workspace?: Fields.DeferredObject;
 }
