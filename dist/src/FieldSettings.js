@@ -34,6 +34,17 @@ var FieldSettings;
         DateTimePrecision[DateTimePrecision["Day"] = 4] = "Day";
     })(FieldSettings.DateTimePrecision || (FieldSettings.DateTimePrecision = {}));
     var DateTimePrecision = FieldSettings.DateTimePrecision;
+    (function (TextType) {
+        TextType[TextType["LongText"] = 0] = "LongText";
+        TextType[TextType["RichText"] = 1] = "RichText";
+        TextType[TextType["AdvancedRichText"] = 2] = "AdvancedRichText";
+    })(FieldSettings.TextType || (FieldSettings.TextType = {}));
+    var TextType = FieldSettings.TextType;
+    (function (UrlFormat) {
+        UrlFormat[UrlFormat["Hyperlink"] = 0] = "Hyperlink";
+        UrlFormat[UrlFormat["Picture"] = 1] = "Picture";
+    })(FieldSettings.UrlFormat || (FieldSettings.UrlFormat = {}));
+    var UrlFormat = FieldSettings.UrlFormat;
     class FieldSetting {
         constructor(options) {
             this.Name = 'Content';
@@ -48,9 +59,27 @@ var FieldSettings;
             this.VisibleEdit = options.visibleEdit;
             this.VisibleNew = options.visibleNew;
             this.FieldIndex = options.fieldIndex;
+            this.DefaultOrder = options.defaultOrder;
+            this.ControlHint = options.controlHint;
         }
     }
     FieldSettings.FieldSetting = FieldSetting;
+    class IntegerFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+            this.MinValue = options.minValue;
+            this.MaxValue = options.maxValue;
+            this.ShowAsPercentage = options.showAsPercentage;
+            this.Step = options.step;
+        }
+    }
+    FieldSettings.IntegerFieldSetting = IntegerFieldSetting;
+    class NullFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+        }
+    }
+    FieldSettings.NullFieldSetting = NullFieldSetting;
     class TextFieldSetting extends FieldSetting {
         constructor(options) {
             super(options);
@@ -66,17 +95,15 @@ var FieldSettings;
         }
     }
     FieldSettings.ShortTextFieldSetting = ShortTextFieldSetting;
-    class NumberFieldSetting extends FieldSetting {
+    class LongTextFieldSetting extends TextFieldSetting {
         constructor(options) {
             super(options);
-            this.MinValue = options.minValue;
-            this.MaxValue = options.maxValue;
-            this.Digits = options.digits;
-            this.ShowAsPercentage = options.showAsPercentage;
-            this.Step = options.step;
+            this.Rows = options.rows;
+            this.TextType = options.textType;
+            this.AppendModifications = options.appendModifications;
         }
     }
-    FieldSettings.NumberFieldSetting = NumberFieldSetting;
+    FieldSettings.LongTextFieldSetting = LongTextFieldSetting;
     class BinaryFieldSetting extends FieldSetting {
         constructor(options) {
             super(options);
@@ -84,78 +111,6 @@ var FieldSettings;
         }
     }
     FieldSettings.BinaryFieldSetting = BinaryFieldSetting;
-    class BooleanFieldSetting extends FieldSetting {
-    }
-    FieldSettings.BooleanFieldSetting = BooleanFieldSetting;
-    class ChoiceFieldSetting extends ShortTextFieldSetting {
-        constructor(options) {
-            super(options);
-            this.AllowExtraValue = options.allowExtraValue;
-            this.AllowMultiple = options.allowMultiple;
-            this.DisplayChoice = options.displayChoice;
-            this.Options = options.options;
-        }
-    }
-    FieldSettings.ChoiceFieldSetting = ChoiceFieldSetting;
-    class ColorFieldSetting extends TextFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Palette = options.palette;
-        }
-    }
-    FieldSettings.ColorFieldSetting = ColorFieldSetting;
-    class CurrencyFieldSetting extends NumberFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Format = options.format;
-        }
-    }
-    FieldSettings.CurrencyFieldSetting = CurrencyFieldSetting;
-    class DateTimeFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-            this.DateTimeMode = options.dateTimeMode;
-            this.Precision = options.precision;
-        }
-    }
-    FieldSettings.DateTimeFieldSetting = DateTimeFieldSetting;
-    class HyperLinkFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-            this.Format = options.format;
-        }
-    }
-    FieldSettings.HyperLinkFieldSetting = HyperLinkFieldSetting;
-    class IntegerFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-            this.MinValue = options.minValue;
-            this.MaxValue = options.maxValue;
-            this.ShowAsPercentage = options.showAsPercentage;
-            this.Step = options.step;
-        }
-    }
-    FieldSettings.IntegerFieldSetting = IntegerFieldSetting;
-    class LongTextFieldSetting extends TextFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Rows = options.rows;
-            this.TextType = options.textType;
-        }
-    }
-    FieldSettings.LongTextFieldSetting = LongTextFieldSetting;
-    var TextType;
-    (function (TextType) {
-        TextType[TextType["LongText"] = 0] = "LongText";
-        TextType[TextType["RichText"] = 1] = "RichText";
-        TextType[TextType["AdvancedRichText"] = 2] = "AdvancedRichText";
-    })(TextType || (TextType = {}));
-    class PasswordFieldSetting extends ShortTextFieldSetting {
-        constructor(options) {
-            super(options);
-        }
-    }
-    FieldSettings.PasswordFieldSetting = PasswordFieldSetting;
     class ReferenceFieldSetting extends FieldSetting {
         constructor(options) {
             super(options);
@@ -167,6 +122,80 @@ var FieldSettings;
         }
     }
     FieldSettings.ReferenceFieldSetting = ReferenceFieldSetting;
+    class DateTimeFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+            this.DateTimeMode = options.dateTimeMode;
+            this.Precision = options.precision;
+        }
+    }
+    FieldSettings.DateTimeFieldSetting = DateTimeFieldSetting;
+    class ChoiceFieldSetting extends ShortTextFieldSetting {
+        constructor(options) {
+            super(options);
+            this.AllowExtraValue = options.allowExtraValue;
+            this.AllowMultiple = options.allowMultiple;
+            this.Options = options.options;
+            this.DisplayChoice = options.displayChoice;
+            this.EnumTypeName = options.enumTypeName;
+        }
+    }
+    FieldSettings.ChoiceFieldSetting = ChoiceFieldSetting;
+    class NumberFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+            this.MinValue = options.minValue;
+            this.MaxValue = options.maxValue;
+            this.Digits = options.digits;
+            this.ShowAsPercentage = options.showAsPercentage;
+            this.Step = options.step;
+        }
+    }
+    FieldSettings.NumberFieldSetting = NumberFieldSetting;
+    class RatingFieldSetting extends ShortTextFieldSetting {
+        constructor(options) {
+            super(options);
+            this.Range = options.range;
+            this.Split = options.split;
+        }
+    }
+    FieldSettings.RatingFieldSetting = RatingFieldSetting;
+    class CurrencyFieldSetting extends NumberFieldSetting {
+        constructor(options) {
+            super(options);
+            this.Format = options.format;
+        }
+    }
+    FieldSettings.CurrencyFieldSetting = CurrencyFieldSetting;
+    class ColorFieldSetting extends TextFieldSetting {
+        constructor(options) {
+            super(options);
+            this.Palette = options.palette;
+        }
+    }
+    FieldSettings.ColorFieldSetting = ColorFieldSetting;
+    class HyperLinkFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+            this.UrlFormat = options.urlFormat;
+        }
+    }
+    FieldSettings.HyperLinkFieldSetting = HyperLinkFieldSetting;
+    class PasswordFieldSetting extends ShortTextFieldSetting {
+        constructor(options) {
+            super(options);
+            this.ReenterTitle = options.reenterTitle;
+            this.ReenterDescription = options.reenterDescription;
+            this.PasswordHistoryLength = options.passwordHistoryLength;
+        }
+    }
+    FieldSettings.PasswordFieldSetting = PasswordFieldSetting;
+    class CaptchaFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+        }
+    }
+    FieldSettings.CaptchaFieldSetting = CaptchaFieldSetting;
 })(FieldSettings = exports.FieldSettings || (exports.FieldSettings = {}));
 
 //# sourceMappingURL=FieldSettings.js.map

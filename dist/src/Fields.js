@@ -1,6 +1,15 @@
 "use strict";
 var Fields;
 (function (Fields) {
+    class HyperLink {
+        constructor(href, text, title, target) {
+            this.Href = href;
+            this.Text = text;
+            this.Title = title;
+            this.Target = target;
+        }
+    }
+    Fields.HyperLink = HyperLink;
     class ChoiceOption {
         constructor(value, text, enabled, selected) {
             this.Value = value;
@@ -10,12 +19,18 @@ var Fields;
         }
     }
     Fields.ChoiceOption = ChoiceOption;
-    (function (SavedQueryType) {
-        SavedQueryType[SavedQueryType["Public"] = 0] = "Public";
-        SavedQueryType[SavedQueryType["Private"] = 1] = "Private";
-        SavedQueryType[SavedQueryType["NonDefined"] = 2] = "NonDefined";
-    })(Fields.SavedQueryType || (Fields.SavedQueryType = {}));
-    var SavedQueryType = Fields.SavedQueryType;
+    class DeferredUriObject {
+    }
+    Fields.DeferredUriObject = DeferredUriObject;
+    class DeferredObject extends Object {
+    }
+    Fields.DeferredObject = DeferredObject;
+    class MediaObject {
+    }
+    Fields.MediaObject = MediaObject;
+    class MediaResourceObject extends Object {
+    }
+    Fields.MediaResourceObject = MediaResourceObject;
 })(Fields = exports.Fields || (exports.Fields = {}));
 
 //# sourceMappingURL=Fields.js.map

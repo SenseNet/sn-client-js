@@ -14,9 +14,9 @@ describe("FieldSettings", () => {
             expect(fieldSetting.Name).to.be.eq('Shorttext');
         });
         it('should return null as the Icon of the FieldSetting object', function () {
-            var spy = sinon.spy(FieldSettings, 'FieldSetting');
-            var MyClass = FieldSettings.FieldSetting;
-            var inst = new MyClass({ name: 'ShortText' });
+            let spy = sinon.spy(FieldSettings, 'FieldSetting');
+            let MyClass = FieldSettings.FieldSetting;
+            let inst = new MyClass({ name: 'ShortText' });
             expect(spy.calledOnce).to.be.true;
             expect(spy.called).to.be.equal(true);
         });
@@ -52,9 +52,9 @@ describe("FieldSettings", () => {
             expect(obj1).to.be.eq(obj2);
         });
         it('should return null as the Icon of the TextFieldSetting object', function () {
-            var spy = sinon.spy(FieldSettings, 'TextFieldSetting');
-            var MyClass = FieldSettings.TextFieldSetting;
-            var inst = new MyClass({ name: 'ShortText' });
+            let spy = sinon.spy(FieldSettings, 'TextFieldSetting');
+            let MyClass = FieldSettings.TextFieldSetting;
+            let inst = new MyClass({ name: 'ShortText' });
             expect(spy.calledOnce).to.be.true;
         });
     });
@@ -86,6 +86,12 @@ describe("FieldSettings", () => {
         const currency = new FieldSettings.CurrencyFieldSetting('text');
         it('should return a Currency fieldSetting object', function () {
             expect(currency).to.be.an.instanceof(FieldSettings.CurrencyFieldSetting);
+        });
+    });
+    describe('#Captcha', function () {
+        const captcha = new FieldSettings.CaptchaFieldSetting({'displayName': 'Captcha'});
+        it('should return a Captcha fieldSetting object', function () {
+            expect(captcha).to.be.an.instanceof(FieldSettings.CaptchaFieldSetting);
         });
     });
 });
