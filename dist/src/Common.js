@@ -2,11 +2,11 @@
 const ODataApi_1 = require('./ODataApi');
 exports.Login = (username, password) => {
     let action = new ODataApi_1.ODataApi.CustomAction({ name: 'Login', path: '/Root', noCache: true, isAction: true, requiredParams: ['username', 'password'] });
-    return ODataApi_1.ODataApi.CreateCustomAction(action, { data: { 'username': username, 'password': password } });
+    return ODataApi_1.ODataApi.Login(action, { data: { 'username': username, 'password': password } });
 };
 exports.Logout = () => {
     let action = new ODataApi_1.ODataApi.CustomAction({ name: 'Logout', noCache: true, path: '/Root', isAction: true });
-    return ODataApi_1.ODataApi.CreateCustomAction(action);
+    return ODataApi_1.ODataApi.Logout(action);
 };
 exports.GetVersionInfo = () => {
     let action = new ODataApi_1.ODataApi.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });

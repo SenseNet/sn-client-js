@@ -22,7 +22,7 @@ import { ODataApi } from './ODataApi';
  */
 export const Login = (username: string, password: string): Observable<any> => {
     let action = new ODataApi.CustomAction({ name: 'Login', path: '/Root', noCache: true, isAction: true, requiredParams: ['username', 'password'] });
-    return ODataApi.CreateCustomAction(action, { data: { 'username': username , 'password': password } });
+    return ODataApi.Login(action, { data: { 'username': username , 'password': password } });
 }
 /**
  * Similarly to the Login action above, you can send a logout action to the portal.
@@ -40,7 +40,7 @@ export const Login = (username: string, password: string): Observable<any> => {
  */
 export const Logout = (): Observable<any> => {
     let action = new ODataApi.CustomAction({ name: 'Logout', noCache: true, path: '/Root', isAction: true });
-    return ODataApi.CreateCustomAction(action);
+    return ODataApi.Logout(action);
 }
 /**
  * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the 
