@@ -5,13 +5,20 @@ require('isomorphic-fetch');
 const { ajax } = Rx.Observable;
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {
-    ODataApiActionObservables.ROOT_URL = () => {
-        let a = '/';
-        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
-            return `${window['siteUrl']}/OData.svc`;
+    ODataApiActionObservables.ODATA_SERVICE_TOKEN = () => {
+        if (typeof window !== 'undefined' && typeof window['serviceToken'] !== 'undefined') {
+            return `${window['serviceToken']}`;
         }
         else {
             return '/OData.svc';
+        }
+    };
+    ODataApiActionObservables.ROOT_URL = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}${ODataApiActionObservables.ODATA_SERVICE_TOKEN()}`;
+        }
+        else {
+            return ODataApiActionObservables.ODATA_SERVICE_TOKEN();
         }
     };
     ODataApiActionObservables.crossDomainParam = () => {
@@ -62,6 +69,11 @@ var ODataApiActionObservables;
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`;
         }
+        if (path.indexOf('OData.svc(') > -1) {
+            const start = path.indexOf('(');
+            path = path.slice(0, start) + '/' + path.slice(start);
+            console.log(path);
+        }
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
         if (typeof action.isAction === 'undefined' || !action.isAction) {
             return ajax({
@@ -87,6 +99,53 @@ var ODataApiActionObservables;
                     crossDomain: ODataApiActionObservables.crossDomainParam()
                 });
             }
+        }
+    };
+    ODataApiActionObservables.Login = (action, options) => {
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let rootUrl = ODataApiActionObservables.ROOT_URL();
+        let path = `${rootUrl}/('Root')/Login`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`;
+        }
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApiActionObservables.crossDomainParam(),
+                body: JSON.stringify(options.data)
+            });
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApiActionObservables.crossDomainParam()
+            });
+        }
+    };
+    ODataApiActionObservables.Logout = (action, options) => {
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let path = `${ODataApiActionObservables.ROOT_URL()}/('Root')/Logout`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`;
+        }
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApiActionObservables.crossDomainParam(),
+                body: JSON.stringify(options.data)
+            });
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApiActionObservables.crossDomainParam()
+            });
         }
     };
     ODataApiActionObservables.Upload = (path, data, creation) => {

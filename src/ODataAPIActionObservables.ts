@@ -13,13 +13,25 @@ import { Value, Properties } from 'ts-json-properties';
  */
 
 export module ODataApiActionObservables {
-    export const ROOT_URL = () => {
-        let a = '/';
-        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
-            return `${window['siteUrl']}/OData.svc`;
+    /**
+     * Constant to hold the service token. By default it is OData.svc but before you start developing with sn-client-js check the related config in your Sense/Net portal's
+     * web.config. If there's no ```ODataServiceToken``` config it fallbcks to the default so you also have to use the default 'OData.svc' in your TypeScript or JavaScript code.
+     * If it has a value in the web.config use the same value as your service token on client-side.
+     */
+    export const ODATA_SERVICE_TOKEN = () => {
+        if (typeof window !== 'undefined' && typeof window['serviceToken'] !== 'undefined') {
+            return `${window['serviceToken']}`;
         }
         else {
-            return '/OData.svc'
+            return '/OData.svc';
+        }
+    };
+    export const ROOT_URL = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}${ODATA_SERVICE_TOKEN()}`;
+        }
+        else {
+            return ODATA_SERVICE_TOKEN();
         }
     };
     export const crossDomainParam = () => {
@@ -47,7 +59,7 @@ export module ODataApiActionObservables {
      * @returns {ActionObservable} Returns an ActionObservable.
      */
     export const FetchContent = (path: string, params: string) => ajax({ url: `${ROOT_URL()}${path}${params}`, crossDomain: crossDomainParam(), method: 'GET' });
-    //TODO: id-val is menjen a create
+    // TODO: id-val is menjen a create
     /**
      * Method to create a Content as a children of a given parent Content in the Content Repository through OData REST API.
      * 
@@ -109,7 +121,7 @@ export module ODataApiActionObservables {
             crossDomain: crossDomainParam(),
             body: `models=[${JSON.stringify(fields)}]`
         })
-    //TODO: custom action
+    // TODO: custom action
     /**
      * Creates a wrapper function for a callable custom OData action.
      * 
@@ -131,9 +143,11 @@ export module ODataApiActionObservables {
             path = `${path}?${cacheParam}`
         }
 
-        // for (let option in options.data) {
-        //     action.params[option] = options.data[option];
-        // }
+        if (path.indexOf('OData.svc(') > -1) {
+            const start = path.indexOf('(');
+            path = path.slice(0, start) + '/' + path.slice(start);
+            console.log(path);
+        }
 
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
 
@@ -163,6 +177,59 @@ export module ODataApiActionObservables {
             }
         }
     }
+    export const Login = (action: ODataApi.CustomAction, options?: ODataApi.IODataParams) => {
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let rootUrl = ROOT_URL();
+        let path = `${rootUrl}/('Root')/Login`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`
+        }
+
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam(),
+                body: JSON.stringify(options.data)
+            });
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam()
+            });
+        }
+    }
+
+    export const Logout = (action: ODataApi.CustomAction, options?: ODataApi.IODataParams) => {
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let path = `${ROOT_URL()}/('Root')/Logout`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`
+        }
+
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam(),
+                body: JSON.stringify(options.data)
+            });
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam()
+            });
+        }
+    }
+
     export const Upload = (path: string, data: Object, creation: boolean) => {
         let Observable = Rx.Observable;
         let url = `${ODataHelper.getContentURLbyPath(path)}/Upload`;

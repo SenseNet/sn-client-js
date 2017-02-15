@@ -2,7 +2,7 @@
  * Module with helper methods related to OData requests.
  */
 export module ODataHelper {
-    //TODO: ezeket vhova kivezetni
+    // TODO: ezeket vhova kivezetni
     const ODATA_PARAMS = ['select', 'expand', 'orderby', 'top', 'skip', 'filter', 'format', 'inlinecount'];
     export const DATA_ROOT = 'OData.svc';
 

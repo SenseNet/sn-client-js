@@ -1,17 +1,17 @@
 ///<reference path="../node_modules/@types/mocha/index.d.ts"/>
 import { ODataApi } from '../src/ODataApi';
 import { Content } from '../src/Content';
-import { SetSiteUrl } from '../src/Common'
+import { SetSiteUrl, SetServiceToken } from '../src/Common'
 import * as Chai from 'chai';
 import * as sinon from 'sinon';
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
-    
     let window = {}
     beforeEach(() => {
+        window['serviceToken'] = 'OData.svc';
         window['siteUrl'] = "https://daily.demo.sensenet.com";
-    })
+    });
     it("request a Content and returns an Observable object", function () {
         const options = new ODataApi.ODataRequestOptions({ path: '/workspace/project' })
         expect(typeof ODataApi.GetContent(options)).to.be.eq('object');
@@ -50,7 +50,7 @@ describe('ODataApi', () => {
         expect(typeof ODataApi.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
     });
     it("requests to create a custom function (getpermissions) by id, sends a request and returns an Observable object", function () {
-        let action = new ODataApi.CustomAction({ name: 'GetPermission', id: 111,  isAction: false, params: ['identity'] });
+        let action = new ODataApi.CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
         expect(typeof ODataApi.CreateCustomAction(action, { data: { 'identity': '/Root/Sites/Default_Site/workspaces/Project/budapestprojectworkspace/Groups/Members' } })).to.be.eq('object');
     });
     it("requests to upload a Content and returns an Observable object", function () {
@@ -59,8 +59,54 @@ describe('ODataApi', () => {
     it("requests to upload a Content and returns an Observable object", function () {
         expect(typeof ODataApi.Upload('/workspaces/Project', {}, true)).to.be.eq('object');
     });
+    it("requests to login a user and returns an Observable object", function () {
+        const action = new ODataApi.CustomAction({ name: 'Login', path: '/Root', isAction: true, requiredParams: ['username', 'password'], noCache: true });
+        expect(typeof ODataApi.Login(action, { data: { 'userName': 'alba', 'password': 'alba' } })).to.be.eq('object');
+    });
+    it("requests to login a user and returns an Observable object", function () {
+        const action = new ODataApi.CustomAction({ name: 'Login', path: '/Root', isAction: true, requiredParams: ['username', 'password'], noCache: false });
+        expect(typeof ODataApi.Login(action, { data: { 'userName': 'alba', 'password': 'alba' } })).to.be.eq('object');
+    });
+    it("requests to logout a user and returns an Observable object", function () {
+        const action = new ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: true });
+        expect(typeof ODataApi.Logout(action, { data: { } })).to.be.eq('object');
+    });
+    it("requests to logout a user and returns an Observable object", function () {
+        const action = new ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: false });
+        expect(typeof ODataApi.Logout(action, { data: { } })).to.be.eq('object');
+    });
+    it("requests to logout a user and returns an Observable object", function () {
+        const action = new ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: false });
+        expect(typeof ODataApi.Logout(action)).to.be.eq('object');
+    });
     it("creates a new copy of ODataParams", () => {
-        const params = new ODataApi.ODataParams({select: 'DisplayName'});
+        const params = new ODataApi.ODataParams({ select: 'DisplayName' });
         expect(typeof params).to.be.eq('object');
     });
+    it("calls the ODATA_SERVICE_TOKEN", () => {
+            const serviceToken = ODataApi.ODATA_SERVICE_TOKEN();
+            expect(serviceToken).to.be.eq('OData.svc');
+        });
+        it("calls the ROOT_URL", () => {
+            const url = ODataApi.ROOT_URL();
+            expect(url).to.be.eq('https://daily.demo.sensenet.com/OData.svc');
+        });
+
+    describe('tests with window object', () => {
+        beforeEach(function () {
+            global['window'] = {
+                serviceToken: 'odata',
+                siteUrl: "https://daily.demo.sensenet.com"
+            }
+        });
+        it("calls the ODATA_SERVICE_TOKEN", () => {
+            const serviceToken = ODataApi.ODATA_SERVICE_TOKEN();
+            expect(serviceToken).to.be.eq('odata');
+        });
+        it("calls the ROOT_URL", () => {
+            const url = ODataApi.ROOT_URL();
+            expect(url).to.be.eq('https://daily.demo.sensenet.com/odata');
+        });
+    });
+
 });

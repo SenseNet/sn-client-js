@@ -6,6 +6,7 @@ const expect = Chai.expect;
 describe('ODataApi', () => {
     let window = {};
     beforeEach(() => {
+        window['serviceToken'] = 'OData.svc';
         window['siteUrl'] = "https://daily.demo.sensenet.com";
     });
     it("request a Content and returns an Observable object", function () {
@@ -55,9 +56,53 @@ describe('ODataApi', () => {
     it("requests to upload a Content and returns an Observable object", function () {
         expect(typeof ODataApi_1.ODataApi.Upload('/workspaces/Project', {}, true)).to.be.eq('object');
     });
+    it("requests to login a user and returns an Observable object", function () {
+        const action = new ODataApi_1.ODataApi.CustomAction({ name: 'Login', path: '/Root', isAction: true, requiredParams: ['username', 'password'], noCache: true });
+        expect(typeof ODataApi_1.ODataApi.Login(action, { data: { 'userName': 'alba', 'password': 'alba' } })).to.be.eq('object');
+    });
+    it("requests to login a user and returns an Observable object", function () {
+        const action = new ODataApi_1.ODataApi.CustomAction({ name: 'Login', path: '/Root', isAction: true, requiredParams: ['username', 'password'], noCache: false });
+        expect(typeof ODataApi_1.ODataApi.Login(action, { data: { 'userName': 'alba', 'password': 'alba' } })).to.be.eq('object');
+    });
+    it("requests to logout a user and returns an Observable object", function () {
+        const action = new ODataApi_1.ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: true });
+        expect(typeof ODataApi_1.ODataApi.Logout(action, { data: {} })).to.be.eq('object');
+    });
+    it("requests to logout a user and returns an Observable object", function () {
+        const action = new ODataApi_1.ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: false });
+        expect(typeof ODataApi_1.ODataApi.Logout(action, { data: {} })).to.be.eq('object');
+    });
+    it("requests to logout a user and returns an Observable object", function () {
+        const action = new ODataApi_1.ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: false });
+        expect(typeof ODataApi_1.ODataApi.Logout(action)).to.be.eq('object');
+    });
     it("creates a new copy of ODataParams", () => {
         const params = new ODataApi_1.ODataApi.ODataParams({ select: 'DisplayName' });
         expect(typeof params).to.be.eq('object');
+    });
+    it("calls the ODATA_SERVICE_TOKEN", () => {
+        const serviceToken = ODataApi_1.ODataApi.ODATA_SERVICE_TOKEN();
+        expect(serviceToken).to.be.eq('OData.svc');
+    });
+    it("calls the ROOT_URL", () => {
+        const url = ODataApi_1.ODataApi.ROOT_URL();
+        expect(url).to.be.eq('https://daily.demo.sensenet.com/OData.svc');
+    });
+    describe('tests with window object', () => {
+        beforeEach(function () {
+            global['window'] = {
+                serviceToken: 'odata',
+                siteUrl: "https://daily.demo.sensenet.com"
+            };
+        });
+        it("calls the ODATA_SERVICE_TOKEN", () => {
+            const serviceToken = ODataApi_1.ODataApi.ODATA_SERVICE_TOKEN();
+            expect(serviceToken).to.be.eq('odata');
+        });
+        it("calls the ROOT_URL", () => {
+            const url = ODataApi_1.ODataApi.ROOT_URL();
+            expect(url).to.be.eq('https://daily.demo.sensenet.com/odata');
+        });
     });
 });
 

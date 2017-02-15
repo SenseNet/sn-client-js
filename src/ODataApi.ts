@@ -11,13 +11,25 @@ import { Value, Properties } from 'ts-json-properties';
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
 export module ODataApi {
-    export const ROOT_URL = () => {
-        let a = '/';
-        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
-            return `${window['siteUrl']}/OData.svc`;
+    /**
+     * Constant to hold the service token. By default it is OData.svc but before you start developing with sn-client-js check the related config in your Sense/Net portal's
+     * web.config. If there's no ```ODataServiceToken``` config it fallbcks to the default so you also have to use the default 'OData.svc' in your TypeScript or JavaScript code.
+     * If it has a value in the web.config use the same value as your service token on client-side.
+     */
+    export const ODATA_SERVICE_TOKEN = () => {
+        if (typeof window !== 'undefined' && typeof window['serviceToken'] !== 'undefined') {
+            return `${window['serviceToken']}`;
         }
         else {
-            return '/OData.svc'
+            return '/OData.svc';
+        }
+    };
+    export const ROOT_URL = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}/${ODATA_SERVICE_TOKEN()}`;
+        }
+        else {
+            return ODATA_SERVICE_TOKEN();
         }
     };
     /**
@@ -171,6 +183,49 @@ export module ODataApi {
             url = url;
         }
         let promise: Promise<any> = fetch(url, JSON.stringify(data));
+        let source = Observable.fromPromise(promise);
+        return source;
+    }
+
+    export const Login = (action: CustomAction, options?: IODataParams) => {
+        let Observable = Rx.Observable;
+        let promise: Promise<any>;
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let path = `${ROOT_URL()}/('Root')/Login`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`
+        }
+        else {
+            path = path;
+        }
+
+        let body = JSON.stringify(options.data);
+
+        promise =
+            fetch(`${path}`, {
+                method: 'POST',
+                body: body
+            });
+        let source = Observable.fromPromise(promise);
+        return source;
+    }
+
+    export const Logout = (action: CustomAction, options?: IODataParams) => {
+        let Observable = Rx.Observable;
+        let promise: Promise<any>;
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let path = `${ROOT_URL()}/('Root')/Logout`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`
+        }
+        else {
+            path = path;
+        }
+
+        promise =
+            fetch(`${path}`, {
+                method: 'POST'
+            });
         let source = Observable.fromPromise(promise);
         return source;
     }

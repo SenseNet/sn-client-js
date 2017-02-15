@@ -10,6 +10,7 @@ describe('Collection', () => {
         children = [{ Id: 1, }, { Id: 2, }];
         collection = new Collection_1.Collection(children);
         collection.Path = 'https://daily.demo.sensenet.com/lorem';
+        window['serviceToken'] = 'OData.svc';
         window['siteUrl'] = "https://daily.demo.sensenet.com";
     });
     describe('#Items()', () => {

@@ -11,7 +11,8 @@ describe('Collection', () => {
   beforeEach(function () {
     children = [{ Id: 1, }, { Id: 2, }];
     collection = new Collection(children);
-    collection.Path = 'https://daily.demo.sensenet.com/lorem'
+    collection.Path = 'https://daily.demo.sensenet.com/lorem';
+    window['serviceToken'] = 'OData.svc';
     window['siteUrl'] = "https://daily.demo.sensenet.com";
   });
   describe('#Items()', () => {

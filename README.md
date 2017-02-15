@@ -62,6 +62,14 @@ So that you can set the url of your Sense/Net portal that you want to communicat
 your ```Portal.settings```. For further information about cross-origin resource sharing in Sense/Net check [this](http://wiki.sensenet.com/Cross-origin_resource_sharing#Origin_check)
 article.
 
+Check your Sense/Net portal's web.config and if the ```ODataServiceToken``` is set, use the ```SetServiceToken()``` method to set the same service token on client side.
+
+```
+import { SetServiceToken } from 'sn-client-js';
+
+SetServiceToken('myservicetoken');
+```
+
 ### Import
 
 #### CommonJS
@@ -175,4 +183,8 @@ let deleteContent = myCollection.Remove(3);
 ### Related documents
 * [sn-client-js API reference](http://www.sensenet.com/documentation/sn-client-js/index.html)
 * [sn-redux API reference](http://www.sensenet.com/documentation/sn-redux/index.html)
-* [Todo App with React, Redux and Sense/Net ECM](http://www.sensenet.com/documentation/sn-react-todoapp/index.html)
+* [Todo App with React, Redux and Sense/Net ECM](https://github.com/SenseNet/sn-react-redux-todo-app)
+* [Todo App with Angular, Redux and Sense/Net ECM](https://github.com/blaskodaniel/sn-angular-redux-todo-app)
+* [Todo App with Angular2, Redux and Sense/Net ECM](https://github.com/SenseNet/sn-angular2-redux-todo-app)
+* [Todo App with Aurelia, Redux and Sense/Net ECM](https://github.com/B3zo0/sn7-aurelia-redux-todo-app)
+* [Todo App with Vue, Redux and Sense/Net ECM](https://github.com/SenseNet/sn-vue-redux-todo-app)

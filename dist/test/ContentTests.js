@@ -7,7 +7,10 @@ describe('Content', () => {
     let window = {};
     beforeEach(function () {
         beforeEach(() => {
-            window['siteUrl'] = "https://daily.demo.sensenet.com";
+            global["window"] = {
+                serviceToken: 'OData.svc',
+                siteUrl: "https://daily.demo.sensenet.com"
+            };
         });
         content = Content_1.Content.Create('Article', { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
     });
@@ -134,22 +137,22 @@ describe('Content', () => {
     });
     describe('#Versions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Versions()).to.eq('object');
+            expect(typeof content.GetVersions()).to.eq('object');
         });
     });
     describe('#Versions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Versions({ select: ['Name'] })).to.eq('object');
+            expect(typeof content.GetVersions({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Workspace()).to.eq('object');
+            expect(typeof content.GetWorkspace()).to.eq('object');
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Workspace({ select: ['Name'] })).to.eq('object');
+            expect(typeof content.GetWorkspace({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Checkout()', () => {
@@ -452,6 +455,34 @@ describe('Content', () => {
     describe('#RemoveMembers()', () => {
         it('should return an Observable object', function () {
             expect(typeof content.RemoveMembers([11, 22])).to.eq('object');
+        });
+    });
+    describe('#GetSchema()', () => {
+        it('should return a Schema object', function () {
+            expect(typeof content.GetSchema()).to.eq('object');
+        });
+        it('should return a Article', function () {
+            let article = Content_1.Content.Create('Article', { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
+            const schema = article.GetSchema();
+            expect(schema['Icon']).to.eq('WebContent');
+        });
+    });
+    describe('#static GetSchema()', () => {
+        it('should return a Schema object', function () {
+            expect(typeof Content_1.Content.GetSchema('Article')).to.eq('object');
+        });
+        it('should return a Schema object', function () {
+            let schema = Content_1.Content.GetSchema('Article');
+            expect(schema['Icon']).to.eq('WebContent');
+        });
+    });
+    describe('#Schema()', () => {
+        it('should return a Schema object', function () {
+            expect(typeof content.Schema()).to.eq('object');
+        });
+        it('should return a Schema object', function () {
+            let schema = content.Schema();
+            expect(schema['Icon']).to.eq('WebContent');
         });
     });
 });

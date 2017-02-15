@@ -1,5 +1,6 @@
 ///<reference path="../node_modules/@types/mocha/index.d.ts"/>
-import { Content } from '../src/Content'
+import { Content } from '../src/Content';
+import { Schemas } from '../src/Schema';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
@@ -8,7 +9,10 @@ describe('Content', () => {
     let window = {}
     beforeEach(function () {
         beforeEach(() => {
-            window['siteUrl'] = "https://daily.demo.sensenet.com";
+            global["window"] = {
+                serviceToken : 'OData.svc',
+                siteUrl : "https://daily.demo.sensenet.com"
+            }
         })
         content = Content.Create('Article', { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
     });
@@ -70,7 +74,7 @@ describe('Content', () => {
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetAllowedChildTypes({select: ['Name']})).to.eq('object');
+            expect(typeof content.GetAllowedChildTypes({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
@@ -80,7 +84,7 @@ describe('Content', () => {
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetEffectiveAllowedChildTypes({select: ['Name']})).to.eq('object');
+            expect(typeof content.GetEffectiveAllowedChildTypes({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#GetOwner()', () => {
@@ -90,7 +94,7 @@ describe('Content', () => {
     });
     describe('#GetOwner()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetOwner({select: ['Name']})).to.eq('object');
+            expect(typeof content.GetOwner({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Creator()', () => {
@@ -100,7 +104,7 @@ describe('Content', () => {
     });
     describe('#Creator()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Creator({select: ['Name']})).to.eq('object');
+            expect(typeof content.Creator({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Modifier()', () => {
@@ -110,7 +114,7 @@ describe('Content', () => {
     });
     describe('#Modifier()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Modifier({select: ['Name']})).to.eq('object');
+            expect(typeof content.Modifier({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#CheckedOutBy()', () => {
@@ -120,7 +124,7 @@ describe('Content', () => {
     });
     describe('#CheckedOutBy()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckedOutBy({select: ['Name']})).to.eq('object');
+            expect(typeof content.CheckedOutBy({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Children()', () => {
@@ -130,27 +134,27 @@ describe('Content', () => {
     });
     describe('#Children()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Children({select: ['Name']})).to.eq('object');
+            expect(typeof content.Children({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Versions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Versions()).to.eq('object');
+            expect(typeof content.GetVersions()).to.eq('object');
         });
     });
     describe('#Versions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Versions({select: ['Name']})).to.eq('object');
+            expect(typeof content.GetVersions({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Workspace()).to.eq('object');
+            expect(typeof content.GetWorkspace()).to.eq('object');
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Workspace({select: ['Name']})).to.eq('object');
+            expect(typeof content.GetWorkspace({ select: ['Name'] })).to.eq('object');
         });
     });
     describe('#Checkout()', () => {
@@ -453,6 +457,34 @@ describe('Content', () => {
     describe('#RemoveMembers()', () => {
         it('should return an Observable object', function () {
             expect(typeof content.RemoveMembers([11, 22])).to.eq('object');
+        });
+    });
+    describe('#GetSchema()', () => {
+        it('should return a Schema object', function () {
+            expect(typeof content.GetSchema()).to.eq('object');
+        });
+        it('should return a Article', function () {
+            let article = Content.Create('Article', { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
+            const schema = article.GetSchema();
+            expect(schema['Icon']).to.eq('WebContent');
+        });
+    });
+    describe('#static GetSchema()', () => {
+        it('should return a Schema object', function () {
+            expect(typeof Content.GetSchema('Article')).to.eq('object');
+        });
+        it('should return a Schema object', function () {
+            let schema = Content.GetSchema('Article')
+            expect(schema['Icon']).to.eq('WebContent');
+        });
+    });
+    describe('#Schema()', () => {
+        it('should return a Schema object', function () {
+            expect(typeof content.Schema()).to.eq('object');
+        });
+        it('should return a Schema object', function () {
+            let schema = content.Schema()
+            expect(schema['Icon']).to.eq('WebContent');
         });
     });
 });

@@ -29,6 +29,7 @@ exports.Logout = Common_1.Logout;
 exports.GetVersionInfo = Common_1.GetVersionInfo;
 exports.GetAllContentTypes = Common_1.GetAllContentTypes;
 exports.SetSiteUrl = Common_1.SetSiteUrl;
+exports.SetServiceToken = Common_1.SetServiceToken;
 var ODataHelper_1 = require('./ODataHelper');
 exports.ODataHelper = ODataHelper_1.ODataHelper;
 var ODataApiActionObservables_1 = require('./ODataApiActionObservables');

@@ -83,3 +83,7 @@ export const GetAllContentTypes = (): Observable<any> => {
 export const SetSiteUrl = (url: string = '/') => {
     window['siteUrl'] = url;
 }
+
+export const SetServiceToken = (token: string = '/Odata.svc') => {
+    window['serviceToken'] = token;
+}

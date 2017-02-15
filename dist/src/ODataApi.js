@@ -4,13 +4,20 @@ require('isomorphic-fetch');
 const Rx = require('@reactivex/rxjs');
 var ODataApi;
 (function (ODataApi) {
-    ODataApi.ROOT_URL = () => {
-        let a = '/';
-        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
-            return `${window['siteUrl']}/OData.svc`;
+    ODataApi.ODATA_SERVICE_TOKEN = () => {
+        if (typeof window !== 'undefined' && typeof window['serviceToken'] !== 'undefined') {
+            return `${window['serviceToken']}`;
         }
         else {
             return '/OData.svc';
+        }
+    };
+    ODataApi.ROOT_URL = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return `${window['siteUrl']}/${ODataApi.ODATA_SERVICE_TOKEN()}`;
+        }
+        else {
+            return ODataApi.ODATA_SERVICE_TOKEN();
         }
     };
     ODataApi.GetContent = (options) => {
@@ -107,6 +114,44 @@ var ODataApi;
             url = url;
         }
         let promise = fetch(url, JSON.stringify(data));
+        let source = Observable.fromPromise(promise);
+        return source;
+    };
+    ODataApi.Login = (action, options) => {
+        let Observable = Rx.Observable;
+        let promise;
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let path = `${ODataApi.ROOT_URL()}/('Root')/Login`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`;
+        }
+        else {
+            path = path;
+        }
+        let body = JSON.stringify(options.data);
+        promise =
+            fetch(`${path}`, {
+                method: 'POST',
+                body: body
+            });
+        let source = Observable.fromPromise(promise);
+        return source;
+    };
+    ODataApi.Logout = (action, options) => {
+        let Observable = Rx.Observable;
+        let promise;
+        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        let path = `${ODataApi.ROOT_URL()}/('Root')/Logout`;
+        if (cacheParam.length > 0) {
+            path = `${path}?${cacheParam}`;
+        }
+        else {
+            path = path;
+        }
+        promise =
+            fetch(`${path}`, {
+                method: 'POST'
+            });
         let source = Observable.fromPromise(promise);
         return source;
     };
