@@ -1,7 +1,8 @@
 "use strict";
-const ODataApi_1 = require('../src/ODataApi');
-const Content_1 = require('../src/Content');
-const Chai = require('chai');
+Object.defineProperty(exports, "__esModule", { value: true });
+const ODataApi_1 = require("../src/ODataApi");
+const Content_1 = require("../src/Content");
+const Chai = require("chai");
 const expect = Chai.expect;
 describe('ODataApi', () => {
     let window = {};

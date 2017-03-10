@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var Resources;
 (function (Resources) {
     class AbortWorkflowPortlet {
