@@ -1,6 +1,6 @@
 import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
-import 'isomorphic-fetch'
+import 'isomorphic-fetch';
 import * as Rx from '@reactivex/rxjs';
 import { Value, Properties } from 'ts-json-properties';
 

@@ -2,6 +2,7 @@ import * as Rx from '@reactivex/rxjs';
 import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import { ODataApi } from './ODataApi';
+import 'isomorphic-fetch';
 const { ajax } = Rx.Observable;
 import { Value, Properties } from 'ts-json-properties';
 

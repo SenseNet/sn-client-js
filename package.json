@@ -30,13 +30,13 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "5.2.0",
+    "@reactivex/rxjs": "5.0.0-rc.4",
     "app-root-path": "2.0.1",
     "isomorphic-fetch": "2.2.1",
     "ts-json-properties": "1.1.2"
   },
   "devDependencies": {
-    "@reactivex/rxjs": "5.2.0",
+    "@reactivex/rxjs": "5.0.0-rc.4",
     "@types/app-root-path": "1.2.4",
     "@types/chai": "3.4.34",
     "@types/mocha": "2.2.33",
@@ -68,7 +68,7 @@
     "ts-json-properties": "1.1.2",
     "tslint": "4.0.2",
     "typedoc": "0.5.1",
-    "typescript": "2.2.1"
+    "typescript": "2.0.10"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"
