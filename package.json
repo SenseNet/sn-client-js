@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "1.1.0-beta.2",
+  "version": "1.1.0-beta.3",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
   "scripts": {
@@ -30,17 +30,15 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@types/isomorphic-fetch": "0.0.31",
-    "@reactivex/rxjs": "5.0.0-rc.4",
+    "@reactivex/rxjs": "5.2.0",
     "app-root-path": "2.0.1",
     "isomorphic-fetch": "2.2.1",
     "ts-json-properties": "1.1.2"
   },
   "devDependencies": {
-    "@reactivex/rxjs": "5.0.0-rc.4",
+    "@reactivex/rxjs": "5.2.0",
     "@types/app-root-path": "1.2.4",
     "@types/chai": "3.4.34",
-    "@types/isomorphic-fetch": "0.0.31",
     "@types/mocha": "2.2.33",
     "@types/node": "0.0.1",
     "@types/orchestrator": "0.0.30",
@@ -70,7 +68,7 @@
     "ts-json-properties": "1.1.2",
     "tslint": "4.0.2",
     "typedoc": "0.5.1",
-    "typescript": "2.0.10"
+    "typescript": "2.2.1"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"

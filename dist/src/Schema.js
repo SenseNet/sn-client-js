@@ -1,5 +1,6 @@
 "use strict";
-const FieldSettings_1 = require('./FieldSettings');
+Object.defineProperty(exports, "__esModule", { value: true });
+const FieldSettings_1 = require("./FieldSettings");
 var Schemas;
 (function (Schemas) {
     class Schema {

@@ -1,5 +1,6 @@
 "use strict";
-const Content_1 = require('./Content');
+Object.defineProperty(exports, "__esModule", { value: true });
+const Content_1 = require("./Content");
 var ContentTypes;
 (function (ContentTypes) {
     class ContentType extends Content_1.Content {

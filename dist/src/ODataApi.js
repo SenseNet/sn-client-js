@@ -1,7 +1,8 @@
 "use strict";
-const ODataHelper_1 = require('./ODataHelper');
-require('isomorphic-fetch');
-const Rx = require('@reactivex/rxjs');
+Object.defineProperty(exports, "__esModule", { value: true });
+const ODataHelper_1 = require("./ODataHelper");
+require("isomorphic-fetch");
+const Rx = require("@reactivex/rxjs");
 var ODataApi;
 (function (ODataApi) {
     ODataApi.ODATA_SERVICE_TOKEN = () => {

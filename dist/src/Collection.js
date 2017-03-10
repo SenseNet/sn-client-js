@@ -1,6 +1,7 @@
 "use strict";
-const ODataApi_1 = require('./ODataApi');
-const ODataHelper_1 = require('./ODataHelper');
+Object.defineProperty(exports, "__esModule", { value: true });
+const ODataApi_1 = require("./ODataApi");
+const ODataHelper_1 = require("./ODataHelper");
 class Collection {
     constructor(items) {
         this.items = [];

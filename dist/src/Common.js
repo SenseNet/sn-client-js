@@ -1,5 +1,6 @@
 "use strict";
-const ODataApi_1 = require('./ODataApi');
+Object.defineProperty(exports, "__esModule", { value: true });
+const ODataApi_1 = require("./ODataApi");
 exports.Login = (username, password) => {
     let action = new ODataApi_1.ODataApi.CustomAction({ name: 'Login', path: '/Root', noCache: true, isAction: true, requiredParams: ['username', 'password'] });
     return ODataApi_1.ODataApi.Login(action, { data: { 'username': username, 'password': password } });
