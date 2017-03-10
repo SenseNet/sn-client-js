@@ -1,7 +1,6 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Fields_1 = require("../src/Fields");
-const Chai = require("chai");
+const Fields_1 = require('../src/Fields');
+const Chai = require('chai');
 const expect = Chai.expect;
 describe('Fields', () => {
     describe('#ChoiceOption', function () {

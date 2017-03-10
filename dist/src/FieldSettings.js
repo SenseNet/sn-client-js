@@ -1,51 +1,50 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var FieldSettings;
 (function (FieldSettings) {
-    var FieldVisibility;
     (function (FieldVisibility) {
         FieldVisibility[FieldVisibility["Show"] = 0] = "Show";
         FieldVisibility[FieldVisibility["Hide"] = 1] = "Hide";
         FieldVisibility[FieldVisibility["Advanced"] = 2] = "Advanced";
-    })(FieldVisibility = FieldSettings.FieldVisibility || (FieldSettings.FieldVisibility = {}));
-    var OutputMethod;
+    })(FieldSettings.FieldVisibility || (FieldSettings.FieldVisibility = {}));
+    var FieldVisibility = FieldSettings.FieldVisibility;
     (function (OutputMethod) {
         OutputMethod[OutputMethod["Default"] = 0] = "Default";
         OutputMethod[OutputMethod["Raw"] = 1] = "Raw";
         OutputMethod[OutputMethod["Text"] = 2] = "Text";
         OutputMethod[OutputMethod["Html"] = 3] = "Html";
-    })(OutputMethod = FieldSettings.OutputMethod || (FieldSettings.OutputMethod = {}));
-    var DisplayChoice;
+    })(FieldSettings.OutputMethod || (FieldSettings.OutputMethod = {}));
+    var OutputMethod = FieldSettings.OutputMethod;
     (function (DisplayChoice) {
         DisplayChoice[DisplayChoice["DropDown"] = 0] = "DropDown";
         DisplayChoice[DisplayChoice["RadioButtons"] = 1] = "RadioButtons";
         DisplayChoice[DisplayChoice["CheckBoxes"] = 2] = "CheckBoxes";
-    })(DisplayChoice = FieldSettings.DisplayChoice || (FieldSettings.DisplayChoice = {}));
-    var DateTimeMode;
+    })(FieldSettings.DisplayChoice || (FieldSettings.DisplayChoice = {}));
+    var DisplayChoice = FieldSettings.DisplayChoice;
     (function (DateTimeMode) {
         DateTimeMode[DateTimeMode["None"] = 0] = "None";
         DateTimeMode[DateTimeMode["Date"] = 1] = "Date";
         DateTimeMode[DateTimeMode["DateAndTime"] = 2] = "DateAndTime";
-    })(DateTimeMode = FieldSettings.DateTimeMode || (FieldSettings.DateTimeMode = {}));
-    var DateTimePrecision;
+    })(FieldSettings.DateTimeMode || (FieldSettings.DateTimeMode = {}));
+    var DateTimeMode = FieldSettings.DateTimeMode;
     (function (DateTimePrecision) {
         DateTimePrecision[DateTimePrecision["Millisecond"] = 0] = "Millisecond";
         DateTimePrecision[DateTimePrecision["Second"] = 1] = "Second";
         DateTimePrecision[DateTimePrecision["Minute"] = 2] = "Minute";
         DateTimePrecision[DateTimePrecision["Hour"] = 3] = "Hour";
         DateTimePrecision[DateTimePrecision["Day"] = 4] = "Day";
-    })(DateTimePrecision = FieldSettings.DateTimePrecision || (FieldSettings.DateTimePrecision = {}));
-    var TextType;
+    })(FieldSettings.DateTimePrecision || (FieldSettings.DateTimePrecision = {}));
+    var DateTimePrecision = FieldSettings.DateTimePrecision;
     (function (TextType) {
         TextType[TextType["LongText"] = 0] = "LongText";
         TextType[TextType["RichText"] = 1] = "RichText";
         TextType[TextType["AdvancedRichText"] = 2] = "AdvancedRichText";
-    })(TextType = FieldSettings.TextType || (FieldSettings.TextType = {}));
-    var UrlFormat;
+    })(FieldSettings.TextType || (FieldSettings.TextType = {}));
+    var TextType = FieldSettings.TextType;
     (function (UrlFormat) {
         UrlFormat[UrlFormat["Hyperlink"] = 0] = "Hyperlink";
         UrlFormat[UrlFormat["Picture"] = 1] = "Picture";
-    })(UrlFormat = FieldSettings.UrlFormat || (FieldSettings.UrlFormat = {}));
+    })(FieldSettings.UrlFormat || (FieldSettings.UrlFormat = {}));
+    var UrlFormat = FieldSettings.UrlFormat;
     class FieldSetting {
         constructor(options) {
             this.Name = 'Content';

@@ -1,7 +1,6 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const ODataHelper_1 = require("../src/ODataHelper");
-const Chai = require("chai");
+const ODataHelper_1 = require('../src/ODataHelper');
+const Chai = require('chai');
 const expect = Chai.expect;
 describe('ODataHelper', () => {
     describe('#IsItemPath()', function () {

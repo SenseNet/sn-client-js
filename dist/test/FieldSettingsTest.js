@@ -1,8 +1,7 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const FieldSettings_1 = require("../src/FieldSettings");
-const Chai = require("chai");
-const sinon = require("sinon");
+const FieldSettings_1 = require('../src/FieldSettings');
+const Chai = require('chai');
+const sinon = require('sinon');
 const expect = Chai.expect;
 describe("FieldSettings", () => {
     describe("#FieldSetting constructor", function () {

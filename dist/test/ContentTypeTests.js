@@ -1,8 +1,7 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const ContentTypes_1 = require("../src/ContentTypes");
-const Fields_1 = require("../src/Fields");
-const Chai = require("chai");
+const ContentTypes_1 = require('../src/ContentTypes');
+const Fields_1 = require('../src/Fields');
+const Chai = require('chai');
 const expect = Chai.expect;
 describe('ContentTypes', () => {
     describe('#ContentType', function () {

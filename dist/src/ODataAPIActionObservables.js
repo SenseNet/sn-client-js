@@ -1,8 +1,7 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Rx = require("@reactivex/rxjs");
-const ODataHelper_1 = require("./ODataHelper");
-require("isomorphic-fetch");
+const Rx = require('@reactivex/rxjs');
+const ODataHelper_1 = require('./ODataHelper');
+require('isomorphic-fetch');
 const { ajax } = Rx.Observable;
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {

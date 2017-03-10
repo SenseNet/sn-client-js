@@ -1,8 +1,7 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Content_1 = require("../src/Content");
-const Collection_1 = require("../src/Collection");
-const Chai = require("chai");
+const Content_1 = require('../src/Content');
+const Collection_1 = require('../src/Collection');
+const Chai = require('chai');
 const expect = Chai.expect;
 describe('Collection', () => {
     let collection, children;
