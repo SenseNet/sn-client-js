@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Content_1 = require("../src/Content");
 const Collection_1 = require("../src/Collection");
 const Chai = require("chai");
 const expect = Chai.expect;
@@ -38,10 +37,6 @@ describe('Collection', () => {
         });
     });
     describe('#Add()', () => {
-        const content = Content_1.Content.Create('Article', { DisplayName: 'content' });
-        it("should return an observable", function () {
-            expect(typeof collection.Add(content)).to.be.eq('object');
-        });
     });
     describe('#Remove()', () => {
         it("should return an observable", function () {

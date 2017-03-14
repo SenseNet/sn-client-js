@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ODataHelper_1 = require("./ODataHelper");
 require("isomorphic-fetch");
 const Rx = require("@reactivex/rxjs");
+const { ajax } = Rx.Observable;
 var ODataApi;
 (function (ODataApi) {
     ODataApi.ODATA_SERVICE_TOKEN = () => {
@@ -21,18 +22,21 @@ var ODataApi;
             return ODataApi.ODATA_SERVICE_TOKEN();
         }
     };
+    ODataApi.crossDomainParam = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
     ODataApi.GetContent = (options) => {
         let Observable = Rx.Observable;
         let promise = fetch(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
     };
-    ODataApi.FetchContent = (options) => {
-        let Observable = Rx.Observable;
-        let promise = fetch(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
-        let source = Observable.fromPromise(promise);
-        return source;
-    };
+    ODataApi.FetchContent = (options) => ajax({ url: `${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, crossDomain: ODataApi.crossDomainParam(), method: 'GET' });
     ODataApi.CreateContent = (path, content) => {
         let contentItem = { __contentType: content.Type };
         for (let prop in content) {
@@ -40,70 +44,76 @@ var ODataApi;
                 contentItem[prop] = content[prop];
             }
         }
-        let Observable = Rx.Observable;
-        let promise = fetch(`${ODataApi.ROOT_URL()}${path}`, ODataHelper_1.ODataHelper.buildRequestBody(contentItem));
-        let source = Observable.fromPromise(promise);
-        return source;
-    };
-    ODataApi.DeleteContent = (id, permanent) => {
-        let Observable = Rx.Observable;
-        let promise = fetch(`${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}/Delete`, JSON.stringify({ permanent: permanent }));
-        let source = Observable.fromPromise(promise);
-        return source;
-    };
-    ODataApi.PatchContent = (id, fields) => {
-        let Observable = Rx.Observable;
-        let promise = fetch(`${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}`, {
-            method: 'PATCH',
-            body: `models=[${JSON.stringify(fields)}]`
+        return ajax({
+            url: `${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}`,
+            method: 'POST',
+            crossDomain: ODataApi.crossDomainParam(),
+            body: `models=[${JSON.stringify(contentItem)}]`
         });
-        let source = Observable.fromPromise(promise);
-        return source;
     };
-    ODataApi.PutContent = (id, fields) => {
-        let Observable = Rx.Observable;
-        let promise = fetch(`${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(id)}`, {
-            method: 'PUT',
-            body: `models=[${JSON.stringify(fields)}]`
-        });
-        let source = Observable.fromPromise(promise);
-        return source;
-    };
+    ODataApi.DeleteContent = (id, permanent) => ajax({
+        url: `${ODataApi.ROOT_URL()}/content(${id})/Delete`,
+        method: 'POST',
+        crossDomain: ODataApi.crossDomainParam(),
+        body: JSON.stringify({ 'permanent': permanent })
+    });
+    ODataApi.PatchContent = (id, fields) => ajax({
+        url: `${ODataApi.ROOT_URL()}/content(${id})`,
+        method: 'PATCH',
+        responseType: 'json',
+        crossDomain: ODataApi.crossDomainParam(),
+        body: `models=[${JSON.stringify(fields)}]`
+    });
+    ODataApi.PutContent = (id, fields) => ajax({
+        url: `${ODataApi.ROOT_URL()}/content(${id})`,
+        method: 'PUT',
+        responseType: 'json',
+        crossDomain: ODataApi.crossDomainParam(),
+        body: `models=[${JSON.stringify(fields)}]`
+    });
     ODataApi.CreateCustomAction = (action, options) => {
-        let Observable = Rx.Observable;
-        let promise;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
-            path = `${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
+            path = `${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
         }
         else {
-            path = `${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
+            path = `${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`;
         }
-        else {
-            path = path;
-        }
-        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-            for (let option in options.data) {
-                action.params[option] = options.data[option];
-            }
+        if (path.indexOf('OData.svc(') > -1) {
+            const start = path.indexOf('(');
+            path = path.slice(0, start) + '/' + path.slice(start);
+            console.log(path);
         }
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            promise = fetch(`${ODataApi.ROOT_URL()}${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`);
+            return ajax({
+                url: `${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`,
+                method: 'GET',
+                responseType: 'json',
+                crossDomain: ODataApi.crossDomainParam(),
+            });
         }
         else {
-            promise =
-                fetch(`${ODataApi.ROOT_URL()}${path}`, {
+            if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+                return ajax({
+                    url: `${path}`,
                     method: 'POST',
-                    body: body
+                    crossDomain: ODataApi.crossDomainParam(),
+                    body: JSON.stringify(options.data)
                 });
+            }
+            else {
+                return ajax({
+                    url: `${path}`,
+                    method: 'POST',
+                    crossDomain: ODataApi.crossDomainParam()
+                });
+            }
         }
-        let source = Observable.fromPromise(promise);
-        return source;
     };
     ODataApi.Upload = (path, data, creation) => {
         let Observable = Rx.Observable;
@@ -119,42 +129,51 @@ var ODataApi;
         return source;
     };
     ODataApi.Login = (action, options) => {
-        let Observable = Rx.Observable;
-        let promise;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
-        let path = `${ODataApi.ROOT_URL()}/('Root')/Login`;
+        let rootUrl = ODataApi.ROOT_URL();
+        let path = `${rootUrl}/('Root')/Login`;
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`;
         }
-        else {
-            path = path;
-        }
-        let body = JSON.stringify(options.data);
-        promise =
-            fetch(`${path}`, {
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
                 method: 'POST',
-                body: body
+                crossDomain: ODataApi.crossDomainParam(),
+                body: JSON.stringify(options.data)
             });
-        let source = Observable.fromPromise(promise);
-        return source;
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApi.crossDomainParam()
+            });
+        }
     };
     ODataApi.Logout = (action, options) => {
-        let Observable = Rx.Observable;
-        let promise;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = `${ODataApi.ROOT_URL()}/('Root')/Logout`;
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`;
         }
-        else {
-            path = path;
-        }
-        promise =
-            fetch(`${path}`, {
-                method: 'POST'
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApi.crossDomainParam(),
+                body: JSON.stringify(options.data)
             });
-        let source = Observable.fromPromise(promise);
-        return source;
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: ODataApi.crossDomainParam()
+            });
+        }
     };
     class ODataRequestOptions {
         constructor(options) {

@@ -2,7 +2,7 @@ import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import 'isomorphic-fetch';
 import * as Rx from '@reactivex/rxjs';
-import { Value, Properties } from 'ts-json-properties';
+const { ajax } = Rx.Observable;
 
 /**
  * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API. 
@@ -32,6 +32,14 @@ export module ODataApi {
             return ODATA_SERVICE_TOKEN();
         }
     };
+    export const crossDomainParam = () => {
+        if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     /**
      * Method to get a Content from the Content Repository through OData REST API.
      * 
@@ -52,12 +60,9 @@ export module ODataApi {
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    export const FetchContent = (options: ODataRequestOptions) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
-        let source = Observable.fromPromise(promise);
-        return source;
-    }
+    export const FetchContent = (options: ODataRequestOptions) =>
+        ajax({ url: `${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`, crossDomain: crossDomainParam(), method: 'GET' });
+
     export const CreateContent = (path: string, content: Content) => {
         let contentItem = { __contentType: content.Type };
         for (let prop in content) {
@@ -65,10 +70,12 @@ export module ODataApi {
                 contentItem[prop] = content[prop];
             }
         }
-        let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(`${ROOT_URL()}${path}`, ODataHelper.buildRequestBody(contentItem));
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax({
+            url: `${ROOT_URL()}${ODataHelper.getContentURLbyPath(path)}`,
+            method: 'POST',
+            crossDomain: crossDomainParam(),
+            body: `models=[${JSON.stringify(contentItem)}]`
+        });
     }
     /**
      * Method to delete a Content from the Content Repository through OData REST API.
@@ -78,15 +85,12 @@ export module ODataApi {
      * @params permanent {boolean} Determines whether the Content should be moved to the Trash or be deleted permanently.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    export const DeleteContent = (id: number, permanent: boolean) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(
-            `${ROOT_URL()}${ODataHelper.getContentUrlbyId(id)}/Delete`,
-            JSON.stringify({ permanent: permanent })
-        );
-        let source = Observable.fromPromise(promise);
-        return source;
-    }
+    export const DeleteContent = (id: number, permanent: boolean) => ajax({
+        url: `${ROOT_URL()}/content(${id})/Delete`,
+        method: 'POST',
+        crossDomain: crossDomainParam(),
+        body: JSON.stringify({ 'permanent': permanent })
+    });
     /**
      * Method to modify a single or multiple fields of a Content through OData REST API.
      * 
@@ -95,18 +99,13 @@ export module ODataApi {
      * @params fields {Object} Contains the modifiable fieldnames as keys and their values.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    export const PatchContent = (id: number, fields: Object) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(
-            `${ROOT_URL()}${ODataHelper.getContentUrlbyId(id)}`,
-            {
-                method: 'PATCH',
-                body: `models=[${JSON.stringify(fields)}]`
-            }
-        );
-        let source = Observable.fromPromise(promise);
-        return source;
-    }
+    export const PatchContent = (id: number, fields: Object) => ajax({
+            url: `${ROOT_URL()}/content(${id})`,
+            method: 'PATCH',
+            responseType: 'json',
+            crossDomain: crossDomainParam(),
+            body: `models=[${JSON.stringify(fields)}]`
+        })
     /**
      * Method to set multiple fields of a Content and clear the rest through OData REST API.
      * 
@@ -115,18 +114,13 @@ export module ODataApi {
      * @params fields {Object} Contains the modifiable fieldnames as keys and their values.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    export const PutContent = (id: number, fields: Object) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(
-            `${ROOT_URL()}${ODataHelper.getContentUrlbyId(id)}`,
-            {
-                method: 'PUT',
-                body: `models=[${JSON.stringify(fields)}]`
-            }
-        );
-        let source = Observable.fromPromise(promise);
-        return source;
-    }
+    export const PutContent = (id: number, fields: Object) => ajax({
+            url: `${ROOT_URL()}/content(${id})`,
+            method: 'PUT',
+            responseType: 'json',
+            crossDomain: crossDomainParam(),
+            body: `models=[${JSON.stringify(fields)}]`
+        })
     /**
      * Creates a wrapper function for a callable custom OData action.
      * 
@@ -136,42 +130,51 @@ export module ODataApi {
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     export const CreateCustomAction = (action: CustomAction, options?: IODataParams) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any>;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
-            path = `${ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
+            path = `${ROOT_URL()}${ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
         }
         else {
-            path = `${ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
+            path = `${ROOT_URL()}${ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`
         }
-        else {
-            path = path;
-        }
-        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-            for (let option in options.data) {
-                action.params[option] = options.data[option];
-            }
+
+        if (path.indexOf('OData.svc(') > -1) {
+            const start = path.indexOf('(');
+            path = path.slice(0, start) + '/' + path.slice(start);
+            console.log(path);
         }
 
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            promise = fetch(`${ROOT_URL()}${path}${ODataHelper.buildUrlParamString(action.params)}`);
+            return ajax({
+                url: `${path}${ODataHelper.buildUrlParamString(action.params)}`,
+                method: 'GET',
+                responseType: 'json',
+                crossDomain: crossDomainParam(),
+            })
         }
         else {
-            promise =
-                fetch(`${ROOT_URL()}${path}`, {
+            if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+                return ajax({
+                    url: `${path}`,
                     method: 'POST',
-                    body: body
+                    crossDomain: crossDomainParam(),
+                    body: JSON.stringify(options.data)
                 });
+            }
+            else {
+                return ajax({
+                    url: `${path}`,
+                    method: 'POST',
+                    crossDomain: crossDomainParam()
+                });
+            }
         }
-        let source = Observable.fromPromise(promise);
-        return source;
     }
     export const Upload = (path: string, data: Object, creation: boolean) => {
         let Observable = Rx.Observable;
@@ -188,46 +191,56 @@ export module ODataApi {
     }
 
     export const Login = (action: CustomAction, options?: IODataParams) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any>;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
-        let path = `${ROOT_URL()}/('Root')/Login`;
+        let rootUrl = ROOT_URL();
+        let path = `${rootUrl}/('Root')/Login`;
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`
         }
-        else {
-            path = path;
-        }
 
-        let body = JSON.stringify(options.data);
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
 
-        promise =
-            fetch(`${path}`, {
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
                 method: 'POST',
-                body: body
+                crossDomain: crossDomainParam(),
+                body: JSON.stringify(options.data)
             });
-        let source = Observable.fromPromise(promise);
-        return source;
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam()
+            });
+        }
     }
 
     export const Logout = (action: CustomAction, options?: IODataParams) => {
-        let Observable = Rx.Observable;
-        let promise: Promise<any>;
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = `${ROOT_URL()}/('Root')/Logout`;
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`
         }
-        else {
-            path = path;
-        }
 
-        promise =
-            fetch(`${path}`, {
-                method: 'POST'
+        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam(),
+                body: JSON.stringify(options.data)
             });
-        let source = Observable.fromPromise(promise);
-        return source;
+        }
+        else {
+            return ajax({
+                url: `${path}`,
+                method: 'POST',
+                crossDomain: crossDomainParam()
+            });
+        }
     }
 
     export class ODataRequestOptions {

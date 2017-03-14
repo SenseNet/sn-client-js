@@ -39,10 +39,9 @@ describe('Collection', () => {
     });
   });
   describe('#Add()', () => {
-    const content = Content.Create('Article', { DisplayName: 'content' });
-    it("should return an observable", function () {
-      expect(typeof collection.Add(content)).to.be.eq('object');
-    });
+    // it("should return an observable", function () {
+    //   expect(typeof collection.Add(content)).to.be.eq('object');
+    // });
   });
   describe('#Remove()', () => {
     it("should return an observable", function () {

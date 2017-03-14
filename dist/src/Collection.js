@@ -25,7 +25,7 @@ class Collection {
     Add(content) {
         const newcontent = ODataApi_1.ODataApi.CreateContent(this.Path, content);
         newcontent
-            .map(response => response.d)
+            .map(response => response.response.d)
             .subscribe({
             next: (response) => {
                 this.items = [
@@ -62,7 +62,7 @@ class Collection {
         let optionList = new ODataApi_1.ODataApi.ODataRequestOptions(o);
         const children = ODataApi_1.ODataApi.FetchContent(optionList);
         children
-            .map(response => response.d)
+            .map(response => response.response.d)
             .subscribe({
             next: (response) => {
                 this.items = response.results;

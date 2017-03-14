@@ -77,11 +77,10 @@ export class Collection<T> {
      * });
      * ```
      */
-    /* istanbul ignore next */
     public Add(content: Content): Observable<any> {
         const newcontent = ODataApi.CreateContent(this.Path, content);
         newcontent
-            .map(response => response.d)
+            .map(response => response.response.d)
             .subscribe({
                 next: (response) => {
                     this.items = [
@@ -181,7 +180,7 @@ export class Collection<T> {
         let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
         const children = ODataApi.FetchContent(optionList);
         children
-            .map(response => response.d)
+            .map(response => response.response.d)
             .subscribe({
                 next: (response) => {
                     this.items = response.results;
