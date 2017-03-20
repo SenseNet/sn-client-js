@@ -98,7 +98,7 @@ export module ODataHelper {
         let parentPath = path.substring(0, lastSlashPosition);
 
         let url;
-        if(name.indexOf('Root') > -1)
+        if (name.indexOf('Root') > -1)
             url = `${parentPath}/('${name}')`;
         else
             url = `${parentPath}('${name}')`
