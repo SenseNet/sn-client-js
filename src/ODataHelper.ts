@@ -97,7 +97,12 @@ export module ODataHelper {
         let name = path.substring(lastSlashPosition + 1);
         let parentPath = path.substring(0, lastSlashPosition);
 
-        return `${parentPath}('${name}')`;
+        let url;
+        if (name.indexOf('Root') > -1)
+            url = `${parentPath}/('${name}')`;
+        else
+            url = `${parentPath}('${name}')`
+        return url;
     }
     /**
      * Method that gets the URL that refers to a single item in the Sense/Net Content Repository by its Id
