@@ -3,6 +3,9 @@
   "version": "1.1.1-beta.1",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
+  "bin": {
+    "sn-fetch-types": "./bin/sn-fetch-types.cmd"
+  },
   "scripts": {
     "commit": "git-cz",
     "gulp": "gulp",
