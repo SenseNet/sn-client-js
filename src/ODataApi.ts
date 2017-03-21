@@ -64,7 +64,7 @@ export module ODataApi {
         ajax({ url: `${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`, crossDomain: crossDomainParam(), method: 'GET' });
 
     export const CreateContent = (path: string, content: Content) => {
-        let contentItem = { __contentType: content.Type };
+        let contentItem = { __ContentType: content.Type };
         for (let prop in content) {
             if (prop !== 'Type') {
                 contentItem[prop] = content[prop];
@@ -100,12 +100,12 @@ export module ODataApi {
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     export const PatchContent = (id: number, fields: Object) => ajax({
-            url: `${ROOT_URL()}/content(${id})`,
-            method: 'PATCH',
-            responseType: 'json',
-            crossDomain: crossDomainParam(),
-            body: `models=[${JSON.stringify(fields)}]`
-        })
+        url: `${ROOT_URL()}/content(${id})`,
+        method: 'PATCH',
+        responseType: 'json',
+        crossDomain: crossDomainParam(),
+        body: `models=[${JSON.stringify(fields)}]`
+    })
     /**
      * Method to set multiple fields of a Content and clear the rest through OData REST API.
      * 
@@ -115,12 +115,12 @@ export module ODataApi {
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     export const PutContent = (id: number, fields: Object) => ajax({
-            url: `${ROOT_URL()}/content(${id})`,
-            method: 'PUT',
-            responseType: 'json',
-            crossDomain: crossDomainParam(),
-            body: `models=[${JSON.stringify(fields)}]`
-        })
+        url: `${ROOT_URL()}/content(${id})`,
+        method: 'PUT',
+        responseType: 'json',
+        crossDomain: crossDomainParam(),
+        body: `models=[${JSON.stringify(fields)}]`
+    })
     /**
      * Creates a wrapper function for a callable custom OData action.
      * 
