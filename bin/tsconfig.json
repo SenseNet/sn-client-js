@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "removeComments": true,
+        "noImplicitAny": false,
+        "target": "es2015",
+        "module": "commonjs",
+        "sourceMap": true,
+        "declaration": false,
+        "preserveConstEnums": true,
+        "experimentalDecorators": true,
+        "typeRoots": [
+            "../node_modules/@types"
+        ],
+        "outDir": "../dist/bin"
+    },
+    "compileOnSave": false,
+    "files": [
+        "./sn-fetch-types.ts"
+    ]
+}

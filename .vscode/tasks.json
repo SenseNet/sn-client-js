@@ -8,8 +8,8 @@
     "suppressTaskName": true,
     "tasks": [
         {
-            "taskName": "build",
-            "args": ["run", "gulp"],
+            "taskName": "build:sn-fetch-client",         
+            "args": ["run", "build:sn-fetch-client"],
             "isBuildCommand": true
         }
     ]
