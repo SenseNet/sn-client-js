@@ -1,4 +1,4 @@
-import { Ask, Download, ConfigReader } from '../utils';
+import { Ask, Download, ConfigReader, NpmExecutor } from '../utils';
 import * as AdmZip from 'adm-zip';
 
 /**
@@ -26,6 +26,12 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
 
     let zip = new AdmZip(zipBuffer);
     console.log('Download completed, extracting...');
+    zip.extractAllTo('./src/', true);
+    console.log('Files extracted, running Build...');
+
+    let result = new NpmExecutor(__dirname).Run('gulp');
+
+    console.log('All done.');
 
     process.exit(0);
 })()
