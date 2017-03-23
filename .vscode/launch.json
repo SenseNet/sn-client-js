@@ -8,12 +8,12 @@
             "type": "node",
             "request": "launch",
             "name": "Launch sn-fetch-types",
-            "preLaunchTask": "build:sn-fetch-client",
-            "program": "${workspaceRoot}\\bin\\sn-fetch-types.ts",
+            "preLaunchTask": "build:commands",
+            "program": "${workspaceRoot}\\src_commands\\sn-fetch-types\\index.ts",
             "sourceMaps": true,
             "console": "integratedTerminal",
             "outFiles": [
-                "${workspaceRoot}\\dist\\bin\\sn-fetch-types.js"
+                "${workspaceRoot}\\dist\\commands\\sn-fetch-types\\index.js"
             ]
         },
         {

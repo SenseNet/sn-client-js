@@ -11,10 +11,10 @@
         "typeRoots": [
             "../node_modules/@types"
         ],
-        "outDir": "../dist/bin"
+        "outDir": "../dist/commands"
     },
     "compileOnSave": false,
     "files": [
-        "./sn-fetch-types.ts"
+        "./index.ts"
     ]
 }
