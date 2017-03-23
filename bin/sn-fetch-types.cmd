@@ -1,7 +1,7 @@
 @IF EXIST "%~dp0\node.exe" (
-  "%~dp0\node.exe"  "%~dp0\..\..\sn-client-js\dist\commands\sn-fetch-types\index.js" %*
+  "%~dp0\node.exe"  "%~dp0\..\..\sn-client-js\dist_commands\sn-fetch-types\index.js" %*
 ) ELSE (
   @SETLOCAL
   @SET PATHEXT=%PATHEXT:;.JS;=;%
-  node  "%~dp0\..\..\sn-client-js\dist\commands\sn-fetch-types\index.js" %*
+  node  "%~dp0\..\..\sn-client-js\dist_commands\sn-fetch-types\index.js" %*
 )

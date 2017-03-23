@@ -13,7 +13,7 @@
             "sourceMaps": true,
             "console": "integratedTerminal",
             "outFiles": [
-                "${workspaceRoot}\\dist\\commands\\sn-fetch-types\\index.js"
+                "${workspaceRoot}\\dist_commands\\sn-fetch-types\\index.js"
             ]
         },
         {

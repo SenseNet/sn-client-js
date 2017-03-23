@@ -7,4 +7,5 @@ __export(require("./ask"));
 __export(require("./download"));
 __export(require("./snconfigmodel"));
 __export(require("./configreader"));
+__export(require("./npmexecutor"));
 //# sourceMappingURL=index.js.map
