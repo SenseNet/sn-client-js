@@ -1,6 +1,10 @@
 import { Ask, Download, ConfigReader } from '../utils';
 import * as AdmZip from 'adm-zip';
 
+/**
+ * Executeable node.js file for fetching / updating pre-generated Typescript proxy classes from a Sense/Net Content Repository
+ */
+
 const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.zip';
 
 (async () => {
