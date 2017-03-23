@@ -11,6 +11,7 @@
             "preLaunchTask": "build:sn-fetch-client",
             "program": "${workspaceRoot}\\bin\\sn-fetch-types.ts",
             "sourceMaps": true,
+            "console": "integratedTerminal",
             "outFiles": [
                 "${workspaceRoot}\\dist\\bin\\sn-fetch-types.js"
             ]
