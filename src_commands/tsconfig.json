@@ -11,7 +11,7 @@
         "typeRoots": [
             "../node_modules/@types"
         ],
-        "outDir": "../dist/commands"
+        "outDir": "../dist_commands"
     },
     "compileOnSave": false,
     "files": [
