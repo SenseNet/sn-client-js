@@ -8,4 +8,7 @@ __export(require("./download"));
 __export(require("./snconfigmodel"));
 __export(require("./configreader"));
 __export(require("./npmexecutor"));
+__export(require("./snconfigfieldmodel"));
+__export(require("./snconfigfielddecorator"));
+__export(require("./snconfigfieldmodelstore"));
 //# sourceMappingURL=index.js.map

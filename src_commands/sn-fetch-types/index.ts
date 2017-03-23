@@ -1,4 +1,6 @@
-import { Ask, Download, ConfigReader, NpmExecutor } from '../utils';
+import { ConfigReader } from '../utils/configreader';
+import { Download } from '../utils/download';
+import { NpmExecutor } from '../utils/npmexecutor';
 import * as AdmZip from 'adm-zip';
 import * as Path from 'path';
 
@@ -14,11 +16,7 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
     console.log('Checking sn.config.js...');
 
     let cfg = await new ConfigReader(process.cwd())
-                .ValidateAsync([
-                    ['RepositoryUrl', 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com): '],
-                    ['UserName', 'Please enter the admin username: '],
-                    ['Password', 'Please enter the password for the user: ']
-                ]);
+        .ValidateAsync('RepositoryUrl', 'UserName', 'Password');
     console.log('Downloading type definitions...');
 
     let zipBuffer = await new Download(cfg.RepositoryUrl, SN_REPOSITORY_URL_POSTFIX)

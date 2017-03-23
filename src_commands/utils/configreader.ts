@@ -1,4 +1,6 @@
-import { Ask, SnConfigModel } from '../utils';
+import { SnConfigModel } from './snconfigmodel';
+import { SnConfigFieldModelStore } from './snconfigfieldmodelstore';
+import { Ask } from './ask';
 import * as Path from 'path';
 
 
@@ -37,13 +39,17 @@ export class ConfigReader {
      * @param requiredValues An array of tuples containing a key for the config and a string that will be a question to be asked if the value is missing and needs to be provided.
      * @returns {Promise<Readonly<SnConfigModel>>} An awaitable promise with the readonly SnAdminConfigModel that will contain all specified values
      */
-    public async ValidateAsync<K extends keyof SnConfigModel>(requiredValues: [K, string][]): Promise<Readonly<SnConfigModel>> {
+    public async ValidateAsync<K extends keyof SnConfigModel>(...requiredValues: K[]): Promise<Readonly<SnConfigModel>> {
         await this.ReadConfigFile();
-
-        for (let requiredValue of requiredValues) {
-            let value = this.config[requiredValue[0]];
-            if (!value || !value.length) {
-                this.config[requiredValue[0]] = await Ask.TextAsync(requiredValue[1]);
+        for (let fieldName of requiredValues) {
+            let fieldModel = SnConfigFieldModelStore.Get(fieldName);
+            let value = this.config[fieldModel.FieldName];
+            if (!value || !value.length || fieldModel.Type === 'ConsoleOnly') {
+                this.config[fieldModel.FieldName] =
+                    (fieldModel.Type === 'Password')
+                        ?
+                        await Ask.PasswordAsync(fieldModel.Question) :
+                        await Ask.TextAsync(fieldModel.Question);
             }
         }
 

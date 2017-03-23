@@ -8,13 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("../utils");
+const snconfigmodel_1 = require("./snconfigmodel");
+const snconfigfieldmodelstore_1 = require("./snconfigfieldmodelstore");
+const ask_1 = require("./ask");
 const Path = require("path");
 const SN_CONFIG_NAME = 'sn.config.js';
 class ConfigReader {
     constructor(projectDirectory) {
         this.projectDirectory = projectDirectory;
-        this.config = new utils_1.SnConfigModel;
+        this.config = new snconfigmodel_1.SnConfigModel;
     }
     ReadConfigFile() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,18 +26,23 @@ class ConfigReader {
             }
             catch (error) {
                 console.log(`No '${SN_CONFIG_NAME}' file found in the project root.`);
-                cfg = new utils_1.SnConfigModel();
+                cfg = new snconfigmodel_1.SnConfigModel();
             }
             this.config = cfg;
         });
     }
-    ValidateAsync(requiredValues) {
+    ValidateAsync(...requiredValues) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.ReadConfigFile();
-            for (let requiredValue of requiredValues) {
-                let value = this.config[requiredValue[0]];
-                if (!value || !value.length) {
-                    this.config[requiredValue[0]] = yield utils_1.Ask.TextAsync(requiredValue[1]);
+            for (let fieldName of requiredValues) {
+                let fieldModel = snconfigfieldmodelstore_1.SnConfigFieldModelStore.Get(fieldName);
+                let value = this.config[fieldModel.FieldName];
+                if (!value || !value.length || fieldModel.Type === 'ConsoleOnly') {
+                    this.config[fieldModel.FieldName] =
+                        (fieldModel.Type === 'Password')
+                            ?
+                                yield ask_1.Ask.PasswordAsync(fieldModel.Question) :
+                            yield ask_1.Ask.TextAsync(fieldModel.Question);
                 }
             }
             return this.config;
