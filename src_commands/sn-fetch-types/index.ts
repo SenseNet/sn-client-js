@@ -1,5 +1,6 @@
 import { Ask, Download, ConfigReader, NpmExecutor } from '../utils';
 import * as AdmZip from 'adm-zip';
+import * as Path from 'path';
 
 /**
  * Executeable node.js file for fetching / updating pre-generated Typescript proxy classes from a Sense/Net Content Repository
@@ -26,7 +27,7 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
 
     let zip = new AdmZip(zipBuffer);
     console.log('Download completed, extracting...');
-    zip.extractAllTo('./src/', true);
+    zip.extractAllTo(`${__dirname}${Path.sep}..${Path.sep}..${Path.sep}src`, true);
     console.log('Files extracted, running Build...');
 
     let result = new NpmExecutor(__dirname).Run('gulp');
