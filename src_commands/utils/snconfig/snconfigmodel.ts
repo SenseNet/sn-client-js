@@ -1,4 +1,5 @@
-import { SnConfigField } from './snconfigfielddecorator'
+import { SnConfigField } from './snconfigfielddecorator';
+import { SnConfigBehavior } from './snconfigbehavior';
 
 
 /**
@@ -11,7 +12,7 @@ export class SnConfigModel {
      */
     @SnConfigField({
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
-        Type: 'Text'
+        Behavior: SnConfigBehavior.AllowFromConfig
     })
     RepositoryUrl: string;
 
@@ -20,7 +21,7 @@ export class SnConfigModel {
      */
     @SnConfigField({
         Question: 'Please enter the username: ',
-        Type: 'Text'
+        Behavior: SnConfigBehavior.AllowFromConfig
     })
     UserName?: string;
 
@@ -29,7 +30,7 @@ export class SnConfigModel {
      */
     @SnConfigField({
         Question: 'Please enter the password for the user',
-        Type: 'Password'
+        Behavior: SnConfigBehavior.HideConsoleInput
     })
     Password?: string;
 }

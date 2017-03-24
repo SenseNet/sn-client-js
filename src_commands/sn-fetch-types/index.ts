@@ -1,4 +1,4 @@
-import { ConfigReader } from '../utils/configreader';
+import { SnConfigReader } from '../utils/snconfig';
 import { Download } from '../utils/download';
 import { NpmExecutor } from '../utils/npmexecutor';
 import * as AdmZip from 'adm-zip';
@@ -15,7 +15,7 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
     console.log('Sn-Fetch-Types starting...');
     console.log('Checking sn.config.js...');
 
-    let cfg = await new ConfigReader(process.cwd())
+    let cfg = await new SnConfigReader(process.cwd())
         .ValidateAsync('RepositoryUrl', 'UserName', 'Password');
     console.log('Downloading type definitions...');
 

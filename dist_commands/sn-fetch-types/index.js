@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const configreader_1 = require("../utils/configreader");
+const snconfig_1 = require("../utils/snconfig");
 const download_1 = require("../utils/download");
 const npmexecutor_1 = require("../utils/npmexecutor");
 const AdmZip = require("adm-zip");
@@ -17,7 +17,7 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
 (() => __awaiter(this, void 0, void 0, function* () {
     console.log('Sn-Fetch-Types starting...');
     console.log('Checking sn.config.js...');
-    let cfg = yield new configreader_1.ConfigReader(process.cwd())
+    let cfg = yield new snconfig_1.SnConfigReader(process.cwd())
         .ValidateAsync('RepositoryUrl', 'UserName', 'Password');
     console.log('Downloading type definitions...');
     let zipBuffer = yield new download_1.Download(cfg.RepositoryUrl, SN_REPOSITORY_URL_POSTFIX)

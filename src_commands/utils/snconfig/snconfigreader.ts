@@ -1,6 +1,7 @@
 import { SnConfigModel } from './snconfigmodel';
 import { SnConfigFieldModelStore } from './snconfigfieldmodelstore';
-import { Ask } from './ask';
+import { SnConfigBehavior } from './snconfigbehavior';
+import { Ask } from '../ask';
 import * as Path from 'path';
 
 
@@ -9,7 +10,7 @@ const SN_CONFIG_NAME = 'sn.config.js';
 /**
  * This class reads, verifies and extends a configuration file from the specified project directory.
  */
-export class ConfigReader {
+export class SnConfigReader {
 
     private config: SnConfigModel = new SnConfigModel;
 
@@ -36,7 +37,7 @@ export class ConfigReader {
 
     /**
      * Validates a specified option set and asks the user if there are some missing option values
-     * @param requiredValues An array of tuples containing a key for the config and a string that will be a question to be asked if the value is missing and needs to be provided.
+     * @param requiredValues The config fields to be provided and to be asked for
      * @returns {Promise<Readonly<SnConfigModel>>} An awaitable promise with the readonly SnAdminConfigModel that will contain all specified values
      */
     public async ValidateAsync<K extends keyof SnConfigModel>(...requiredValues: K[]): Promise<Readonly<SnConfigModel>> {
@@ -44,9 +45,10 @@ export class ConfigReader {
         for (let fieldName of requiredValues) {
             let fieldModel = SnConfigFieldModelStore.Get(fieldName);
             let value = this.config[fieldModel.FieldName];
-            if (!value || !value.length || fieldModel.Type === 'ConsoleOnly') {
+
+            if (!value || !value.length || !(fieldModel.Behavior & SnConfigBehavior.AllowFromConfig)) {
                 this.config[fieldModel.FieldName] =
-                    (fieldModel.Type === 'Password')
+                    (fieldModel.Behavior & SnConfigBehavior.HideConsoleInput)
                         ?
                         await Ask.PasswordAsync(fieldModel.Question) :
                         await Ask.TextAsync(fieldModel.Question);
