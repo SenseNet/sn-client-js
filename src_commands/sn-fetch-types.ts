@@ -1,6 +1,6 @@
-import { SnConfigReader } from '../utils/snconfig';
-import { Download } from '../utils/download';
-import { NpmExecutor } from '../utils/npmexecutor';
+import { SnConfigReader } from './utils/snconfig';
+import { Download } from './utils/download';
+import { NpmExecutor } from './utils/npmexecutor';
 import * as AdmZip from 'adm-zip';
 import * as Path from 'path';
 

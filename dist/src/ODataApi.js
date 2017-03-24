@@ -38,7 +38,7 @@ var ODataApi;
     };
     ODataApi.FetchContent = (options) => ajax({ url: `${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, crossDomain: ODataApi.crossDomainParam(), method: 'GET' });
     ODataApi.CreateContent = (path, content) => {
-        let contentItem = { __contentType: content.Type };
+        let contentItem = { __ContentType: content.Type };
         for (let prop in content) {
             if (prop !== 'Type') {
                 contentItem[prop] = content[prop];

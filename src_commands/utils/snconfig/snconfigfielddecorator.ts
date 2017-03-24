@@ -1,5 +1,4 @@
-import { SnConfigFieldModel } from './snconfigfieldmodel';
-import { SnConfigFieldModelStore } from './snconfigfieldmodelstore';
+import { SnConfigFieldModel, SnConfigFieldModelStore } from './';
 
 /**
  * This function has to be used in the SnConfigModel class to provide additional metadata for the SnConfig fields

@@ -9,28 +9,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const snconfigfielddecorator_1 = require("./snconfigfielddecorator");
-const snconfigbehavior_1 = require("./snconfigbehavior");
+const _1 = require("./");
 class SnConfigModel {
 }
 __decorate([
-    snconfigfielddecorator_1.SnConfigField({
+    _1.SnConfigField({
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
-        Behavior: snconfigbehavior_1.SnConfigBehavior.AllowFromConfig
+        Behavior: _1.SnConfigBehavior.AllowFromConfig
     }),
     __metadata("design:type", String)
 ], SnConfigModel.prototype, "RepositoryUrl", void 0);
 __decorate([
-    snconfigfielddecorator_1.SnConfigField({
+    _1.SnConfigField({
         Question: 'Please enter the username: ',
-        Behavior: snconfigbehavior_1.SnConfigBehavior.AllowFromConfig
+        Behavior: _1.SnConfigBehavior.AllowFromConfig
     }),
     __metadata("design:type", String)
 ], SnConfigModel.prototype, "UserName", void 0);
 __decorate([
-    snconfigfielddecorator_1.SnConfigField({
+    _1.SnConfigField({
         Question: 'Please enter the password for the user',
-        Behavior: snconfigbehavior_1.SnConfigBehavior.HideConsoleInput
+        Behavior: _1.SnConfigBehavior.HideConsoleInput
     }),
     __metadata("design:type", String)
 ], SnConfigModel.prototype, "Password", void 0);

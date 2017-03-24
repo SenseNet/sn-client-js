@@ -1,4 +1,4 @@
-import { SnConfigBehavior } from './snconfigbehavior'
+import { SnConfigBehavior } from './'
 
 /**
  * Class that represents a model for a field in the SnConfig (usually sn.config.js) module file

@@ -1,4 +1,5 @@
 import * as Prompt from 'prompt';
+import { SnConfigFieldModel, SnConfigBehavior, SnConfigModel, SnConfigFieldModelStore } from './snconfig';
 
 /**
  * This class is a wrapper for command-line data input in Node.Js console applications
@@ -25,7 +26,7 @@ export class Ask {
 
 
     /**
-     * 
+     *
      * @param question The string that will be displayed before the user input
      * @param hide {boolean} Indicates if the user input needs to be hidden
      */
@@ -40,6 +41,23 @@ export class Ask {
                 }
             ], (err, res) => {
                 resolve(res[question]);
+            })
+        });
+    }
+
+    public static async MissingConfigs<K extends keyof SnConfigModel>(...missingConfigs: K[]): Promise<Partial<SnConfigModel>> {
+        return new Promise<Partial<SnConfigModel>>((resolve, reject) => {
+            Prompt.start();
+            let configs =  missingConfigs.map(fieldName => {
+                let cfg = SnConfigFieldModelStore.Get(fieldName);
+                return {
+                    name: cfg.FieldName,
+                    description: cfg.Question,   // ??
+                    hidden: cfg.Behavior | SnConfigBehavior.HideConsoleInput
+                }
+            })
+            Prompt.get(configs, (err, res) => {
+                resolve();
             })
         });
     }

@@ -1,5 +1,4 @@
-import { SnConfigField } from './snconfigfielddecorator';
-import { SnConfigBehavior } from './snconfigbehavior';
+import { SnConfigField, SnConfigBehavior } from './';
 
 
 /**

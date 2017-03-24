@@ -1,4 +1,4 @@
-import { SnConfigFieldModel } from './snconfigfieldmodel';
+import { SnConfigFieldModel } from './';
 
 /**
  * Class that stores the model data for the SnConfigModel's fields, filled by the SnConfigField decorator

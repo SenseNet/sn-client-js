@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Prompt = require("prompt");
+const snconfig_1 = require("./snconfig");
 class Ask {
     static TextAsync(question) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,6 +33,24 @@ class Ask {
                     }
                 ], (err, res) => {
                     resolve(res[question]);
+                });
+            });
+        });
+    }
+    static MissingConfigs(...missingConfigs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                Prompt.start();
+                let configs = missingConfigs.map(fieldName => {
+                    let cfg = snconfig_1.SnConfigFieldModelStore.Get(fieldName);
+                    return {
+                        name: cfg.FieldName,
+                        description: cfg.Question,
+                        hidden: cfg.Behavior | snconfig_1.SnConfigBehavior.HideConsoleInput
+                    };
+                });
+                Prompt.get(configs, (err, res) => {
+                    resolve();
                 });
             });
         });

@@ -1,7 +1,5 @@
-import { SnConfigModel } from './snconfigmodel';
-import { SnConfigFieldModelStore } from './snconfigfieldmodelstore';
-import { SnConfigBehavior } from './snconfigbehavior';
-import { Ask } from '../ask';
+import { SnConfigModel, SnConfigFieldModelStore, SnConfigBehavior } from './';
+import { Ask } from '../';
 import * as Path from 'path';
 
 
