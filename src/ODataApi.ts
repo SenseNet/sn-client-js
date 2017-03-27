@@ -1,6 +1,5 @@
 import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
-import 'isomorphic-fetch';
 import * as Rx from '@reactivex/rxjs';
 const { ajax } = Rx.Observable;
 
@@ -49,9 +48,7 @@ export module ODataApi {
      */
     export let GetContent = (options: ODataRequestOptions) => {
         let Observable = Rx.Observable;
-        let promise: Promise<any> = fetch(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
     }
     /**
      * Method to fetch children of a Content from the Content Repository through OData REST API.
@@ -185,9 +182,10 @@ export module ODataApi {
         else {
             url = url;
         }
-        let promise: Promise<any> = fetch(url, JSON.stringify(data));
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax({
+            url,
+            body: JSON.stringify(data)
+        });
     }
 
     export const Login = (action: CustomAction, options?: IODataParams) => {

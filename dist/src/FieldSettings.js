@@ -161,27 +161,6 @@ var FieldSettings;
         }
     }
     FieldSettings.RatingFieldSetting = RatingFieldSetting;
-    class CurrencyFieldSetting extends NumberFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Format = options.format;
-        }
-    }
-    FieldSettings.CurrencyFieldSetting = CurrencyFieldSetting;
-    class ColorFieldSetting extends TextFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Palette = options.palette;
-        }
-    }
-    FieldSettings.ColorFieldSetting = ColorFieldSetting;
-    class HyperLinkFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-            this.UrlFormat = options.urlFormat;
-        }
-    }
-    FieldSettings.HyperLinkFieldSetting = HyperLinkFieldSetting;
     class PasswordFieldSetting extends ShortTextFieldSetting {
         constructor(options) {
             super(options);
@@ -198,5 +177,4 @@ var FieldSettings;
     }
     FieldSettings.CaptchaFieldSetting = CaptchaFieldSetting;
 })(FieldSettings = exports.FieldSettings || (exports.FieldSettings = {}));
-
 //# sourceMappingURL=FieldSettings.js.map

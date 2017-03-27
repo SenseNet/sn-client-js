@@ -2,7 +2,6 @@ import * as Rx from '@reactivex/rxjs';
 import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import { ODataApi } from './ODataApi';
-import 'isomorphic-fetch';
 const { ajax } = Rx.Observable;
 import { Value, Properties } from 'ts-json-properties';
 
@@ -236,8 +235,9 @@ export module ODataApiActionObservables {
         if (creation) {
             url = `${url}?create=1`;
         }
-        let promise: Promise<any> = fetch(url, JSON.stringify(data));
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax({
+            url,
+            body: JSON.stringify(data)
+        });
     }
 }

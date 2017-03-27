@@ -4,7 +4,7 @@ import { ODataHelper } from './ODataHelper';
 import { Fields } from './Fields';
 import { Enums } from './Enums';
 import { FieldSettings } from './FieldSettings';
-import { Schemas } from './Schema';
+import { Schemas } from './Schemas';
 import { Security } from './Security';
 
 /**

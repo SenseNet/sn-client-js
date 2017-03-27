@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const ODataApi_1 = require("./ODataApi");
 const ODataHelper_1 = require("./ODataHelper");
-const Schema_1 = require("./Schema");
+const Schemas_1 = require("./Schemas");
 class Content {
     constructor(options) {
         this.Type = 'GenericContent';
@@ -40,7 +40,7 @@ class Content {
         }
     }
     GetSchema() {
-        return Schema_1.Schemas[`${this.Type}CTD`]();
+        return Schemas_1.Schemas[`${this.Type}CTD`]();
     }
     Actions(scenario) {
         let options = {};
@@ -173,7 +173,7 @@ class Content {
         }
     }
     static GetSchema(type) {
-        return Schema_1.Schemas[`${type}CTD`]();
+        return Schemas_1.Schemas[`${type}CTD`]();
     }
     static Create(type, options = {}) {
         options['Type'] = type;
@@ -181,7 +181,7 @@ class Content {
         return content;
     }
     Schema() {
-        return Schema_1.Schemas[`${this.Type}CTD`]();
+        return Schemas_1.Schemas[`${this.Type}CTD`]();
     }
     SetPermissions(arg) {
         let action;
@@ -345,5 +345,4 @@ class Content {
     }
 }
 exports.Content = Content;
-
 //# sourceMappingURL=Content.js.map

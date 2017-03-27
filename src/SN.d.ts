@@ -13,7 +13,7 @@ import './Security';
 
 export { Fields } from './Fields';
 export { FieldSettings } from './FieldSettings';
-export { Schemas } from './Schema';
+export { Schemas } from './Schemas';
 export { Content } from './Content';
 export { ContentTypes } from './ContentTypes';
 export { Collection } from './Collection';

@@ -34,5 +34,4 @@ var Security;
     })(Inheritance = Security.Inheritance || (Security.Inheritance = {}));
     ;
 })(Security = exports.Security || (exports.Security = {}));
-
 //# sourceMappingURL=Security.js.map

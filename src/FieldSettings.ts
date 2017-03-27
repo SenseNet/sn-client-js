@@ -1,3 +1,4 @@
+//file: FieldSettings.ts
 import { Fields } from './Fields';
 /**
  * Module for FieldSettings.
@@ -91,7 +92,7 @@ export module FieldSettings {
     }
 
 
-    // Used in ContentType, GenericContent, File, Image, ViewBase, ExpenseClaim, TrashBag, TrashBin, CalendarEvent, EventRegistrationFormItem, ForumEntry, Post, Task, ExpenseClaimWorkflowTask, DocumentPreviewWorkflow, ExpenseClaimWorkflow
+    // Used in ContentType, GenericContent, File, Image, TrashBag, TrashBin, Task
     export class IntegerFieldSetting extends FieldSetting {
         MinValue: number;
         MaxValue: number;
@@ -114,7 +115,7 @@ export module FieldSettings {
         step?: number;
     }
 
-    // Used in ContentType, GenericContent, Settings, IndexingSettings, ViewBase, ListView, WorkflowDefinition, ContentList, Survey, Voting, SurveyList, Skin, Workspace, Blog, SalesWorkspace, Site, BlogPost, CalendarEvent, ConfirmationItem, CustomListItem, ExpenseClaimItem, Portlet, Article, PublicRegistrationConfig, Subscription, User, RegisteredUser, Workflow, ApprovalWorkflow
+    // Used in ContentType, GenericContent, Settings, IndexingSettings, ContentList, Workspace, Site, CustomListItem, User
     export class NullFieldSetting extends FieldSetting {
 
         constructor(options: INullFieldSettingOptions) {
@@ -142,7 +143,7 @@ export module FieldSettings {
         maxLength?: number;
     }
 
-    // Used in ContentType, GenericContent, File, Contract, OrderForm, ListView, ADFolder, ContentList, Form, Survey, SurveyList, Device, Domain, Email, OrganizationalUnit, TrashBag, Group, CalendarEvent, Car, EventRegistrationFormItem, Link, Portlet, SliderItem, Task, ApprovalWorkflowTask, Article, WebContentDemo, NotificationConfig, PublicRegistrationConfig, Subscription, Tag, User, RegisteredUser, UserSearch, Workflow, ApprovalWorkflow, DocumentPreviewWorkflow, ExpenseClaimWorkflow, ForgottenPasswordWorkflow, RegistrationWorkflow
+    // Used in ContentType, GenericContent, File, ContentList, Device, Domain, Email, OrganizationalUnit, TrashBag, Group, Task, User
     export class ShortTextFieldSetting extends TextFieldSetting {
         Regex: string;
 
@@ -156,7 +157,7 @@ export module FieldSettings {
         regex?: string;
     }
 
-    // Used in ContentType, GenericContent, File, Contract, HtmlTemplate, Image, OrderForm, ViewBase, ListView, Video, ContentList, Aspect, Form, SurveyList, Email, KPIDatasource, SmartFolder, SalesWorkspace, BlogPost, CalendarEvent, Post, SliderItem, SurveyItem, ExpenseClaimWorkflowTask, Article, HTMLContent, WebContentDemo, NotificationConfig, PublicRegistrationConfig, Query, Tag, User, WikiArticle, Workflow
+    // Used in ContentType, GenericContent, File, HtmlTemplate, Image, ContentList, Aspect, Email, SmartFolder, Query, User
     export class LongTextFieldSetting extends TextFieldSetting {
         Rows: number;
         TextType: TextType;
@@ -176,7 +177,7 @@ export module FieldSettings {
         appendModifications?: boolean;
     }
 
-    // Used in ContentType, File, ExpenseClaimItem, Portlet, Article, User
+    // Used in ContentType, File, User
     export class BinaryFieldSetting extends FieldSetting {
         IsText: boolean;
 
@@ -190,7 +191,7 @@ export module FieldSettings {
         isText?: boolean;
     }
 
-    // Used in ContentType, GenericContent, ContentLink, Contract, PageTemplate, ViewBase, ContentList, EventList, Survey, Voting, SurveyList, ImageLibrary, TrashBag, Workspace, Site, UserProfile, Group, CalendarEvent, ExpenseClaimItem, ForumEntry, Memo, Portlet, Post, SliderItem, SurveyItem, Task, ApprovalWorkflowTask, ExpenseClaimWorkflowTask, Article, WebContentDemo, PublicRegistrationConfig, User, Workflow, ApprovalWorkflow, ExpenseClaimWorkflow
+    // Used in ContentType, GenericContent, ContentLink, ContentList, ImageLibrary, TrashBag, Workspace, Site, UserProfile, Group, Memo, Task, User
     export class ReferenceFieldSetting extends FieldSetting {
         AllowMultiple: boolean;
         AllowedTypes: string[];
@@ -216,7 +217,7 @@ export module FieldSettings {
         fieldName?: string;
     }
 
-    // Used in ContentType, GenericContent, Image, ADFolder, Domain, Email, OrganizationalUnit, TrashBag, Workspace, SalesWorkspace, Group, BlogPost, CalendarEvent, Car, ExpenseClaimItem, Memo, SurveyItem, Task, WebContent, User
+    // Used in ContentType, GenericContent, Image, Domain, Email, OrganizationalUnit, TrashBag, Workspace, Group, Memo, Task, User
     export class DateTimeFieldSetting extends FieldSetting {
         DateTimeMode: DateTimeMode;
         Precision: DateTimePrecision;
@@ -233,7 +234,7 @@ export module FieldSettings {
         precision?: DateTimePrecision;
     }
 
-    // Used in GenericContent, Contract, ViewBase, WorkflowDefinition, ContentList, SmartFolder, ContentRotator, Site, CalendarEvent, Car, Memo, SliderItem, Task, ApprovalWorkflowTask, WebContentDemo, Query, Subscription, User, Workflow, RegistrationWorkflow
+    // Used in GenericContent, ContentList, SmartFolder, Site, Memo, Task, Query, User
     export class ChoiceFieldSetting extends ShortTextFieldSetting {
         AllowExtraValue: boolean;
         AllowMultiple: boolean;
@@ -259,7 +260,7 @@ export module FieldSettings {
         enumTypeName?: string;
     }
 
-    // Used in GenericContent, File, Resource, ProjectWorkspace, SalesWorkspace, Car, Subscription
+    // Used in GenericContent, File, Resource
     export class NumberFieldSetting extends FieldSetting {
         MinValue: number;
         MaxValue: number;
@@ -302,48 +303,6 @@ export module FieldSettings {
         split?: number;
     }
 
-    // Used in SalesWorkspace, ExpenseClaimItem
-    export class CurrencyFieldSetting extends NumberFieldSetting {
-        Format: string;
-
-        constructor(options: ICurrencyFieldSettingOptions) {
-            super(options);
-            this.Format = options.format;
-        }
-    }
-
-    export interface ICurrencyFieldSettingOptions extends INumberFieldSettingOptions {
-        format?: string;
-    }
-
-    // Used in Car
-    export class ColorFieldSetting extends TextFieldSetting {
-        Palette: string;
-
-        constructor(options: IColorFieldSettingOptions) {
-            super(options);
-            this.Palette = options.palette;
-        }
-    }
-
-    export interface IColorFieldSettingOptions extends ITextFieldSettingOptions {
-        palette?: string;
-    }
-
-    // Used in SliderItem, WebContentDemo
-    export class HyperLinkFieldSetting extends FieldSetting {
-        UrlFormat: UrlFormat;
-
-        constructor(options: IHyperLinkFieldSettingOptions) {
-            super(options);
-            this.UrlFormat = options.urlFormat;
-        }
-    }
-
-    export interface IHyperLinkFieldSettingOptions extends IFieldSettingOptions {
-        urlFormat?: UrlFormat;
-    }
-
     // Used in User
     export class PasswordFieldSetting extends ShortTextFieldSetting {
         ReenterTitle: string;
@@ -375,3 +334,4 @@ export module FieldSettings {
     export interface ICaptchaFieldSettingOptions extends IFieldSettingOptions {
     }
 }
+

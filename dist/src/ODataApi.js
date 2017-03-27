@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ODataHelper_1 = require("./ODataHelper");
-require("isomorphic-fetch");
 const Rx = require("@reactivex/rxjs");
 const { ajax } = Rx.Observable;
 var ODataApi;
@@ -32,9 +31,7 @@ var ODataApi;
     };
     ODataApi.GetContent = (options) => {
         let Observable = Rx.Observable;
-        let promise = fetch(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax(`${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`);
     };
     ODataApi.FetchContent = (options) => ajax({ url: `${ODataApi.ROOT_URL()}${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, crossDomain: ODataApi.crossDomainParam(), method: 'GET' });
     ODataApi.CreateContent = (path, content) => {
@@ -124,9 +121,10 @@ var ODataApi;
         else {
             url = url;
         }
-        let promise = fetch(url, JSON.stringify(data));
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax({
+            url,
+            body: JSON.stringify(data)
+        });
     };
     ODataApi.Login = (action, options) => {
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
@@ -229,5 +227,4 @@ var ODataApi;
     }
     ODataApi.CustomAction = CustomAction;
 })(ODataApi = exports.ODataApi || (exports.ODataApi = {}));
-
 //# sourceMappingURL=ODataApi.js.map

@@ -88,5 +88,4 @@ var ODataHelper;
     }
     ODataHelper.isItemPath = isItemPath;
 })(ODataHelper = exports.ODataHelper || (exports.ODataHelper = {}));
-
 //# sourceMappingURL=ODataHelper.js.map

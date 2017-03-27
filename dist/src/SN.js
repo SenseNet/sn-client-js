@@ -16,8 +16,8 @@ var Fields_1 = require("./Fields");
 exports.Fields = Fields_1.Fields;
 var FieldSettings_1 = require("./FieldSettings");
 exports.FieldSettings = FieldSettings_1.FieldSettings;
-var Schema_1 = require("./Schema");
-exports.Schemas = Schema_1.Schemas;
+var Schemas_1 = require("./Schemas");
+exports.Schemas = Schemas_1.Schemas;
 var Content_1 = require("./Content");
 exports.Content = Content_1.Content;
 var ContentTypes_1 = require("./ContentTypes");
@@ -41,5 +41,4 @@ var Resources_1 = require("./Resources");
 exports.Resources = Resources_1.Resources;
 var Security_1 = require("./Security");
 exports.Security = Security_1.Security;
-
 //# sourceMappingURL=SN.js.map

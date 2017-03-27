@@ -33,5 +33,4 @@ var Fields;
     }
     Fields.MediaResourceObject = MediaResourceObject;
 })(Fields = exports.Fields || (exports.Fields = {}));
-
 //# sourceMappingURL=Fields.js.map
