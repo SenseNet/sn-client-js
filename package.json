@@ -13,7 +13,8 @@
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "semantic-release": "semantic-release pre && semantic-release post",
-    "build:commands": "tsc -p src_commands/tsconfig.json"
+    "build:commands": "tsc -p src_commands/tsconfig.json",
+    "build:client": "tsc"
   },
   "repository": {
     "type": "git",
@@ -35,20 +36,18 @@
   "homepage": "https://sensenet.com",
   "dependencies": {
     "@reactivex/rxjs": "5.2.0",
+    "adm-zip": "^0.4.7",
     "app-root-path": "2.0.1",
+    "gulp-run": "^1.7.1",
     "isomorphic-fetch": "2.2.1",
-    "ts-json-properties": "1.1.4",
-    "adm-zip": "^0.4.7"
+    "ts-json-properties": "1.1.4"
   },
   "devDependencies": {
     "@reactivex/rxjs": "5.2.0",
     "@types/app-root-path": "1.2.4",
     "@types/chai": "3.4.35",
-    "@types/gulp": "^3.8.32",
     "@types/mocha": "2.2.39",
     "@types/node": "7.0.8",
-    "@types/orchestrator": "0.0.30",
-    "@types/sinon": "1.16.35",
     "app-root-path": "2.0.1",
     "chai": "3.5.0",
     "codecov.io": "0.1.6",
@@ -72,7 +71,6 @@
     "prompt": "^1.0.0",
     "remap-istanbul": "0.7.0",
     "semantic-release": "^6.3.2",
-    "sinon": "1.17.7",
     "ts-json-properties": "1.1.4",
     "tslint": "4.5.1",
     "typedoc": "0.5.7",

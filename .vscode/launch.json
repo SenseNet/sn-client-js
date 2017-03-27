@@ -18,6 +18,38 @@
         },
         {
             "type": "node",
+            "request": "launch",
+            "name": "Launch sn-fetch-types from another location",
+            "preLaunchTask": "build:commands",
+            "cwd": "${workspaceRoot}\\..\\react-redux-typescript-boilerplate",
+            "program": "${workspaceRoot}\\src_commands\\sn-fetch-types.ts",
+            "sourceMaps": true,
+            "console": "integratedTerminal",
+            "outFiles": [
+                "${workspaceRoot}\\dist_commands\\**\\*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug tests",
+            "runtimeExecutable": "mocha",
+            "windows": {
+                "runtimeExecutable": "mocha.cmd"
+            },
+            "preLaunchTask": "build:client",
+            "runtimeArgs": [
+                "--debug-brk",
+                "./dist/test/index.js"
+            ],
+            "program": "${workspaceRoot}\\test\\index.ts",
+            "outFiles": [
+                "${workspaceRoot}\\dist\\test\\**\\*.js"
+            ],
+            "port": 5858
+        },
+        {
+            "type": "node",
             "request": "attach",
             "name": "Attach to Process",
             "address": "localhost",

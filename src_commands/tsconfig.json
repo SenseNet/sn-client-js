@@ -9,9 +9,6 @@
         "preserveConstEnums": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "typeRoots": [
-            "../node_modules/@types"
-        ],
         "outDir": "../dist_commands"
     },
     "compileOnSave": false,

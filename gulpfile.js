@@ -8,6 +8,7 @@ const istanbul = require('gulp-istanbul');
 const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 const typedoc = require("gulp-typedoc");
 const del = require('del');
+var run = require('gulp-run');
 
 const __coverageThreshold = 60;
 const tsProject = ts.createProject('./tsconfig.json');
@@ -38,15 +39,7 @@ gulp.task('build:clean', function () {
 });
 
 gulp.task('build', ['build:clean'], function () {
-    return gulp.src([
-        './src/**/*.ts',
-        './test/**/*.ts',
-        '!./src/SN.d.ts'
-    ], { base: '.' })
-        .pipe(sourcemaps.init())
-        .pipe(tsProject())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./dist'));
+    return run('tsc').exec();
 })
 
 gulp.task('test:instrument', ['build'], function () {
