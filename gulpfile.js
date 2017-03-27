@@ -30,6 +30,7 @@ gulp.task("build:lint", function () {
 
 gulp.task('build:clean', function () {
     return del([
+        './tmp',
         './dist',
         './coverage',
         './coverage-report'
@@ -40,7 +41,6 @@ gulp.task('build', ['build:clean'], function () {
     return gulp.src([
         './src/**/*.ts',
         './test/**/*.ts',
-        './bin/**/*.ts',
         '!./src/SN.d.ts'
     ], { base: '.' })
         .pipe(sourcemaps.init())
