@@ -20,7 +20,7 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
     await stage.PrepareAsync();
 
     console.log('Checking sn.config.js...');
-    let cfg = await new SnConfigReader(pathHelper.SnClientPath)
+    let cfg = await new SnConfigReader(pathHelper.PackageRootPath)
         .ValidateAsync('RepositoryUrl', 'UserName', 'Password');
 
     console.log('Downloading type definitions...');
@@ -35,8 +35,7 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
     zip.extractAllTo(stage.TempFolderPath + Path.sep + 'src', true);
     console.log('Files extracted, running Build...');
 
-    // ToDo: Stage compile
-    // let result = new NpmExecutor(__dirname).Run('gulp');
+    await stage.CompileAsync();
 
     console.log('All done.');
 
