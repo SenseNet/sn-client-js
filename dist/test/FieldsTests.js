@@ -17,5 +17,4 @@ describe('Fields', () => {
         });
     });
 });
-
 //# sourceMappingURL=FieldsTests.js.map

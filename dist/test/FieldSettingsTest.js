@@ -4,8 +4,8 @@ const FieldSettings_1 = require("../src/FieldSettings");
 const Chai = require("chai");
 const sinon = require("sinon");
 const expect = Chai.expect;
-describe("FieldSettings", () => {
-    describe("#FieldSetting constructor", function () {
+describe('FieldSettings', () => {
+    describe('#FieldSetting constructor', function () {
         const fieldSetting = new FieldSettings_1.FieldSettings.FieldSetting({ name: 'ShortText' });
         it('should return a FieldSetting object', function () {
             expect(fieldSetting).to.be.an.instanceof(FieldSettings_1.FieldSettings.FieldSetting);
@@ -37,7 +37,7 @@ describe("FieldSettings", () => {
             expect(JSON.stringify(fieldSetting)).to.be.eq(obj1);
         });
     });
-    describe("#TextFieldSetting constructor", function () {
+    describe('#TextFieldSetting constructor', function () {
         const fieldSetting = new FieldSettings_1.FieldSettings.TextFieldSetting({ name: 'ShortText', displayName: 'ShortText', maxLength: 2, minLength: 0 });
         it('should return a TextFieldSetting object', function () {
             expect(fieldSetting).to.be.an.instanceof(FieldSettings_1.FieldSettings.TextFieldSetting);
@@ -75,18 +75,6 @@ describe("FieldSettings", () => {
             expect(binary).to.be.an.instanceof(FieldSettings_1.FieldSettings.BinaryFieldSetting);
         });
     });
-    describe('#Color', function () {
-        const color = new FieldSettings_1.FieldSettings.ColorFieldSetting('text');
-        it('should return a Color fieldSetting object', function () {
-            expect(color).to.be.an.instanceof(FieldSettings_1.FieldSettings.ColorFieldSetting);
-        });
-    });
-    describe('#Currency', function () {
-        const currency = new FieldSettings_1.FieldSettings.CurrencyFieldSetting('text');
-        it('should return a Currency fieldSetting object', function () {
-            expect(currency).to.be.an.instanceof(FieldSettings_1.FieldSettings.CurrencyFieldSetting);
-        });
-    });
     describe('#Captcha', function () {
         const captcha = new FieldSettings_1.FieldSettings.CaptchaFieldSetting({ 'displayName': 'Captcha' });
         it('should return a Captcha fieldSetting object', function () {
@@ -94,5 +82,4 @@ describe("FieldSettings", () => {
         });
     });
 });
-
 //# sourceMappingURL=FieldSettingsTest.js.map

@@ -1,11 +1,10 @@
-///<reference path="../node_modules/@types/mocha/index.d.ts"/>
 import { FieldSettings } from '../src/FieldSettings'
 import * as Chai from 'chai';
 import * as sinon from 'sinon';
 const expect = Chai.expect;
 
-describe("FieldSettings", () => {
-    describe("#FieldSetting constructor", function () {
+describe('FieldSettings', () => {
+    describe('#FieldSetting constructor', function () {
         const fieldSetting = new FieldSettings.FieldSetting({ name: 'ShortText' });
         it('should return a FieldSetting object', function () {
             expect(fieldSetting).to.be.an.instanceof(FieldSettings.FieldSetting);
@@ -38,7 +37,7 @@ describe("FieldSettings", () => {
             expect(JSON.stringify(fieldSetting)).to.be.eq(obj1);
         });
     });
-    describe("#TextFieldSetting constructor", function () {
+    describe('#TextFieldSetting constructor', function () {
         const fieldSetting = new FieldSettings.TextFieldSetting({ name: 'ShortText', displayName: 'ShortText', maxLength: 2, minLength: 0 });
         it('should return a TextFieldSetting object', function () {
             expect(fieldSetting).to.be.an.instanceof(FieldSettings.TextFieldSetting);
@@ -76,20 +75,8 @@ describe("FieldSettings", () => {
             expect(binary).to.be.an.instanceof(FieldSettings.BinaryFieldSetting);
         });
     });
-    describe('#Color', function () {
-        const color = new FieldSettings.ColorFieldSetting('text');
-        it('should return a Color fieldSetting object', function () {
-            expect(color).to.be.an.instanceof(FieldSettings.ColorFieldSetting);
-        });
-    });
-    describe('#Currency', function () {
-        const currency = new FieldSettings.CurrencyFieldSetting('text');
-        it('should return a Currency fieldSetting object', function () {
-            expect(currency).to.be.an.instanceof(FieldSettings.CurrencyFieldSetting);
-        });
-    });
     describe('#Captcha', function () {
-        const captcha = new FieldSettings.CaptchaFieldSetting({'displayName': 'Captcha'});
+        const captcha = new FieldSettings.CaptchaFieldSetting({ 'displayName': 'Captcha' });
         it('should return a Captcha fieldSetting object', function () {
             expect(captcha).to.be.an.instanceof(FieldSettings.CaptchaFieldSetting);
         });

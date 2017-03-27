@@ -8,9 +8,9 @@ describe('Content', () => {
     let window = {};
     beforeEach(function () {
         beforeEach(() => {
-            global["window"] = {
+            global['window'] = {
                 serviceToken: 'OData.svc',
-                siteUrl: "https://daily.demo.sensenet.com"
+                siteUrl: 'https://daily.demo.sensenet.com'
             };
         });
         content = Content_1.Content.Create('Article', { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
@@ -268,19 +268,19 @@ describe('Content', () => {
     });
     describe('#SetPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.SetPermissions([{ identity: "/Root/IMS/BuiltIn/Portal/Visitor", OpenMinor: "allow", Save: "deny" },
-                { identity: "/Root/IMS/BuiltIn/Portal/Creators", Custom16: "A", Custom17: "1" }])).to.eq('object');
+            expect(typeof content.SetPermissions([{ identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: 'allow', Save: 'deny' },
+                { identity: '/Root/IMS/BuiltIn/Portal/Creators', Custom16: 'A', Custom17: '1' }])).to.eq('object');
         });
     });
     describe('#SetPermissions()', () => {
         content = Content_1.Content.Create('Article', { Path: '/workspace/project' });
         it('should return an Observable object', function () {
-            expect(typeof content.SetPermissions("break")).to.eq('object');
+            expect(typeof content.SetPermissions('break')).to.eq('object');
         });
     });
     describe('#GetPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetPermission("/Root/IMS/BuiltIn/Portal/Visitor")).to.eq('object');
+            expect(typeof content.GetPermission('/Root/IMS/BuiltIn/Portal/Visitor')).to.eq('object');
         });
     });
     describe('#GetPermission()', () => {
@@ -355,17 +355,17 @@ describe('Content', () => {
     });
     describe('#HasPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.HasPermission("AddNew,Save")).to.eq('object');
+            expect(typeof content.HasPermission('AddNew,Save')).to.eq('object');
         });
     });
     describe('#HasPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.HasPermission("AddNew,Save", 'alba')).to.eq('object');
+            expect(typeof content.HasPermission('AddNew,Save', 'alba')).to.eq('object');
         });
     });
     describe('#TakeOwnership()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.TakeOwnership("/Root/IMS/BuiltIn/Portal/Admin")).to.eq('object');
+            expect(typeof content.TakeOwnership('/Root/IMS/BuiltIn/Portal/Admin')).to.eq('object');
         });
     });
     describe('#TakeOwnership()', () => {
@@ -375,12 +375,12 @@ describe('Content', () => {
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.SaveQuery("%2BTypeIs:WebContentDemo %2BInTree:/Root", "", "Private")).to.eq('object');
+            expect(typeof content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', 'Private')).to.eq('object');
         });
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.SaveQuery("%2BTypeIs:WebContentDemo %2BInTree:/Root", "my own query", "Private")).to.eq('object');
+            expect(typeof content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', 'Private')).to.eq('object');
         });
     });
     describe('#RegeneratePreviews()', () => {
@@ -415,32 +415,32 @@ describe('Content', () => {
     });
     describe('#GetRelatedIdentities()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedIdentities("AllowedOrDenied", "Groups")).to.eq('object');
+            expect(typeof content.GetRelatedIdentities('AllowedOrDenied', 'Groups')).to.eq('object');
         });
     });
     describe('#GetRelatedPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedPermissions("AllowedOrDenied", true, "/Root/IMS/BuiltIn/Portal/EveryOne", null)).to.eq('object');
+            expect(typeof content.GetRelatedPermissions('AllowedOrDenied', true, '/Root/IMS/BuiltIn/Portal/EveryOne', null)).to.eq('object');
         });
     });
     describe('#GetRelatedItems()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedItems("AllowedOrDenied", true, "/Root/IMS/BuiltIn/Portal/EveryOne", ["RunApplication"])).to.eq('object');
+            expect(typeof content.GetRelatedItems('AllowedOrDenied', true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.eq('object');
         });
     });
     describe('#GetRelatedIdentitiesByPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedIdentitiesByPermissions("AllowedOrDenied", "Groups", ["Open", "RunApplication"])).to.eq('object');
+            expect(typeof content.GetRelatedIdentitiesByPermissions('AllowedOrDenied', 'Groups', ['Open', 'RunApplication'])).to.eq('object');
         });
     });
     describe('#GetRelatedItemsOneLevel()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedItemsOneLevel("AllowedOrDenied", "/Root/IMS/BuiltIn/Portal/Visitor", ["Open", "RunApplication"])).to.eq('object');
+            expect(typeof content.GetRelatedItemsOneLevel('AllowedOrDenied', '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.eq('object');
         });
     });
     describe('#GetAllowedUsers()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetAllowedUsers(["Open"])).to.eq('object');
+            expect(typeof content.GetAllowedUsers(['Open'])).to.eq('object');
         });
     });
     describe('#GetParentGroups()', () => {
@@ -487,5 +487,4 @@ describe('Content', () => {
         });
     });
 });
-
 //# sourceMappingURL=ContentTests.js.map
