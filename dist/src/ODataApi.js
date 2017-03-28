@@ -226,5 +226,14 @@ var ODataApi;
         }
     }
     ODataApi.CustomAction = CustomAction;
+    class CustomContentAction extends CustomAction {
+        constructor(options) {
+            if (!options.id || !options.path) {
+                throw 'Content.Id or Content.Path is required for this action';
+            }
+            super(options);
+        }
+    }
+    ODataApi.CustomContentAction = CustomContentAction;
 })(ODataApi = exports.ODataApi || (exports.ODataApi = {}));
 //# sourceMappingURL=ODataApi.js.map

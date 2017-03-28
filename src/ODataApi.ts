@@ -343,6 +343,25 @@ export module ODataApi {
         }
     }
 
+    /**
+     * Class that represents a custom action that bounds to a specified content, that has to be identified by its Id or Path
+     */
+    export class CustomContentAction extends CustomAction {
+
+        /**
+         * @constructs {CustomContentAction}
+         * @param options The custom action options
+         * @throws {Error} if the Id or Path is not provided
+         */
+        constructor(options: ICustomActionOptions) {
+            if (!options.id && !options.path) {
+                throw Error('Content.Id or Content.Path is required for this action');
+            }
+            super(options);
+
+        }
+    }
+
     interface ICustomActionOptions {
         name: string;
         id?: number;
