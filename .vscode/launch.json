@@ -44,7 +44,7 @@
             ],
             "program": "${workspaceRoot}\\test\\index.ts",
             "outFiles": [
-                "${workspaceRoot}\\dist\\test\\**\\*.js"
+                "${workspaceRoot}\\dist\\**\\*.js"
             ],
             "port": 5858
         },
