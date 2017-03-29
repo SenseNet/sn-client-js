@@ -17,11 +17,6 @@ describe('Content', () => {
             }
         });
 
-        // content = Content.Create(ContentTypes.Task, {
-        //     Id: 1,
-        //     DueDate: null,
-        //     Name: 'Alma'
-        // });
 
         content = new ContentTypes.Task({
             Id: 1,
