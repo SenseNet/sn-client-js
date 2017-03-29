@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Fields_1 = require("./Fields");
-exports.Fields = Fields_1.Fields;
+var ComplexTypes_1 = require("./ComplexTypes");
+exports.ComplexTypes = ComplexTypes_1.ComplexTypes;
 var FieldSettings_1 = require("./FieldSettings");
 exports.FieldSettings = FieldSettings_1.FieldSettings;
 var Schemas_1 = require("./Schemas");

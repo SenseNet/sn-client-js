@@ -1,5 +1,4 @@
 import { ContentTypes, CreateContent } from '../src/ContentTypes';
-import { Fields } from '../src/Fields';
 import * as Chai from 'chai';
 import * as sinon from 'sinon';
 const expect = Chai.expect;

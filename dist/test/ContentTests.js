@@ -15,10 +15,10 @@ describe('Content', () => {
                 siteUrl: 'https://daily.demo.sensenet.com'
             };
         });
-        content = Content_1.Content.Create(ContentTypes_1.ContentTypes.Task, {
+        content = new ContentTypes_1.ContentTypes.Task({
             Id: 1,
             DueDate: null,
-            Name: 'Alma'
+            Name: 'alma'
         });
     });
     describe('#Create()', () => {

@@ -1,4 +1,4 @@
-export { Fields } from './Fields';
+export { ComplexTypes } from './ComplexTypes';
 export { FieldSettings } from './FieldSettings';
 export { Schemas } from './Schemas';
 export { Content } from './Content';

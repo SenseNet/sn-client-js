@@ -1,7 +1,7 @@
 import { Observable } from '@reactivex/rxjs';
 import { ODataApi } from './ODataApi';
 import { ODataHelper } from './ODataHelper';
-import { Fields } from './Fields';
+import { ComplexTypes } from './complextypes';
 import { Enums } from './Enums';
 import { FieldSettings } from './FieldSettings';
 import { Schemas } from './Schemas';
@@ -66,8 +66,8 @@ export class Content {
     Index?: number;
     CreationDate?: Date;
     ModificationDate?: Date;
-    Versions?: Fields.DeferredObject;
-    Workspace?: Fields.DeferredObject;
+    Versions?: ComplexTypes.DeferredObject;
+    Workspace?: ComplexTypes.DeferredObject;
 
     /**
      * @constructs Content
@@ -886,7 +886,7 @@ export class Content {
      * under a workspace or to the user's profile as a private query.
      * @params query {string} Query text, composed in Query Builder or written manually (see Query syntax for more details).
      * @params displayName {string} Desired display name for the query content. Can be empty.
-     * @params queryType {Fields.SavedQueryType} [Public] Type of the saved query. If an empty value is posted, the default is Public.
+     * @params queryType {ComplexTypes.SavedQueryType} [Public] Type of the saved query. If an empty value is posted, the default is Public.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
     * ```
     * let saveQuery = content.SaveQuery({
@@ -1425,6 +1425,6 @@ export interface IContentOptions {
     ModificationDate?: Date;
     IsFolder?: boolean;
     Path?: string;
-    Versions?: Fields.DeferredObject;
-    Workspace?: Fields.DeferredObject;
+    Versions?: ComplexTypes.DeferredObject;
+    Workspace?: ComplexTypes.DeferredObject;
 }
