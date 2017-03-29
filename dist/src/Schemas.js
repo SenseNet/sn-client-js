@@ -57,17 +57,6 @@ var Schemas;
             visibleNew: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
             defaultOrder: 0
         }));
-        schema.FieldSettings.push(new FieldSettings_1.FieldSettings.NullFieldSetting({
-            name: 'Type',
-            displayName: 'NodeType',
-            description: 'The type of the Node in the Repository.',
-            readOnly: true,
-            compulsory: false,
-            visibleBrowse: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
-            visibleEdit: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
-            visibleNew: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
-            defaultOrder: 0
-        }));
         schema.FieldSettings.push(new FieldSettings_1.FieldSettings.ShortTextFieldSetting({
             name: 'Name',
             displayName: 'Uri name',
@@ -323,17 +312,6 @@ var Schemas;
             name: 'VersionId',
             displayName: 'Version Id',
             description: 'Database row Id of current version.',
-            readOnly: true,
-            compulsory: false,
-            visibleBrowse: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
-            visibleEdit: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
-            visibleNew: FieldSettings_1.FieldSettings.FieldVisibility.Hide,
-            defaultOrder: 0
-        }));
-        schema.FieldSettings.push(new FieldSettings_1.FieldSettings.NullFieldSetting({
-            name: 'Type',
-            displayName: 'Content Type Name',
-            description: 'Content type of the node in the repository.',
             readOnly: true,
             compulsory: false,
             visibleBrowse: FieldSettings_1.FieldSettings.FieldVisibility.Hide,

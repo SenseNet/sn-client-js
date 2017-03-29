@@ -228,8 +228,8 @@ var ODataApi;
     ODataApi.CustomAction = CustomAction;
     class CustomContentAction extends CustomAction {
         constructor(options) {
-            if (!options.id || !options.path) {
-                throw 'Content.Id or Content.Path is required for this action';
+            if (!options.id && !options.path) {
+                throw Error('Content.Id or Content.Path is required for this action');
             }
             super(options);
         }

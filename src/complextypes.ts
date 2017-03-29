@@ -1,4 +1,4 @@
-//file: Fields.ts
+//file: ComplexTypes.ts
 /** 
 * Module containing complex data types like HyperLink or ChoiceOption.
 *
@@ -23,7 +23,7 @@
 * ```
 */
 
-export module Fields {
+export module ComplexTypes {
     export class ChoiceOption {
         Value: string;
         Text: string;

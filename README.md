@@ -77,7 +77,10 @@ SetServiceToken('myservicetoken');
 ```
 var SN = require('sn-client-js');
 
-SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+SN.Content.Create(
+	new SN.ContentTypes.Folder({
+		DisplayName: 'My Folder'
+	}));
 ```
 
 ### Typescript
@@ -85,7 +88,10 @@ SN.Content.Create('Folder', { DisplayName: 'My folder' } );
 ```
 import * as SN from 'sn-client-js';
 
-SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+SN.Content.Create(
+	new SN.ContentTypes.Folder({
+		DisplayName: 'My Folder'
+	}));
 ```
 
 ### Building sn-client-js
@@ -121,7 +127,7 @@ let content = new SN.ContentTypes.Folder({ DisplayName: 'Hello world!' });
 or
 
 ```ts
-let content = SN.Content.Create('Folder', { DisplayName: 'Hello world!' });
+let content = SN.Content.Create(new SN.ContentTypes.Folder({ DisplayName: 'Hello world!' }););
 ```
 
 ##### Load a Content by its id

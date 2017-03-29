@@ -1,5 +1,5 @@
 //file: FieldSettings.ts
-import { Fields } from './Fields';
+import { ComplexTypes } from './ComplexTypes';
 /**
  * Module for FieldSettings.
  *
@@ -115,17 +115,6 @@ export module FieldSettings {
         step?: number;
     }
 
-    // Used in ContentType, GenericContent, Settings, IndexingSettings, ContentList, Workspace, Site, CustomListItem, User
-    export class NullFieldSetting extends FieldSetting {
-
-        constructor(options: INullFieldSettingOptions) {
-            super(options);
-        }
-    }
-
-    export interface INullFieldSettingOptions extends IFieldSettingOptions {
-    }
-
     // 
     export class TextFieldSetting extends FieldSetting {
         MinLength: number;
@@ -155,6 +144,17 @@ export module FieldSettings {
 
     export interface IShortTextFieldSettingOptions extends ITextFieldSettingOptions {
         regex?: string;
+    }
+
+    // Used in ContentType, GenericContent, Settings, IndexingSettings, ContentList, Workspace, Site, CustomListItem, User
+    export class NullFieldSetting extends FieldSetting {
+
+        constructor(options: INullFieldSettingOptions) {
+            super(options);
+        }
+    }
+
+    export interface INullFieldSettingOptions extends IFieldSettingOptions {
     }
 
     // Used in ContentType, GenericContent, File, HtmlTemplate, Image, ContentList, Aspect, Email, SmartFolder, Query, User
@@ -238,7 +238,7 @@ export module FieldSettings {
     export class ChoiceFieldSetting extends ShortTextFieldSetting {
         AllowExtraValue: boolean;
         AllowMultiple: boolean;
-        Options: Fields.ChoiceOption[];
+        Options: ComplexTypes.ChoiceOption[];
         DisplayChoice: DisplayChoice;
         EnumTypeName: string;
 
@@ -255,7 +255,7 @@ export module FieldSettings {
     export interface IChoiceFieldSettingOptions extends IShortTextFieldSettingOptions {
         allowExtraValue?: boolean;
         allowMultiple?: boolean;
-        options?: Fields.ChoiceOption[];
+        options?: ComplexTypes.ChoiceOption[];
         displayChoice?: DisplayChoice;
         enumTypeName?: string;
     }

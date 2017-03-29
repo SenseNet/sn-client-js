@@ -1,5 +1,6 @@
 import { Content } from '../src/Content';
 import { Schemas } from '../src/Schemas';
+import { ContentTypes } from '../src/ContentTypes';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
@@ -11,11 +12,22 @@ describe('Content', () => {
     beforeEach(function () {
         beforeEach(() => {
             global['window'] = {
-                serviceToken : 'OData.svc',
-                siteUrl : 'https://daily.demo.sensenet.com'
+                serviceToken: 'OData.svc',
+                siteUrl: 'https://daily.demo.sensenet.com'
             }
-        })
-        content = Content.Create(CONTENT_TYPE, { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
+        });
+
+        // content = Content.Create(ContentTypes.Task, {
+        //     Id: 1,
+        //     DueDate: null,
+        //     Name: 'Alma'
+        // });
+
+        content = new ContentTypes.Task({
+            Id: 1,
+            DueDate: null,
+            Name: 'alma'
+        });
     });
     describe('#Create()', () => {
         it('should return an object', function () {
@@ -59,7 +71,6 @@ describe('Content', () => {
     });
     describe('#Actions()', () => {
         it('should return an Observable object', function () {
-            content = Content.Create(CONTENT_TYPE, { Path: '/workspace/project' });
             expect(typeof content.Actions()).to.eq('object');
         });
     });
@@ -275,8 +286,8 @@ describe('Content', () => {
         });
     });
     describe('#SetPermissions()', () => {
-        content = Content.Create(CONTENT_TYPE, { Path: '/workspace/project' });
         it('should return an Observable object', function () {
+            content.Path = '/workspace/project';
             expect(typeof content.SetPermissions('break')).to.eq('object');
         });
     });
@@ -466,8 +477,7 @@ describe('Content', () => {
             expect(typeof content.GetSchema()).to.eq('object');
         });
         it('should return a Task', function () {
-            let task = Content.Create(CONTENT_TYPE, { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
-            const schema = task.GetSchema();
+            const schema = content.GetSchema();
             expect(schema['Icon']).to.eq('FormItem');
         });
     });

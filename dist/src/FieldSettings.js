@@ -75,12 +75,6 @@ var FieldSettings;
         }
     }
     FieldSettings.IntegerFieldSetting = IntegerFieldSetting;
-    class NullFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-        }
-    }
-    FieldSettings.NullFieldSetting = NullFieldSetting;
     class TextFieldSetting extends FieldSetting {
         constructor(options) {
             super(options);
@@ -96,6 +90,12 @@ var FieldSettings;
         }
     }
     FieldSettings.ShortTextFieldSetting = ShortTextFieldSetting;
+    class NullFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+        }
+    }
+    FieldSettings.NullFieldSetting = NullFieldSetting;
     class LongTextFieldSetting extends TextFieldSetting {
         constructor(options) {
             super(options);

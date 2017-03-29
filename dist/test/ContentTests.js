@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Content_1 = require("../src/Content");
+const ContentTypes_1 = require("../src/ContentTypes");
 const Chai = require("chai");
 const expect = Chai.expect;
 const CONTENT_TYPE = 'Task';
@@ -14,7 +15,11 @@ describe('Content', () => {
                 siteUrl: 'https://daily.demo.sensenet.com'
             };
         });
-        content = Content_1.Content.Create(CONTENT_TYPE, { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
+        content = new ContentTypes_1.ContentTypes.Task({
+            Id: 1,
+            DueDate: null,
+            Name: 'alma'
+        });
     });
     describe('#Create()', () => {
         it('should return an object', function () {
@@ -58,7 +63,6 @@ describe('Content', () => {
     });
     describe('#Actions()', () => {
         it('should return an Observable object', function () {
-            content = Content_1.Content.Create(CONTENT_TYPE, { Path: '/workspace/project' });
             expect(typeof content.Actions()).to.eq('object');
         });
     });
@@ -274,8 +278,8 @@ describe('Content', () => {
         });
     });
     describe('#SetPermissions()', () => {
-        content = Content_1.Content.Create(CONTENT_TYPE, { Path: '/workspace/project' });
         it('should return an Observable object', function () {
+            content.Path = '/workspace/project';
             expect(typeof content.SetPermissions('break')).to.eq('object');
         });
     });
@@ -464,8 +468,7 @@ describe('Content', () => {
             expect(typeof content.GetSchema()).to.eq('object');
         });
         it('should return a Task', function () {
-            let task = Content_1.Content.Create(CONTENT_TYPE, { Id: 1, Path: 'https://daily.demo.sensenet.com/lorem' });
-            const schema = task.GetSchema();
+            const schema = content.GetSchema();
             expect(schema['Icon']).to.eq('FormItem');
         });
     });

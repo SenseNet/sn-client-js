@@ -1,7 +1,7 @@
 //file: ContentTypes.ts
 import { Enums } from './Enums';
 import { FieldSettings } from './FieldSettings';
-import { Fields } from './Fields';
+import { ComplexTypes } from './ComplexTypes';
 import { Content, IContentOptions } from './Content';
 
 /**
@@ -22,10 +22,9 @@ export module ContentTypes {
      * @extends {@link Content}
      */
     export class ContentType extends Content {
-        Id: number;
+        Id?: number;
         ParentId?: number;
         VersionId?: number;
-        Type: string;
         Name: string;
         CreatedById?: number;
         ModifiedById?: number;
@@ -38,10 +37,10 @@ export module ContentTypes {
         DisplayName?: string;
         Description?: string;
         Icon?: string;
-        Binary?: Fields.DeferredObject;
-        CreatedBy?: Fields.DeferredObject;
+        Binary?: ComplexTypes.DeferredObject;
+        CreatedBy?: ComplexTypes.DeferredObject;
         CreationDate?: Date;
-        ModifiedBy?: Fields.DeferredObject;
+        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: Date;
         EnableLifespan?: boolean;
 
@@ -54,7 +53,6 @@ export module ContentTypes {
             this.Id = options.Id;
             this.ParentId = options.ParentId;
             this.VersionId = options.VersionId;
-            this.Type = options.Type;
             this.Name = options.Name;
             this.CreatedById = options.CreatedById;
             this.ModifiedById = options.ModifiedById;
@@ -82,10 +80,9 @@ export module ContentTypes {
      * @extends {@link IContentOptions}
      */
     interface IContentTypeOptions extends IContentOptions {
-        Id: number;
+        Id?: number;
         ParentId?: number;
         VersionId?: number;
-        Type: string;
         Name: string;
         CreatedById?: number;
         ModifiedById?: number;
@@ -98,10 +95,10 @@ export module ContentTypes {
         DisplayName?: string;
         Description?: string;
         Icon?: string;
-        Binary?: Fields.DeferredObject;
-        CreatedBy?: Fields.DeferredObject;
+        Binary?: ComplexTypes.DeferredObject;
+        CreatedBy?: ComplexTypes.DeferredObject;
         CreationDate?: Date;
-        ModifiedBy?: Fields.DeferredObject;
+        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: Date;
         EnableLifespan?: boolean;
     }
@@ -112,12 +109,11 @@ export module ContentTypes {
      * @extends {@link Content}
      */
     export class GenericContent extends Content {
-        Id: number;
+        Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: Fields.DeferredObject;
+        Owner?: ComplexTypes.DeferredObject;
         VersionId?: number;
-        Type: string;
         Icon?: string;
         Name: string;
         CreatedById?: number;
@@ -138,18 +134,18 @@ export module ContentTypes {
         EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: Fields.DeferredObject;
+        CreatedBy?: ComplexTypes.DeferredObject;
         CreationDate?: Date;
-        ModifiedBy?: Fields.DeferredObject;
+        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: Date;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: Fields.DeferredObject;
+        CheckedOutTo?: ComplexTypes.DeferredObject;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: Fields.DeferredObject;
+        BrowseApplication?: ComplexTypes.DeferredObject;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -159,10 +155,10 @@ export module ContentTypes {
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: Fields.DeferredObject;
+        Versions?: ComplexTypes.DeferredObject;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: Fields.DeferredObject;
+        Workspace?: ComplexTypes.DeferredObject;
         BrowseUrl?: string;
 
         /**
@@ -176,7 +172,6 @@ export module ContentTypes {
             this.OwnerId = options.OwnerId;
             this.Owner = options.Owner;
             this.VersionId = options.VersionId;
-            this.Type = options.Type;
             this.Icon = options.Icon;
             this.Name = options.Name;
             this.CreatedById = options.CreatedById;
@@ -232,12 +227,11 @@ export module ContentTypes {
      * @extends {@link IContentOptions}
      */
     interface IGenericContentOptions extends IContentOptions {
-        Id: number;
+        Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: Fields.DeferredObject;
+        Owner?: ComplexTypes.DeferredObject;
         VersionId?: number;
-        Type: string;
         Icon?: string;
         Name: string;
         CreatedById?: number;
@@ -258,18 +252,18 @@ export module ContentTypes {
         EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: Fields.DeferredObject;
+        CreatedBy?: ComplexTypes.DeferredObject;
         CreationDate?: Date;
-        ModifiedBy?: Fields.DeferredObject;
+        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: Date;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: Fields.DeferredObject;
+        CheckedOutTo?: ComplexTypes.DeferredObject;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: Fields.DeferredObject;
+        BrowseApplication?: ComplexTypes.DeferredObject;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -279,10 +273,10 @@ export module ContentTypes {
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: Fields.DeferredObject;
+        Versions?: ComplexTypes.DeferredObject;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: Fields.DeferredObject;
+        Workspace?: ComplexTypes.DeferredObject;
         BrowseUrl?: string;
     }
 
@@ -292,7 +286,7 @@ export module ContentTypes {
      * @extends {@link GenericContent}
      */
     export class ContentLink extends GenericContent {
-        Link?: Fields.DeferredObject;
+        Link?: ComplexTypes.DeferredObject;
 
         /**
          * @constructs ContentLink
@@ -310,7 +304,7 @@ export module ContentTypes {
      * @extends {@link IGenericContentOptions}
      */
     interface IContentLinkOptions extends IGenericContentOptions {
-        Link?: Fields.DeferredObject;
+        Link?: ComplexTypes.DeferredObject;
     }
 
     /**
@@ -319,7 +313,7 @@ export module ContentTypes {
      * @extends {@link GenericContent}
      */
     export class File extends GenericContent {
-        Binary?: Fields.DeferredObject;
+        Binary?: ComplexTypes.DeferredObject;
         Size?: number;
         FullSize?: number;
         PageCount?: number;
@@ -351,7 +345,7 @@ export module ContentTypes {
      * @extends {@link IGenericContentOptions}
      */
     interface IFileOptions extends IGenericContentOptions {
-        Binary?: Fields.DeferredObject;
+        Binary?: ComplexTypes.DeferredObject;
         Size?: number;
         FullSize?: number;
         PageCount?: number;
@@ -681,18 +675,18 @@ export module ContentTypes {
     export class ContentList extends Folder {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: Fields.DeferredObject;
-        FieldSettingContents?: Fields.DeferredObject;
-        AvailableContentTypeFields?: Fields.DeferredObject;
+        AvailableViews?: ComplexTypes.DeferredObject;
+        FieldSettingContents?: ComplexTypes.DeferredObject;
+        AvailableContentTypeFields?: ComplexTypes.DeferredObject;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: Fields.DeferredObject;
+        IncomingEmailWorkflow?: ComplexTypes.DeferredObject;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: Fields.DeferredObject;
+        OwnerWhenVisitor?: ComplexTypes.DeferredObject;
 
         /**
          * @constructs ContentList
@@ -725,18 +719,18 @@ export module ContentTypes {
     interface IContentListOptions extends IFolderOptions {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: Fields.DeferredObject;
-        FieldSettingContents?: Fields.DeferredObject;
-        AvailableContentTypeFields?: Fields.DeferredObject;
+        AvailableViews?: ComplexTypes.DeferredObject;
+        FieldSettingContents?: ComplexTypes.DeferredObject;
+        AvailableContentTypeFields?: ComplexTypes.DeferredObject;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: Fields.DeferredObject;
+        IncomingEmailWorkflow?: ComplexTypes.DeferredObject;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: Fields.DeferredObject;
+        OwnerWhenVisitor?: ComplexTypes.DeferredObject;
     }
 
     /**
@@ -916,7 +910,7 @@ export module ContentTypes {
      * @extends {@link Library}
      */
     export class ImageLibrary extends Library {
-        CoverImage?: Fields.DeferredObject;
+        CoverImage?: ComplexTypes.DeferredObject;
 
         /**
          * @constructs ImageLibrary
@@ -934,7 +928,7 @@ export module ContentTypes {
      * @extends {@link ILibraryOptions}
      */
     interface IImageLibraryOptions extends ILibraryOptions {
-        CoverImage?: Fields.DeferredObject;
+        CoverImage?: ComplexTypes.DeferredObject;
     }
 
     /**
@@ -1292,7 +1286,7 @@ export module ContentTypes {
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: Fields.DeferredObject;
+        DeletedContent?: ComplexTypes.DeferredObject;
 
         /**
          * @constructs TrashBag
@@ -1318,7 +1312,7 @@ export module ContentTypes {
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: Fields.DeferredObject;
+        DeletedContent?: ComplexTypes.DeferredObject;
     }
 
     /**
@@ -1327,10 +1321,10 @@ export module ContentTypes {
      * @extends {@link Folder}
      */
     export class Workspace extends Folder {
-        Manager?: Fields.DeferredObject;
+        Manager?: ComplexTypes.DeferredObject;
         Deadline?: Date;
         IsActive: boolean;
-        WorkspaceSkin?: Fields.DeferredObject;
+        WorkspaceSkin?: ComplexTypes.DeferredObject;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
@@ -1357,10 +1351,10 @@ export module ContentTypes {
      * @extends {@link IFolderOptions}
      */
     interface IWorkspaceOptions extends IFolderOptions {
-        Manager?: Fields.DeferredObject;
+        Manager?: ComplexTypes.DeferredObject;
         Deadline?: Date;
         IsActive: boolean;
-        WorkspaceSkin?: Fields.DeferredObject;
+        WorkspaceSkin?: ComplexTypes.DeferredObject;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
@@ -1376,9 +1370,9 @@ export module ContentTypes {
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: Fields.DeferredObject;
-        LoginPage?: Fields.DeferredObject;
-        SiteSkin?: Fields.DeferredObject;
+        StartPage?: ComplexTypes.DeferredObject;
+        LoginPage?: ComplexTypes.DeferredObject;
+        SiteSkin?: ComplexTypes.DeferredObject;
         DenyCrossSiteAccess?: boolean;
 
         /**
@@ -1408,9 +1402,9 @@ export module ContentTypes {
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: Fields.DeferredObject;
-        LoginPage?: Fields.DeferredObject;
-        SiteSkin?: Fields.DeferredObject;
+        StartPage?: ComplexTypes.DeferredObject;
+        LoginPage?: ComplexTypes.DeferredObject;
+        SiteSkin?: ComplexTypes.DeferredObject;
         DenyCrossSiteAccess?: boolean;
     }
 
@@ -1453,7 +1447,7 @@ export module ContentTypes {
      * @extends {@link Workspace}
      */
     export class UserProfile extends Workspace {
-        User?: Fields.DeferredObject;
+        User?: ComplexTypes.DeferredObject;
 
         /**
          * @constructs UserProfile
@@ -1471,7 +1465,7 @@ export module ContentTypes {
      * @extends {@link IWorkspaceOptions}
      */
     interface IUserProfileOptions extends IWorkspaceOptions {
-        User?: Fields.DeferredObject;
+        User?: ComplexTypes.DeferredObject;
     }
 
     /**
@@ -1480,7 +1474,7 @@ export module ContentTypes {
      * @extends {@link GenericContent}
      */
     export class Group extends GenericContent {
-        Members?: Fields.DeferredObject;
+        Members?: ComplexTypes.DeferredObject;
         SyncGuid?: string;
         LastSync?: Date;
 
@@ -1502,7 +1496,7 @@ export module ContentTypes {
      * @extends {@link IGenericContentOptions}
      */
     interface IGroupOptions extends IGenericContentOptions {
-        Members?: Fields.DeferredObject;
+        Members?: ComplexTypes.DeferredObject;
         SyncGuid?: string;
         LastSync?: Date;
     }
@@ -1566,7 +1560,7 @@ export module ContentTypes {
     export class Memo extends ListItem {
         Date?: Date;
         MemoType?: Enums.MemoType;
-        SeeAlso?: Fields.DeferredObject;
+        SeeAlso?: ComplexTypes.DeferredObject;
 
         /**
          * @constructs Memo
@@ -1588,7 +1582,7 @@ export module ContentTypes {
     interface IMemoOptions extends IListItemOptions {
         Date?: Date;
         MemoType?: Enums.MemoType;
-        SeeAlso?: Fields.DeferredObject;
+        SeeAlso?: ComplexTypes.DeferredObject;
     }
 
     /**
@@ -1599,7 +1593,7 @@ export module ContentTypes {
     export class Task extends ListItem {
         StartDate?: Date;
         DueDate: Date;
-        AssignedTo?: Fields.DeferredObject;
+        AssignedTo?: ComplexTypes.DeferredObject;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
@@ -1633,7 +1627,7 @@ export module ContentTypes {
     interface ITaskOptions extends IListItemOptions {
         StartDate?: Date;
         DueDate: Date;
-        AssignedTo?: Fields.DeferredObject;
+        AssignedTo?: ComplexTypes.DeferredObject;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
@@ -1684,14 +1678,14 @@ export module ContentTypes {
         Domain?: string;
         Email: string;
         FullName: string;
-        ImageRef?: Fields.DeferredObject;
-        ImageData?: Fields.DeferredObject;
-        Avatar?: Fields.DeferredObject;
+        ImageRef?: ComplexTypes.DeferredObject;
+        ImageData?: ComplexTypes.DeferredObject;
+        Avatar?: ComplexTypes.DeferredObject;
         Password: string;
         SyncGuid?: string;
         LastSync?: Date;
         Captcha?: string;
-        Manager?: Fields.DeferredObject;
+        Manager?: ComplexTypes.DeferredObject;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1703,7 +1697,7 @@ export module ContentTypes {
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: Fields.DeferredObject;
+        FollowedWorkspaces?: ComplexTypes.DeferredObject;
         ProfilePath?: string;
 
         /**
@@ -1754,14 +1748,14 @@ export module ContentTypes {
         Domain?: string;
         Email: string;
         FullName: string;
-        ImageRef?: Fields.DeferredObject;
-        ImageData?: Fields.DeferredObject;
-        Avatar?: Fields.DeferredObject;
+        ImageRef?: ComplexTypes.DeferredObject;
+        ImageData?: ComplexTypes.DeferredObject;
+        Avatar?: ComplexTypes.DeferredObject;
         Password: string;
         SyncGuid?: string;
         LastSync?: Date;
         Captcha?: string;
-        Manager?: Fields.DeferredObject;
+        Manager?: ComplexTypes.DeferredObject;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1773,7 +1767,7 @@ export module ContentTypes {
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: Fields.DeferredObject;
+        FollowedWorkspaces?: ComplexTypes.DeferredObject;
         ProfilePath?: string;
     }
 
