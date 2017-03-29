@@ -81,10 +81,9 @@ SetServiceToken('myservicetoken');
 ```
 var SN = require('sn-client-js');
 
-SN.Content.Create(
-	new SN.ContentTypes.Folder({
-		DisplayName: 'My Folder'
-	}));
+SN.Content.Create(SN.ContentTypes.Folder, {
+		Name: 'My Folder'
+	});
 ```
 
 ### Typescript
@@ -92,10 +91,9 @@ SN.Content.Create(
 ```
 import * as SN from 'sn-client-js';
 
-SN.Content.Create(
-	new SN.ContentTypes.Folder({
-		DisplayName: 'My Folder'
-	}));
+SN.Content.Create(SN.ContentTypes.Folder, {
+		Name: 'My Folder'
+	});
 ```
 
 ### Building sn-client-js
@@ -125,13 +123,15 @@ gulp test:coverage
 ##### Creating a Folder with the name 'Hello world'
  
 ```ts
-let content = new SN.ContentTypes.Folder({ DisplayName: 'Hello world!' });
+let content = new SN.ContentTypes.Folder({ Name: 'Hello world!' });
 ```
 
 or
 
 ```ts
-let content = SN.Content.Create(new SN.ContentTypes.Folder({ DisplayName: 'Hello world!' }););
+let content = SN.Content.Create(SN.ContentTypes.Folder, {
+	Name: 'Hello world!'
+});
 ```
 
 ##### Load a Content by its id
