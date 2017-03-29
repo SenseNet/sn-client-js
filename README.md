@@ -21,7 +21,7 @@ so that you can manage Content easy on client-side knowing the related fields an
 
 > Tested with the following Sense/Net Services version: 
 > 
-> [![Sense/Net Services](https://img.shields.io/badge/release-v7.0.0--beta-yellow.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0-beta)
+> [![Sense/Net Services](https://img.shields.io/badge/sensenet-7.0.0--beta%20tested-green.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0-beta)
 
 ### Installation on an existing Sense/Net portal
 
