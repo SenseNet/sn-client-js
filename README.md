@@ -19,6 +19,10 @@ having to construct ajax requests yourself.
 It also provides you the full SenseNet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
 so that you can manage Content easy on client-side knowing the related fields and their settings.
 
+> Tested with the following Sense/Net Services version: 
+> 
+> [![Sense/Net Services](https://img.shields.io/badge/release-v7.0.0--beta-yellow.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0-beta)
+
 ### Installation on an existing Sense/Net portal
 
 Get the latest stable version with npm
