@@ -38,7 +38,9 @@
   "bugs": {
     "url": "https://github.com/SenseNet/sn-client-js/issues"
   },
-  "nyc": {},
+  "nyc": {
+    "exclude": "dist/test/**/*.*"
+  },
   "homepage": "https://sensenet.com",
   "dependencies": {
     "@reactivex/rxjs": "5.2.0",
