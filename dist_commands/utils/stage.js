@@ -35,8 +35,9 @@ class Stage {
     PrepareAsync() {
         return __awaiter(this, void 0, void 0, function* () {
             this.Cleanup();
-            yield Gulp.src([
+            return yield Gulp.src([
                 `./src/**/*.ts`,
+                `./src_commands/**/*.ts`,
                 `./test/**/*.ts`,
                 `!./src/SN.d.ts`,
                 `./tsconfig.json`
@@ -52,8 +53,9 @@ class Stage {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let tsProject = ts.createProject(Path.join(this.paths.SnClientPath, 'tsconfig.json'));
-                yield Gulp.src([
+                return yield Gulp.src([
                     './tmp/src/**/*.ts',
+                    `./tmp/src_commands/**/*.ts`,
                     './tmp/test/**/*.ts'
                 ], {
                     base: this.paths.SnClientPath,

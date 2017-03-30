@@ -37,6 +37,10 @@ describe('ODataHelper', () => {
                 expect(err).to.eql(new Error('This is not a valid path.'));
             }
         });
+        it('should return a proper item path for Root only', () => {
+            let path = ODataHelper_1.ODataHelper.getContentURLbyPath('/Root');
+            expect(path).to.be.eq("/('Root')");
+        });
     });
 });
 describe('#buildUrlParamString()', function () {

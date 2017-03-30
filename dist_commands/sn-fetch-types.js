@@ -19,8 +19,9 @@ const SN_REPOSITORY_URL_POSTFIX = '/Root/System/Schema/Metadata/TypeScript/meta.
     let stage = new utils_1.Stage(pathHelper);
     yield stage.PrepareAsync();
     console.log('Checking sn.config.js...');
-    let cfg = yield new snconfig_1.SnConfigReader(pathHelper.PackageRootPath)
-        .ValidateAsync('RepositoryUrl', 'UserName', 'Password');
+    let reader = new snconfig_1.SnConfigReader(pathHelper.PackageRootPath);
+    yield reader.ReadConfigFile();
+    let cfg = yield reader.ValidateAsync('RepositoryUrl', 'UserName', 'Password');
     console.log('Downloading type definitions...');
     let zipBuffer = yield new utils_1.Download(cfg.RepositoryUrl, SN_REPOSITORY_URL_POSTFIX)
         .Authenticate(cfg.UserName, cfg.Password)

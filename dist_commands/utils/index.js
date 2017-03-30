@@ -5,7 +5,6 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./ask"));
 __export(require("./download"));
-__export(require("./npmexecutor"));
 __export(require("./stage"));
 __export(require("./pathhelper"));
 //# sourceMappingURL=index.js.map

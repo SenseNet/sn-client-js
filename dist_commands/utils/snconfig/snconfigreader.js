@@ -15,7 +15,7 @@ const SN_CONFIG_NAME = 'sn.config.js';
 class SnConfigReader {
     constructor(projectDirectory) {
         this.projectDirectory = projectDirectory;
-        this.config = new _1.SnConfigModel;
+        this.Config = new _1.SnConfigModel();
     }
     ReadConfigFile() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -27,24 +27,26 @@ class SnConfigReader {
                 console.log(`No '${SN_CONFIG_NAME}' file found in the project root.`);
                 cfg = new _1.SnConfigModel();
             }
-            this.config = cfg;
+            this.Config = cfg;
         });
     }
     ValidateAsync(...requiredValues) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.ReadConfigFile();
             for (let fieldName of requiredValues) {
                 let fieldModel = _1.SnConfigFieldModelStore.Get(fieldName);
-                let value = this.config[fieldModel.FieldName];
-                if (!value || !value.length || !(fieldModel.Behavior & _1.SnConfigBehavior.AllowFromConfig)) {
-                    this.config[fieldModel.FieldName] =
+                let value = this.Config[fieldModel.FieldName];
+                if (value && value.length && !(fieldModel.Behavior & _1.SnConfigBehavior.AllowFromConfig)) {
+                    throw Error(`Field '${fieldName}' is not allowed in snconfig file!`);
+                }
+                if (!value || !value.length) {
+                    this.Config[fieldModel.FieldName] =
                         (fieldModel.Behavior & _1.SnConfigBehavior.HideConsoleInput)
                             ?
                                 yield _2.Ask.PasswordAsync(fieldModel.Question) :
                             yield _2.Ask.TextAsync(fieldModel.Question);
                 }
             }
-            return this.config;
+            return this.Config;
         });
     }
 }

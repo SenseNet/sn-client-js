@@ -29,7 +29,7 @@ describe('Collection', () => {
     describe('#Item(id)', () => {
         it('should return an object with a given id', function () {
             const item = collection.Item(1);
-            expect({}).to.be.instanceof(Content_1.Content);
+            expect(item).to.be.instanceof(Content_1.Content);
             expect(item.Id).to.be.eq(1);
         });
     });

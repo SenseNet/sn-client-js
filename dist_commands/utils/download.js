@@ -19,25 +19,20 @@ class Download {
                 path: this.path,
                 headers: this.headers,
             }, (response) => {
-                if (response.readable) {
-                    let data = [];
-                    let contentLength = parseInt(response.headers['content-length']);
-                    response.on('data', chunk => {
-                        data.push(chunk);
+                let data = [];
+                let contentLength = parseInt(response.headers['content-length']);
+                response.on('data', chunk => {
+                    data.push(chunk);
+                });
+                response.on('end', () => {
+                    let pos = 0;
+                    let buffer = new Buffer(contentLength);
+                    data.forEach(chunk => {
+                        chunk.copy(buffer, pos);
+                        pos += chunk.length;
                     });
-                    response.on('end', () => {
-                        let pos = 0;
-                        let buffer = new Buffer(contentLength);
-                        data.forEach(chunk => {
-                            chunk.copy(buffer, pos);
-                            pos += chunk.length;
-                        });
-                        resolve(buffer);
-                    });
-                }
-                else {
-                    reject();
-                }
+                    resolve(buffer);
+                });
             });
         });
     }
