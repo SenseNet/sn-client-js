@@ -1,14 +1,15 @@
 import { Content } from '../src/Content'
 import { Collection } from '../src/Collection'
+import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
 describe('Collection', () => {
-  let collection,
-    children;
-    let window = {}
+  let collection: Collection<Content>;
+  let children: Content[];
+  let window = {}
   beforeEach(function () {
-    children = [{ Id: 1, }, { Id: 2, }];
+    children = [Content.Create(Content, { Id: 1 }), Content.Create(Content, { Id: 2 })];
     collection = new Collection(children);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
     window['serviceToken'] = 'OData.svc';
@@ -17,7 +18,7 @@ describe('Collection', () => {
   describe('#Items()', () => {
     it('should return an array', function () {
       const items = collection.Items();
-      expect(typeof items).to.eq('object');
+      expect(items).to.be.instanceof(Array);
     });
     it('should return an array with the same children objects', function () {
       const items = collection.Items();
@@ -27,7 +28,7 @@ describe('Collection', () => {
   describe('#Item(id)', () => {
     it('should return an object with a given id', function () {
       const item = collection.Item(1);
-      expect(typeof item).to.be.eq('object');
+      expect(item).to.be.instanceof(Content);
       expect(item.Id).to.be.eq(1);
     });
   });
@@ -38,64 +39,65 @@ describe('Collection', () => {
     });
   });
   describe('#Add()', () => {
-    // it("should return an observable", function () {
-    //   expect(typeof collection.Add(content)).to.be.eq('object');
+    // it('should return an observable', function () {
+    //   let content = Content.Create(Content, {});
+    //   expect(typeof collection.Add(content)).to.be.instanceof(Observable);
     // });
   });
   describe('#Remove()', () => {
     it('should return an observable', function () {
-      expect(typeof collection.Remove(1, true)).to.be.eq('object');
+      expect(collection.Remove(1, true)).to.be.instanceof(Observable);
     });
   });
   describe('#Remove()', () => {
     it('should return an observable', function () {
-      expect(typeof collection.Remove(1)).to.be.eq('object');
-    });
-  });
-  describe('#Remove()', () => {
-    it('should return an observable', function () {
-      collection['Path'] = '/workspaces/project'
-      expect(typeof collection.Remove([0, 1], true)).to.be.eq('object');
+      expect(collection.Remove(1)).to.be.instanceof(Observable);
     });
   });
   describe('#Remove()', () => {
     it('should return an observable', function () {
       collection['Path'] = '/workspaces/project'
-      expect(typeof collection.Remove([0, 1])).to.be.eq('object');
+      expect(collection.Remove([0, 1], true)).to.be.instanceof(Observable);
+    });
+  });
+  describe('#Remove()', () => {
+    it('should return an observable', function () {
+      collection['Path'] = '/workspaces/project'
+      expect(collection.Remove([0, 1])).to.be.instanceof(Observable);
     });
   });
   describe('#Move()', () => {
     it('should return an observable', function () {
-      expect(typeof collection.Move(1, '/workspaces/Project')).to.be.eq('object');
+      expect(collection.Move(1, '/workspaces/Project')).to.be.instanceof(Observable);
     });
   });
   describe('#Move()', () => {
     it('should return an observable', function () {
       collection['Path'] = '/workspaces/project'
-      expect(typeof collection.Move([0, 1], '/workspaces/Project')).to.be.eq('object');
+      expect(collection.Move([0, 1], '/workspaces/Project')).to.be.instanceof(Observable);
     });
   });
   describe('#Copy()', () => {
     it('should return an observable', function () {
-      expect(typeof collection.Copy(1, '/workspaces/Project')).to.be.eq('object');
+      expect(collection.Copy(1, '/workspaces/Project')).to.be.instanceof(Observable);
     });
   });
   describe('#Copy()', () => {
     it('should return an observable', function () {
       collection['Path'] = '/workspaces/project'
-      expect(typeof collection.Copy([0, 1], '/workspaces/Project')).to.be.eq('object');
+      expect(collection.Copy([0, 1], '/workspaces/Project')).to.be.instanceof(Observable);
     });
   });
   describe('#AllowedChildTypes()', () => {
     it('should return an observable', function () {
       collection['Path'] = '/workspaces/project';
-      expect(typeof collection.AllowedChildTypes()).to.be.eq('object');
+      expect(collection.AllowedChildTypes()).to.be.instanceof(Observable);
     });
   });
   describe('#AllowedChildTypes()', () => {
     it('should return an observable', function () {
       collection['Path'] = '/workspaces/project';
-      expect(typeof collection.AllowedChildTypes({ select: 'Name' })).to.be.eq('object');
+      expect(collection.AllowedChildTypes({ select: 'Name' })).to.be.instanceof(Observable);
     });
   });
 });
