@@ -1,4 +1,4 @@
-import { ComplexTypes } from '../src/complextypes';
+import { ComplexTypes } from '../src/ComplexTypes';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 

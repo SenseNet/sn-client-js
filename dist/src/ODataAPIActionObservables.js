@@ -160,4 +160,4 @@ var ODataApiActionObservables;
         });
     };
 })(ODataApiActionObservables = exports.ODataApiActionObservables || (exports.ODataApiActionObservables = {}));
-//# sourceMappingURL=ODataApiActionObservables.js.map
+//# sourceMappingURL=ODataAPIActionObservables.js.map
