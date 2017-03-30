@@ -1,7 +1,7 @@
 import { Observable } from '@reactivex/rxjs';
 import { ODataApi } from './ODataApi';
 import { ODataHelper } from './ODataHelper';
-import { ComplexTypes } from './complextypes';
+import { ComplexTypes } from './ComplexTypes';
 import { Enums } from './Enums';
 import { FieldSettings } from './FieldSettings';
 import { Schemas } from './Schemas';
