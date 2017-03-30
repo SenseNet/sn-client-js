@@ -95,7 +95,7 @@ var ODataApi;
             });
         }
         else {
-            if (options && options.data) {
+            if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
                 return ajax({
                     url: `${path}`,
                     method: 'POST',
@@ -134,7 +134,7 @@ var ODataApi;
             path = `${path}?${cacheParam}`;
         }
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
-        if (options && options.data) {
+        if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
             return ajax({
                 url: `${path}`,
                 method: 'POST',

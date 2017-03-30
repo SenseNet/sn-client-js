@@ -1,6 +1,5 @@
 import { ComplexTypes } from '../src/complextypes';
 import * as Chai from 'chai';
-import * as sinon from 'sinon';
 const expect = Chai.expect;
 
 describe('ComplexTypes', () => {

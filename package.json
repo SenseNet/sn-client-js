@@ -47,7 +47,6 @@
     "adm-zip": "^0.4.7",
     "app-root-path": "2.0.1",
     "gulp-run": "^1.7.1",
-    "isomorphic-fetch": "2.2.1",
     "ts-json-properties": "1.1.4",
     "nyc": "^10.2.0"
   },
@@ -73,7 +72,6 @@
     "gulp-tslint": "7.1.0",
     "gulp-typedoc": "2.0.2",
     "gulp-typescript": "3.1.5",
-    "isomorphic-fetch": "2.2.1",
     "istanbul": "0.4.5",
     "jsdoc-to-markdown": "3.0.0",
     "mocha": "3.2.0",

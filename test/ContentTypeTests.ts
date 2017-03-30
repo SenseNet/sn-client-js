@@ -1,6 +1,5 @@
 import { ContentTypes, CreateContent } from '../src/ContentTypes';
 import * as Chai from 'chai';
-import * as sinon from 'sinon';
 const expect = Chai.expect;
 
 describe('ContentTypes', () => {

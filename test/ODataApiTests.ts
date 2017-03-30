@@ -2,7 +2,6 @@ import { ODataApi } from '../src/ODataApi';
 import { Content } from '../src/Content';
 import { SetSiteUrl, SetServiceToken } from '../src/Common'
 import * as Chai from 'chai';
-import * as sinon from 'sinon';
 const expect = Chai.expect;
 
 describe('ODataApi', () => {

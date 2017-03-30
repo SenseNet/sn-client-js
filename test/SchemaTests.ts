@@ -1,7 +1,6 @@
 import { Schemas } from '../src/Schemas';
 import { FieldSettings } from '../src/FieldSettings';
 import * as Chai from 'chai';
-import * as sinon from 'sinon';
 const expect = Chai.expect;
 
 describe('Schemas', () => {
