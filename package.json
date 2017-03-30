@@ -9,7 +9,7 @@
   "scripts": {
     "commit": "git-cz",
     "gulp": "gulp",
-    "pretest": "gulp build:clean && npm run build",
+    "pretest": "gulp build:clean && npm run build:client",
     "test": "nyc mocha -p tsconfig.json dist/test/index.js",
     "posttest": "nyc report --reporter=json && nyc report --reporter=lcov",
     "check-coverage": "istanbul check-coverage ",
