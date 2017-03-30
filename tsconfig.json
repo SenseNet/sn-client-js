@@ -8,7 +8,12 @@
         "declaration": false,
         "preserveConstEnums": true,
         "experimentalDecorators": true,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "types": [
+            "chai",
+            "mocha",
+            "node"
+        ]
     },
     "exclude": [
         "node_modules",
