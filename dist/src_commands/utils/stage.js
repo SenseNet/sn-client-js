@@ -14,20 +14,11 @@ const Promisify = require("gulp-promisify");
 const Path = require("path");
 const sourcemaps = require("gulp-sourcemaps");
 const ts = require("gulp-typescript");
-const STAGE_TASKS_PREFIX = 'SN_COMMANDS_STAGE_';
-const STAGE_TASK_CLEANUP = `${STAGE_TASKS_PREFIX}CLEANUP`;
-const STAGE_TASK_PREPARE = `${STAGE_TASKS_PREFIX}PREPARE`;
-const STAGE_TASK_BUILD = `${STAGE_TASKS_PREFIX}BUILD`;
-const STAGE_TASK_FINIALIZE = `${STAGE_TASKS_PREFIX}FINIALIZE`;
 const TEMP_FOLDER_NAME = 'tmp';
-const currentDir = __dirname;
 class Stage {
     constructor(paths) {
         this.paths = paths;
         Promisify(Gulp);
-    }
-    get TempFolderName() {
-        return TEMP_FOLDER_NAME;
     }
     get TempFolderPath() {
         return `${this.paths.SnClientPath}${Path.sep}${TEMP_FOLDER_NAME}`;

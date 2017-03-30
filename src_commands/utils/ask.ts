@@ -45,6 +45,10 @@ export class Ask {
         });
     }
 
+    /**
+     * Asks about a list of provided config values
+     * @param missingConfigs {K[]} A keys from SnConfigModel's fields which has to be asked
+     */
     public static async MissingConfigs<K extends keyof SnConfigModel>(...missingConfigs: K[]): Promise<Partial<SnConfigModel>> {
         return new Promise<Partial<SnConfigModel>>((resolve, reject) => {
             Prompt.start();

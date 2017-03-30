@@ -10,29 +10,40 @@ import * as Path from 'path';
 import * as sourcemaps from 'gulp-sourcemaps';
 import * as ts from 'gulp-typescript';
 
-const STAGE_TASKS_PREFIX = 'SN_COMMANDS_STAGE_';
-const STAGE_TASK_CLEANUP = `${STAGE_TASKS_PREFIX}CLEANUP`;
-const STAGE_TASK_PREPARE = `${STAGE_TASKS_PREFIX}PREPARE`;
-const STAGE_TASK_BUILD = `${STAGE_TASKS_PREFIX}BUILD`;
-const STAGE_TASK_FINIALIZE = `${STAGE_TASKS_PREFIX}FINIALIZE`;
-
 const TEMP_FOLDER_NAME = 'tmp';
 
-const currentDir = __dirname;
-
+/**
+ * This class is used to handle the new incoming types from the repository in a transactional way.
+ * Usage
+ *  - make a clean environment (temp folder)
+ *  - copy the existing client-related Typescript modules and test files (some of them will be overwritten the new ones from the repository)
+ *  - build the module
+ *  - run the unit tests
+ *  - (if the build and the unit tests has been succeeded) copy the files back to the package root
+ *  - clean up the temporary environment
+ */
 export class Stage {
 
+    /**
+     * @param paths {PathHelper} Contextual path options
+     * @constructs Stage
+     */
     constructor(private paths: PathHelper) {
         Promisify(Gulp);
     }
-    public get TempFolderName(): string {
-        return TEMP_FOLDER_NAME;
-    }
 
+    /**
+     * @returns The absolute path of the Temporary folder
+     */
     public get TempFolderPath(): string {
         return `${this.paths.SnClientPath}${Path.sep}${TEMP_FOLDER_NAME}`;
     }
 
+    /**
+     * Prepare the specified temporary folder
+     * - Cleans up if neccessary
+     * - Copies the existing Typescript source files and testss
+     */
     public async PrepareAsync() {
         this.Cleanup();
         return await Gulp.src([
@@ -49,9 +60,14 @@ export class Stage {
             .resume();
     }
 
+    /**
+     * Compiles the artifacts in the specified temp folder and runs the unit tests
+     * @throws {Error} if the build or the test has been failed
+     */
     public async CompileAsync() {
         try {
             let tsProject = ts.createProject(Path.join(this.paths.SnClientPath, 'tsconfig.json'));
+            // toDo - Refac to TSC
             return await Gulp.src([
                 './tmp/src/**/*.ts',
                 `./tmp/src_commands/**/*.ts`,
@@ -70,6 +86,9 @@ export class Stage {
         }
     }
 
+    /**
+     * Cleans up (deletes) the specified temporary folder
+     */
     public Cleanup() {
         Delete.sync(this.TempFolderPath, { force: true });
     }

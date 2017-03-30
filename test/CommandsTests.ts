@@ -74,9 +74,6 @@ describe('Commands', () => {
                 pathHelper = new PathHelper('c:/temp/snclienttest', 'c:/temp/snclienttest/node_modules/sn-client-js');
                 stage = new Stage(pathHelper);
             })
-            it('Should have a proper temp folder name', () => {
-                expect(stage.TempFolderName).to.be.eq('tmp');
-            });
             it('Should have a proper temp folder path', () => {
                 expect(stage.TempFolderPath).to.be.eq(Path.join(pathHelper.SnClientPath, 'tmp'));
             });
