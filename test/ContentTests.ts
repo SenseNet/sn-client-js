@@ -1,13 +1,16 @@
 import { Content } from '../src/Content';
 import { Schemas } from '../src/Schemas';
+import { Security } from '../src/Security';
+import { Enums } from '../src/Enums';
 import { ContentTypes } from '../src/ContentTypes';
 import * as Chai from 'chai';
+import { Observable } from '@reactivex/rxjs';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
 
 describe('Content', () => {
-    let content;
+    let content: ContentTypes.Task;
     let window = {}
     beforeEach(function () {
         beforeEach(() => {
@@ -26,450 +29,458 @@ describe('Content', () => {
     });
     describe('#Create()', () => {
         it('should return an object', function () {
-            expect(typeof content).to.eq('object');
+            expect(content).to.be.instanceof(Object);
         });
+        it('should return an instance of a Content', () => {
+            expect(content).to.be.instanceof(Content);
+        })
         it('should return an object with the given type and id', function () {
             const type = content.Type;
             expect(type).to.eq(CONTENT_TYPE);
             expect(content.Id).to.eq(1);
         });
+        it('should fill the Type field from the constructor name if not provided', () => {
+            let newContent = Content.Create(Content, {});
+            expect(newContent.Type).to.be.eq('Content');
+        });
+        it('should have a valid Type field when constructed with new T(options)', () => {
+            let newContent = new Content({});
+            expect(newContent.Type).to.be.eq('Content');
+        });
+        it('shoul respect the type field, if provided from settings', () => {
+            let newContent = new Content({});
+            newContent.Type = 'Task';
+            expect(newContent.Type).to.be.eq('Task');
+        })
     });
     describe('#Delete()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Delete(false)).to.eq('object');
+            expect(content.Delete(false)).to.be.instanceof(Observable);
         });
     });
     describe('#Rename()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Rename('aaa')).to.eq('object');
+            expect(content.Rename('aaa')).to.be.instanceof(Observable);
         });
     });
     describe('#Rename()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Rename('aaa', 'bbb')).to.eq('object');
+            expect(content.Rename('aaa', 'bbb')).to.be.instanceof(Observable);
         });
     });
     describe('#Save()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Save({ DisplayName: 'new' }, true)).to.eq('object');
+            expect(content.Save({ DisplayName: 'new' }, true)).to.be.instanceof(Observable);
         });
     });
     describe('#Save()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Save({ DisplayName: 'new' }, false)).to.eq('object');
+            expect(content.Save({ DisplayName: 'new' }, false)).to.be.instanceof(Observable);
         });
     });
     describe('#Actions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Actions()).to.eq('object');
+            expect(content.Actions()).to.be.instanceof(Observable);
         });
     });
     describe('#Actions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Actions()).to.eq('object');
+            expect(content.Actions()).to.be.instanceof(Observable);
         });
     });
     describe('#Actions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Actions('ListItem')).to.eq('object');
+            expect(content.Actions('ListItem')).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetAllowedChildTypes()).to.eq('object');
+            expect(content.GetAllowedChildTypes()).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetAllowedChildTypes({ select: ['Name'] })).to.eq('object');
+            expect(content.GetAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetEffectiveAllowedChildTypes()).to.eq('object');
+            expect(content.GetEffectiveAllowedChildTypes()).to.be.instanceof(Observable);
         });
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetEffectiveAllowedChildTypes({ select: ['Name'] })).to.eq('object');
+            expect(content.GetEffectiveAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#GetOwner()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetOwner()).to.eq('object');
+            expect(content.GetOwner()).to.be.instanceof(Observable);
         });
     });
     describe('#GetOwner()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetOwner({ select: ['Name'] })).to.eq('object');
+            expect(content.GetOwner({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Creator()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Creator()).to.eq('object');
+            expect(content.Creator()).to.be.instanceof(Observable);
         });
     });
     describe('#Creator()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Creator({ select: ['Name'] })).to.eq('object');
+            expect(content.Creator({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Modifier()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Modifier()).to.eq('object');
+            expect(content.Modifier()).to.be.instanceof(Observable);
         });
     });
     describe('#Modifier()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Modifier({ select: ['Name'] })).to.eq('object');
+            expect(content.Modifier({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#CheckedOutBy()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckedOutBy()).to.eq('object');
+            expect(content.CheckedOutBy()).to.be.instanceof(Observable);
         });
     });
     describe('#CheckedOutBy()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckedOutBy({ select: ['Name'] })).to.eq('object');
+            expect(content.CheckedOutBy({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Children()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Children()).to.eq('object');
+            expect(content.Children()).to.be.instanceof(Observable);
         });
     });
     describe('#Children()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Children({ select: ['Name'] })).to.eq('object');
+            expect(content.Children({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Versions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetVersions()).to.eq('object');
+            expect(content.GetVersions()).to.be.instanceof(Observable);
         });
     });
     describe('#Versions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetVersions({ select: ['Name'] })).to.eq('object');
+            expect(content.GetVersions({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetWorkspace()).to.eq('object');
+            expect(content.GetWorkspace()).to.be.instanceof(Observable);
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetWorkspace({ select: ['Name'] })).to.eq('object');
+            expect(content.GetWorkspace({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Checkout()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Checkout()).to.eq('object');
+            expect(content.Checkout()).to.be.instanceof(Observable);
         });
     });
     describe('#CheckIn()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckIn('comment')).to.eq('object');
+            expect(content.CheckIn('comment')).to.be.instanceof(Observable);
         });
     });
     describe('#CheckIn()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckIn()).to.eq('object');
+            expect(content.CheckIn()).to.be.instanceof(Observable);
         });
     });
     describe('#UndoCheckout()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.UndoCheckout()).to.eq('object');
+            expect(content.UndoCheckout()).to.be.instanceof(Observable);
         });
     });
     describe('#ForceUndoCheckout()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.ForceUndoCheckout()).to.eq('object');
+            expect(content.ForceUndoCheckout()).to.be.instanceof(Observable);
         });
     });
     describe('#Approve()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Approve()).to.eq('object');
+            expect(content.Approve()).to.be.instanceof(Observable);
         });
     });
     describe('#Reject()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Reject('test')).to.eq('object');
+            expect(content.Reject('test')).to.be.instanceof(Observable);
         });
     });
     describe('#Reject()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Reject()).to.eq('object');
+            expect(content.Reject()).to.be.instanceof(Observable);
         });
     });
     describe('#Publish()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Publish()).to.eq('object');
+            expect(content.Publish()).to.be.instanceof(Observable);
         });
     });
     describe('#RestoreVersion()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RestoreVersion()).to.eq('object');
+            expect(content.RestoreVersion('V1.3')).to.be.instanceof(Observable);
         });
     });
     describe('#RestoreVersion()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RestoreVersion('V.A.1.0')).to.eq('object');
+            expect(content.RestoreVersion('V.A.1.0')).to.be.instanceof(Observable);
         });
     });
     describe('#Restore()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Restore('/workspaces/document', 'test3')).to.eq('object');
+            expect(content.Restore('/workspaces/document', false)).to.be.instanceof(Observable);
         });
     });
     describe('#Restore()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Restore()).to.eq('object');
+            expect(content.Restore()).to.be.instanceof(Observable);
         });
     });
     describe('#MoveTo()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.MoveTo('/workspaces/document')).to.eq('object');
-        });
-    });
-    describe('#MoveTo()', () => {
-        it('should return an Observable object', function () {
-            expect(typeof content.MoveTo()).to.eq('object');
+            expect(content.MoveTo('/workspaces/document')).to.be.instanceof(Observable);
         });
     });
     describe('#CopyTo()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CopyTo('/workspaces/document')).to.eq('object');
-        });
-    });
-    describe('#CopyTo()', () => {
-        it('should return an Observable object', function () {
-            expect(typeof content.CopyTo()).to.eq('object');
+            expect(content.CopyTo('/workspaces/document')).to.be.instanceof(Observable);
         });
     });
     describe('#AddAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.AddAllowedChildTypes(['Folder'])).to.eq('object');
+            expect(content.AddAllowedChildTypes(['Folder'])).to.be.instanceof(Observable);
         });
     });
     describe('#RemoveAllowedChildTypes()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RemoveAllowedChildTypes(['Folder'])).to.eq('object');
+            expect(content.RemoveAllowedChildTypes(['Folder'])).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(typeof Content.Load('/workspace/project')).to.eq('object');
+            expect(Content.Load('/workspace/project')).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(typeof Content.Load(111)).to.eq('object');
+            expect(Content.Load(111)).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(typeof Content.Load(111, { select: 'DisplayName' })).to.eq('object');
+            expect(Content.Load(111, { select: 'DisplayName' })).to.be.instanceof(Observable);
         });
     });
     describe('#SetPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.SetPermissions([{ identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: 'allow', Save: 'deny' },
-            { identity: '/Root/IMS/BuiltIn/Portal/Creators', Custom16: 'A', Custom17: '1' }])).to.eq('object');
+            expect(typeof content.SetPermissions([
+                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: Security.PermissionValues.allow, Save: Security.PermissionValues.deny },
+                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', Custom01: Security.PermissionValues.allow, Custom14: Security.PermissionValues.deny },
+            ])).to.eq('object');
         });
     });
     describe('#SetPermissions()', () => {
         it('should return an Observable object', function () {
             content.Path = '/workspace/project';
-            expect(typeof content.SetPermissions('break')).to.eq('object');
+            expect(content.SetPermissions(Security.Inheritance.break)).to.be.instanceof(Observable);
         });
     });
     describe('#GetPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetPermission('/Root/IMS/BuiltIn/Portal/Visitor')).to.eq('object');
+            expect(content.GetPermission('/Root/IMS/BuiltIn/Portal/Visitor')).to.be.instanceof(Observable);
         });
     });
     describe('#GetPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetPermission()).to.eq('object');
+            expect(content.GetPermission()).to.be.instanceof(Observable);
         });
     });
     describe('#GetQueries()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetQueries(false)).to.eq('object');
+            expect(content.GetQueries(false)).to.be.instanceof(Observable);
         });
     });
     describe('#GetQueries()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetQueries()).to.eq('object');
+            expect(content.GetQueries()).to.be.instanceof(Observable);
         });
     });
     describe('#Finalize()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.Finalize()).to.eq('object');
+            expect(content.Finalize()).to.be.instanceof(Observable);
         });
     });
     describe('#TakeLockOver()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.TakeLockOver(123)).to.eq('object');
+            expect(content.TakeLockOver(123)).to.be.instanceof(Observable);
         });
     });
     describe('#TakeLockOver()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.TakeLockOver()).to.eq('object');
+            expect(content.TakeLockOver()).to.be.instanceof(Observable);
         });
     });
     describe('#RebuildIndex()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RebuildIndex(false, 1)).to.eq('object');
+            expect(content.RebuildIndex(false, 1)).to.be.instanceof(Observable);
         });
     });
     describe('#RebuildIndex()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RebuildIndex()).to.eq('object');
+            expect(content.RebuildIndex()).to.be.instanceof(Observable);
         });
     });
     describe('#RebuildIndex()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RebuildIndex(true)).to.eq('object');
+            expect(content.RebuildIndex(true)).to.be.instanceof(Observable);
         });
     });
     describe('#RefreshIndexSubtree()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RefreshIndexSubtree()).to.eq('object');
+            expect(content.RefreshIndexSubtree()).to.be.instanceof(Observable);
         });
     });
     describe('#RebuildIndexSubtree()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RebuildIndexSubtree()).to.eq('object');
+            expect(content.RebuildIndexSubtree()).to.be.instanceof(Observable);
         });
     });
     describe('#CheckPreviews()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckPreviews()).to.eq('object');
+            expect(content.CheckPreviews()).to.be.instanceof(Observable);
         });
     });
     describe('#CheckPreviews()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.CheckPreviews(true)).to.eq('object');
+            expect(content.CheckPreviews(true)).to.be.instanceof(Observable);
         });
     });
     describe('#RegeneratePreviews()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RegeneratePreviews()).to.eq('object');
+            expect(content.RegeneratePreviews()).to.be.instanceof(Observable);
         });
     });
     describe('#HasPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.HasPermission('AddNew,Save')).to.eq('object');
+            expect(content.HasPermission(['AddNew', 'Save'])).to.be.instanceof(Observable);
         });
     });
     describe('#HasPermission()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.HasPermission('AddNew,Save', 'alba')).to.eq('object');
+            expect(content.HasPermission(['AddNew', 'Save'], 'alba')).to.be.instanceof(Observable);
         });
     });
     describe('#TakeOwnership()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.TakeOwnership('/Root/IMS/BuiltIn/Portal/Admin')).to.eq('object');
+            expect(content.TakeOwnership('/Root/IMS/BuiltIn/Portal/Admin')).to.be.instanceof(Observable);
         });
     });
     describe('#TakeOwnership()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.TakeOwnership()).to.eq('object');
+            expect(content.TakeOwnership()).to.be.instanceof(Observable);
         });
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', 'Private')).to.eq('object');
+            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', Enums.QueryType.Public)).to.be.instanceof(Observable);
         });
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', 'Private')).to.eq('object');
+            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', Enums.QueryType.Public)).to.be.instanceof(Observable);
         });
     });
     describe('#RegeneratePreviews()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RegeneratePreviews()).to.eq('object');
+            expect(content.RegeneratePreviews()).to.be.instanceof(Observable);
         });
     });
     describe('#GetPageCount()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetPageCount()).to.eq('object');
+            expect(content.GetPageCount()).to.be.instanceof(Observable);
         });
     });
     describe('#PreviewAvailable()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.PreviewAvailable(1)).to.eq('object');
+            expect(content.PreviewAvailable(1)).to.be.instanceof(Observable);
         });
     });
     describe('#GetPreviewImagesForOData()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetPreviewImagesForOData()).to.eq('object');
+            expect(content.GetPreviewImagesForOData()).to.be.instanceof(Observable);
         });
     });
     describe('#GetExistingPreviewImagesForOData()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetExistingPreviewImagesForOData()).to.eq('object');
+            expect(content.GetExistingPreviewImagesForOData()).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedChildTypesFromCTD()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetAllowedChildTypesFromCTD()).to.eq('object');
+            expect(content.GetAllowedChildTypesFromCTD()).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedIdentities()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedIdentities('AllowedOrDenied', 'Groups')).to.eq('object');
+            expect(content.GetRelatedIdentities(Security.PermissionLevel.AllowedOrDenied, Security.IdentityKind.Groups)).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedPermissions('AllowedOrDenied', true, '/Root/IMS/BuiltIn/Portal/EveryOne', null)).to.eq('object');
+            expect(content.GetRelatedPermissions(Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', null)).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedItems()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedItems('AllowedOrDenied', true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.eq('object');
+            expect(content.GetRelatedItems(Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedIdentitiesByPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedIdentitiesByPermissions('AllowedOrDenied', 'Groups', ['Open', 'RunApplication'])).to.eq('object');
+            expect(content.GetRelatedIdentitiesByPermissions(Security.PermissionLevel.AllowedOrDenied, Security.IdentityKind.Groups, ['Open', 'RunApplication'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedItemsOneLevel()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetRelatedItemsOneLevel('AllowedOrDenied', '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.eq('object');
+            expect(content.GetRelatedItemsOneLevel(Security.PermissionLevel.AllowedOrDenied, '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedUsers()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetAllowedUsers(['Open'])).to.eq('object');
+            expect(content.GetAllowedUsers(['Open'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetParentGroups()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.GetParentGroups(false)).to.eq('object');
+            expect(content.GetParentGroups(false)).to.be.instanceof(Observable);
         });
     });
     describe('#AddMembers()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.AddMembers([11, 22])).to.eq('object');
+            expect(content.AddMembers([11, 22])).to.be.instanceof(Observable);
         });
     });
     describe('#RemoveMembers()', () => {
         it('should return an Observable object', function () {
-            expect(typeof content.RemoveMembers([11, 22])).to.eq('object');
+            expect(content.RemoveMembers([11, 22])).to.be.instanceof(Observable);
         });
     });
 
     describe('#GetSchema()', () => {
         it('should return a Schema object', function () {
-            expect(typeof content.GetSchema()).to.eq('object');
+            expect(content.GetSchema()).to.be.instanceof(Schemas.Schema);
         });
         it('should return a Task', function () {
             const schema = content.GetSchema();
@@ -478,7 +489,7 @@ describe('Content', () => {
     });
     describe('#static GetSchema()', () => {
         it('should return a Schema object', function () {
-            expect(typeof Content.GetSchema(CONTENT_TYPE)).to.eq('object');
+            expect(Content.GetSchema(CONTENT_TYPE)).to.be.instanceof(Schemas.Schema);
         });
         it('should return a Schema object', function () {
             let schema = Content.GetSchema(CONTENT_TYPE)
@@ -487,7 +498,7 @@ describe('Content', () => {
     });
     describe('#Schema()', () => {
         it('should return a Schema object', function () {
-            expect(typeof content.Schema()).to.eq('object');
+            expect(content.Schema()).to.be.instanceof(Schemas.Schema);
         });
         it('should return a Schema object', function () {
             let schema = content.Schema()

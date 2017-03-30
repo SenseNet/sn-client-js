@@ -50,7 +50,7 @@ export class Content {
     Id?: number;
     Name?: string;
 
-    private _type: string;
+    private _type?: string;
     public get Type(): string {
         return this._type || this.constructor.name;
     }
@@ -75,7 +75,6 @@ export class Content {
      */
     constructor(public readonly options: IContentOptions) {
         this.Id = options.Id;
-        // this.Type = options.Type;
         this.Name = options.Name;
         this.DisplayName = options.DisplayName;
         this.ModificationDate = options.ModificationDate;
@@ -807,7 +806,7 @@ export class Content {
     * ```
    */
     SetPermissions(inheritance: Security.Inheritance): Observable<any>;
-    SetPermissions(arg: any): Observable<any> {
+    SetPermissions(arg: Security.Inheritance | Security.PermissionRequestBody[]): Observable<any> {
         let action;
         if (arg instanceof Array) {
             action = new ODataApi.CustomContentAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] });
