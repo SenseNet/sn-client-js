@@ -10,7 +10,7 @@ const SN_CONFIG_NAME = 'sn.config.js';
  */
 export class SnConfigReader {
 
-    private config: SnConfigModel = new SnConfigModel;
+    public Config: SnConfigModel = new SnConfigModel();
 
     /**
      * @constructs SnConfigReader
@@ -22,7 +22,7 @@ export class SnConfigReader {
      * Reads an sn.config.js file from the project directory, warns the user if there is no sn.config.js available
      * @returns {Promise<any>} An awaitable promise that will be resolved when the reading is completed or the new Config model is constructed.
      */
-    private async ReadConfigFile(): Promise<any> {
+    public async ReadConfigFile(): Promise<any> {
         let cfg: SnConfigModel;
         try {
             cfg = require(this.projectDirectory + Path.sep + SN_CONFIG_NAME);
@@ -30,7 +30,7 @@ export class SnConfigReader {
             console.log(`No '${SN_CONFIG_NAME}' file found in the project root.`);
             cfg = new SnConfigModel();
         }
-        this.config = cfg;
+        this.Config = cfg;
     }
 
     /**
@@ -39,13 +39,16 @@ export class SnConfigReader {
      * @returns {Promise<Readonly<SnConfigModel>>} An awaitable promise with the readonly SnAdminConfigModel that will contain all specified values
      */
     public async ValidateAsync<K extends keyof SnConfigModel>(...requiredValues: K[]): Promise<Readonly<SnConfigModel>> {
-        await this.ReadConfigFile();
         for (let fieldName of requiredValues) {
             let fieldModel = SnConfigFieldModelStore.Get(fieldName);
-            let value = this.config[fieldModel.FieldName];
+            let value = this.Config[fieldModel.FieldName];
 
-            if (!value || !value.length || !(fieldModel.Behavior & SnConfigBehavior.AllowFromConfig)) {
-                this.config[fieldModel.FieldName] =
+            if (value && value.length && !(fieldModel.Behavior & SnConfigBehavior.AllowFromConfig)) {
+                throw Error(`Field '${fieldName}' is not allowed in snconfig file!`);
+            }
+
+            if (!value || !value.length) {
+                this.Config[fieldModel.FieldName] =
                     (fieldModel.Behavior & SnConfigBehavior.HideConsoleInput)
                         ?
                         await Ask.PasswordAsync(fieldModel.Question) :
@@ -53,6 +56,6 @@ export class SnConfigReader {
             }
         }
 
-        return this.config;
+        return this.Config;
     }
 }

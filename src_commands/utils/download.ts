@@ -40,26 +40,21 @@ export class Download {
                 path: this.path,
                 headers: this.headers,
             }, (response: Http.IncomingMessage) => {
-                if (response.readable) {
-                    let data = [];
-                    let contentLength: number = parseInt(response.headers['content-length']);
-                    response.on('data', chunk => {
-                        data.push(chunk);
-                    })
+                let data = [];
+                let contentLength: number = parseInt(response.headers['content-length']);
+                response.on('data', chunk => {
+                    data.push(chunk);
+                })
 
-                    response.on('end', () => {
-                        let pos = 0;
-                        let buffer = new Buffer(contentLength);
-                        data.forEach(chunk => {
-                            chunk.copy(buffer, pos);
-                            pos += chunk.length;
-                        });
-                        resolve(buffer);
+                response.on('end', () => {
+                    let pos = 0;
+                    let buffer = new Buffer(contentLength);
+                    data.forEach(chunk => {
+                        chunk.copy(buffer, pos);
+                        pos += chunk.length;
                     });
-                }
-                else {
-                    reject();
-                }
+                    resolve(buffer);
+                });
             });
         });
     }

@@ -35,7 +35,7 @@ export class Stage {
 
     public async PrepareAsync() {
         this.Cleanup();
-        await Gulp.src([
+        return await Gulp.src([
             `./src/**/*.ts`,
             `./test/**/*.ts`,
             `!./src/SN.d.ts`,
@@ -50,10 +50,8 @@ export class Stage {
 
     public async CompileAsync() {
         try {
-
             let tsProject = ts.createProject(Path.join(this.paths.SnClientPath, 'tsconfig.json'));
-
-            await Gulp.src([
+            return await Gulp.src([
                 './tmp/src/**/*.ts',
                 './tmp/test/**/*.ts'
             ], {
