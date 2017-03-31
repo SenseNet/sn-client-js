@@ -11,9 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Gulp = require("gulp");
 const Delete = require("del");
 const Promisify = require("gulp-promisify");
+const GulpRun = require("gulp-run");
 const Path = require("path");
-const sourcemaps = require("gulp-sourcemaps");
-const ts = require("gulp-typescript");
 const TEMP_FOLDER_NAME = 'tmp';
 class Stage {
     constructor(paths) {
@@ -40,27 +39,49 @@ class Stage {
                 .resume();
         });
     }
+    UpdateModuleAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Gulp.src([
+                `./tmp/src/**/*.ts`,
+                `./tmp/dist/**/*.ts`,
+                `!./src/SN.d.ts`
+            ], {
+                base: this.paths.SnClientPath,
+                cwd: this.paths.SnClientPath,
+            })
+                .pipe(Gulp.dest(this.paths.SnClientPath))
+                .resume();
+            this.Cleanup();
+        });
+    }
     CompileAsync() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let tsProject = ts.createProject(Path.join(this.paths.SnClientPath, 'tsconfig.json'));
-                return yield Gulp.src([
-                    './tmp/src/**/*.ts',
-                    `./tmp/src_commands/**/*.ts`,
-                    './tmp/test/**/*.ts'
-                ], {
-                    base: this.paths.SnClientPath,
-                    cwd: this.paths.SnClientPath
-                })
-                    .pipe(sourcemaps.init())
-                    .pipe(tsProject())
-                    .pipe(sourcemaps.write('.'))
-                    .pipe(Gulp.dest('./dist2'));
+                let buildResult = yield this.CallGulpRunAsync('tsc', this.TempFolderPath);
+                let testResult = yield this.CallGulpRunAsync('nyc mocha -p tsconfig.json dist/test/index.js', this.TempFolderPath);
+                let updateModuleResult = yield this.UpdateModuleAsync();
             }
             catch (error) {
                 console.log('Failed to build types');
                 this.Cleanup();
             }
+        });
+    }
+    CallGulpRunAsync(command, workingDir) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                GulpRun(command, {
+                    cwd: workingDir,
+                    verbosity: 3
+                }).exec((err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            });
         });
     }
     Cleanup() {

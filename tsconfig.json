@@ -4,10 +4,12 @@
         "noImplicitAny": false,
         "target": "es2015",
         "module": "commonjs",
+        "moduleResolution": "node",
         "sourceMap": true,
         "declaration": false,
         "preserveConstEnums": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "outDir": "./dist",
         "types": [
             "chai",

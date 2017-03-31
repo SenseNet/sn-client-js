@@ -1,14 +1,12 @@
 import { PathHelper } from './';
 import * as Gulp from 'gulp';
-import * as GulpTypescript from 'gulp-typescript';
 import * as GulpMocha from 'gulp-mocha';
-import * as GulpSourceMaps from 'gulp-sourcemaps';
 import * as Delete from 'del';
 import * as Promisify from 'gulp-promisify';
+import * as GulpRun from 'gulp-run';
+
 import * as Path from 'path';
 
-import * as sourcemaps from 'gulp-sourcemaps';
-import * as ts from 'gulp-typescript';
 
 const TEMP_FOLDER_NAME = 'tmp';
 
@@ -60,30 +58,51 @@ export class Stage {
             .resume();
     }
 
+    private async UpdateModuleAsync() {
+
+        await Gulp.src([
+            `./tmp/src/**/*.ts`,
+            `./tmp/dist/**/*.ts`,
+            `!./src/SN.d.ts`
+        ], {
+                base: this.paths.SnClientPath,
+                cwd: this.paths.SnClientPath,
+            })
+            .pipe(Gulp.dest(this.paths.SnClientPath))
+            .resume();
+        this.Cleanup();
+    }
+
     /**
      * Compiles the artifacts in the specified temp folder and runs the unit tests
      * @throws {Error} if the build or the test has been failed
      */
     public async CompileAsync() {
         try {
-            let tsProject = ts.createProject(Path.join(this.paths.SnClientPath, 'tsconfig.json'));
-            // toDo - Refac to TSC
-            return await Gulp.src([
-                './tmp/src/**/*.ts',
-                `./tmp/src_commands/**/*.ts`,
-                './tmp/test/**/*.ts'
-            ], {
-                    base: this.paths.SnClientPath,
-                    cwd: this.paths.SnClientPath
-                })
-                .pipe(sourcemaps.init())
-                .pipe(tsProject())
-                .pipe(sourcemaps.write('.'))
-                .pipe(Gulp.dest('./dist2'));
+            let buildResult = await this.CallGulpRunAsync('tsc', this.TempFolderPath);
+            let testResult = await this.CallGulpRunAsync('nyc mocha -p tsconfig.json dist/test/index.js', this.TempFolderPath);
+            let updateModuleResult = await this.UpdateModuleAsync();
+
         } catch (error) {
             console.log('Failed to build types');
             this.Cleanup();
         }
+    }
+
+    private async CallGulpRunAsync(command: string, workingDir: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            GulpRun(command, {
+                cwd: workingDir,
+                verbosity: 3
+            }).exec((err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
     }
 
     /**

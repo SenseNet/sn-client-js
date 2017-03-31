@@ -1,9 +1,7 @@
 
 // build chain dependencies
 const gulp = require('gulp');
-const ts = require('gulp-typescript');
 const mocha = require('gulp-mocha');
-const sourcemaps = require('gulp-sourcemaps');
 const istanbul = require('gulp-istanbul');
 const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 const typedoc = require("gulp-typedoc");
@@ -11,7 +9,6 @@ const del = require('del');
 var run = require('gulp-run');
 
 const __coverageThreshold = 60;
-const tsProject = ts.createProject('./tsconfig.json');
 
 const tslint = require("gulp-tslint");
 
@@ -40,53 +37,29 @@ gulp.task('build:clean', function () {
 
 gulp.task('build', ['build:clean'], function () {
     return run('tsc').exec();
-})
-
-gulp.task('test:instrument', ['build'], function () {
-    return gulp.src('./dist/src/**/*.js')
-        .pipe(istanbul())
-        .pipe(istanbul.hookRequire()); //this forces any call to 'require' to return our instrumented files
 });
-
-gulp.task('test:cover', ['test:instrument'], function () {
-    return gulp.src('./dist/**/*Tests.js')
-        .pipe(mocha({ ui: 'bdd' })) //runs tests
-        .pipe(istanbul.writeReports({
-            reporters: ['json', 'html'] //this yields a basic non-sourcemapped coverage.json file
-        })).on('end', remapCoverageFiles); //remap
-});
-
-//using remap-istanbul we can point our coverage data back to the original ts files
-function remapCoverageFiles() {
-    return gulp.src('./coverage/coverage-final.json')
-        .pipe(remapIstanbul({
-            basePath: '.',
-            reports: {
-                'html': './coverage',
-                'text-summary': null,
-                'lcovonly': './coverage/lcov.info'
-            }
-        }));
-}
 
 gulp.task("typedoc", function () {
     return gulp
         .src(["src/*.ts", "!src/SN.ts",'!./src/SN.d.ts'])
         .pipe(typedoc({
-            module: "commonjs",
-            target: "es2015",
-            includeDeclarations: false,
-            out: "./documentation",
-            name: "sn-client-js",
-            theme: "default",
-            ignoreCompilerErrors: true,
-            version: true,
-            readme: "sn-client-js/README.md",
-            excludeExternals: true,
-            excludePrivate: true,
-            includes: "docs"
-        }));
+                module: "commonjs",
+                target: "es2015",
+                includeDeclarations: false,
+                out: "./documentation",
+                name: "sn-client-js",
+                theme: "default",
+                ignoreCompilerErrors: true,
+                version: true,
+                readme: "sn-client-js/README.md",
+                excludeExternals: true,
+                excludePrivate: true,
+                includes: "docs"
+            }));
 });
 
-gulp.task('test', ['test:cover']);
+gulp.task('test', () => {
+    return run('npm test')
+        .exec();
+});
 gulp.task('default', ['build:lint', 'build', 'test']);
