@@ -1,9 +1,6 @@
 
 // build chain dependencies
 const gulp = require('gulp');
-const mocha = require('gulp-mocha');
-const istanbul = require('gulp-istanbul');
-const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 const typedoc = require("gulp-typedoc");
 const del = require('del');
 var run = require('gulp-run');
