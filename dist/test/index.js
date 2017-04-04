@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const CollectionTests = require("./CollectionTests");
 exports.CollectionTests = CollectionTests;
-const CommandsTests = require("./CommandsTests");
-exports.CommandsTests = CommandsTests;
 const ContentTests = require("./ContentTests");
 exports.ContentTests = ContentTests;
 const ContentTypeTests = require("./ContentTypeTests");

@@ -1,4 +1,4 @@
-// file: ComplexTypes.ts
+//file: ComplexTypes.ts
 /** 
 * Module containing complex data types like HyperLink or ChoiceOption.
 *

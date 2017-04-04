@@ -9,16 +9,14 @@
   "scripts": {
     "commit": "git-cz",
     "gulp": "gulp",
-    "pretest": "gulp build:clean && npm run build:client",
+    "pretest": "gulp build:clean && npm run build",
     "test": "nyc mocha -p tsconfig.json dist/test/index.js",
     "posttest": "nyc report --reporter=json && nyc report --reporter=lcov",
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "semantic-release": "semantic-release pre && semantic-release post",
     "prebuild": "gulp build:clean",
-    "build": "npm run build:commands && npm run build:client",
-    "build:commands": "tsc -p src_commands/tsconfig.json",
-    "build:client": "tsc"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
