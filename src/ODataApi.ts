@@ -1,8 +1,11 @@
 import { ODataHelper } from './ODataHelper';
 import { Content } from './Content';
 import 'isomorphic-fetch';
-import * as Rx from '@reactivex/rxjs';
-const { ajax } = Rx.Observable;
+import { Observable } from '@reactivex/rxjs';
+import { GetHttpProvider } from './Common';
+
+const ajax = GetHttpProvider().Ajax;
+//const { ajax } = Observable;
 
 /**
  * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API. 
@@ -48,7 +51,6 @@ export module ODataApi {
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     export let GetContent = (options: ODataRequestOptions) => {
-        let Observable = Rx.Observable;
         let promise: Promise<any> = fetch(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
         let source = Observable.fromPromise(promise);
         return source;
@@ -177,7 +179,6 @@ export module ODataApi {
         }
     }
     export const Upload = (path: string, data: Object, creation: boolean) => {
-        let Observable = Rx.Observable;
         let url = `${ROOT_URL()}${ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;
