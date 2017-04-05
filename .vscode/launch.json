@@ -7,31 +7,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch sn-fetch-types",
-            "preLaunchTask": "build:commands",
-            "program": "${workspaceRoot}\\src_commands\\sn-fetch-types.ts",
-            "sourceMaps": true,
-            "console": "integratedTerminal",
-            "outFiles": [
-                "${workspaceRoot}\\dist_commands\\**\\*.js"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch sn-fetch-types from another location",
-            "preLaunchTask": "build:commands",
-            "cwd": "${workspaceRoot}\\..\\react-redux-typescript-boilerplate",
-            "program": "${workspaceRoot}\\src_commands\\sn-fetch-types.ts",
-            "sourceMaps": true,
-            "console": "integratedTerminal",
-            "outFiles": [
-                "${workspaceRoot}\\dist_commands\\**\\*.js"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Debug tests",
             "runtimeExecutable": "mocha",
             "windows": {
