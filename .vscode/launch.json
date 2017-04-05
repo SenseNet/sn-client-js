@@ -12,7 +12,7 @@
             "windows": {
                 "runtimeExecutable": "mocha.cmd"
             },
-            "preLaunchTask": "build:client",
+            "preLaunchTask": "build",
             "runtimeArgs": [
                 "--debug-brk",
                 "./dist/test/index.js"

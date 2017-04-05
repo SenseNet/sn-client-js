@@ -8,18 +8,10 @@
     "suppressTaskName": true,
     "tasks": [
         {
-            "taskName": "build:commands",
+            "taskName": "build",
             "args": [
                 "run",
-                "build:commands"
-            ],
-            "isBuildCommand": true
-        },
-        {
-            "taskName": "build:client",
-            "args": [
-                "run",
-                "build:client"
+                "build"
             ]
         }
     ]
