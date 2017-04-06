@@ -10,6 +10,7 @@ import './ODataApi';
 import './ODataApiActionObservables';
 import './Resources';
 import './Security';
+import './Setup';
 
 export { Fields } from './Fields';
 export { FieldSettings } from './FieldSettings';
@@ -23,3 +24,4 @@ export { ODataApiActionObservables } from './ODataApiActionObservables';
 export { ODataApi } from './ODataApi';
 export { Resources } from './Resources';
 export { Security } from './Security';
+export { Setup } from './Setup';
