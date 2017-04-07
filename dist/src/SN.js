@@ -1,5 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("./Fields");
+require("./FieldSettings");
+require("./Schema");
+require("./Content");
+require("./ContentTypes");
+require("./Collection");
+require("./Common");
+require("./ODataHelper");
+require("./ODataApi");
+require("./ODataApiActionObservables");
+require("./Resources");
+require("./Security");
+require("./Setup");
 var ComplexTypes_1 = require("./ComplexTypes");
 exports.ComplexTypes = ComplexTypes_1.ComplexTypes;
 var FieldSettings_1 = require("./FieldSettings");
@@ -29,4 +42,6 @@ var Resources_1 = require("./Resources");
 exports.Resources = Resources_1.Resources;
 var Security_1 = require("./Security");
 exports.Security = Security_1.Security;
+var Setup_1 = require("./Setup");
+exports.Setup = Setup_1.Setup;
 //# sourceMappingURL=SN.js.map

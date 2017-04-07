@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ODataHelper_1 = require("./ODataHelper");
+const Setup_1 = require("./Setup");
 const Rx = require("@reactivex/rxjs");
-const { ajax } = Rx.Observable;
 var ODataApi;
 (function (ODataApi) {
+    let ajax = (options) => {
+        return Setup_1.Setup.GetHttpProvider().Ajax(options);
+    };
     ODataApi.ODATA_SERVICE_TOKEN = () => {
         if (typeof window !== 'undefined' && typeof window['serviceToken'] !== 'undefined') {
             return `${window['serviceToken']}`;
@@ -113,7 +116,6 @@ var ODataApi;
         }
     };
     ODataApi.Upload = (path, data, creation) => {
-        let Observable = Rx.Observable;
         let url = `${ODataApi.ROOT_URL()}${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;

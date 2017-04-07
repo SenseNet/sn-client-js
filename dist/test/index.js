@@ -16,4 +16,6 @@ const ODataHelperTests = require("./ODataHelperTests");
 exports.ODataHelperTests = ODataHelperTests;
 const SchemaTests = require("./SchemaTests");
 exports.SchemaTests = SchemaTests;
+const Setup_1 = require("../src/Setup");
+Setup_1.Setup.InitializeConfig();
 //# sourceMappingURL=index.js.map

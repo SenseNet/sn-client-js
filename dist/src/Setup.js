@@ -19,14 +19,13 @@ var Setup;
         return _httpProvider;
     }
     Setup.GetHttpProvider = GetHttpProvider;
-    function InitializeDefault() {
+    function InitializeConfig(SnConfig = {}) {
         InitializeCustom({
             HttpProvider: http_1.Http.RxObservableHttpProvider,
-            ServiceToken: 'OData.SVC',
-            SiteUrl: ''
+            ServiceToken: SnConfig['ServiceToken'] || '/OData.svc',
+            SiteUrl: SnConfig['SiteUrl'] || ''
         });
     }
-    Setup.InitializeDefault = InitializeDefault;
+    Setup.InitializeConfig = InitializeConfig;
 })(Setup = exports.Setup || (exports.Setup = {}));
-
 //# sourceMappingURL=Setup.js.map
