@@ -1,22 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const Content_1 = require("../src/Content");
 const Collection_1 = require("../src/Collection");
+const rxjs_1 = require("@reactivex/rxjs");
 const Chai = require("chai");
 const expect = Chai.expect;
 describe('Collection', () => {
-    let collection, children;
+    let collection;
+    let children;
     let window = {};
     beforeEach(function () {
-        children = [{ Id: 1, }, { Id: 2, }];
+        children = [Content_1.Content.Create(Content_1.Content, { Id: 1 }), Content_1.Content.Create(Content_1.Content, { Id: 2 })];
         collection = new Collection_1.Collection(children);
         collection.Path = 'https://daily.demo.sensenet.com/lorem';
         window['serviceToken'] = 'OData.svc';
-        window['siteUrl'] = "https://daily.demo.sensenet.com";
+        window['siteUrl'] = 'https://daily.demo.sensenet.com';
     });
     describe('#Items()', () => {
         it('should return an array', function () {
             const items = collection.Items();
-            expect(typeof items).to.eq('object');
+            expect(items).to.be.instanceof(Array);
         });
         it('should return an array with the same children objects', function () {
             const items = collection.Items();
@@ -26,7 +29,7 @@ describe('Collection', () => {
     describe('#Item(id)', () => {
         it('should return an object with a given id', function () {
             const item = collection.Item(1);
-            expect(typeof item).to.be.eq('object');
+            expect(item).to.be.instanceof(Content_1.Content);
             expect(item.Id).to.be.eq(1);
         });
     });
@@ -39,61 +42,60 @@ describe('Collection', () => {
     describe('#Add()', () => {
     });
     describe('#Remove()', () => {
-        it("should return an observable", function () {
-            expect(typeof collection.Remove(1, true)).to.be.eq('object');
+        it('should return an observable', function () {
+            expect(collection.Remove(1, true)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Remove()', () => {
-        it("should return an observable", function () {
-            expect(typeof collection.Remove(1)).to.be.eq('object');
+        it('should return an observable', function () {
+            expect(collection.Remove(1)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Remove()', () => {
-        it("should return an observable", function () {
+        it('should return an observable', function () {
             collection['Path'] = '/workspaces/project';
-            expect(typeof collection.Remove([0, 1], true)).to.be.eq('object');
+            expect(collection.Remove([0, 1], true)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Remove()', () => {
-        it("should return an observable", function () {
+        it('should return an observable', function () {
             collection['Path'] = '/workspaces/project';
-            expect(typeof collection.Remove([0, 1])).to.be.eq('object');
+            expect(collection.Remove([0, 1])).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Move()', () => {
-        it("should return an observable", function () {
-            expect(typeof collection.Move(1, '/workspaces/Project')).to.be.eq('object');
+        it('should return an observable', function () {
+            expect(collection.Move(1, '/workspaces/Project')).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Move()', () => {
-        it("should return an observable", function () {
+        it('should return an observable', function () {
             collection['Path'] = '/workspaces/project';
-            expect(typeof collection.Move([0, 1], '/workspaces/Project')).to.be.eq('object');
+            expect(collection.Move([0, 1], '/workspaces/Project')).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Copy()', () => {
-        it("should return an observable", function () {
-            expect(typeof collection.Copy(1, '/workspaces/Project')).to.be.eq('object');
+        it('should return an observable', function () {
+            expect(collection.Copy(1, '/workspaces/Project')).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Copy()', () => {
-        it("should return an observable", function () {
+        it('should return an observable', function () {
             collection['Path'] = '/workspaces/project';
-            expect(typeof collection.Copy([0, 1], '/workspaces/Project')).to.be.eq('object');
+            expect(collection.Copy([0, 1], '/workspaces/Project')).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#AllowedChildTypes()', () => {
-        it("should return an observable", function () {
+        it('should return an observable', function () {
             collection['Path'] = '/workspaces/project';
-            expect(typeof collection.AllowedChildTypes()).to.be.eq('object');
+            expect(collection.AllowedChildTypes()).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#AllowedChildTypes()', () => {
-        it("should return an observable", function () {
+        it('should return an observable', function () {
             collection['Path'] = '/workspaces/project';
-            expect(typeof collection.AllowedChildTypes({ select: 'Name' })).to.be.eq('object');
+            expect(collection.AllowedChildTypes({ select: 'Name' })).to.be.instanceof(rxjs_1.Observable);
         });
     });
 });
-
 //# sourceMappingURL=CollectionTests.js.map

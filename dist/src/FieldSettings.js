@@ -75,12 +75,6 @@ var FieldSettings;
         }
     }
     FieldSettings.IntegerFieldSetting = IntegerFieldSetting;
-    class NullFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-        }
-    }
-    FieldSettings.NullFieldSetting = NullFieldSetting;
     class TextFieldSetting extends FieldSetting {
         constructor(options) {
             super(options);
@@ -96,6 +90,12 @@ var FieldSettings;
         }
     }
     FieldSettings.ShortTextFieldSetting = ShortTextFieldSetting;
+    class NullFieldSetting extends FieldSetting {
+        constructor(options) {
+            super(options);
+        }
+    }
+    FieldSettings.NullFieldSetting = NullFieldSetting;
     class LongTextFieldSetting extends TextFieldSetting {
         constructor(options) {
             super(options);
@@ -161,27 +161,6 @@ var FieldSettings;
         }
     }
     FieldSettings.RatingFieldSetting = RatingFieldSetting;
-    class CurrencyFieldSetting extends NumberFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Format = options.format;
-        }
-    }
-    FieldSettings.CurrencyFieldSetting = CurrencyFieldSetting;
-    class ColorFieldSetting extends TextFieldSetting {
-        constructor(options) {
-            super(options);
-            this.Palette = options.palette;
-        }
-    }
-    FieldSettings.ColorFieldSetting = ColorFieldSetting;
-    class HyperLinkFieldSetting extends FieldSetting {
-        constructor(options) {
-            super(options);
-            this.UrlFormat = options.urlFormat;
-        }
-    }
-    FieldSettings.HyperLinkFieldSetting = HyperLinkFieldSetting;
     class PasswordFieldSetting extends ShortTextFieldSetting {
         constructor(options) {
             super(options);
@@ -198,5 +177,4 @@ var FieldSettings;
     }
     FieldSettings.CaptchaFieldSetting = CaptchaFieldSetting;
 })(FieldSettings = exports.FieldSettings || (exports.FieldSettings = {}));
-
 //# sourceMappingURL=FieldSettings.js.map

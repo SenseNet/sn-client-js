@@ -23,5 +23,4 @@ exports.SetSiteUrl = (url = '/') => {
 exports.SetServiceToken = (token = '/Odata.svc') => {
     window['serviceToken'] = token;
 };
-
 //# sourceMappingURL=Common.js.map

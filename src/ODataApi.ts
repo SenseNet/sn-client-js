@@ -3,6 +3,7 @@ import { Http } from './http';
 import { Content } from './Content';
 import { Observable, AjaxRequest } from '@reactivex/rxjs';
 import { Setup } from './Setup';
+import * as Rx from '@reactivex/rxjs';
 
 /**
  * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -53,9 +54,8 @@ export module ODataApi {
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     export let GetContent = (options: ODataRequestOptions) => {
-        let promise: Promise<any> = fetch(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
-        let source = Observable.fromPromise(promise);
-        return source;
+        let Observable = Rx.Observable;
+        return ajax(`${ROOT_URL()}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
     }
     /**
      * Method to fetch children of a Content from the Content Repository through OData REST API.
@@ -188,9 +188,10 @@ export module ODataApi {
         else {
             url = url;
         }
-        let promise: Promise<any> = fetch(url, JSON.stringify(data));
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax({
+            url,
+            body: JSON.stringify(data)
+        });
     }
 
     export const Login = (action: CustomAction, options?: IODataParams) => {
@@ -345,6 +346,25 @@ export module ODataApi {
                     this.params.push(options.requiredParams[i]);
                 }
             }
+        }
+    }
+
+    /**
+     * Class that represents a custom action that bounds to a specified content, that has to be identified by its Id or Path
+     */
+    export class CustomContentAction extends CustomAction {
+
+        /**
+         * @constructs {CustomContentAction}
+         * @param options The custom action options
+         * @throws {Error} if the Id or Path is not provided
+         */
+        constructor(options: ICustomActionOptions) {
+            if (!options.id && !options.path) {
+                throw Error('Content.Id or Content.Path is required for this action');
+            }
+            super(options);
+
         }
     }
 

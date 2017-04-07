@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import './Fields';
 import './FieldSettings';
 import './Schema';
@@ -13,15 +14,15 @@ import './Security';
 import './Setup';
 import './Http';
 
-export { Fields } from './Fields';
+export { ComplexTypes } from './ComplexTypes';
 export { FieldSettings } from './FieldSettings';
-export { Schemas } from './Schema';
+export { Schemas } from './Schemas';
 export { Content } from './Content';
 export { ContentTypes } from './ContentTypes';
 export { Collection } from './Collection';
 export { Login, Logout, GetVersionInfo, GetAllContentTypes, SetSiteUrl, SetServiceToken } from './Common';
 export { ODataHelper } from './ODataHelper';
-export { ODataApiActionObservables } from './ODataApiActionObservables';
+export { ODataApiActionObservables } from './ODataAPIActionObservables';
 export { ODataApi } from './ODataApi';
 export { Resources } from './Resources';
 export { Security } from './Security';
