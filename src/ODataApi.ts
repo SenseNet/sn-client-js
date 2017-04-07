@@ -1,22 +1,24 @@
 import { ODataHelper } from './ODataHelper';
+import { Http } from './http';
 import { Content } from './Content';
-import 'isomorphic-fetch';
-import { Observable } from '@reactivex/rxjs';
-import { GetHttpProvider } from './Common';
-
-const ajax = GetHttpProvider().Ajax;
-//const { ajax } = Observable;
+import { Observable, AjaxRequest } from '@reactivex/rxjs';
+import { Setup } from './Setup';
 
 /**
- * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API. 
- * 
+ * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
+ *
  * Following methods return Rxjs Observables which are made from the ajax requests' promises. Action methods like Delete or Rename on Content calls this methods,
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
 export module ODataApi {
+
+    let ajax = (options: AjaxRequest): Observable<any> => {
+        return Setup.GetHttpProvider().Ajax(options);
+    }
+
     /**
      * Constant to hold the service token. By default it is OData.svc but before you start developing with sn-client-js check the related config in your Sense/Net portal's
-     * web.config. If there's no ```ODataServiceToken``` config it fallbcks to the default so you also have to use the default 'OData.svc' in your TypeScript or JavaScript code.
+     * web.config. If there's no ```ODataServiceToken``` config it falls back to the default so you also have to use the default 'OData.svc' in your TypeScript or JavaScript code.
      * If it has a value in the web.config use the same value as your service token on client-side.
      */
     export const ODATA_SERVICE_TOKEN = () => {
@@ -45,7 +47,7 @@ export module ODataApi {
     }
     /**
      * Method to get a Content from the Content Repository through OData REST API.
-     * 
+     *
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
@@ -57,7 +59,7 @@ export module ODataApi {
     }
     /**
      * Method to fetch children of a Content from the Content Repository through OData REST API.
-     * 
+     *
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
@@ -81,7 +83,7 @@ export module ODataApi {
     }
     /**
      * Method to delete a Content from the Content Repository through OData REST API.
-     * 
+     *
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params id {number} Id of the Content that will be deleted.
      * @params permanent {boolean} Determines whether the Content should be moved to the Trash or be deleted permanently.
@@ -95,7 +97,7 @@ export module ODataApi {
     });
     /**
      * Method to modify a single or multiple fields of a Content through OData REST API.
-     * 
+     *
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params id {number} Id of the Content that will be modified.
      * @params fields {Object} Contains the modifiable fieldnames as keys and their values.
@@ -110,7 +112,7 @@ export module ODataApi {
     })
     /**
      * Method to set multiple fields of a Content and clear the rest through OData REST API.
-     * 
+     *
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params id {number} Id of the Content that will be modified.
      * @params fields {Object} Contains the modifiable fieldnames as keys and their values.
@@ -125,7 +127,7 @@ export module ODataApi {
     })
     /**
      * Creates a wrapper function for a callable custom OData action.
-     * 
+     *
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params action {CustomAction} A CustomAction configuration object.
      * @params options {IODataParams} An object that holds the config of the ajax request like urlparameters or data.

@@ -1,11 +1,12 @@
-import { Observable } from '@reactivex/rxjs';
+import { ContentTypes } from './ContentTypes';
 import { ODataApi } from './ODataApi';
 import { Http } from './http';
+import { Observable } from '@reactivex/rxjs';
 /**
- * It is possible to send authentication requests using this action. You provide the username and password and will get the User object as the response if the login operation was 
- * successful or HTTP 403 Forbidden message if it wasn’t. If the username does not contain a domain prefix, the configured default domain will be used. After you logged in the user successfully, 
+ * It is possible to send authentication requests using this action. You provide the username and password and will get the User object as the response if the login operation was
+ * successful or HTTP 403 Forbidden message if it wasn’t. If the username does not contain a domain prefix, the configured default domain will be used. After you logged in the user successfully,
  * you will receive a standard ASP.NET auth cookie which will make sure that your subsequent requests will be authorized correctly.
- * 
+ *
  * As the username and password is sent in clear text, always send these kinds of requests throuigh HTTPS.
  * @params username {string} Name of the user.
  * @params password {string} Password of the user.
@@ -21,7 +22,7 @@ import { Http } from './http';
  * });
  * ```
  */
-export const Login = (username: string, password: string): Observable<any> => {
+export const Login = (username: string, password: string): Observable<ContentTypes.User> => {
     let action = new ODataApi.CustomAction({ name: 'Login', path: '/Root', noCache: true, isAction: true, requiredParams: ['username', 'password'] });
     return ODataApi.Login(action, { data: { 'username': username, 'password': password } });
 }
@@ -44,7 +45,7 @@ export const Logout = (): Observable<any> => {
     return ODataApi.Logout(action);
 }
 /**
- * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the 
+ * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
  * subject in the SnAdmin article. You can read detailed description of the function result.
  * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
  * ```
@@ -88,35 +89,3 @@ export const SetSiteUrl = (url: string = '/') => {
 export const SetServiceToken = (token: string = '/Odata.svc') => {
     window['serviceToken'] = token;
 }
-
-export interface IInitializationOptions<THttpProvider, THttpReturnType> {
-    HttpProvider: { new (): THttpProvider }
-    HttpReturnType: { new (...args): THttpReturnType }
-    SiteUrl: string;
-    ServiceToken: string;
-}
-
-let _initialized: boolean = false;
-export function Initialize<T, THttpProvider extends Http.IHttpProvider<T>,
-    THttpReturnType>(options: IInitializationOptions<THttpProvider, THttpReturnType>) {
-    if (_initialized) {
-        throw Error('Sense/NET Components are already initialized');
-    }
-    _httpProvider = Http.Provider.Create(options.HttpProvider.prototype, options.HttpReturnType.prototype);
-    _initialized = true;
-}
-
-
-let _httpProvider: Http.IHttpProvider<any>;
-export function GetHttpProvider() {
-    if (!_httpProvider)
-        throw Error('Sense/NET Components not initialized. Please run Common.Initialize() before using the HttpProvider!');
-    return _httpProvider;
-}
-
-Initialize({
-    HttpProvider: Http.RxObservableHttpProvider,
-    HttpReturnType: Promise,
-    ServiceToken: 'OData.SVC',
-    SiteUrl: ''
-})

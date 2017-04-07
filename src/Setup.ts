@@ -1,8 +1,8 @@
 import { Http } from './http';
+import * as Path from 'path';
 import { Observable } from '@reactivex/rxjs';
 
 export module Setup {
-
     export interface IInitializationOptions<THttpProvider> {
         HttpProvider: { new (): THttpProvider }
         SiteUrl: string;
@@ -27,12 +27,11 @@ export module Setup {
         return _httpProvider;
     }
 
-    export function InitializeDefault() {
+    export function InitializeConfig(SnConfig: any = {}) {
         InitializeCustom({
             HttpProvider: Http.RxObservableHttpProvider,
-            ServiceToken: 'OData.SVC',
-            SiteUrl: ''
+            ServiceToken: SnConfig['ServiceToken'] || '/OData.svc',
+            SiteUrl: SnConfig['SiteUrl'] || ''
         })
     }
-
 }
