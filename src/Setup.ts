@@ -1,4 +1,4 @@
-import { Http } from './http';
+import { Http } from './Http';
 import * as Path from 'path';
 import { Observable } from '@reactivex/rxjs';
 

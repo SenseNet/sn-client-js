@@ -1,6 +1,6 @@
 import { ContentTypes } from './ContentTypes';
 import { ODataApi } from './ODataApi';
-import { Http } from './http';
+import { Http } from './Http';
 import { Observable } from '@reactivex/rxjs';
 /**
  * It is possible to send authentication requests using this action. You provide the username and password and will get the User object as the response if the login operation was

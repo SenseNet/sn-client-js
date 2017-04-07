@@ -38,7 +38,11 @@ gulp.task('build', ['build:clean'], function () {
 
 gulp.task("typedoc", function () {
     return gulp
-        .src(["src/*.ts", "!src/SN.ts",'!./src/SN.d.ts'])
+        .src([
+            "./src/*.ts",
+            // "!./src/SN.ts",
+            // "!./src/SN.d.ts"
+        ])
         .pipe(typedoc({
                 module: "commonjs",
                 target: "es2015",
@@ -48,7 +52,7 @@ gulp.task("typedoc", function () {
                 theme: "default",
                 ignoreCompilerErrors: true,
                 version: true,
-                mode: "module",
+                mode: "file",
                 readme: "sn-client-js/README.md",
                 excludeExternals: true,
                 excludePrivate: true,

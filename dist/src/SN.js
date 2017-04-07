@@ -12,6 +12,7 @@ require("./ODataApi");
 require("./ODataApiActionObservables");
 require("./Resources");
 require("./Security");
+require("./Http");
 require("./Setup");
 var ComplexTypes_1 = require("./ComplexTypes");
 exports.ComplexTypes = ComplexTypes_1.ComplexTypes;
@@ -42,6 +43,8 @@ var Resources_1 = require("./Resources");
 exports.Resources = Resources_1.Resources;
 var Security_1 = require("./Security");
 exports.Security = Security_1.Security;
+var Http_1 = require("./Http");
+exports.Http = Http_1.Http;
 var Setup_1 = require("./Setup");
 exports.Setup = Setup_1.Setup;
 //# sourceMappingURL=SN.js.map

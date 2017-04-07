@@ -145,7 +145,7 @@ export class Collection<T> {
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new ODataApi.CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
-            return ODataApi.CreateCustomAction(action, { data: [{ 'paths': ids }, {'permanently': permanently}] });
+            return ODataApi.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
         }
     }
     /**

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const http_1 = require("./http");
+const Http_1 = require("./Http");
 var Setup;
 (function (Setup) {
     let _initialized = false;
@@ -8,7 +8,7 @@ var Setup;
         if (_initialized) {
             throw Error('Sense/NET Components are already initialized');
         }
-        _httpProvider = http_1.Http.Provider.Create(options.HttpProvider);
+        _httpProvider = Http_1.Http.Provider.Create(options.HttpProvider);
         _initialized = true;
     }
     Setup.InitializeCustom = InitializeCustom;
@@ -21,7 +21,7 @@ var Setup;
     Setup.GetHttpProvider = GetHttpProvider;
     function InitializeConfig(SnConfig = {}) {
         InitializeCustom({
-            HttpProvider: http_1.Http.RxObservableHttpProvider,
+            HttpProvider: Http_1.Http.RxObservableHttpProvider,
             ServiceToken: SnConfig['ServiceToken'] || '/OData.svc',
             SiteUrl: SnConfig['SiteUrl'] || ''
         });

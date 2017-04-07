@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import './Fields';
 import './FieldSettings';
 import './Schema';
@@ -26,5 +25,5 @@ export { ODataApiActionObservables } from './ODataAPIActionObservables';
 export { ODataApi } from './ODataApi';
 export { Resources } from './Resources';
 export { Security } from './Security';
-export { Setup } from './Setup';
 export { Http } from './Http';
+export { Setup } from './Setup';

@@ -1,5 +1,5 @@
 import { ODataHelper } from './ODataHelper';
-import { Http } from './http';
+import { Http } from './Http';
 import { Content } from './Content';
 import { Observable, AjaxRequest } from '@reactivex/rxjs';
 import { Setup } from './Setup';

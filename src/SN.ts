@@ -10,6 +10,7 @@ import './ODataApi';
 import './ODataApiActionObservables';
 import './Resources';
 import './Security';
+import './Http';
 import './Setup';
 
 export { ComplexTypes } from './ComplexTypes';
@@ -24,4 +25,5 @@ export { ODataApiActionObservables } from './ODataAPIActionObservables';
 export { ODataApi } from './ODataApi';
 export { Resources } from './Resources';
 export { Security } from './Security';
+export { Http } from './Http';
 export { Setup } from './Setup';

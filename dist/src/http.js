@@ -27,4 +27,4 @@ var Http;
     }
     Http.Provider = Provider;
 })(Http = exports.Http || (exports.Http = {}));
-//# sourceMappingURL=http.js.map
+//# sourceMappingURL=Http.js.map

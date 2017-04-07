@@ -1,6 +1,10 @@
 import { Observable, AjaxRequest } from '@reactivex/rxjs';
 
+/**
+ * This module is a library module for Http-layer related classes and submodules.
+ */
 export module Http {
+
     export interface IHttpProvider {
         Ajax(options?: AjaxRequest): Observable<any>;
     }
