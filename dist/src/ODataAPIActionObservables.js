@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Rx = require("@reactivex/rxjs");
 const ODataHelper_1 = require("./ODataHelper");
-require("isomorphic-fetch");
 const { ajax } = Rx.Observable;
 var ODataApiActionObservables;
 (function (ODataApiActionObservables) {
@@ -155,10 +154,10 @@ var ODataApiActionObservables;
         if (creation) {
             url = `${url}?create=1`;
         }
-        let promise = fetch(url, JSON.stringify(data));
-        let source = Observable.fromPromise(promise);
-        return source;
+        return ajax({
+            url,
+            body: JSON.stringify(data)
+        });
     };
 })(ODataApiActionObservables = exports.ODataApiActionObservables || (exports.ODataApiActionObservables = {}));
-
 //# sourceMappingURL=ODataAPIActionObservables.js.map

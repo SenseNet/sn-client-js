@@ -1,3 +1,4 @@
+//file: ComplexTypes.ts
 /** 
 * Module containing complex data types like HyperLink or ChoiceOption.
 *
@@ -22,20 +23,7 @@
 * ```
 */
 
-export module Fields {
-    export class HyperLink {
-        Href: string;
-        Text: string;
-        Title: string;
-        Target: string;
-        constructor(href: string, text: string, title: string, target: string) {
-            this.Href = href;
-            this.Text = text;
-            this.Title = title;
-            this.Target = target;
-        }
-    }
-
+export module ComplexTypes {
     export class ChoiceOption {
         Value: string;
         Text: string;
@@ -69,3 +57,4 @@ export module Fields {
         __mediaresource: MediaObject;
     }
 }
+

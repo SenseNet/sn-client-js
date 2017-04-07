@@ -14,7 +14,6 @@
         "no-internal-module": false,
         "no-trailing-whitespace": true,
         "no-var-keyword": true,
-        "variable-name": false,
         "one-line": [
             true,
             "check-open-brace",
@@ -35,6 +34,8 @@
                 "variable-declaration": "nospace"
             }
         ],
+        "quotemark": [true, "single", "avoid-escape"],
+        "variable-name": false,
         "whitespace": [
             true,
             "check-branch",
@@ -64,7 +65,7 @@
             "allow-null-check"
         ],
         "variable-name": [
-            true,
+            false,
             "ban-keywords"
         ],
         "whitespace": [

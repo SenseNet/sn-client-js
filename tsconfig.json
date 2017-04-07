@@ -4,12 +4,17 @@
         "noImplicitAny": false,
         "target": "es2015",
         "module": "commonjs",
+        "moduleResolution": "node",
         "sourceMap": true,
         "declaration": false,
         "preserveConstEnums": true,
         "experimentalDecorators": true,
-        "typeRoots": [
-            "./node_modules/@types"
+        "emitDecoratorMetadata": true,
+        "outDir": "./dist",
+        "types": [
+            "chai",
+            "mocha",
+            "node"
         ]
     },
     "exclude": [
@@ -18,6 +23,7 @@
     ],
     "compileOnSave": false,
     "files": [
-        "src/SN.ts"
+        "src/SN.ts",
+        "test/index.ts"
     ]
 }

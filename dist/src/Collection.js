@@ -138,5 +138,4 @@ class Collection {
     }
 }
 exports.Collection = Collection;
-
 //# sourceMappingURL=Collection.js.map
