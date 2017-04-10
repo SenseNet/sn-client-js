@@ -12,6 +12,7 @@
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "semantic-release": "semantic-release pre && semantic-release post",
+    "lint": "tslint src/**/*.ts --project tsconfig.json",
     "prebuild": "gulp build:clean",
     "build": "tsc"
   },
