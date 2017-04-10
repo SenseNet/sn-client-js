@@ -5,29 +5,29 @@ import { Observable, AjaxRequest } from '@reactivex/rxjs';
  */
 export module Http {
 
-    export interface IHttpProvider {
-        Ajax(options?: AjaxRequest): Observable<any>;
+    export type ReturnType<T> = Promise<T> | Observable<T>;
+
+    export interface IHttpProvider<ReturnType> {
+
+        _typeReference: ReturnType;
+
+        Ajax<K extends (this['_typeReference']), T> (tReturnType: { new (): T }, options ?: AjaxRequest): K;
     }
 
-    export class RxObservableHttpProvider implements IHttpProvider {
-        public Ajax(options: AjaxRequest): Observable<any> {
-            return Observable.ajax(options).share();
+    export class RxObservableHttpProvider implements IHttpProvider<Observable<any>>{
+        _typeReference: Observable<any>;
+        public Ajax<T>(tReturnType, options: AjaxRequest): Observable<T> {
+            return Observable.ajax(options).share().map(req => req.response.json);
         }
     }
 
-    export class Provider<TReturns extends Observable<any>> {
-        private constructor(private _providerInstance: IHttpProvider) { }
-        public static Create<TProvider extends IHttpProvider>(providerType: { new (): TProvider } ) {
-            let providerInstance = new providerType();
-            let current = new Provider(providerInstance);
-            return current;
-        }
-        private headers: { name: string, value: string }[]
-        public ApplyGlobalHeader(name: string, value: string) {
-            this.headers.push({ name, value });
-        }
-        public Ajax(options: AjaxRequest): Observable<any> {
-            return this._providerInstance.Ajax(options);
+    export class RxPromiseHttpProvder implements IHttpProvider<Promise<any>>{
+        _typeReference: Promise<any>;
+        public Ajax<T>(tReturnType, options: AjaxRequest): Promise<T> {
+            return Observable.ajax(options)
+                .map(req => req.response.json)
+                .toPromise();
         }
     }
+
 }

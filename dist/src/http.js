@@ -4,27 +4,18 @@ const rxjs_1 = require("@reactivex/rxjs");
 var Http;
 (function (Http) {
     class RxObservableHttpProvider {
-        Ajax(options) {
-            return rxjs_1.Observable.ajax(options).share();
+        Ajax(tReturnType, options) {
+            return rxjs_1.Observable.ajax(options).share().map(req => req.response.json);
         }
     }
     Http.RxObservableHttpProvider = RxObservableHttpProvider;
-    class Provider {
-        constructor(_providerInstance) {
-            this._providerInstance = _providerInstance;
-        }
-        static Create(providerType) {
-            let providerInstance = new providerType();
-            let current = new Provider(providerInstance);
-            return current;
-        }
-        ApplyGlobalHeader(name, value) {
-            this.headers.push({ name, value });
-        }
-        Ajax(options) {
-            return this._providerInstance.Ajax(options);
+    class RxPromiseHttpProvder {
+        Ajax(tReturnType, options) {
+            return rxjs_1.Observable.ajax(options)
+                .map(req => req.response.json)
+                .toPromise();
         }
     }
-    Http.Provider = Provider;
+    Http.RxPromiseHttpProvder = RxPromiseHttpProvder;
 })(Http = exports.Http || (exports.Http = {}));
 //# sourceMappingURL=Http.js.map

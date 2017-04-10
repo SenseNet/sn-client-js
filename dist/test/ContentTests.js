@@ -7,11 +7,14 @@ const Enums_1 = require("../src/Enums");
 const ContentTypes_1 = require("../src/ContentTypes");
 const Chai = require("chai");
 const rxjs_1 = require("@reactivex/rxjs");
+const Repository_1 = require("../src/Repository");
+const Http_1 = require("../src/Http");
 const expect = Chai.expect;
 const CONTENT_TYPE = 'Task';
 describe('Content', () => {
     let content;
     let window = {};
+    let repo = new Repository_1.Repository(Http_1.Http.RxPromiseHttpProvder);
     beforeEach(function () {
         beforeEach(() => {
             global['window'] = {
@@ -23,7 +26,7 @@ describe('Content', () => {
             Id: 1,
             DueDate: null,
             Name: 'alma'
-        });
+        }, repo);
     });
     describe('#Create()', () => {
         it('should return an object', function () {
@@ -38,15 +41,15 @@ describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            let newContent = Content_1.Content.Create(Content_1.Content, {});
+            let newContent = Content_1.Content.Create(Content_1.Content, {}, this.repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
-            let newContent = new Content_1.Content({});
+            let newContent = new Content_1.Content({}, this.repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('shoul respect the type field, if provided from settings', () => {
-            let newContent = new Content_1.Content({});
+            let newContent = new Content_1.Content({}, this.repo);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         });
@@ -268,17 +271,17 @@ describe('Content', () => {
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(Content_1.Content.Load('/workspace/project')).to.be.instanceof(rxjs_1.Observable);
+            expect(this.repo.Load('/workspace/project')).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(Content_1.Content.Load(111)).to.be.instanceof(rxjs_1.Observable);
+            expect(this.repo.Load(111)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(Content_1.Content.Load(111, { select: 'DisplayName' })).to.be.instanceof(rxjs_1.Observable);
+            expect(this.repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#SetPermissions()', () => {

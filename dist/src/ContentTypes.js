@@ -4,8 +4,8 @@ const Content_1 = require("./Content");
 var ContentTypes;
 (function (ContentTypes) {
     class ContentType extends Content_1.Content {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Id = options.Id;
             this.ParentId = options.ParentId;
             this.VersionId = options.VersionId;
@@ -31,8 +31,8 @@ var ContentTypes;
     }
     ContentTypes.ContentType = ContentType;
     class GenericContent extends Content_1.Content {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Id = options.Id;
             this.ParentId = options.ParentId;
             this.OwnerId = options.OwnerId;
@@ -88,15 +88,15 @@ var ContentTypes;
     }
     ContentTypes.GenericContent = GenericContent;
     class ContentLink extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Link = options.Link;
         }
     }
     ContentTypes.ContentLink = ContentLink;
     class File extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Binary = options.Binary;
             this.Size = options.Size;
             this.FullSize = options.FullSize;
@@ -109,27 +109,27 @@ var ContentTypes;
     }
     ContentTypes.File = File;
     class DynamicJsonContent extends File {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.DynamicJsonContent = DynamicJsonContent;
     class ExecutableFile extends File {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.ExecutableFile = ExecutableFile;
     class HtmlTemplate extends File {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.TemplateText = options.TemplateText;
         }
     }
     ContentTypes.HtmlTemplate = HtmlTemplate;
     class Image extends File {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Keywords = options.Keywords;
             this.DateTaken = options.DateTaken;
             this.Width = options.Width;
@@ -138,59 +138,59 @@ var ContentTypes;
     }
     ContentTypes.Image = Image;
     class PreviewImage extends Image {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.PreviewImage = PreviewImage;
     class Settings extends File {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.GlobalOnly = options.GlobalOnly;
         }
     }
     ContentTypes.Settings = Settings;
     class IndexingSettings extends Settings {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.TextExtractorInstances = options.TextExtractorInstances;
         }
     }
     ContentTypes.IndexingSettings = IndexingSettings;
     class LoggingSettings extends Settings {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.LoggingSettings = LoggingSettings;
     class PortalSettings extends Settings {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.PortalSettings = PortalSettings;
     class SystemFile extends File {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.SystemFile = SystemFile;
     class Resource extends SystemFile {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Downloads = options.Downloads;
         }
     }
     ContentTypes.Resource = Resource;
     class Folder extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.Folder = Folder;
     class ContentList extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.ContentListDefinition = options.ContentListDefinition;
             this.DefaultView = options.DefaultView;
             this.AvailableViews = options.AvailableViews;
@@ -209,79 +209,79 @@ var ContentTypes;
     }
     ContentTypes.ContentList = ContentList;
     class Aspect extends ContentList {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.AspectDefinition = options.AspectDefinition;
         }
     }
     ContentTypes.Aspect = Aspect;
     class ItemList extends ContentList {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.ItemList = ItemList;
     class CustomList extends ItemList {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.CustomList = CustomList;
     class MemoList extends ItemList {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.MemoList = MemoList;
     class TaskList extends ItemList {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.TaskList = TaskList;
     class Library extends ContentList {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.Library = Library;
     class DocumentLibrary extends Library {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.DocumentLibrary = DocumentLibrary;
     class ImageLibrary extends Library {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.CoverImage = options.CoverImage;
         }
     }
     ContentTypes.ImageLibrary = ImageLibrary;
     class Device extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.UserAgentPattern = options.UserAgentPattern;
         }
     }
     ContentTypes.Device = Device;
     class Domain extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.SyncGuid = options.SyncGuid;
             this.LastSync = options.LastSync;
         }
     }
     ContentTypes.Domain = Domain;
     class Domains extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.Domains = Domains;
     class Email extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.From = options.From;
             this.Body = options.Body;
             this.Sent = options.Sent;
@@ -289,46 +289,46 @@ var ContentTypes;
     }
     ContentTypes.Email = Email;
     class OrganizationalUnit extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.SyncGuid = options.SyncGuid;
             this.LastSync = options.LastSync;
         }
     }
     ContentTypes.OrganizationalUnit = OrganizationalUnit;
     class PortalRoot extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.PortalRoot = PortalRoot;
     class ProfileDomain extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.ProfileDomain = ProfileDomain;
     class Profiles extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.Profiles = Profiles;
     class RuntimeContentContainer extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.RuntimeContentContainer = RuntimeContentContainer;
     class Sites extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.Sites = Sites;
     class SmartFolder extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Query = options.Query;
             this.EnableAutofilters = options.EnableAutofilters;
             this.EnableLifespanFilter = options.EnableLifespanFilter;
@@ -336,20 +336,20 @@ var ContentTypes;
     }
     ContentTypes.SmartFolder = SmartFolder;
     class SystemFolder extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.SystemFolder = SystemFolder;
     class Resources extends SystemFolder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.Resources = Resources;
     class TrashBag extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.KeepUntil = options.KeepUntil;
             this.OriginalPath = options.OriginalPath;
             this.WorkspaceRelativePath = options.WorkspaceRelativePath;
@@ -359,8 +359,8 @@ var ContentTypes;
     }
     ContentTypes.TrashBag = TrashBag;
     class Workspace extends Folder {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Manager = options.Manager;
             this.Deadline = options.Deadline;
             this.IsActive = options.IsActive;
@@ -372,8 +372,8 @@ var ContentTypes;
     }
     ContentTypes.Workspace = Workspace;
     class Site extends Workspace {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Language = options.Language;
             this.EnableClientBasedCulture = options.EnableClientBasedCulture;
             this.EnableUserBasedCulture = options.EnableUserBasedCulture;
@@ -386,8 +386,8 @@ var ContentTypes;
     }
     ContentTypes.Site = Site;
     class TrashBin extends Workspace {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.MinRetentionTime = options.MinRetentionTime;
             this.SizeQuota = options.SizeQuota;
             this.BagCapacity = options.BagCapacity;
@@ -395,15 +395,15 @@ var ContentTypes;
     }
     ContentTypes.TrashBin = TrashBin;
     class UserProfile extends Workspace {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.User = options.User;
         }
     }
     ContentTypes.UserProfile = UserProfile;
     class Group extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Members = options.Members;
             this.SyncGuid = options.SyncGuid;
             this.LastSync = options.LastSync;
@@ -411,21 +411,21 @@ var ContentTypes;
     }
     ContentTypes.Group = Group;
     class ListItem extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
         }
     }
     ContentTypes.ListItem = ListItem;
     class CustomListItem extends ListItem {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.WorkflowsRunning = options.WorkflowsRunning;
         }
     }
     ContentTypes.CustomListItem = CustomListItem;
     class Memo extends ListItem {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Date = options.Date;
             this.MemoType = options.MemoType;
             this.SeeAlso = options.SeeAlso;
@@ -433,8 +433,8 @@ var ContentTypes;
     }
     ContentTypes.Memo = Memo;
     class Task extends ListItem {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.StartDate = options.StartDate;
             this.DueDate = options.DueDate;
             this.AssignedTo = options.AssignedTo;
@@ -448,16 +448,16 @@ var ContentTypes;
     }
     ContentTypes.Task = Task;
     class Query extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.Query = options.Query;
             this.QueryType = options.QueryType;
         }
     }
     ContentTypes.Query = Query;
     class User extends GenericContent {
-        constructor(options) {
-            super(options);
+        constructor(options, repository) {
+            super(options, repository);
             this.LoginName = options.LoginName;
             this.JobTitle = options.JobTitle;
             this.Enabled = options.Enabled;

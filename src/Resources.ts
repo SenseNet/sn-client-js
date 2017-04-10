@@ -1,4 +1,3 @@
-//file: Resources.ts
 /**
  * Module for Resource classes. Helps you to reach string resource classes with dot notation.
  *

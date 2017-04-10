@@ -10,16 +10,16 @@ import { Observable } from '@reactivex/rxjs';
  * a container ```Content``` with a type ```Folder``` or ```ContentList```, it could be also a result of a query. Since it is ```generic``` type of its children items is not defined strictly.
  */
 
-export class Collection<T> {
-    items = [];
+export class Collection<T extends Content> {
     Path: string = '';
 
     /**
     * @constructs Collection
     * @param items {T[]} An array that holds items.
+    * @param service {ODataApi.Service} The service to use as API Endpoint
     */
-    constructor(items: T[]) {
-        this.items = items;
+    constructor(private items: T[],
+        private service: ODataApi.Service<any, any>) {
     }
 
     /**
@@ -78,7 +78,7 @@ export class Collection<T> {
      * ```
      */
     public Add(content: Content): Observable<any> {
-        const newcontent = ODataApi.CreateContent(this.Path, content);
+        const newcontent = this.service.CreateContent(this.Path, content);
         newcontent
             .map(response => response.response.d)
             .subscribe({
@@ -138,14 +138,14 @@ export class Collection<T> {
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
 
-            return ODataApi.DeleteContent(content.Id, permanently ? permanently : false);
+            return this.service.DeleteContent(content.Id, permanently ? permanently : false);
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new ODataApi.CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
-            return ODataApi.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
+            return this.service.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
         }
     }
     /**
@@ -178,7 +178,7 @@ export class Collection<T> {
         }
         o['path'] = path;
         let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
-        const children = ODataApi.FetchContent(optionList);
+        const children = this.service.FetchContent(optionList);
         children
             .map(response => response.response.d)
             .subscribe({
@@ -232,14 +232,14 @@ export class Collection<T> {
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
             let action = new ODataApi.CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
-            return ODataApi.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
+            return this.service.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new ODataApi.CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
-            return ODataApi.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
+            return this.service.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
     /**
@@ -282,12 +282,12 @@ export class Collection<T> {
         if (typeof arg === 'number') {
             let content = this.items[arg];
             let action = new ODataApi.CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
-            return ODataApi.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
+            return this.service.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             let action = new ODataApi.CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
-            return ODataApi.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
+            return this.service.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
     /**
@@ -312,7 +312,7 @@ export class Collection<T> {
         }
         o['path'] = ODataHelper.getContentURLbyPath(this.Path);
         let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
-        return ODataApi.GetContent(optionList);
+        return this.service.GetContent(optionList);
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
@@ -343,7 +343,7 @@ export class Collection<T> {
         if (typeof fileText !== 'undefined') {
             data['FileText'] = fileText;
         }
-        let uploadCreation = ODataApi.Upload(this.Path, data, true);
+        let uploadCreation = this.service.Upload(this.Path, data, true);
         uploadCreation.subscribe({
             next: (response) => {
                 const data = {
@@ -352,7 +352,7 @@ export class Collection<T> {
                     Overwrite: o,
                     ChunkToken: response
                 };
-                return ODataApi.Upload(this.Path, data, false);
+                return this.service.Upload(this.Path, data, false);
             }
         });
         return uploadCreation;

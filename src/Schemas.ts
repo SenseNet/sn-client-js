@@ -1,4 +1,3 @@
-//file: Schemas.ts
 import { FieldSettings } from './FieldSettings';
 /**
  * Module for ContentType schemas.

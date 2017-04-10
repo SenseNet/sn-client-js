@@ -7,10 +7,6 @@ import * as ODataApiTests from './ODataApiTests';
 import * as ODataHelperTests from './ODataHelperTests';
 import * as SchemaTests from './SchemaTests';
 
-import { Setup } from '../src/Setup';
-
-Setup.InitializeConfig();
-
 export {
     CollectionTests,
     ContentTests,

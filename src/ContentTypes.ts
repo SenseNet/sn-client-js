@@ -1,8 +1,8 @@
-//file: ContentTypes.ts
 import { Enums } from './Enums';
 import { FieldSettings } from './FieldSettings';
 import { ComplexTypes } from './ComplexTypes';
 import { Content, IContentOptions } from './Content';
+import { Repository } from './Repository';
 
 /**
  * The Content Repository contains many different types of ```Content```. ```Content``` vary in structure and even in function. Different types of content contain different fields,
@@ -48,8 +48,8 @@ export module ContentTypes {
          * @constructs ContentType
          * @param options {object} An object implementing {@link IContentTypeOptions} interface
          */
-        constructor(options: IContentTypeOptions) {
-            super(options);
+        constructor(options: IContentTypeOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Id = options.Id;
             this.ParentId = options.ParentId;
             this.VersionId = options.VersionId;
@@ -165,8 +165,8 @@ export module ContentTypes {
          * @constructs GenericContent
          * @param options {object} An object implementing {@link IGenericContentOptions} interface
          */
-        constructor(options: IGenericContentOptions) {
-            super(options);
+        constructor(options: IGenericContentOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Id = options.Id;
             this.ParentId = options.ParentId;
             this.OwnerId = options.OwnerId;
@@ -292,8 +292,8 @@ export module ContentTypes {
          * @constructs ContentLink
          * @param options {object} An object implementing {@link IContentLinkOptions} interface
          */
-        constructor(options: IContentLinkOptions) {
-            super(options);
+        constructor(options: IContentLinkOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Link = options.Link;
         }
 
@@ -326,8 +326,8 @@ export module ContentTypes {
          * @constructs File
          * @param options {object} An object implementing {@link IFileOptions} interface
          */
-        constructor(options: IFileOptions) {
-            super(options);
+        constructor(options: IFileOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Binary = options.Binary;
             this.Size = options.Size;
             this.FullSize = options.FullSize;
@@ -366,8 +366,8 @@ export module ContentTypes {
          * @constructs DynamicJsonContent
          * @param options {object} An object implementing {@link IDynamicJsonContentOptions} interface
          */
-        constructor(options: IDynamicJsonContentOptions) {
-            super(options);
+        constructor(options: IDynamicJsonContentOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -390,8 +390,8 @@ export module ContentTypes {
          * @constructs ExecutableFile
          * @param options {object} An object implementing {@link IExecutableFileOptions} interface
          */
-        constructor(options: IExecutableFileOptions) {
-            super(options);
+        constructor(options: IExecutableFileOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -415,8 +415,8 @@ export module ContentTypes {
          * @constructs HtmlTemplate
          * @param options {object} An object implementing {@link IHtmlTemplateOptions} interface
          */
-        constructor(options: IHtmlTemplateOptions) {
-            super(options);
+        constructor(options: IHtmlTemplateOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.TemplateText = options.TemplateText;
         }
 
@@ -445,8 +445,8 @@ export module ContentTypes {
          * @constructs Image
          * @param options {object} An object implementing {@link IImageOptions} interface
          */
-        constructor(options: IImageOptions) {
-            super(options);
+        constructor(options: IImageOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Keywords = options.Keywords;
             this.DateTaken = options.DateTaken;
             this.Width = options.Width;
@@ -477,8 +477,8 @@ export module ContentTypes {
          * @constructs PreviewImage
          * @param options {object} An object implementing {@link IPreviewImageOptions} interface
          */
-        constructor(options: IPreviewImageOptions) {
-            super(options);
+        constructor(options: IPreviewImageOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -502,8 +502,8 @@ export module ContentTypes {
          * @constructs Settings
          * @param options {object} An object implementing {@link ISettingsOptions} interface
          */
-        constructor(options: ISettingsOptions) {
-            super(options);
+        constructor(options: ISettingsOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.GlobalOnly = options.GlobalOnly;
         }
 
@@ -529,8 +529,8 @@ export module ContentTypes {
          * @constructs IndexingSettings
          * @param options {object} An object implementing {@link IIndexingSettingsOptions} interface
          */
-        constructor(options: IIndexingSettingsOptions) {
-            super(options);
+        constructor(options: IIndexingSettingsOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.TextExtractorInstances = options.TextExtractorInstances;
         }
 
@@ -555,8 +555,8 @@ export module ContentTypes {
          * @constructs LoggingSettings
          * @param options {object} An object implementing {@link ILoggingSettingsOptions} interface
          */
-        constructor(options: ILoggingSettingsOptions) {
-            super(options);
+        constructor(options: ILoggingSettingsOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -579,8 +579,8 @@ export module ContentTypes {
          * @constructs PortalSettings
          * @param options {object} An object implementing {@link IPortalSettingsOptions} interface
          */
-        constructor(options: IPortalSettingsOptions) {
-            super(options);
+        constructor(options: IPortalSettingsOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -603,8 +603,8 @@ export module ContentTypes {
          * @constructs SystemFile
          * @param options {object} An object implementing {@link ISystemFileOptions} interface
          */
-        constructor(options: ISystemFileOptions) {
-            super(options);
+        constructor(options: ISystemFileOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -628,8 +628,8 @@ export module ContentTypes {
          * @constructs Resource
          * @param options {object} An object implementing {@link IResourceOptions} interface
          */
-        constructor(options: IResourceOptions) {
-            super(options);
+        constructor(options: IResourceOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Downloads = options.Downloads;
         }
 
@@ -654,8 +654,8 @@ export module ContentTypes {
          * @constructs Folder
          * @param options {object} An object implementing {@link IFolderOptions} interface
          */
-        constructor(options: IFolderOptions) {
-            super(options);
+        constructor(options: IFolderOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -692,8 +692,8 @@ export module ContentTypes {
          * @constructs ContentList
          * @param options {object} An object implementing {@link IContentListOptions} interface
          */
-        constructor(options: IContentListOptions) {
-            super(options);
+        constructor(options: IContentListOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.ContentListDefinition = options.ContentListDefinition;
             this.DefaultView = options.DefaultView;
             this.AvailableViews = options.AvailableViews;
@@ -745,8 +745,8 @@ export module ContentTypes {
          * @constructs Aspect
          * @param options {object} An object implementing {@link IAspectOptions} interface
          */
-        constructor(options: IAspectOptions) {
-            super(options);
+        constructor(options: IAspectOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.AspectDefinition = options.AspectDefinition;
         }
 
@@ -771,8 +771,8 @@ export module ContentTypes {
          * @constructs ItemList
          * @param options {object} An object implementing {@link IItemListOptions} interface
          */
-        constructor(options: IItemListOptions) {
-            super(options);
+        constructor(options: IItemListOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -795,8 +795,8 @@ export module ContentTypes {
          * @constructs CustomList
          * @param options {object} An object implementing {@link ICustomListOptions} interface
          */
-        constructor(options: ICustomListOptions) {
-            super(options);
+        constructor(options: ICustomListOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -819,8 +819,8 @@ export module ContentTypes {
          * @constructs MemoList
          * @param options {object} An object implementing {@link IMemoListOptions} interface
          */
-        constructor(options: IMemoListOptions) {
-            super(options);
+        constructor(options: IMemoListOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -843,8 +843,8 @@ export module ContentTypes {
          * @constructs TaskList
          * @param options {object} An object implementing {@link ITaskListOptions} interface
          */
-        constructor(options: ITaskListOptions) {
-            super(options);
+        constructor(options: ITaskListOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -867,8 +867,8 @@ export module ContentTypes {
          * @constructs Library
          * @param options {object} An object implementing {@link ILibraryOptions} interface
          */
-        constructor(options: ILibraryOptions) {
-            super(options);
+        constructor(options: ILibraryOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -891,8 +891,8 @@ export module ContentTypes {
          * @constructs DocumentLibrary
          * @param options {object} An object implementing {@link IDocumentLibraryOptions} interface
          */
-        constructor(options: IDocumentLibraryOptions) {
-            super(options);
+        constructor(options: IDocumentLibraryOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -916,8 +916,8 @@ export module ContentTypes {
          * @constructs ImageLibrary
          * @param options {object} An object implementing {@link IImageLibraryOptions} interface
          */
-        constructor(options: IImageLibraryOptions) {
-            super(options);
+        constructor(options: IImageLibraryOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.CoverImage = options.CoverImage;
         }
 
@@ -943,8 +943,8 @@ export module ContentTypes {
          * @constructs Device
          * @param options {object} An object implementing {@link IDeviceOptions} interface
          */
-        constructor(options: IDeviceOptions) {
-            super(options);
+        constructor(options: IDeviceOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.UserAgentPattern = options.UserAgentPattern;
         }
 
@@ -971,8 +971,8 @@ export module ContentTypes {
          * @constructs Domain
          * @param options {object} An object implementing {@link IDomainOptions} interface
          */
-        constructor(options: IDomainOptions) {
-            super(options);
+        constructor(options: IDomainOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.SyncGuid = options.SyncGuid;
             this.LastSync = options.LastSync;
         }
@@ -999,8 +999,8 @@ export module ContentTypes {
          * @constructs Domains
          * @param options {object} An object implementing {@link IDomainsOptions} interface
          */
-        constructor(options: IDomainsOptions) {
-            super(options);
+        constructor(options: IDomainsOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1026,8 +1026,8 @@ export module ContentTypes {
          * @constructs Email
          * @param options {object} An object implementing {@link IEmailOptions} interface
          */
-        constructor(options: IEmailOptions) {
-            super(options);
+        constructor(options: IEmailOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.From = options.From;
             this.Body = options.Body;
             this.Sent = options.Sent;
@@ -1058,8 +1058,8 @@ export module ContentTypes {
          * @constructs OrganizationalUnit
          * @param options {object} An object implementing {@link IOrganizationalUnitOptions} interface
          */
-        constructor(options: IOrganizationalUnitOptions) {
-            super(options);
+        constructor(options: IOrganizationalUnitOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.SyncGuid = options.SyncGuid;
             this.LastSync = options.LastSync;
         }
@@ -1086,8 +1086,8 @@ export module ContentTypes {
          * @constructs PortalRoot
          * @param options {object} An object implementing {@link IPortalRootOptions} interface
          */
-        constructor(options: IPortalRootOptions) {
-            super(options);
+        constructor(options: IPortalRootOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1110,8 +1110,8 @@ export module ContentTypes {
          * @constructs ProfileDomain
          * @param options {object} An object implementing {@link IProfileDomainOptions} interface
          */
-        constructor(options: IProfileDomainOptions) {
-            super(options);
+        constructor(options: IProfileDomainOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1134,8 +1134,8 @@ export module ContentTypes {
          * @constructs Profiles
          * @param options {object} An object implementing {@link IProfilesOptions} interface
          */
-        constructor(options: IProfilesOptions) {
-            super(options);
+        constructor(options: IProfilesOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1158,8 +1158,8 @@ export module ContentTypes {
          * @constructs RuntimeContentContainer
          * @param options {object} An object implementing {@link IRuntimeContentContainerOptions} interface
          */
-        constructor(options: IRuntimeContentContainerOptions) {
-            super(options);
+        constructor(options: IRuntimeContentContainerOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1182,8 +1182,8 @@ export module ContentTypes {
          * @constructs Sites
          * @param options {object} An object implementing {@link ISitesOptions} interface
          */
-        constructor(options: ISitesOptions) {
-            super(options);
+        constructor(options: ISitesOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1209,8 +1209,8 @@ export module ContentTypes {
          * @constructs SmartFolder
          * @param options {object} An object implementing {@link ISmartFolderOptions} interface
          */
-        constructor(options: ISmartFolderOptions) {
-            super(options);
+        constructor(options: ISmartFolderOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Query = options.Query;
             this.EnableAutofilters = options.EnableAutofilters;
             this.EnableLifespanFilter = options.EnableLifespanFilter;
@@ -1239,8 +1239,8 @@ export module ContentTypes {
          * @constructs SystemFolder
          * @param options {object} An object implementing {@link ISystemFolderOptions} interface
          */
-        constructor(options: ISystemFolderOptions) {
-            super(options);
+        constructor(options: ISystemFolderOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1263,8 +1263,8 @@ export module ContentTypes {
          * @constructs Resources
          * @param options {object} An object implementing {@link IResourcesOptions} interface
          */
-        constructor(options: IResourcesOptions) {
-            super(options);
+        constructor(options: IResourcesOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1292,8 +1292,8 @@ export module ContentTypes {
          * @constructs TrashBag
          * @param options {object} An object implementing {@link ITrashBagOptions} interface
          */
-        constructor(options: ITrashBagOptions) {
-            super(options);
+        constructor(options: ITrashBagOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.KeepUntil = options.KeepUntil;
             this.OriginalPath = options.OriginalPath;
             this.WorkspaceRelativePath = options.WorkspaceRelativePath;
@@ -1333,8 +1333,8 @@ export module ContentTypes {
          * @constructs Workspace
          * @param options {object} An object implementing {@link IWorkspaceOptions} interface
          */
-        constructor(options: IWorkspaceOptions) {
-            super(options);
+        constructor(options: IWorkspaceOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Manager = options.Manager;
             this.Deadline = options.Deadline;
             this.IsActive = options.IsActive;
@@ -1379,8 +1379,8 @@ export module ContentTypes {
          * @constructs Site
          * @param options {object} An object implementing {@link ISiteOptions} interface
          */
-        constructor(options: ISiteOptions) {
-            super(options);
+        constructor(options: ISiteOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Language = options.Language;
             this.EnableClientBasedCulture = options.EnableClientBasedCulture;
             this.EnableUserBasedCulture = options.EnableUserBasedCulture;
@@ -1422,8 +1422,8 @@ export module ContentTypes {
          * @constructs TrashBin
          * @param options {object} An object implementing {@link ITrashBinOptions} interface
          */
-        constructor(options: ITrashBinOptions) {
-            super(options);
+        constructor(options: ITrashBinOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.MinRetentionTime = options.MinRetentionTime;
             this.SizeQuota = options.SizeQuota;
             this.BagCapacity = options.BagCapacity;
@@ -1453,8 +1453,8 @@ export module ContentTypes {
          * @constructs UserProfile
          * @param options {object} An object implementing {@link IUserProfileOptions} interface
          */
-        constructor(options: IUserProfileOptions) {
-            super(options);
+        constructor(options: IUserProfileOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.User = options.User;
         }
 
@@ -1482,8 +1482,8 @@ export module ContentTypes {
          * @constructs Group
          * @param options {object} An object implementing {@link IGroupOptions} interface
          */
-        constructor(options: IGroupOptions) {
-            super(options);
+        constructor(options: IGroupOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Members = options.Members;
             this.SyncGuid = options.SyncGuid;
             this.LastSync = options.LastSync;
@@ -1512,8 +1512,8 @@ export module ContentTypes {
          * @constructs ListItem
          * @param options {object} An object implementing {@link IListItemOptions} interface
          */
-        constructor(options: IListItemOptions) {
-            super(options);
+        constructor(options: IListItemOptions, repository: Repository<any, any>) {
+            super(options, repository);
         }
 
     }
@@ -1537,8 +1537,8 @@ export module ContentTypes {
          * @constructs CustomListItem
          * @param options {object} An object implementing {@link ICustomListItemOptions} interface
          */
-        constructor(options: ICustomListItemOptions) {
-            super(options);
+        constructor(options: ICustomListItemOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.WorkflowsRunning = options.WorkflowsRunning;
         }
 
@@ -1566,8 +1566,8 @@ export module ContentTypes {
          * @constructs Memo
          * @param options {object} An object implementing {@link IMemoOptions} interface
          */
-        constructor(options: IMemoOptions) {
-            super(options);
+        constructor(options: IMemoOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Date = options.Date;
             this.MemoType = options.MemoType;
             this.SeeAlso = options.SeeAlso;
@@ -1605,8 +1605,8 @@ export module ContentTypes {
          * @constructs Task
          * @param options {object} An object implementing {@link ITaskOptions} interface
          */
-        constructor(options: ITaskOptions) {
-            super(options);
+        constructor(options: ITaskOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.StartDate = options.StartDate;
             this.DueDate = options.DueDate;
             this.AssignedTo = options.AssignedTo;
@@ -1649,8 +1649,8 @@ export module ContentTypes {
          * @constructs Query
          * @param options {object} An object implementing {@link IQueryOptions} interface
          */
-        constructor(options: IQueryOptions) {
-            super(options);
+        constructor(options: IQueryOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.Query = options.Query;
             this.QueryType = options.QueryType;
         }
@@ -1704,8 +1704,8 @@ export module ContentTypes {
          * @constructs User
          * @param options {object} An object implementing {@link IUserOptions} interface
          */
-        constructor(options: IUserOptions) {
-            super(options);
+        constructor(options: IUserOptions, repository: Repository<any, any>) {
+            super(options, repository);
             this.LoginName = options.LoginName;
             this.JobTitle = options.JobTitle;
             this.Enabled = options.Enabled;

@@ -2,15 +2,31 @@ import { Content } from '../src/Content'
 import { Collection } from '../src/Collection'
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { Repository } from '../src/Repository';
+import { Http } from '../src/Http';
 const expect = Chai.expect;
 
 describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
+
+  let Repo = new Repository(Http.RxPromiseHttpProvder);
+
   let window = {}
   beforeEach(function () {
-    children = [Content.Create(Content, { Id: 1 }), Content.Create(Content, { Id: 2 })];
-    collection = new Collection(children);
+    children = [
+      Content.Create(Content, { 
+        Id: 1,
+        Name: 'test1',
+        Path: '/'
+      }, this.repo), 
+      Content.Create(Content, { 
+        Id: 2,
+        Name: 'test2'
+      }, this.repo)];
+
+
+    collection = new Collection(children, Repo.OData);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
     window['serviceToken'] = 'OData.svc';
     window['siteUrl'] = 'https://daily.demo.sensenet.com';

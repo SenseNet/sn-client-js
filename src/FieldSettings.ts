@@ -1,4 +1,3 @@
-//file: FieldSettings.ts
 import { ComplexTypes } from './ComplexTypes';
 /**
  * Module for FieldSettings.
