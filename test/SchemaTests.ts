@@ -1,5 +1,4 @@
-import { Schemas } from '../src/Schemas';
-import { FieldSettings } from '../src/FieldSettings';
+import { Schemas, FieldSettings } from '../src/SN';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 

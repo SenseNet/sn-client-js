@@ -7,7 +7,7 @@ const expect = Chai.expect;
 describe('ContentTypes', () => {
 
 
-    let repo: Repository<Http.RxPromiseHttpProvder, Promise<any>> = new Repository(Http.RxPromiseHttpProvder);
+    let repo: Repository<Http.RxAjaxHttpProvider, Promise<any>> = new Repository(Http.RxAjaxHttpProvider);
 
     describe('#ContentType', function () {
         const gc = new ContentTypes.ContentType({ Id: 1, Type: 'ContentType', Name: '' }, repo);

@@ -1,18 +1,14 @@
-import { Content } from '../src/Content'
-import { Collection } from '../src/Collection'
+import { Content, Collection, Repository, Http } from '../src/SN'
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
-import { Repository } from '../src/Repository';
-import { Http } from '../src/Http';
 const expect = Chai.expect;
 
 describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new Repository(Http.RxPromiseHttpProvder);
+  let Repo = new Repository(Http.RxAjaxHttpProvider);
 
-  let window = {}
   beforeEach(function () {
     children = [
       Content.Create(Content, { 
@@ -26,10 +22,8 @@ describe('Collection', () => {
       }, this.repo)];
 
 
-    collection = new Collection(children, Repo.OData);
+    collection = new Collection(children, Repo.Contents);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
-    window['serviceToken'] = 'OData.svc';
-    window['siteUrl'] = 'https://daily.demo.sensenet.com';
   });
   describe('#Items()', () => {
     it('should return an array', function () {

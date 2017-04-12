@@ -120,4 +120,18 @@ export module ODataHelper {
     export function isItemPath(path: string): boolean {
         return path.indexOf("('") >= 0 && path.indexOf("')") === path.length - 2;
     }
+
+    export function stringifyWithoutCircularDependency(content: any): string {
+        let serialized = [];
+        return JSON.stringify(content, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (serialized.indexOf(value) !== -1) {
+                    return;
+                }
+                serialized.push(value);
+            }
+            return value;
+        });
+
+    }
 }

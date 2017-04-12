@@ -1,31 +1,17 @@
-import { Content } from '../src/Content';
-import { Schemas } from '../src/Schemas';
-import { Security } from '../src/Security';
-import { Enums } from '../src/Enums';
-import { ContentTypes } from '../src/ContentTypes';
+import { Content, Repository, Http, Schemas, Security, Enums, ContentTypes } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
-import { Repository } from '../src/Repository';
-import { Http } from '../src/Http';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
 
 describe('Content', () => {
     let content: ContentTypes.Task;
-    let window = {}
+    // let window = {}
 
-    let repo = new Repository(Http.RxPromiseHttpProvder);
+    let repo = new Repository(Http.RxAjaxHttpProvider);
 
     beforeEach(function () {
-        beforeEach(() => {
-            global['window'] = {
-                serviceToken: 'OData.svc',
-                siteUrl: 'https://daily.demo.sensenet.com'
-            }
-        });
-
-
         content = new ContentTypes.Task({
             Id: 1,
             DueDate: null,
@@ -275,17 +261,17 @@ describe('Content', () => {
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(this.repo.Load('/workspace/project')).to.be.instanceof(Observable);
+            expect(repo.Load('/workspace/project')).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(this.repo.Load(111)).to.be.instanceof(Observable);
+            expect(repo.Load(111)).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(this.repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(Observable);
+            expect(repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(Observable);
         });
     });
     describe('#SetPermissions()', () => {

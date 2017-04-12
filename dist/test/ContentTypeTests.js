@@ -6,7 +6,7 @@ const Repository_1 = require("../src/Repository");
 const Http_1 = require("../src/Http");
 const expect = Chai.expect;
 describe('ContentTypes', () => {
-    let repo = new Repository_1.Repository(Http_1.Http.RxPromiseHttpProvder);
+    let repo = new Repository_1.Repository(Http_1.Http.RxAjaxHttpProvider);
     describe('#ContentType', function () {
         const gc = new ContentTypes_1.ContentTypes.ContentType({ Id: 1, Type: 'ContentType', Name: '' }, repo);
         it('should return a ContentType type object', function () {

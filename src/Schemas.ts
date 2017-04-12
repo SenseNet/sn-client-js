@@ -1,4 +1,4 @@
-import { FieldSettings } from './FieldSettings';
+import { FieldSettings } from './SN';
 /**
  * Module for ContentType schemas.
  *
@@ -2377,7 +2377,7 @@ export module Schemas {
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS','/Root'],
+                selectionRoots: ['/Root/IMS', '/Root'],
                 name: 'Manager',
                 displayName: 'Project manager',
                 description: 'The person responsible for the project.',
@@ -2705,8 +2705,8 @@ export module Schemas {
         schema.FieldSettings.push(
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
-                allowedTypes: ['User','Group'],
-                selectionRoots: ['/Root/IMS','/Root'],
+                allowedTypes: ['User', 'Group'],
+                selectionRoots: ['/Root/IMS', '/Root'],
                 name: 'Members',
                 displayName: 'Members',
                 description: 'The members of this group.',
@@ -2904,7 +2904,7 @@ export module Schemas {
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS','/Root'],
+                selectionRoots: ['/Root/IMS', '/Root'],
                 name: 'AssignedTo',
                 displayName: 'Assigned to',
                 description: 'List of internal stakeholders.',
@@ -3419,7 +3419,7 @@ export module Schemas {
         schema.FieldSettings.push(
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
-                allowedTypes: ['Workspace','DocumentWorkspace','ProjectWorkspace','SalesWorkspace'],
+                allowedTypes: ['Workspace', 'DocumentWorkspace', 'ProjectWorkspace', 'SalesWorkspace'],
                 name: 'FollowedWorkspaces',
                 displayName: 'Followed workspaces',
                 description: 'List of workspaces followed by the user.',

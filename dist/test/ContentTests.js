@@ -1,28 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Content_1 = require("../src/Content");
-const Schemas_1 = require("../src/Schemas");
-const Security_1 = require("../src/Security");
-const Enums_1 = require("../src/Enums");
-const ContentTypes_1 = require("../src/ContentTypes");
+const SN_1 = require("../src/SN");
 const Chai = require("chai");
 const rxjs_1 = require("@reactivex/rxjs");
-const Repository_1 = require("../src/Repository");
-const Http_1 = require("../src/Http");
 const expect = Chai.expect;
 const CONTENT_TYPE = 'Task';
 describe('Content', () => {
     let content;
-    let window = {};
-    let repo = new Repository_1.Repository(Http_1.Http.RxPromiseHttpProvder);
+    let repo = new SN_1.Repository(SN_1.Http.RxAjaxHttpProvider);
     beforeEach(function () {
-        beforeEach(() => {
-            global['window'] = {
-                serviceToken: 'OData.svc',
-                siteUrl: 'https://daily.demo.sensenet.com'
-            };
-        });
-        content = new ContentTypes_1.ContentTypes.Task({
+        content = new SN_1.ContentTypes.Task({
             Id: 1,
             DueDate: null,
             Name: 'alma'
@@ -33,7 +20,7 @@ describe('Content', () => {
             expect(content).to.be.instanceof(Object);
         });
         it('should return an instance of a Content', () => {
-            expect(content).to.be.instanceof(Content_1.Content);
+            expect(content).to.be.instanceof(SN_1.Content);
         });
         it('should return an object with the given type and id', function () {
             const type = content.Type;
@@ -41,15 +28,15 @@ describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            let newContent = Content_1.Content.Create(Content_1.Content, {}, this.repo);
+            let newContent = SN_1.Content.Create(SN_1.Content, {}, this.repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
-            let newContent = new Content_1.Content({}, this.repo);
+            let newContent = new SN_1.Content({}, this.repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('shoul respect the type field, if provided from settings', () => {
-            let newContent = new Content_1.Content({}, this.repo);
+            let newContent = new SN_1.Content({}, this.repo);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         });
@@ -271,31 +258,31 @@ describe('Content', () => {
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(this.repo.Load('/workspace/project')).to.be.instanceof(rxjs_1.Observable);
+            expect(repo.Load('/workspace/project')).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(this.repo.Load(111)).to.be.instanceof(rxjs_1.Observable);
+            expect(repo.Load(111)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(this.repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(rxjs_1.Observable);
+            expect(repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#SetPermissions()', () => {
         it('should return an Observable object', function () {
             expect(typeof content.SetPermissions([
-                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: Security_1.Security.PermissionValues.allow, Save: Security_1.Security.PermissionValues.deny },
-                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', Custom01: Security_1.Security.PermissionValues.allow, Custom14: Security_1.Security.PermissionValues.deny },
+                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: SN_1.Security.PermissionValues.allow, Save: SN_1.Security.PermissionValues.deny },
+                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', Custom01: SN_1.Security.PermissionValues.allow, Custom14: SN_1.Security.PermissionValues.deny },
             ])).to.eq('object');
         });
     });
     describe('#SetPermissions()', () => {
         it('should return an Observable object', function () {
             content.Path = '/workspace/project';
-            expect(content.SetPermissions(Security_1.Security.Inheritance.break)).to.be.instanceof(rxjs_1.Observable);
+            expect(content.SetPermissions(SN_1.Security.Inheritance.break)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#GetPermission()', () => {
@@ -395,12 +382,12 @@ describe('Content', () => {
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', function () {
-            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', Enums_1.Enums.QueryType.Public)).to.be.instanceof(rxjs_1.Observable);
+            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', SN_1.Enums.QueryType.Public)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', function () {
-            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', Enums_1.Enums.QueryType.Public)).to.be.instanceof(rxjs_1.Observable);
+            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', SN_1.Enums.QueryType.Public)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#RegeneratePreviews()', () => {
@@ -435,27 +422,27 @@ describe('Content', () => {
     });
     describe('#GetRelatedIdentities()', () => {
         it('should return an Observable object', function () {
-            expect(content.GetRelatedIdentities(Security_1.Security.PermissionLevel.AllowedOrDenied, Security_1.Security.IdentityKind.Groups)).to.be.instanceof(rxjs_1.Observable);
+            expect(content.GetRelatedIdentities(SN_1.Security.PermissionLevel.AllowedOrDenied, SN_1.Security.IdentityKind.Groups)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#GetRelatedPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(content.GetRelatedPermissions(Security_1.Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', null)).to.be.instanceof(rxjs_1.Observable);
+            expect(content.GetRelatedPermissions(SN_1.Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', null)).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#GetRelatedItems()', () => {
         it('should return an Observable object', function () {
-            expect(content.GetRelatedItems(Security_1.Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.be.instanceof(rxjs_1.Observable);
+            expect(content.GetRelatedItems(SN_1.Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#GetRelatedIdentitiesByPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(content.GetRelatedIdentitiesByPermissions(Security_1.Security.PermissionLevel.AllowedOrDenied, Security_1.Security.IdentityKind.Groups, ['Open', 'RunApplication'])).to.be.instanceof(rxjs_1.Observable);
+            expect(content.GetRelatedIdentitiesByPermissions(SN_1.Security.PermissionLevel.AllowedOrDenied, SN_1.Security.IdentityKind.Groups, ['Open', 'RunApplication'])).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#GetRelatedItemsOneLevel()', () => {
         it('should return an Observable object', function () {
-            expect(content.GetRelatedItemsOneLevel(Security_1.Security.PermissionLevel.AllowedOrDenied, '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.be.instanceof(rxjs_1.Observable);
+            expect(content.GetRelatedItemsOneLevel(SN_1.Security.PermissionLevel.AllowedOrDenied, '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.be.instanceof(rxjs_1.Observable);
         });
     });
     describe('#GetAllowedUsers()', () => {
@@ -480,7 +467,7 @@ describe('Content', () => {
     });
     describe('#GetSchema()', () => {
         it('should return a Schema object', function () {
-            expect(content.GetSchema()).to.be.instanceof(Schemas_1.Schemas.Schema);
+            expect(content.GetSchema()).to.be.instanceof(SN_1.Schemas.Schema);
         });
         it('should return a Task', function () {
             const schema = content.GetSchema();
@@ -489,16 +476,16 @@ describe('Content', () => {
     });
     describe('#static GetSchema()', () => {
         it('should return a Schema object', function () {
-            expect(Content_1.Content.GetSchema(CONTENT_TYPE)).to.be.instanceof(Schemas_1.Schemas.Schema);
+            expect(SN_1.Content.GetSchema(CONTENT_TYPE)).to.be.instanceof(SN_1.Schemas.Schema);
         });
         it('should return a Schema object', function () {
-            let schema = Content_1.Content.GetSchema(CONTENT_TYPE);
+            let schema = SN_1.Content.GetSchema(CONTENT_TYPE);
             expect(schema['Icon']).to.eq('FormItem');
         });
     });
     describe('#Schema()', () => {
         it('should return a Schema object', function () {
-            expect(content.Schema()).to.be.instanceof(Schemas_1.Schemas.Schema);
+            expect(content.Schema()).to.be.instanceof(SN_1.Schemas.Schema);
         });
         it('should return a Schema object', function () {
             let schema = content.Schema();

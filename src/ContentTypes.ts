@@ -1,8 +1,4 @@
-import { Enums } from './Enums';
-import { FieldSettings } from './FieldSettings';
-import { ComplexTypes } from './ComplexTypes';
-import { Content, IContentOptions } from './Content';
-import { Repository } from './Repository';
+import { Enums, FieldSettings, ComplexTypes, Content, IContentOptions, Repository } from './SN';
 
 /**
  * The Content Repository contains many different types of ```Content```. ```Content``` vary in structure and even in function. Different types of content contain different fields,

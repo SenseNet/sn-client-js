@@ -1,4 +1,4 @@
-import { ComplexTypes } from './ComplexTypes';
+import { ComplexTypes } from './SN';
 /**
  * Module for FieldSettings.
  *

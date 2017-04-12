@@ -1,327 +1,326 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Schemas_1 = require("../src/Schemas");
-const FieldSettings_1 = require("../src/FieldSettings");
+const SN_1 = require("../src/SN");
 const Chai = require("chai");
 const expect = Chai.expect;
 describe('Schemas', () => {
     describe('#Schema', function () {
-        let schema = new Schemas_1.Schemas.Schema({ FieldSettings: [] });
+        let schema = new SN_1.Schemas.Schema({ FieldSettings: [] });
         it('should return a schema object', function () {
-            schema.FieldSettings.push(new FieldSettings_1.FieldSettings.NumberFieldSetting({
+            schema.FieldSettings.push(new SN_1.FieldSettings.NumberFieldSetting({
                 name: 'DisplayName'
             }));
-            schema.FieldSettings.push(new FieldSettings_1.FieldSettings.BinaryFieldSetting({
+            schema.FieldSettings.push(new SN_1.FieldSettings.BinaryFieldSetting({
                 name: 'DisplayName'
             }));
-            schema.FieldSettings.push(new FieldSettings_1.FieldSettings.ChoiceFieldSetting({
+            schema.FieldSettings.push(new SN_1.FieldSettings.ChoiceFieldSetting({
                 name: 'aaa',
                 options: []
             }));
-            schema.FieldSettings.push(new FieldSettings_1.FieldSettings.PasswordFieldSetting({
+            schema.FieldSettings.push(new SN_1.FieldSettings.PasswordFieldSetting({
                 name: 'DisplayName'
             }));
-            expect(schema).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(schema).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#GenericContent', function () {
-        const gc = Schemas_1.Schemas.GenericContentCTD();
+        const gc = SN_1.Schemas.GenericContentCTD();
         it('should return a schema object', function () {
-            expect(gc).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(gc).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ContentTypeCTD', function () {
-        const ct = Schemas_1.Schemas.ContentTypeCTD();
+        const ct = SN_1.Schemas.ContentTypeCTD();
         it('should return a schema object', function () {
-            expect(ct).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ct).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ContentLinkCTD', function () {
-        const cl = Schemas_1.Schemas.ContentLinkCTD();
+        const cl = SN_1.Schemas.ContentLinkCTD();
         it('should return a schema object', function () {
-            expect(cl).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(cl).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#FileCTD', function () {
-        const f = Schemas_1.Schemas.FileCTD();
+        const f = SN_1.Schemas.FileCTD();
         it('should return a schema object', function () {
-            expect(f).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(f).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#DynamicJsonContentCTD', function () {
-        const djc = Schemas_1.Schemas.DynamicJsonContentCTD();
+        const djc = SN_1.Schemas.DynamicJsonContentCTD();
         it('should return a schema object', function () {
-            expect(djc).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(djc).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ExecutableFileCTD', function () {
-        const ef = Schemas_1.Schemas.ExecutableFileCTD();
+        const ef = SN_1.Schemas.ExecutableFileCTD();
         it('should return a schema object', function () {
-            expect(ef).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ef).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#HtmlTemplateCTD', function () {
-        const ht = Schemas_1.Schemas.HtmlTemplateCTD();
+        const ht = SN_1.Schemas.HtmlTemplateCTD();
         it('should return a schema object', function () {
-            expect(ht).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ht).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ImageCTD', function () {
-        const i = Schemas_1.Schemas.ImageCTD();
+        const i = SN_1.Schemas.ImageCTD();
         it('should return a schema object', function () {
-            expect(i).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(i).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#PreviewImageCTD', function () {
-        const pi = Schemas_1.Schemas.PreviewImageCTD();
+        const pi = SN_1.Schemas.PreviewImageCTD();
         it('should return a schema object', function () {
-            expect(pi).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(pi).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#SettingsCTD', function () {
-        const ctd = Schemas_1.Schemas.SettingsCTD();
+        const ctd = SN_1.Schemas.SettingsCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#IndexingSettingsCTD', function () {
-        const ctd = Schemas_1.Schemas.IndexingSettingsCTD();
+        const ctd = SN_1.Schemas.IndexingSettingsCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#LoggingSettingsCTD', function () {
-        const ctd = Schemas_1.Schemas.LoggingSettingsCTD();
+        const ctd = SN_1.Schemas.LoggingSettingsCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#PortalSettingsCTD', function () {
-        const ctd = Schemas_1.Schemas.PortalSettingsCTD();
+        const ctd = SN_1.Schemas.PortalSettingsCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#SystemFileCTD', function () {
-        const ctd = Schemas_1.Schemas.SystemFileCTD();
+        const ctd = SN_1.Schemas.SystemFileCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ResourceCTD', function () {
-        const ctd = Schemas_1.Schemas.ResourceCTD();
+        const ctd = SN_1.Schemas.ResourceCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#FolderCTD', function () {
-        const ctd = Schemas_1.Schemas.FolderCTD();
+        const ctd = SN_1.Schemas.FolderCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ContentListCTD', function () {
-        const ctd = Schemas_1.Schemas.ContentListCTD();
+        const ctd = SN_1.Schemas.ContentListCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#AspectCTD', function () {
-        const ctd = Schemas_1.Schemas.AspectCTD();
+        const ctd = SN_1.Schemas.AspectCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ItemListCTD', function () {
-        const ctd = Schemas_1.Schemas.ItemListCTD();
+        const ctd = SN_1.Schemas.ItemListCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#CustomListCTD', function () {
-        const ctd = Schemas_1.Schemas.CustomListCTD();
+        const ctd = SN_1.Schemas.CustomListCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#MemoListCTD', function () {
-        const ctd = Schemas_1.Schemas.MemoListCTD();
+        const ctd = SN_1.Schemas.MemoListCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#TaskListCTD', function () {
-        const ctd = Schemas_1.Schemas.TaskListCTD();
+        const ctd = SN_1.Schemas.TaskListCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#LibraryCTD', function () {
-        const ctd = Schemas_1.Schemas.LibraryCTD();
+        const ctd = SN_1.Schemas.LibraryCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#DocumentLibraryCTD', function () {
-        const ctd = Schemas_1.Schemas.DocumentLibraryCTD();
+        const ctd = SN_1.Schemas.DocumentLibraryCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ImageLibraryCTD', function () {
-        const ctd = Schemas_1.Schemas.ImageLibraryCTD();
+        const ctd = SN_1.Schemas.ImageLibraryCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#DeviceCTD', function () {
-        const ctd = Schemas_1.Schemas.DeviceCTD();
+        const ctd = SN_1.Schemas.DeviceCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#DomainCTD', function () {
-        const ctd = Schemas_1.Schemas.DomainCTD();
+        const ctd = SN_1.Schemas.DomainCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#DomainsCTD', function () {
-        const ctd = Schemas_1.Schemas.DomainsCTD();
+        const ctd = SN_1.Schemas.DomainsCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#EmailCTD', function () {
-        const ctd = Schemas_1.Schemas.EmailCTD();
+        const ctd = SN_1.Schemas.EmailCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#OrganizationalUnitCTD', function () {
-        const ctd = Schemas_1.Schemas.OrganizationalUnitCTD();
+        const ctd = SN_1.Schemas.OrganizationalUnitCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#PortalRootCTD', function () {
-        const ctd = Schemas_1.Schemas.PortalRootCTD();
+        const ctd = SN_1.Schemas.PortalRootCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ProfileDomainCTD', function () {
-        const ctd = Schemas_1.Schemas.ProfileDomainCTD();
+        const ctd = SN_1.Schemas.ProfileDomainCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ProfilesCTD', function () {
-        const ctd = Schemas_1.Schemas.ProfilesCTD();
+        const ctd = SN_1.Schemas.ProfilesCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#RuntimeContentContainerCTD', function () {
-        const ctd = Schemas_1.Schemas.RuntimeContentContainerCTD();
+        const ctd = SN_1.Schemas.RuntimeContentContainerCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#SitesCTD', function () {
-        const ctd = Schemas_1.Schemas.SitesCTD();
+        const ctd = SN_1.Schemas.SitesCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#SmartFolderCTD', function () {
-        const ctd = Schemas_1.Schemas.SmartFolderCTD();
+        const ctd = SN_1.Schemas.SmartFolderCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#SystemFolderCTD', function () {
-        const ctd = Schemas_1.Schemas.SystemFolderCTD();
+        const ctd = SN_1.Schemas.SystemFolderCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ResourcesCTD', function () {
-        const ctd = Schemas_1.Schemas.ResourcesCTD();
+        const ctd = SN_1.Schemas.ResourcesCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#TrashBagCTD', function () {
-        const ctd = Schemas_1.Schemas.TrashBagCTD();
+        const ctd = SN_1.Schemas.TrashBagCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#WorkspaceCTD', function () {
-        const ctd = Schemas_1.Schemas.WorkspaceCTD();
+        const ctd = SN_1.Schemas.WorkspaceCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#SiteCTD', function () {
-        const ctd = Schemas_1.Schemas.SiteCTD();
+        const ctd = SN_1.Schemas.SiteCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#TrashBinCTD', function () {
-        const ctd = Schemas_1.Schemas.TrashBinCTD();
+        const ctd = SN_1.Schemas.TrashBinCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#UserProfileCTD', function () {
-        const ctd = Schemas_1.Schemas.UserProfileCTD();
+        const ctd = SN_1.Schemas.UserProfileCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#GroupCTD', function () {
-        const ctd = Schemas_1.Schemas.GroupCTD();
+        const ctd = SN_1.Schemas.GroupCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#ListItemCTD', function () {
-        const ctd = Schemas_1.Schemas.ListItemCTD();
+        const ctd = SN_1.Schemas.ListItemCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#CustomListItemCTD', function () {
-        const ctd = Schemas_1.Schemas.CustomListItemCTD();
+        const ctd = SN_1.Schemas.CustomListItemCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#MemoCTD', function () {
-        const ctd = Schemas_1.Schemas.MemoCTD();
+        const ctd = SN_1.Schemas.MemoCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#TaskCTD', function () {
-        const ctd = Schemas_1.Schemas.TaskCTD();
+        const ctd = SN_1.Schemas.TaskCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#QueryCTD', function () {
-        const ctd = Schemas_1.Schemas.QueryCTD();
+        const ctd = SN_1.Schemas.QueryCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
     describe('#UserCTD', function () {
-        const ctd = Schemas_1.Schemas.UserCTD();
+        const ctd = SN_1.Schemas.UserCTD();
         it('should return a schema object', function () {
-            expect(ctd).to.be.an.instanceof(Schemas_1.Schemas.Schema);
+            expect(ctd).to.be.an.instanceof(SN_1.Schemas.Schema);
         });
     });
 });

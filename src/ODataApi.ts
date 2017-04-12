@@ -1,10 +1,5 @@
-import { ODataHelper } from './ODataHelper';
-import { Http } from './Http';
-import { Content } from './Content';
-import { ContentTypes } from './ContentTypes';
+import { ODataHelper, Http, Content, Repository } from './SN';
 import { Observable, AjaxRequest } from '@reactivex/rxjs';
-import * as Rx from '@reactivex/rxjs';
-import { Repository } from './Repository';
 
 /**
  * This module contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -16,40 +11,13 @@ export module ODataApi {
 
     type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-    export class Service<THttpProvider extends Http.IHttpProvider<Http.ReturnType<any>>, TProviderReturns>{
-
-        private get isCrossDomain() {
-            if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
-        private get ODataBaseUrl() {
-            return `${this.baseUrl}/${this.serviceToken}`
-        }
-
-        private Ajax<T>(path: string, method: RequestMethodType, returns: { new (...args): T }, body?: any) {
-            return this.httpProvider.Ajax(
-                returns,
-                {
-                    url: `${this.ODataBaseUrl}/${path}`,
-                    method: method,
-                    body: body,
-                    crossDomain: this.isCrossDomain,
-                    responseType: 'json'
-                });
-        }
-
-
+    export class Service<THttpProvider extends Http.BaseHttpProvider, TProviderReturns>{
         private readonly httpProvider: THttpProvider;
         constructor(
             providerRef: { new (): THttpProvider },
             private readonly baseUrl: string,
             private readonly serviceToken: string,
-            private readonly repository: Repository<THttpProvider, any>
+            private readonly repository: Repository<THttpProvider, any>,
         ) {
             this.httpProvider = new providerRef();
         }
@@ -61,7 +29,9 @@ export module ODataApi {
          * @params options {ODataRequestOptions} Object with the params of the ajax request.
          * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
          */
-        public GetContent = (options: ODataRequestOptions) => this.Ajax<Content>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET', Content);
+        public Get<T extends Content>(options: ODataRequestOptions, returns?: { new (...args): T }) {
+            return this.repository.Ajax(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET', returns);
+        }
         // {
         //     return this.httpProvider.Ajax(`${this.baseUrl}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
         // }
@@ -73,7 +43,9 @@ export module ODataApi {
          * @params options {ODataRequestOptions} Object with the params of the ajax request.
          * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
          */
-        public FetchContent = (options: ODataRequestOptions) => this.Ajax(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET', Content)
+        public Fetch<T extends Content>(options: ODataRequestOptions) {
+            return this.repository.Ajax<T[]>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET');
+        }
         // this.httpProvider.Ajax({
         //     url: `${this.baseUrl}${options.path}${ODataHelper.buildUrlParamString(options.params)}`,
         //     crossDomain: this.isCrossDomain,
@@ -81,14 +53,14 @@ export module ODataApi {
         // });
 
 
-        public CreateContent<T extends Content, O extends T['options']>(newContent: { new (opt: O, repository): T }, path: string, opt: O, repository = this.repository) {
-            let contentItem = new newContent(opt, repository);
-            return this.Ajax(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', Content);
+        public Create<T extends Content, O extends T['options']>(path: string, opt: O, contentType: { new (opt: O, repository): T }, repository = this.repository) {
+            let content = Content.Create(contentType, opt, repository);
+            return this.repository.Ajax(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', Content, `models=[${JSON.stringify(content.options)}]`);
         }
-        
-        public PostContent<T>(path: string, content: T, repository = this.repository) {
-            return this.Ajax(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', Content, `models=[${JSON.stringify(content)}]`);
-        }        
+
+        public Post<T>(path: string, content: T, postedContentType?: {new(...args): T}) {
+            return this.repository.Ajax<T>(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', postedContentType, `models=[${ODataHelper.stringifyWithoutCircularDependency(content)}]`);
+        }
 
         /**
          * Method to delete a Content from the Content Repository through OData REST API.
@@ -98,8 +70,8 @@ export module ODataApi {
          * @params permanent {boolean} Determines whether the Content should be moved to the Trash or be deleted permanently.
          * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
          */
-        public DeleteContent = (id: number, permanent: boolean) =>
-            this.Ajax(`/content(${id})/Delete`, 'POST', Object, { 'permanent': permanent })
+        public Delete = (id: number, permanent: boolean) =>
+            this.repository.Ajax(`/content(${id})/Delete`, 'POST', Object, { 'permanent': permanent })
 
         // this.httpProvider.Ajax({
         //     url: `${this.baseUrl}/content(${id})/Delete`,
@@ -116,8 +88,8 @@ export module ODataApi {
          * @params fields {Object} Contains the modifiable fieldnames as keys and their values.
          * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
          */
-        public PatchContent = (id: number, fields: Object) =>
-            this.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`)
+        public Patch = (id: number, fields: Object) =>
+            this.repository.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`)
 
         // this.httpProvider.Ajax({
         //     url: `${this.baseUrl}/content(${id})`,
@@ -135,8 +107,8 @@ export module ODataApi {
          * @params fields {Object} Contains the modifiable fieldnames as keys and their values.
          * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
          */
-        public PutContent = (id: number, fields: Object) =>
-            this.Ajax(`/content(${id})`, 'PUT', Object, `models=[${JSON.stringify(fields)}]`);
+        public Put = (id: number, fields: Object) =>
+            this.repository.Ajax(`/content(${id})`, 'PUT', Object, `models=[${JSON.stringify(fields)}]`);
 
         // this.httpProvider.Ajax({
         //     url: `${this.baseUrl}/content(${id})`,
@@ -180,7 +152,7 @@ export module ODataApi {
                     url: `${path}${ODataHelper.buildUrlParamString(action.params)}`,
                     method: 'GET',
                     responseType: 'json',
-                    crossDomain: this.isCrossDomain,
+                    crossDomain: this.repository.IsCrossDomain,
                 })
             }
             else {
@@ -188,7 +160,7 @@ export module ODataApi {
                     return this.httpProvider.Ajax(Object, {
                         url: `${path}`,
                         method: 'POST',
-                        crossDomain: this.isCrossDomain,
+                        crossDomain: this.repository.IsCrossDomain,
                         body: JSON.stringify(options.data)
                     });
                 }
@@ -196,7 +168,7 @@ export module ODataApi {
                     return this.httpProvider.Ajax(Object, {
                         url: `${path}`,
                         method: 'POST',
-                        crossDomain: this.isCrossDomain
+                        crossDomain: this.repository.IsCrossDomain
                     });
                 }
             }
@@ -210,54 +182,8 @@ export module ODataApi {
             else {
                 url = url;
             }
-            return this.Ajax(url, 'POST', Object, data);
+            return this.repository.Ajax(url, 'POST', Object, data);
         }
-
-        public Login = (action: CustomAction, options?: IODataParams) => {
-            let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
-            let path = `${this.baseUrl}/('Root')/Login`;
-            if (cacheParam.length > 0) {
-                path = `${path}?${cacheParam}`
-            }
-
-            let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
-
-            if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                return this.Ajax<ContentTypes.User>(path, 'POST', ContentTypes.User, options.data);
-                // return this.httpProvider.Ajax({
-                //     url: `${path}`,
-                //     method: 'POST',
-                //     crossDomain: this.isCrossDomain,
-                //     body: JSON.stringify(options.data)
-                // });
-            }
-            else {
-                return this.Ajax(path, 'POST', ContentTypes.User);
-                // return this.httpProvider.Ajax({
-                //     url: `${path}`,
-                //     method: 'POST',
-                //     crossDomain: this.isCrossDomain
-                // });
-            }
-        }
-
-        public Logout = (action: CustomAction, options?: IODataParams) => {
-            let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
-            let path = `${this.baseUrl}/('Root')/Logout`;
-            if (cacheParam.length > 0) {
-                path = `${path}?${cacheParam}`
-            }
-
-            let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
-
-            if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                return this.Ajax(path, 'POST', Object, options.data);
-            }
-            else {
-                return this.Ajax(path, 'POST', Object);
-            }
-        }
-
     }
 
 

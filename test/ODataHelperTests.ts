@@ -1,4 +1,4 @@
-import { ODataHelper } from '../src/ODataHelper'
+import { ODataHelper } from '../src/SN'
 import * as Chai from 'chai';
 const expect = Chai.expect;
 

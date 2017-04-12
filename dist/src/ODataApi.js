@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ODataHelper_1 = require("./ODataHelper");
-const Content_1 = require("./Content");
-const ContentTypes_1 = require("./ContentTypes");
+const SN_1 = require("./SN");
 var ODataApi;
 (function (ODataApi) {
     class Service {
@@ -10,19 +8,17 @@ var ODataApi;
             this.baseUrl = baseUrl;
             this.serviceToken = serviceToken;
             this.repository = repository;
-            this.GetContent = (options) => this.Ajax(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET', Content_1.Content);
-            this.FetchContent = (options) => this.Ajax(`${options.path}${ODataHelper_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET', Content_1.Content);
-            this.DeleteContent = (id, permanent) => this.Ajax(`/content(${id})/Delete`, 'POST', Object, { 'permanent': permanent });
-            this.PatchContent = (id, fields) => this.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`);
-            this.PutContent = (id, fields) => this.Ajax(`/content(${id})`, 'PUT', Object, `models=[${JSON.stringify(fields)}]`);
+            this.Delete = (id, permanent) => this.repository.Ajax(`/content(${id})/Delete`, 'POST', Object, { 'permanent': permanent });
+            this.Patch = (id, fields) => this.repository.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`);
+            this.Put = (id, fields) => this.repository.Ajax(`/content(${id})`, 'PUT', Object, `models=[${JSON.stringify(fields)}]`);
             this.CreateCustomAction = (action, options) => {
                 let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
                 let path = '';
                 if (typeof action.id !== 'undefined') {
-                    path = `${this.baseUrl}${ODataHelper_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
+                    path = `${this.baseUrl}${SN_1.ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
                 }
                 else {
-                    path = `${this.baseUrl}${ODataHelper_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
+                    path = `${this.baseUrl}${SN_1.ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
                 }
                 if (cacheParam.length > 0) {
                     path = `${path}?${cacheParam}`;
@@ -35,10 +31,10 @@ var ODataApi;
                 let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
                 if (typeof action.isAction === 'undefined' || !action.isAction) {
                     return this.httpProvider.Ajax(Object, {
-                        url: `${path}${ODataHelper_1.ODataHelper.buildUrlParamString(action.params)}`,
+                        url: `${path}${SN_1.ODataHelper.buildUrlParamString(action.params)}`,
                         method: 'GET',
                         responseType: 'json',
-                        crossDomain: this.isCrossDomain,
+                        crossDomain: this.repository.IsCrossDomain,
                     });
                 }
                 else {
@@ -46,7 +42,7 @@ var ODataApi;
                         return this.httpProvider.Ajax(Object, {
                             url: `${path}`,
                             method: 'POST',
-                            crossDomain: this.isCrossDomain,
+                            crossDomain: this.repository.IsCrossDomain,
                             body: JSON.stringify(options.data)
                         });
                     }
@@ -54,73 +50,35 @@ var ODataApi;
                         return this.httpProvider.Ajax(Object, {
                             url: `${path}`,
                             method: 'POST',
-                            crossDomain: this.isCrossDomain
+                            crossDomain: this.repository.IsCrossDomain
                         });
                     }
                 }
             };
             this.Upload = (path, data, creation) => {
-                let url = `${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
+                let url = `${SN_1.ODataHelper.getContentURLbyPath(path)}/Upload`;
                 if (creation) {
                     url = `${url}?create=1`;
                 }
                 else {
                     url = url;
                 }
-                return this.Ajax(url, 'POST', Object, data);
-            };
-            this.Login = (action, options) => {
-                let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
-                let path = `${this.baseUrl}/('Root')/Login`;
-                if (cacheParam.length > 0) {
-                    path = `${path}?${cacheParam}`;
-                }
-                let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
-                if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                    return this.Ajax(path, 'POST', ContentTypes_1.ContentTypes.User, options.data);
-                }
-                else {
-                    return this.Ajax(path, 'POST', ContentTypes_1.ContentTypes.User);
-                }
-            };
-            this.Logout = (action, options) => {
-                let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
-                let path = `${this.baseUrl}/('Root')/Logout`;
-                if (cacheParam.length > 0) {
-                    path = `${path}?${cacheParam}`;
-                }
-                let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
-                if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                    return this.Ajax(path, 'POST', Object, options.data);
-                }
-                else {
-                    return this.Ajax(path, 'POST', Object);
-                }
+                return this.repository.Ajax(url, 'POST', Object, data);
             };
             this.httpProvider = new providerRef();
         }
-        get isCrossDomain() {
-            if (typeof window !== 'undefined' && typeof window['siteUrl'] !== 'undefined') {
-                return true;
-            }
-            else {
-                return false;
-            }
+        Get(options, returns) {
+            return this.repository.Ajax(`${options.path}${SN_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET', returns);
         }
-        get ODataBaseUrl() {
-            return `${this.baseUrl}/${this.serviceToken}`;
+        Fetch(options) {
+            return this.repository.Ajax(`${options.path}${SN_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET');
         }
-        Ajax(path, method, returns, body) {
-            return this.httpProvider.Ajax(returns, {
-                url: `${this.ODataBaseUrl}/${path}`,
-                method: method,
-                body: body,
-                crossDomain: this.isCrossDomain,
-                responseType: 'json'
-            });
+        Create(path, opt, contentType, repository = this.repository) {
+            let content = SN_1.Content.Create(contentType, opt, repository);
+            return this.repository.Ajax(`${SN_1.ODataHelper.getContentURLbyPath(path)}`, 'POST', SN_1.Content, `models=[${JSON.stringify(content.options)}]`);
         }
-        CreateContent(path, content, repository = this.repository) {
-            return this.Ajax(`${ODataHelper_1.ODataHelper.getContentURLbyPath(path)}`, 'POST', Content_1.Content, `models=[${JSON.stringify(content)}]`);
+        Post(path, content, postedContentType) {
+            return this.repository.Ajax(`${SN_1.ODataHelper.getContentURLbyPath(path)}`, 'POST', postedContentType, `models=[${SN_1.ODataHelper.stringifyWithoutCircularDependency(content)}]`);
         }
     }
     ODataApi.Service = Service;

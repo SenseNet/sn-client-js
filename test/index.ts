@@ -5,6 +5,7 @@ import * as FieldSettingsTest from './FieldSettingsTest';
 import * as ComplexTypesTests from './ComplexTypesTests';
 import * as ODataApiTests from './ODataApiTests';
 import * as ODataHelperTests from './ODataHelperTests';
+import * as RepositoryTests from './RepositoryTests';
 import * as SchemaTests from './SchemaTests';
 
 export {
@@ -15,5 +16,6 @@ export {
     ComplexTypesTests,
     ODataApiTests,
     ODataHelperTests,
+    RepositoryTests,
     SchemaTests
 }

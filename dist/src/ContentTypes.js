@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Content_1 = require("./Content");
+const SN_1 = require("./SN");
 var ContentTypes;
 (function (ContentTypes) {
-    class ContentType extends Content_1.Content {
+    class ContentType extends SN_1.Content {
         constructor(options, repository) {
             super(options, repository);
             this.Id = options.Id;
@@ -30,7 +30,7 @@ var ContentTypes;
         }
     }
     ContentTypes.ContentType = ContentType;
-    class GenericContent extends Content_1.Content {
+    class GenericContent extends SN_1.Content {
         constructor(options, repository) {
             super(options, repository);
             this.Id = options.Id;

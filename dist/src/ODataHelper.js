@@ -87,5 +87,18 @@ var ODataHelper;
         return path.indexOf("('") >= 0 && path.indexOf("')") === path.length - 2;
     }
     ODataHelper.isItemPath = isItemPath;
+    function stringifyWithoutCircularDependency(content) {
+        let serialized = [];
+        return JSON.stringify(content, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (serialized.indexOf(value) !== -1) {
+                    return;
+                }
+                serialized.push(value);
+            }
+            return value;
+        });
+    }
+    ODataHelper.stringifyWithoutCircularDependency = stringifyWithoutCircularDependency;
 })(ODataHelper = exports.ODataHelper || (exports.ODataHelper = {}));
 //# sourceMappingURL=ODataHelper.js.map

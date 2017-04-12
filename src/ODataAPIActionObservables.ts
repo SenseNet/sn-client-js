@@ -1,7 +1,5 @@
 import * as Rx from '@reactivex/rxjs';
-import { ODataHelper } from './ODataHelper';
-import { Content } from './Content';
-import { ODataApi } from './ODataApi';
+import { ODataHelper, Content, ODataApi } from './SN';
 const { ajax } = Rx.Observable;
 import { Value, Properties } from 'ts-json-properties';
 

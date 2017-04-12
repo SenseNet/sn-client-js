@@ -1,6 +1,4 @@
-import { Content } from './Content';
-import { ODataApi } from './ODataApi';
-import { ODataHelper } from './ODataHelper';
+import { Content, ODataApi, ODataHelper } from './SN';
 import { Observable } from '@reactivex/rxjs';
 
 /**
@@ -77,10 +75,9 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Add(content: Content): Observable<any> {
-        const newcontent = this.service.CreateContent(this.Path, content);
+    public Add(content: T): Observable<any> {
+        const newcontent = this.service.Post<T>(this.Path, content);
         newcontent
-            .map(response => response.response.d)
             .subscribe({
                 next: (response) => {
                     this.items = [
@@ -138,7 +135,7 @@ export class Collection<T extends Content> {
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
 
-            return this.service.DeleteContent(content.Id, permanently ? permanently : false);
+            return this.service.Delete(content.Id, permanently ? permanently : false);
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
@@ -178,12 +175,11 @@ export class Collection<T extends Content> {
         }
         o['path'] = path;
         let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
-        const children = this.service.FetchContent(optionList);
+        const children = this.service.Fetch<T>(optionList);
         children
-            .map(response => response.response.d)
             .subscribe({
-                next: (response) => {
-                    this.items = response.results;
+                next: (items) => {
+                    this.items = items;
                 }
             }
             );
@@ -312,7 +308,7 @@ export class Collection<T extends Content> {
         }
         o['path'] = ODataHelper.getContentURLbyPath(this.Path);
         let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
-        return this.service.GetContent(optionList);
+        return this.service.Get(optionList, Content);
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
