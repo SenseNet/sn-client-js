@@ -16,6 +16,6 @@ __export(require("./ODataAPIActionObservables"));
 __export(require("./ODataApi"));
 __export(require("./Resources"));
 __export(require("./Security"));
-__export(require("./Http"));
+__export(require("./HttpProviders"));
 __export(require("./Repository"));
 //# sourceMappingURL=SN.js.map

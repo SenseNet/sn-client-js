@@ -11,5 +11,5 @@ export * from './ODataAPIActionObservables';
 export * from './ODataApi';
 export * from './Resources';
 export * from './Security';
-export * from './Http';
+export * from './HttpProviders';
 export * from './Repository';

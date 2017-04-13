@@ -1,4 +1,4 @@
-import { Content, Repository, Http, Schemas, Security, Enums, ContentTypes } from '../src/SN';
+import { Content, SnTestRepository, Schemas, Security, Enums, ContentTypes, HttpProviders } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
 const expect = Chai.expect;
@@ -7,9 +7,7 @@ const CONTENT_TYPE = 'Task';
 
 describe('Content', () => {
     let content: ContentTypes.Task;
-    // let window = {}
-
-    let repo = new Repository(Http.RxAjaxHttpProvider);
+    let repo = new SnTestRepository();
 
     beforeEach(function () {
         content = new ContentTypes.Task({

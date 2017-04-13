@@ -69,7 +69,7 @@
     "ts-json-properties": "1.1.4",
     "tslint": "4.5.1",
     "typedoc": "0.5.10",
-    "typescript": "2.2.2"
+    "typescript": "2.3.0"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"

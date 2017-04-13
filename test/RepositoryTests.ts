@@ -1,13 +1,13 @@
-import { ODataApi, Content, Repository, Http } from '../src/SN';
+import { ODataApi, Content, SnTestRepository } from '../src/SN';
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
-    let repo: Repository<any, any>;
+    let repo: SnTestRepository;
 
     beforeEach(() => {
-        repo = new Repository(Http.MockAjaxHttpProvider);
+        repo = new SnTestRepository();
     });
 
     describe('#Login', function () {

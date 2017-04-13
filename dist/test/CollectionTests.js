@@ -7,7 +7,7 @@ const expect = Chai.expect;
 describe('Collection', () => {
     let collection;
     let children;
-    let Repo = new SN_1.Repository(SN_1.Http.RxAjaxHttpProvider);
+    let Repo = new SN_1.SnTestRepository();
     beforeEach(function () {
         children = [
             SN_1.Content.Create(SN_1.Content, {

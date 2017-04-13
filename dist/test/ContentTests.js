@@ -7,7 +7,7 @@ const expect = Chai.expect;
 const CONTENT_TYPE = 'Task';
 describe('Content', () => {
     let content;
-    let repo = new SN_1.Repository(SN_1.Http.RxAjaxHttpProvider);
+    let repo = new SN_1.SnTestRepository();
     beforeEach(function () {
         content = new SN_1.ContentTypes.Task({
             Id: 1,

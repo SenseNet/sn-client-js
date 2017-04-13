@@ -7,7 +7,7 @@ const expect = Chai.expect;
 describe('ODataApi', () => {
     let repo;
     beforeEach(() => {
-        repo = new SN_1.Repository(SN_1.Http.MockAjaxHttpProvider);
+        repo = new SN_1.SnTestRepository();
     });
     describe('#Login', function () {
         it('should return an obsevable object', function () {

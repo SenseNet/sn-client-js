@@ -1,4 +1,4 @@
-import { Content, Collection, Repository, Http } from '../src/SN'
+import { Content, Collection, SnTestRepository, HttpProviders } from '../src/SN'
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 const expect = Chai.expect;
@@ -7,7 +7,7 @@ describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new Repository(Http.RxAjaxHttpProvider);
+  let Repo = new SnTestRepository();
 
   beforeEach(function () {
     children = [

@@ -1,14 +1,11 @@
-import { ODataApi, Content, Repository, Http, ODataRequestOptions, CustomAction, ODataParams } from '../src/SN';
+import { ODataApi, Content, SnTestRepository, ODataRequestOptions, CustomAction, ODataParams } from '../src/SN';
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
-    let service: Repository<any, any>;
+    let service = new SnTestRepository();
 
-    beforeEach(() => {
-        service = new Repository(Http.RxAjaxHttpProvider);
-    });
     it('request a Content and returns an Observable object', function () {
         const options = new ODataRequestOptions({ path: '/workspace/project' })
         expect(typeof service.Contents.Get(options)).to.be.eq('object');

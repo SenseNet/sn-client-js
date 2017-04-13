@@ -1,16 +1,8 @@
 import { Observable } from '@reactivex/rxjs';
-import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, Http, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction } from './SN';
+import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, HttpProviders, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction } from './SN';
 
-export type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderReturns> {
-    public static CreateDefault() {
-        return new Repository(Http.RxAjaxHttpProvider);
-    }
-
-    public static CreateFromConfig() {
-
-    }
-
+type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+export abstract class Repository<TProviderType extends HttpProviders.Base, TProviderReturns = any> {
     private static get DEFAULT_BASE_URL(): string {
         if (typeof window !== 'undefined')
             return (window && window.location && window.location.href) || '';
@@ -37,16 +29,19 @@ export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderRe
             });
         return ajax;
     }
-    public readonly httpProviderRef: Http.BaseHttpProvider;
-    public readonly Contents: ODataApi<TProviderType, any> = new ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
+    public readonly httpProviderRef: HttpProviders.Base;
+    public readonly Contents: ODataApi<TProviderType, any>;
 
-    public readonly Authentication: Authentication = new Authentication(this);
+    public readonly Authentication: Authentication;
 
     constructor(
         private readonly httpProviderType: { new (): TProviderType },
         public readonly baseUrl: string = Repository.DEFAULT_BASE_URL,
         private readonly serviceToken: string = Repository.DEFAULT_SERVICE_TOKEN) {
+
         this.httpProviderRef = new httpProviderType();
+        this.Authentication = new Authentication(this);
+        this.Contents = new ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
     }
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
@@ -124,4 +119,17 @@ export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderRe
             return this.Contents.Get(optionList, returns);
         }
     }
+}
+
+export class SnRepository extends Repository<HttpProviders.RxAjax, any>{
+    constructor(baseUrl?: string, serviceToken?: string) {
+        super(HttpProviders.RxAjax, baseUrl, serviceToken);
+    }
+}
+
+export class SnTestRepository extends Repository<HttpProviders.Mock, any>{
+    constructor(baseUrl?: string, serviceToken?: string) {
+        super(HttpProviders.Mock, baseUrl, serviceToken);
+    }
+
 }

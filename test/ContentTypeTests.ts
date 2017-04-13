@@ -1,13 +1,11 @@
-import { ContentTypes, CreateContent } from '../src/ContentTypes';
+import { ContentTypes, CreateContent, SnTestRepository, HttpProviders } from '../src/SN';
 import * as Chai from 'chai';
-import { Repository } from '../src/Repository';
-import { Http } from '../src/Http';
 const expect = Chai.expect;
 
 describe('ContentTypes', () => {
 
 
-    let repo: Repository<Http.RxAjaxHttpProvider, Promise<any>> = new Repository(Http.RxAjaxHttpProvider);
+    let repo = new SnTestRepository();
 
     describe('#ContentType', function () {
         const gc = new ContentTypes.ContentType({ Id: 1, Type: 'ContentType', Name: '' }, repo);

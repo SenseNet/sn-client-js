@@ -3,8 +3,8 @@ import { Observable, AjaxRequest, ReplaySubject } from '@reactivex/rxjs';
 /**
  * This module is a library module for Http-layer related classes and submodules.
  */
-export module Http {
-    export abstract class BaseHttpProvider {
+export module HttpProviders {
+    export abstract class Base {
         protected headers: string[] = [];
         public SetGlobalHeader(headerName, headerValue){
             this.headers[headerName] = headerValue;
@@ -16,11 +16,11 @@ export module Http {
             });
             return this.AjaxInner(tReturnType, options);
         };
-        abstract AjaxInner<T>(tReturnType: { new (...args): T }, options?: AjaxRequest): Observable<T>;
+        protected abstract AjaxInner<T>(tReturnType: { new (...args): T }, options?: AjaxRequest): Observable<T>;
     }
 
-    export class MockAjaxHttpProvider extends BaseHttpProvider {
-        AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
+    export class Mock extends Base {
+        protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
             let subject = new ReplaySubject<T>()
             subject.next({} as T);
             return subject.asObservable();
@@ -29,8 +29,8 @@ export module Http {
 
     }
 
-    export class RxAjaxHttpProvider extends BaseHttpProvider {
-        public AjaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
+    export class RxAjax extends Base {
+        protected AjaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
             let observable =  Observable.ajax(options).share().map(req => {
                 return req.response as T;
             });

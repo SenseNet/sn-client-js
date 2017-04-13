@@ -6,18 +6,13 @@ class Repository {
         this.httpProviderType = httpProviderType;
         this.baseUrl = baseUrl;
         this.serviceToken = serviceToken;
-        this.Contents = new SN_1.ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
-        this.Authentication = new SN_1.Authentication(this);
         this.GetAllContentTypes = () => {
             let action = new SN_1.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
             return this.Contents.CreateCustomAction(action);
         };
         this.httpProviderRef = new httpProviderType();
-    }
-    static CreateDefault() {
-        return new Repository(SN_1.Http.RxAjaxHttpProvider);
-    }
-    static CreateFromConfig() {
+        this.Authentication = new SN_1.Authentication(this);
+        this.Contents = new SN_1.ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
     }
     static get DEFAULT_BASE_URL() {
         if (typeof window !== 'undefined')
@@ -65,4 +60,16 @@ class Repository {
 }
 Repository.DEFAULT_SERVICE_TOKEN = 'odata.svc';
 exports.Repository = Repository;
+class SnRepository extends Repository {
+    constructor(baseUrl, serviceToken) {
+        super(SN_1.HttpProviders.RxAjax, baseUrl, serviceToken);
+    }
+}
+exports.SnRepository = SnRepository;
+class SnTestRepository extends Repository {
+    constructor(baseUrl, serviceToken) {
+        super(SN_1.HttpProviders.Mock, baseUrl, serviceToken);
+    }
+}
+exports.SnTestRepository = SnTestRepository;
 //# sourceMappingURL=Repository.js.map

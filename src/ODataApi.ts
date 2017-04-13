@@ -1,4 +1,4 @@
-import { ODataHelper, Http, Content, Repository } from './SN';
+import { ODataHelper, HttpProviders, Content, Repository } from './SN';
 import { Observable, AjaxRequest } from '@reactivex/rxjs';
 
 /**
@@ -7,7 +7,7 @@ import { Observable, AjaxRequest } from '@reactivex/rxjs';
  * Following methods return Rxjs Observables which are made from the ajax requests' promises. Action methods like Delete or Rename on Content calls this methods,
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
-export class ODataApi<THttpProvider extends Http.BaseHttpProvider, TProviderReturns>{
+export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns>{
     private readonly httpProvider: THttpProvider;
     constructor(
         providerRef: { new (): THttpProvider },

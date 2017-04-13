@@ -5,10 +5,7 @@ const rxjs_1 = require("@reactivex/rxjs");
 const Chai = require("chai");
 const expect = Chai.expect;
 describe('ODataApi', () => {
-    let service;
-    beforeEach(() => {
-        service = new SN_1.Repository(SN_1.Http.RxAjaxHttpProvider);
-    });
+    let service = new SN_1.SnTestRepository();
     it('request a Content and returns an Observable object', function () {
         const options = new SN_1.ODataRequestOptions({ path: '/workspace/project' });
         expect(typeof service.Contents.Get(options)).to.be.eq('object');

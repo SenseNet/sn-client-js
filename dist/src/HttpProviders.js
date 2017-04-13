@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const rxjs_1 = require("@reactivex/rxjs");
-var Http;
-(function (Http) {
-    class BaseHttpProvider {
+var HttpProviders;
+(function (HttpProviders) {
+    class Base {
         constructor() {
             this.headers = [];
         }
@@ -18,16 +18,16 @@ var Http;
         }
         ;
     }
-    Http.BaseHttpProvider = BaseHttpProvider;
-    class MockAjaxHttpProvider extends BaseHttpProvider {
+    HttpProviders.Base = Base;
+    class Mock extends Base {
         AjaxInner(tReturnType, options) {
             let subject = new rxjs_1.ReplaySubject();
             subject.next({});
             return subject.asObservable();
         }
     }
-    Http.MockAjaxHttpProvider = MockAjaxHttpProvider;
-    class RxAjaxHttpProvider extends BaseHttpProvider {
+    HttpProviders.Mock = Mock;
+    class RxAjax extends Base {
         AjaxInner(tReturnType, options) {
             let observable = rxjs_1.Observable.ajax(options).share().map(req => {
                 return req.response;
@@ -35,6 +35,6 @@ var Http;
             return observable;
         }
     }
-    Http.RxAjaxHttpProvider = RxAjaxHttpProvider;
-})(Http = exports.Http || (exports.Http = {}));
-//# sourceMappingURL=Http.js.map
+    HttpProviders.RxAjax = RxAjax;
+})(HttpProviders = exports.HttpProviders || (exports.HttpProviders = {}));
+//# sourceMappingURL=HttpProviders.js.map
