@@ -46,7 +46,7 @@ class Collection {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
-            let action = new SN_1.ODataApi.CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
+            let action = new SN_1.CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
             return this.service.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
         }
     }
@@ -57,7 +57,7 @@ class Collection {
             o['params'] = options;
         }
         o['path'] = path;
-        let optionList = new SN_1.ODataApi.ODataRequestOptions(o);
+        let optionList = new SN_1.ODataRequestOptions(o);
         const children = this.service.Fetch(optionList);
         children
             .subscribe({
@@ -73,26 +73,26 @@ class Collection {
             this.items =
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
-            let action = new SN_1.ODataApi.CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            let action = new SN_1.CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
-            let action = new SN_1.ODataApi.CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
+            let action = new SN_1.CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
     Copy(arg, targetPath) {
         if (typeof arg === 'number') {
             let content = this.items[arg];
-            let action = new SN_1.ODataApi.CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            let action = new SN_1.CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
-            let action = new SN_1.ODataApi.CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
+            let action = new SN_1.CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
@@ -102,7 +102,7 @@ class Collection {
             o['params'] = options;
         }
         o['path'] = SN_1.ODataHelper.getContentURLbyPath(this.Path);
-        let optionList = new SN_1.ODataApi.ODataRequestOptions(o);
+        let optionList = new SN_1.ODataRequestOptions(o);
         return this.service.Get(optionList, SN_1.Content);
     }
     Upload(contentType, fileName, overwrite, useChunk, propertyName, fileText) {

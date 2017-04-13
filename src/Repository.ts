@@ -1,5 +1,5 @@
 import { Observable } from '@reactivex/rxjs';
-import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, Http, FieldSettings, Security, Schemas, Enums } from './SN';
+import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, Http, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction } from './SN';
 
 export type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderReturns> {
@@ -38,7 +38,7 @@ export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderRe
         return ajax;
     }
     public readonly httpProviderRef: Http.BaseHttpProvider;
-    public readonly Contents: ODataApi.Service<TProviderType, any> = new ODataApi.Service(this.httpProviderType, this.baseUrl, this.serviceToken, this);
+    public readonly Contents: ODataApi<TProviderType, any> = new ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
 
     public readonly Authentication: Authentication = new Authentication(this);
 
@@ -64,7 +64,7 @@ export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderRe
      * ```
      */
     public GetVersionInfo() {
-        let action = new ODataApi.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
+        let action = new CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
         return this.Contents.CreateCustomAction(action);
     }
     /**
@@ -82,7 +82,7 @@ export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderRe
      * ```
      */
     public GetAllContentTypes = () => {
-        let action = new ODataApi.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
+        let action = new CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
         return this.Contents.CreateCustomAction(action);
     }
 
@@ -113,13 +113,13 @@ export class Repository<TProviderType extends Http.BaseHttpProvider, TProviderRe
         if (typeof idOrPath === 'string') {
             let contentURL = ODataHelper.getContentURLbyPath(idOrPath);
             o['path'] = contentURL;
-            let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
+            let optionList = new ODataRequestOptions(o as ODataRequestOptions);
             return this.Contents.Get(optionList, returns);
         }
         else if (typeof idOrPath === 'number') {
             let contentURL = ODataHelper.getContentUrlbyId(idOrPath);
             o['path'] = contentURL;
-            let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
+            let optionList = new ODataRequestOptions(o as ODataRequestOptions);
 
             return this.Contents.Get(optionList, returns);
         }

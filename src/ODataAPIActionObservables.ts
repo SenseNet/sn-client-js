@@ -1,5 +1,5 @@
 import * as Rx from '@reactivex/rxjs';
-import { ODataHelper, Content, ODataApi } from './SN';
+import { ODataHelper, Content, ODataApi, ODataRequestOptions, IODataParams, CustomAction, } from './SN';
 const { ajax } = Rx.Observable;
 import { Value, Properties } from 'ts-json-properties';
 
@@ -46,7 +46,7 @@ export module ODataApiActionObservables {
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    export const GetContent = (options: ODataApi.ODataRequestOptions) => ajax({ url: `${options.path}${ODataHelper.buildUrlParamString(options.params)}`, crossDomain: crossDomainParam(), method: 'GET' });
+    export const GetContent = (options: ODataRequestOptions) => ajax({ url: `${options.path}${ODataHelper.buildUrlParamString(options.params)}`, crossDomain: crossDomainParam(), method: 'GET' });
     /**
      * Method to fetch children of a Content from the Content Repository through OData REST API.
      * 
@@ -127,7 +127,7 @@ export module ODataApiActionObservables {
      * @params options {IODataParams} An object that holds the config of the ajax request like urlparameters or data.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    export const CreateCustomAction = (action: ODataApi.CustomAction, options?: ODataApi.IODataParams) => {
+    export const CreateCustomAction = (action: CustomAction, options?: IODataParams) => {
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
@@ -174,7 +174,7 @@ export module ODataApiActionObservables {
             }
         }
     }
-    export const Login = (action: ODataApi.CustomAction, options?: ODataApi.IODataParams) => {
+    export const Login = (action: CustomAction, options?: IODataParams) => {
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let rootUrl = ROOT_URL();
         let path = `${rootUrl}/('Root')/Login`;
@@ -201,7 +201,7 @@ export module ODataApiActionObservables {
         }
     }
 
-    export const Logout = (action: ODataApi.CustomAction, options?: ODataApi.IODataParams) => {
+    export const Logout = (action: CustomAction, options?: IODataParams) => {
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = `${ROOT_URL()}/('Root')/Logout`;
         if (cacheParam.length > 0) {

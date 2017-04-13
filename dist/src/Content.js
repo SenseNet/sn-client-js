@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Schemas_1 = require("./Schemas");
-const ODataApi_1 = require("./ODataApi");
-const ODataHelper_1 = require("./ODataHelper");
+const SN_1 = require("./SN");
 class Content {
     constructor(options, repository) {
         this.options = options;
@@ -46,7 +44,7 @@ class Content {
         }
     }
     GetSchema() {
-        return Schemas_1.Schemas[`${this.Type}CTD`]();
+        return SN_1.Schemas[`${this.Type}CTD`]();
     }
     Actions(scenario) {
         let options = {};
@@ -101,42 +99,42 @@ class Content {
         return this.repository.Contents.Get(optionList);
     }
     Checkout() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'CheckOut', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'CheckOut', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     CheckIn(checkInComments) {
         let action;
         (typeof checkInComments !== 'undefined') ?
-            action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'CheckIn', id: this.Id, isAction: true, params: ['checkInComments'] }) :
-            action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'CheckIn', id: this.Id, isAction: true });
+            action = new SN_1.CustomContentAction({ name: 'CheckIn', id: this.Id, isAction: true, params: ['checkInComments'] }) :
+            action = new SN_1.CustomContentAction({ name: 'CheckIn', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
     }
     UndoCheckout() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'UndoCheckOut', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'UndoCheckOut', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     ForceUndoCheckout() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'ForceUndoCheckout', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'ForceUndoCheckout', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     Approve() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'Approve', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'Approve', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     Reject(rejectReason) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'Reject', id: this.Id, isAction: true, params: ['rejectReason'] });
+        let action = new SN_1.CustomContentAction({ name: 'Reject', id: this.Id, isAction: true, params: ['rejectReason'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'rejectReason': rejectReason ? rejectReason : '' } });
     }
     Publish(rejectReason) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'Publish', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'Publish', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     RestoreVersion(version) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'Publish', id: this.Id, isAction: true, requiredParams: ['version'] });
+        let action = new SN_1.CustomContentAction({ name: 'Publish', id: this.Id, isAction: true, requiredParams: ['version'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'version': version ? version : '' } });
     }
     Restore(destination, newname) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'Restore', id: this.Id, isAction: true, params: ['destination', 'newname'] });
+        let action = new SN_1.CustomContentAction({ name: 'Restore', id: this.Id, isAction: true, params: ['destination', 'newname'] });
         return this.repository.Contents.CreateCustomAction(action, {
             data: {
                 'destination': destination ? destination : '',
@@ -145,161 +143,161 @@ class Content {
         });
     }
     MoveTo(path) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] });
+        let action = new SN_1.CustomContentAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'targetPath': path ? path : '' } });
     }
     CopyTo(path) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] });
+        let action = new SN_1.CustomContentAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'targetPath': path ? path : '' } });
     }
     AddAllowedChildTypes(contentTypes) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'AddAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] });
+        let action = new SN_1.CustomContentAction({ name: 'AddAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'contentTypes': contentTypes } });
     }
     RemoveAllowedChildTypes(contentTypes) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'RemoveAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] });
+        let action = new SN_1.CustomContentAction({ name: 'RemoveAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'contentTypes': contentTypes } });
     }
     static GetSchema(type) {
-        return Schemas_1.Schemas[`${type}CTD`]();
+        return SN_1.Schemas[`${type}CTD`]();
     }
     static Create(newContent, opt, repository) {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
     Schema() {
-        return Schemas_1.Schemas[`${this.Type}CTD`]();
+        return SN_1.Schemas[`${this.Type}CTD`]();
     }
     SetPermissions(arg) {
         let action;
         if (arg instanceof Array) {
-            action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] });
+            action = new SN_1.CustomContentAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] });
             return this.repository.Contents.CreateCustomAction(action, { data: { 'entryList': arg } });
         }
         else {
-            action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] });
+            action = new SN_1.CustomContentAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] });
             return this.repository.Contents.CreateCustomAction(action, { data: { 'inheritance': arg } });
         }
     }
     ;
     GetPermission(identity) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'identity': identity ? identity : '' } });
     }
     HasPermission(permissions, user) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'HasPermission', id: this.Id, isAction: false, requiredParams: ['permissions'], params: ['user'] });
+        let action = new SN_1.CustomContentAction({ name: 'HasPermission', id: this.Id, isAction: false, requiredParams: ['permissions'], params: ['user'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'permissions': permissions, 'user': user ? user : '' } });
     }
     TakeOwnership(userOrGroup) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'TakeOwnership', id: this.Id, isAction: true, params: ['userOrGroup'] });
+        let action = new SN_1.CustomContentAction({ name: 'TakeOwnership', id: this.Id, isAction: true, params: ['userOrGroup'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'userOrGroup': userOrGroup ? userOrGroup : '' } });
     }
     SaveQuery(query, displayName, queryType) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] });
+        let action = new SN_1.CustomContentAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'query': query, 'displayName': displayName ? displayName : '', queryType: queryType } });
     }
     GetQueries(onlyPublic = true) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetQueries', id: this.Id, isAction: false, noCache: true, requiredParams: ['onlyPublic'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetQueries', id: this.Id, isAction: false, noCache: true, requiredParams: ['onlyPublic'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'onlyPublic': onlyPublic } });
     }
     Finalize() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'FinalizeContent', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'FinalizeContent', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     TakeLockOver(userId) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'TakeLockOver', id: this.Id, isAction: true, params: ['user'] });
+        let action = new SN_1.CustomContentAction({ name: 'TakeLockOver', id: this.Id, isAction: true, params: ['user'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'user': userId ? userId : '' } });
     }
     RebuildIndex(recursive, rebuildLevel) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'RebuildIndex', id: this.Id, isAction: true, params: ['recursive', 'rebuildLevel'] });
+        let action = new SN_1.CustomContentAction({ name: 'RebuildIndex', id: this.Id, isAction: true, params: ['recursive', 'rebuildLevel'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'recursive': recursive ? recursive : false, 'rebuildLevel': rebuildLevel ? rebuildLevel : 0 } });
     }
     RebuildIndexSubtree() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'RebuildIndexSubtree', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'RebuildIndexSubtree', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     RefreshIndexSubtree() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'RefreshIndexSubtree', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'RefreshIndexSubtree', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     CheckPreviews(generateMissing) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'CheckPreviews', id: this.Id, isAction: true, params: ['generateMissing'] });
+        let action = new SN_1.CustomContentAction({ name: 'CheckPreviews', id: this.Id, isAction: true, params: ['generateMissing'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'generateMissing': generateMissing ? generateMissing : false } });
     }
     RegeneratePreviews() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'RegeneratePreviews', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'RegeneratePreviews', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     GetPageCount() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetPageCount', id: this.Id, isAction: true });
+        let action = new SN_1.CustomContentAction({ name: 'GetPageCount', id: this.Id, isAction: true });
         return this.repository.Contents.CreateCustomAction(action);
     }
     PreviewAvailable(page) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'PreviewAvailable', id: this.Id, isAction: false, requiredParams: ['page'] });
+        let action = new SN_1.CustomContentAction({ name: 'PreviewAvailable', id: this.Id, isAction: false, requiredParams: ['page'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'page': page } });
     }
     GetPreviewImagesForOData() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetPreviewImagesForOData', id: this.Id, isAction: false });
+        let action = new SN_1.CustomContentAction({ name: 'GetPreviewImagesForOData', id: this.Id, isAction: false });
         return this.repository.Contents.CreateCustomAction(action);
     }
     GetExistingPreviewImagesForOData() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetExistingPreviewImagesForOData', id: this.Id, isAction: false });
+        let action = new SN_1.CustomContentAction({ name: 'GetExistingPreviewImagesForOData', id: this.Id, isAction: false });
         return this.repository.Contents.CreateCustomAction(action);
     }
     GetAllowedChildTypesFromCTD() {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetAllowedChildTypesFromCTD', id: this.Id, isAction: false });
+        let action = new SN_1.CustomContentAction({ name: 'GetAllowedChildTypesFromCTD', id: this.Id, isAction: false });
         return this.repository.Contents.CreateCustomAction(action);
     }
     GetRelatedIdentities(level, kind) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'level': level, 'kind': kind } });
     }
     GetRelatedPermissions(level, explicitOnly, member, includedTypes) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'includedTypes': includedTypes } });
     }
     GetRelatedItems(level, explicitOnly, member, permissions) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetRelatedItems', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'permissions'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetRelatedItems', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'permissions'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'permissions': permissions } });
     }
     GetRelatedIdentitiesByPermissions(level, kind, permissions) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'level': level, 'kind': kind, 'permissions': permissions } });
     }
     GetRelatedItemsOneLevel(level, member, permissions) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'level': level, 'member': member, 'permissions': permissions } });
     }
     GetAllowedUsers(permissions) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'permissions': permissions } });
     }
     GetParentGroups(directOnly) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] });
+        let action = new SN_1.CustomContentAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'directOnly': directOnly } });
     }
     AddMembers(contentIds) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] });
+        let action = new SN_1.CustomContentAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'contentIds': contentIds } });
     }
     RemoveMembers(contentIds) {
-        let action = new ODataApi_1.ODataApi.CustomContentAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] });
+        let action = new SN_1.CustomContentAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] });
         return this.repository.Contents.CreateCustomAction(action, { data: { 'contentIds': contentIds } });
     }
     deferredFunctionBuilder(arg, fieldName, options) {
         let contentURL;
         if (typeof arg === 'string') {
-            contentURL = ODataHelper_1.ODataHelper.getContentURLbyPath(arg);
+            contentURL = SN_1.ODataHelper.getContentURLbyPath(arg);
         }
         else {
-            contentURL = ODataHelper_1.ODataHelper.getContentUrlbyId(arg);
+            contentURL = SN_1.ODataHelper.getContentUrlbyId(arg);
         }
         let o = {};
         if (options) {
             o['params'] = options;
         }
         o['path'] = `${contentURL}/${fieldName}`;
-        let optionList = new ODataApi_1.ODataApi.ODataRequestOptions(o);
+        let optionList = new SN_1.ODataRequestOptions(o);
         return optionList;
     }
     Upload(contentType, fileName, overwrite, useChunk, propertyName, fileText) {

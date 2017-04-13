@@ -1,4 +1,4 @@
-import { Content, ODataApi, ODataHelper } from './SN';
+import { Content, ODataApi, ODataHelper, ODataRequestOptions, IODataParams, CustomAction } from './SN';
 import { Observable } from '@reactivex/rxjs';
 
 /**
@@ -17,7 +17,7 @@ export class Collection<T extends Content> {
     * @param service {ODataApi.Service} The service to use as API Endpoint
     */
     constructor(private items: T[],
-        private service: ODataApi.Service<any, any>) {
+        private service: ODataApi<any, any>) {
     }
 
     /**
@@ -141,7 +141,7 @@ export class Collection<T extends Content> {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
-            let action = new ODataApi.CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
+            let action = new CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
             return this.service.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
         }
     }
@@ -167,14 +167,14 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Read(path: string, options?: ODataApi.IODataParams): Observable<any> {
+    public Read(path: string, options?: IODataParams): Observable<any> {
         this.Path = path;
         let o = {};
         if (typeof options !== 'undefined') {
             o['params'] = options;
         }
         o['path'] = path;
-        let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
+        let optionList = new ODataRequestOptions(o as ODataRequestOptions);
         const children = this.service.Fetch<T>(optionList);
         children
             .subscribe({
@@ -227,14 +227,14 @@ export class Collection<T extends Content> {
             this.items =
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
-            let action = new ODataApi.CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            let action = new CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
-            let action = new ODataApi.CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
+            let action = new CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
@@ -277,12 +277,12 @@ export class Collection<T extends Content> {
     public Copy(arg: any, targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
             let content = this.items[arg];
-            let action = new ODataApi.CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            let action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
-            let action = new ODataApi.CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
+            let action = new CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
             return this.service.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
@@ -307,7 +307,7 @@ export class Collection<T extends Content> {
             o['params'] = options;
         }
         o['path'] = ODataHelper.getContentURLbyPath(this.Path);
-        let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
+        let optionList = new ODataRequestOptions(o as ODataRequestOptions);
         return this.service.Get(optionList, Content);
     }
     /**

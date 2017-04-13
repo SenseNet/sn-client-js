@@ -6,10 +6,10 @@ class Repository {
         this.httpProviderType = httpProviderType;
         this.baseUrl = baseUrl;
         this.serviceToken = serviceToken;
-        this.Contents = new SN_1.ODataApi.Service(this.httpProviderType, this.baseUrl, this.serviceToken, this);
+        this.Contents = new SN_1.ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
         this.Authentication = new SN_1.Authentication(this);
         this.GetAllContentTypes = () => {
-            let action = new SN_1.ODataApi.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
+            let action = new SN_1.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
             return this.Contents.CreateCustomAction(action);
         };
         this.httpProviderRef = new httpProviderType();
@@ -41,7 +41,7 @@ class Repository {
         return ajax;
     }
     GetVersionInfo() {
-        let action = new SN_1.ODataApi.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
+        let action = new SN_1.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
         return this.Contents.CreateCustomAction(action);
     }
     Load(idOrPath, options, version, returns) {
@@ -52,13 +52,13 @@ class Repository {
         if (typeof idOrPath === 'string') {
             let contentURL = SN_1.ODataHelper.getContentURLbyPath(idOrPath);
             o['path'] = contentURL;
-            let optionList = new SN_1.ODataApi.ODataRequestOptions(o);
+            let optionList = new SN_1.ODataRequestOptions(o);
             return this.Contents.Get(optionList, returns);
         }
         else if (typeof idOrPath === 'number') {
             let contentURL = SN_1.ODataHelper.getContentUrlbyId(idOrPath);
             o['path'] = contentURL;
-            let optionList = new SN_1.ODataApi.ODataRequestOptions(o);
+            let optionList = new SN_1.ODataRequestOptions(o);
             return this.Contents.Get(optionList, returns);
         }
     }

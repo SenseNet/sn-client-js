@@ -10,11 +10,11 @@ describe('ODataApi', () => {
         service = new SN_1.Repository(SN_1.Http.RxAjaxHttpProvider);
     });
     it('request a Content and returns an Observable object', function () {
-        const options = new SN_1.ODataApi.ODataRequestOptions({ path: '/workspace/project' });
+        const options = new SN_1.ODataRequestOptions({ path: '/workspace/project' });
         expect(typeof service.Contents.Get(options)).to.be.eq('object');
     });
     it('request a collection of Content and returns an Observable object', function () {
-        const options = new SN_1.ODataApi.ODataRequestOptions({ path: '/workspace/project' });
+        const options = new SN_1.ODataRequestOptions({ path: '/workspace/project' });
         expect(typeof service.Contents.Fetch(options)).to.be.eq('object');
     });
     it('requests to create a Content and returns an Observable object', function () {
@@ -36,23 +36,23 @@ describe('ODataApi', () => {
         expect(typeof service.Contents.Put(1111, { DisplayName: 'test' })).to.be.eq('object');
     });
     it('requests to create a custom action (checkout) by id, sends a request and returns an Observable object', function () {
-        let action = new SN_1.ODataApi.CustomAction({ name: 'CheckOut', id: 111, isAction: true });
+        let action = new SN_1.CustomAction({ name: 'CheckOut', id: 111, isAction: true });
         expect(typeof service.Contents.CreateCustomAction(action)).to.be.eq('object');
     });
     it('requests to create a custom action (checkout) by path, sends a request and returns an Observable object', function () {
-        let action = new SN_1.ODataApi.CustomAction({ name: 'CheckOut', path: '/workspaces/project', isAction: true });
+        let action = new SN_1.CustomAction({ name: 'CheckOut', path: '/workspaces/project', isAction: true });
         expect(typeof service.Contents.CreateCustomAction(action)).to.be.eq('object');
     });
     it('requests to create a custom action (chekcin) by id, sends a request and returns an Observable object', function () {
-        let action = new SN_1.ODataApi.CustomAction({ name: 'CheckIn', id: 111, isAction: true, params: ['checkInComments'] });
+        let action = new SN_1.CustomAction({ name: 'CheckIn', id: 111, isAction: true, params: ['checkInComments'] });
         expect(typeof service.Contents.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
     });
     it('requests to create a custom action (chekcin) by id without cache, sends a request and returns an Observable object', function () {
-        let action = new SN_1.ODataApi.CustomAction({ name: 'CheckIn', id: 111, isAction: true, noCache: true, params: ['checkInComments'] });
+        let action = new SN_1.CustomAction({ name: 'CheckIn', id: 111, isAction: true, noCache: true, params: ['checkInComments'] });
         expect(typeof service.Contents.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
     });
     it('requests to create a custom function (getpermissions) by id, sends a request and returns an Observable object', function () {
-        let action = new SN_1.ODataApi.CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
+        let action = new SN_1.CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
         expect(typeof service.Contents.CreateCustomAction(action, { data: { 'identity': '/Root/Sites/Default_Site/workspaces/Project/budapestprojectworkspace/Groups/Members' } })).to.be.eq('object');
     });
     it('requests to upload a Content and returns an Observable object', function () {
@@ -62,7 +62,7 @@ describe('ODataApi', () => {
         expect(typeof service.Contents.Upload('/workspaces/Project', {}, true)).to.be.eq('object');
     });
     it('creates a new copy of ODataParams', () => {
-        const params = new SN_1.ODataApi.ODataParams({ select: 'DisplayName' });
+        const params = new SN_1.ODataParams({ select: 'DisplayName' });
         expect(typeof params).to.be.eq('object');
     });
 });

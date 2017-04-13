@@ -41,9 +41,9 @@ export class Authentication {
         let authToken: String = new Buffer(`${username}:${password}`).toString('base64');
         return this.repository.httpProviderRef.Ajax(Object, {
             method: 'POST',
-            url: this.repository.ODataBaseUrl,
+            url: `${this.repository.baseUrl}sn-token/login`,
             headers: {
-                'X-Authentication-Type': 'Token',
+                // 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`
             }
         });
