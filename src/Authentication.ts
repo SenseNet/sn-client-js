@@ -1,19 +1,165 @@
 import { Repository } from './SN';
-import { BehaviorSubject } from '@reactivex/rxjs';
+import { Subject, BehaviorSubject } from '@reactivex/rxjs';
 
-export enum LoginState{
+export enum LoginState {
     Pending,
     Unauthenticated,
     Authenticated
+}
+
+type TokenType = 'access' | 'refresh';
+
+class LoginResponse {
+    access: string;
+    refresh: string;
+}
+
+interface IToken {
+    iss: string;
+    sub: string;
+    aud: string;
+    exp: number;
+    iat: number;
+    nbf: number;
+    name: string;
+}
+
+class Token {
+    private fromEpoch(epoch: number): Date {
+        let d = new Date(0);
+        d.setUTCSeconds(epoch);
+        return d;
+    }
+
+    public get Username(): string {
+        return this.tokenData.name;
+    };
+
+    public GetData() {
+        return this.tokenData;
+    }
+
+    public get ExpirationTime() {
+        return this.fromEpoch(this.tokenData.exp);
+    }
+
+    public get NotBefore() {
+        return this.fromEpoch(this.tokenData.nbf);
+    }
+
+    public IsValid() {
+        let now = new Date();
+        return this.tokenData && this.ExpirationTime > now && this.NotBefore < now;
+    }
+
+    public get IssuedDate() {
+        return this.fromEpoch(this.tokenData.iat);
+    }
+    constructor(private readonly tokenData: IToken) { }
+}
+
+class TokenStore {
+    constructor(private readonly baseUrl: string) {
+    }
+
+    private get tokenKeyPrefix() {
+        return `sn-${this.baseUrl}-`;
+    }
+
+    private innerStore: string[] = [];
+    public GetToken(key: TokenType): Token {
+        const storeKey = `${this.tokenKeyPrefix}${key}`;
+        try {
+            if (typeof localStorage === 'undefined') {
+                return new Token(JSON.parse(this.innerStore[storeKey]));
+            }
+            return new Token(JSON.parse(localStorage.getItem(storeKey)));
+        } catch (err) {
+            return new Token({
+                exp: 0,
+                aud: '',
+                iat: 0,
+                iss: '',
+                name: '',
+                nbf: 0,
+                sub: ''
+            });
+        }
+    }
+
+    public SetToken(key: TokenType, token: Token) {
+        const storeKey = `${this.tokenKeyPrefix}${key}`;
+        let dtaString = JSON.stringify(token.GetData());
+        if (typeof localStorage === 'undefined') {
+            this.innerStore[storeKey] = dtaString;
+        } else {
+            localStorage.setItem(storeKey, dtaString);
+        }
+    }
+
+    public get AccessToken() {
+        return this.GetToken('access');
+    }
+    public set AccessToken(value: Token) {
+        this.SetToken('access', value);
+    }
+
+    public get RefreshToken() {
+        return this.GetToken('refresh');
+    }
+    public set RefreshToken(value: Token) {
+        this.SetToken('refresh', value);
+    }
+
 }
 
 export class Authentication {
 
     public readonly State: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
 
-    constructor(private repository: Repository<any, any>) { 
-        // ToDo: Check the accessToken / refreshToken expirations
+    private TokenStore = new TokenStore(this.repository.baseUrl);
+    private accessToken: Token;
+    private refreshToken: Token;
+
+    constructor(private repository: Repository<any, any>) {
+        this.State.subscribe(s => {
+            console.log(`SN Login state: '${LoginState[s]}'`)
+        });
+
+        this.accessToken = this.TokenStore.AccessToken;
+        this.refreshToken = this.TokenStore.RefreshToken;
+
+        if (this.accessToken.IsValid()) {
+            // Access Token is valid. Nothing to do.
+            this.State.next(LoginState.Authenticated);
+        } else {
+            if (this.refreshToken.IsValid()) {
+                // ToDO
+                console.log('Token refresh needed.');
+            } else {
+                this.State.next(LoginState.Unauthenticated);
+            }
+        }
+
     }
+
+    private handleAuthenticationResponse(response: LoginResponse): boolean {
+
+        let accessBuffer = Buffer.from(response.access.split('.')[1], 'base64');
+        this.TokenStore.AccessToken = new Token(JSON.parse(accessBuffer.toString()) as IToken)
+        let refreshBuffer = Buffer.from(response.refresh.split('.')[1], 'base64');
+        this.TokenStore.RefreshToken = new Token(JSON.parse(refreshBuffer.toString()) as IToken)
+
+        if (this.TokenStore.AccessToken.IsValid()) {
+            this.State.next(LoginState.Authenticated);
+            return true;
+        }
+
+        this.State.next(LoginState.Unauthenticated);
+        return false;
+
+    }
+
     /**
      * It is possible to send authentication requests using this action. You provide the username and password and will get the User object as the response if the login operation was
      * successful or HTTP 403 Forbidden message if it wasn’t. If the username does not contain a domain prefix, the configured default domain will be used. After you logged in the user successfully,
@@ -35,18 +181,28 @@ export class Authentication {
      * ```
      */
     public Login(username: string, password: string) {
-        
+        let sub = new Subject<boolean>();
+
         this.State.next(LoginState.Pending);
-        
         let authToken: String = new Buffer(`${username}:${password}`).toString('base64');
-        return this.repository.httpProviderRef.Ajax(Object, {
+
+        this.repository.httpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
             url: `${this.repository.baseUrl}sn-token/login`,
             headers: {
                 // 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`
             }
-        });
+        })
+            .subscribe(r => {
+                let result = this.handleAuthenticationResponse(r);
+                sub.next(result);
+            }, err => {
+                this.State.next(LoginState.Unauthenticated);
+                sub.next(false);
+            });
+
+        return sub.asObservable();
     }
 
     /**

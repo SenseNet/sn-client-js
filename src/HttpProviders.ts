@@ -23,6 +23,7 @@ export module HttpProviders {
         protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
             let subject = new ReplaySubject<T>()
             subject.next({} as T);
+            console.log('MockHttp executed: ', options.url);
             return subject.asObservable();
         }
 

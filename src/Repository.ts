@@ -1,5 +1,5 @@
-import { Observable } from '@reactivex/rxjs';
-import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, HttpProviders, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction } from './SN';
+import { Observable, Subscription } from '@reactivex/rxjs';
+import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, HttpProviders, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction, LoginState } from './SN';
 
 type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export abstract class Repository<TProviderType extends HttpProviders.Base, TProviderReturns = any> {
@@ -18,16 +18,23 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
         return `${this.baseUrl}/${this.serviceToken}`;
     }
 
-    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any) {
-        let ajax = this.httpProviderRef.Ajax<T>(returnsType,
-            {
-                url: `${this.ODataBaseUrl}/${path}`,
-                method: method,
-                body: body,
-                crossDomain: this.IsCrossDomain,
-                responseType: 'json'
-            });
-        return ajax;
+    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
+        const ajaxObservable: Observable<T> = new Observable<T>();
+        
+        const stateSubscription = this.Authentication.State.takeWhile(state => state !== LoginState.Pending).subscribe(state => {
+            if (state !== LoginState.Pending) {
+                const ajax = this.httpProviderRef.Ajax<T>(returnsType,
+                    {
+                        url: `${this.ODataBaseUrl}/${path}`,
+                        method: method,
+                        body: body,
+                        crossDomain: this.IsCrossDomain,
+                        responseType: 'json'
+                    });
+                ajaxObservable.merge(ajax);
+            }
+        });
+        return ajaxObservable;
     }
     public readonly httpProviderRef: HttpProviders.Base;
     public readonly Contents: ODataApi<TProviderType, any>;

@@ -45,7 +45,6 @@
     "ts-json-properties": "1.1.4"
   },
   "devDependencies": {
-    "@reactivex/rxjs": "5.3.0",
     "@types/app-root-path": "1.2.4",
     "@types/chai": "3.4.35",
     "@types/mocha": "2.2.40",

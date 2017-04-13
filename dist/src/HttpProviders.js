@@ -23,6 +23,7 @@ var HttpProviders;
         AjaxInner(tReturnType, options) {
             let subject = new rxjs_1.ReplaySubject();
             subject.next({});
+            console.log('MockHttp executed: ', options.url);
             return subject.asObservable();
         }
     }

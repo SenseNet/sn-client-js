@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const rxjs_1 = require("@reactivex/rxjs");
 const SN_1 = require("./SN");
 class Repository {
     constructor(httpProviderType, baseUrl = Repository.DEFAULT_BASE_URL, serviceToken = Repository.DEFAULT_SERVICE_TOKEN) {
@@ -26,14 +27,20 @@ class Repository {
         return `${this.baseUrl}/${this.serviceToken}`;
     }
     Ajax(path, method, returnsType, body) {
-        let ajax = this.httpProviderRef.Ajax(returnsType, {
-            url: `${this.ODataBaseUrl}/${path}`,
-            method: method,
-            body: body,
-            crossDomain: this.IsCrossDomain,
-            responseType: 'json'
+        const ajaxObservable = new rxjs_1.Observable();
+        const stateSubscription = this.Authentication.State.takeWhile(state => state !== SN_1.LoginState.Pending).subscribe(state => {
+            if (state !== SN_1.LoginState.Pending) {
+                const ajax = this.httpProviderRef.Ajax(returnsType, {
+                    url: `${this.ODataBaseUrl}/${path}`,
+                    method: method,
+                    body: body,
+                    crossDomain: this.IsCrossDomain,
+                    responseType: 'json'
+                });
+                ajaxObservable.merge(ajax);
+            }
         });
-        return ajax;
+        return ajaxObservable;
     }
     GetVersionInfo() {
         let action = new SN_1.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
