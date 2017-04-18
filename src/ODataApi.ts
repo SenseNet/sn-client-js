@@ -1,6 +1,13 @@
 import { ODataHelper, HttpProviders, Content, Repository } from './SN';
 import { Observable, AjaxRequest } from '@reactivex/rxjs';
 
+export class ODataResponse<T>{
+    d: {
+        results: T[];
+        __count: number;
+    }
+}
+
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
  *
@@ -26,11 +33,8 @@ export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     public Get<T extends Content>(options: ODataRequestOptions, returns?: { new (...args): T }) {
-        return this.repository.Ajax(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET', returns);
+        return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET');
     }
-    // {
-    //     return this.httpProvider.Ajax(`${this.baseUrl}${options.path}${ODataHelper.buildUrlParamString(options.params)}`);
-    // }
 
     /**
      * Method to fetch children of a Content from the Content Repository through OData REST API.
@@ -42,12 +46,6 @@ export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns
     public Fetch<T extends Content>(options: ODataRequestOptions) {
         return this.repository.Ajax<T[]>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET');
     }
-    // this.httpProvider.Ajax({
-    //     url: `${this.baseUrl}${options.path}${ODataHelper.buildUrlParamString(options.params)}`,
-    //     crossDomain: this.isCrossDomain,
-    //     method: 'GET'
-    // });
-
 
     public Create<T extends Content, O extends T['options']>(path: string, opt: O, contentType: { new (opt: O, repository): T }, repository = this.repository) {
         let content = Content.Create(contentType, opt, repository);

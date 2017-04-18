@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const rxjs_1 = require("@reactivex/rxjs");
 const SN_1 = require("./SN");
 class Repository {
     constructor(httpProviderType, baseUrl = Repository.DEFAULT_BASE_URL, serviceToken = Repository.DEFAULT_SERVICE_TOKEN) {
@@ -27,20 +26,17 @@ class Repository {
         return `${this.baseUrl}/${this.serviceToken}`;
     }
     Ajax(path, method, returnsType, body) {
-        const ajaxObservable = new rxjs_1.Observable();
-        const stateSubscription = this.Authentication.State.takeWhile(state => state !== SN_1.LoginState.Pending).subscribe(state => {
-            if (state !== SN_1.LoginState.Pending) {
-                const ajax = this.httpProviderRef.Ajax(returnsType, {
-                    url: `${this.ODataBaseUrl}/${path}`,
-                    method: method,
-                    body: body,
-                    crossDomain: this.IsCrossDomain,
-                    responseType: 'json'
-                });
-                ajaxObservable.merge(ajax);
-            }
+        return this.Authentication.State.takeWhile(state => state !== SN_1.LoginState.Pending)
+            .flatMap(state => {
+            console.log('LoginState from AJAX:', SN_1.LoginState[state]);
+            return this.httpProviderRef.Ajax(returnsType, {
+                url: `${this.ODataBaseUrl}/${path}`,
+                method: method,
+                body: body,
+                crossDomain: this.IsCrossDomain,
+                responseType: 'json'
+            });
         });
-        return ajaxObservable;
     }
     GetVersionInfo() {
         let action = new SN_1.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
@@ -51,17 +47,24 @@ class Repository {
         if (typeof options !== 'undefined') {
             o['params'] = options;
         }
+        if (!returns) {
+            returns = SN_1.Content;
+        }
         if (typeof idOrPath === 'string') {
             let contentURL = SN_1.ODataHelper.getContentURLbyPath(idOrPath);
             o['path'] = contentURL;
             let optionList = new SN_1.ODataRequestOptions(o);
-            return this.Contents.Get(optionList, returns);
+            return this.Contents.Get(optionList, returns).map(r => {
+                return SN_1.Content.Create(returns, r.d.results[0], this);
+            });
         }
         else if (typeof idOrPath === 'number') {
             let contentURL = SN_1.ODataHelper.getContentUrlbyId(idOrPath);
             o['path'] = contentURL;
             let optionList = new SN_1.ODataRequestOptions(o);
-            return this.Contents.Get(optionList, returns);
+            return this.Contents.Get(optionList, returns).map(r => {
+                return SN_1.Content.Create(returns, r.d.results[0], this);
+            });
         }
     }
 }

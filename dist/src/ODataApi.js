@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const SN_1 = require("./SN");
+class ODataResponse {
+}
+exports.ODataResponse = ODataResponse;
 class ODataApi {
     constructor(providerRef, baseUrl, serviceToken, repository) {
         this.baseUrl = baseUrl;
@@ -66,7 +69,7 @@ class ODataApi {
         this.httpProvider = new providerRef();
     }
     Get(options, returns) {
-        return this.repository.Ajax(`${options.path}${SN_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET', returns);
+        return this.repository.Ajax(`${options.path}${SN_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET');
     }
     Fetch(options) {
         return this.repository.Ajax(`${options.path}${SN_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET');

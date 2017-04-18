@@ -19,11 +19,10 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
     }
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
-        const ajaxObservable: Observable<T> = new Observable<T>();
-        
-        const stateSubscription = this.Authentication.State.takeWhile(state => state !== LoginState.Pending).subscribe(state => {
-            if (state !== LoginState.Pending) {
-                const ajax = this.httpProviderRef.Ajax<T>(returnsType,
+        return this.Authentication.State.takeWhile(state => state !== LoginState.Pending)
+            .flatMap(state => {
+                console.log('LoginState from AJAX:', LoginState[state]);
+                return this.httpProviderRef.Ajax<T>(returnsType,
                     {
                         url: `${this.ODataBaseUrl}/${path}`,
                         method: method,
@@ -31,10 +30,7 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
                         crossDomain: this.IsCrossDomain,
                         responseType: 'json'
                     });
-                ajaxObservable.merge(ajax);
-            }
-        });
-        return ajaxObservable;
+            });
     }
     public readonly httpProviderRef: HttpProviders.Base;
     public readonly Contents: ODataApi<TProviderType, any>;
@@ -107,23 +103,33 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
      * })
      * ```
     */
-    public Load<T extends Content>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args): T }) {
+    public Load<T extends Content = Content>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args): T }): Observable<T> {
         let o = {};
+
         if (typeof options !== 'undefined') {
             o['params'] = options;
         }
+
+        if (!returns) {
+            returns = Content as { new (...args) };
+        }
+
         if (typeof idOrPath === 'string') {
             let contentURL = ODataHelper.getContentURLbyPath(idOrPath);
             o['path'] = contentURL;
             let optionList = new ODataRequestOptions(o as ODataRequestOptions);
-            return this.Contents.Get(optionList, returns);
+            return this.Contents.Get(optionList, returns).map(r => {
+                return Content.Create(returns, r.d.results[0], this);
+            });
         }
         else if (typeof idOrPath === 'number') {
             let contentURL = ODataHelper.getContentUrlbyId(idOrPath);
             o['path'] = contentURL;
             let optionList = new ODataRequestOptions(o as ODataRequestOptions);
 
-            return this.Contents.Get(optionList, returns);
+            return this.Contents.Get(optionList, returns).map(r => {
+                return Content.Create(returns, r.d.results[0], this);
+            });
         }
     }
 }

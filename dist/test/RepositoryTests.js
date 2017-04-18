@@ -10,7 +10,7 @@ describe('ODataApi', () => {
         repo = new SN_1.SnTestRepository();
     });
     describe('#Login', function () {
-        it('should return an obsevable object', function () {
+        it('should return an obsevable object', () => {
             let loginResponse = repo.Authentication.Login('test', 'test');
             expect(loginResponse).to.be.instanceof(rxjs_1.Observable);
         });

@@ -190,7 +190,7 @@ export class Authentication {
             method: 'POST',
             url: `${this.repository.baseUrl}sn-token/login`,
             headers: {
-                // 'X-Authentication-Type': 'Token',
+                'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`
             }
         })

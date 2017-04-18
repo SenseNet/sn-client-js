@@ -11,9 +11,9 @@ describe('ODataApi', () => {
     });
 
     describe('#Login', function () {
-        it('should return an obsevable object', function () {
+        it('should return an obsevable object', () => {
             let loginResponse = repo.Authentication.Login('test', 'test');
             expect(loginResponse).to.be.instanceof(Observable);
         });
     });
-})
+});
