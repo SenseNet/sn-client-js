@@ -19,18 +19,19 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
     }
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
-        return this.Authentication.State.takeWhile(state => state !== LoginState.Pending)
-            .flatMap(state => {
-                console.log('LoginState from AJAX:', LoginState[state]);
-                return this.httpProviderRef.Ajax<T>(returnsType,
-                    {
-                        url: `${this.ODataBaseUrl}/${path}`,
-                        method: method,
-                        body: body,
-                        crossDomain: this.IsCrossDomain,
-                        responseType: 'json'
-                    });
-            });
+
+        this.Authentication.CheckForUpdate();
+
+        return this.Authentication.State.skipWhile(state => state === LoginState.Pending).first().flatMap(state => {
+            return this.httpProviderRef.Ajax<T>(returnsType,
+                {
+                    url: `${this.ODataBaseUrl}/${path}`,
+                    method: method,
+                    body: body,
+                    crossDomain: this.IsCrossDomain,
+                    responseType: 'json'
+                });
+        });
     }
     public readonly httpProviderRef: HttpProviders.Base;
     public readonly Contents: ODataApi<TProviderType, any>;

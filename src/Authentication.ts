@@ -1,5 +1,6 @@
 import { Repository } from './SN';
 import { Subject, BehaviorSubject } from '@reactivex/rxjs';
+import { Observable } from '@reactivex/rxjs';
 
 export enum LoginState {
     Pending,
@@ -12,6 +13,10 @@ type TokenType = 'access' | 'refresh';
 class LoginResponse {
     access: string;
     refresh: string;
+}
+
+class RefreshResponse {
+    access: string;
 }
 
 interface IToken {
@@ -121,6 +126,14 @@ export class Authentication {
     private accessToken: Token;
     private refreshToken: Token;
 
+    public CheckForUpdate() {
+        if (this.accessToken.IsValid() || !this.refreshToken.IsValid()) {
+            return Observable.from([true]);
+        } else {
+            this.State.next(LoginState.Pending);
+        }
+    }
+
     constructor(private repository: Repository<any, any>) {
         this.State.subscribe(s => {
             console.log(`SN Login state: '${LoginState[s]}'`)
@@ -134,9 +147,9 @@ export class Authentication {
             this.State.next(LoginState.Authenticated);
         } else {
             if (this.refreshToken.IsValid()) {
-                // ToDO
-                console.log('Token refresh needed.');
+                this.CheckForUpdate();
             } else {
+                // Both Access token and Refresh tokens are invalid. Nothing to do, user is unauthenticated.
                 this.State.next(LoginState.Unauthenticated);
             }
         }
@@ -146,8 +159,10 @@ export class Authentication {
     private handleAuthenticationResponse(response: LoginResponse): boolean {
 
         let accessBuffer = Buffer.from(response.access.split('.')[1], 'base64');
+        // ToDo: Store payload
         this.TokenStore.AccessToken = new Token(JSON.parse(accessBuffer.toString()) as IToken)
         let refreshBuffer = Buffer.from(response.refresh.split('.')[1], 'base64');
+        // ToDo: Store payload
         this.TokenStore.RefreshToken = new Token(JSON.parse(refreshBuffer.toString()) as IToken)
 
         if (this.TokenStore.AccessToken.IsValid()) {

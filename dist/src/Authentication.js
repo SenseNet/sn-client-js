@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const rxjs_1 = require("@reactivex/rxjs");
+const rxjs_2 = require("@reactivex/rxjs");
 var LoginState;
 (function (LoginState) {
     LoginState[LoginState["Pending"] = 0] = "Pending";
@@ -8,6 +9,8 @@ var LoginState;
     LoginState[LoginState["Authenticated"] = 2] = "Authenticated";
 })(LoginState = exports.LoginState || (exports.LoginState = {}));
 class LoginResponse {
+}
+class RefreshResponse {
 }
 class Token {
     constructor(tokenData) {
@@ -110,6 +113,14 @@ class Authentication {
             else {
                 this.State.next(LoginState.Unauthenticated);
             }
+        }
+    }
+    CheckForUpdate() {
+        if (this.accessToken.IsValid() || !this.refreshToken.IsValid()) {
+            return rxjs_2.Observable.from([true]);
+        }
+        else {
+            this.State.next(LoginState.Pending);
         }
     }
     handleAuthenticationResponse(response) {

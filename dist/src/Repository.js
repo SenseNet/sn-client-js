@@ -26,9 +26,8 @@ class Repository {
         return `${this.baseUrl}/${this.serviceToken}`;
     }
     Ajax(path, method, returnsType, body) {
-        return this.Authentication.State.takeWhile(state => state !== SN_1.LoginState.Pending)
-            .flatMap(state => {
-            console.log('LoginState from AJAX:', SN_1.LoginState[state]);
+        this.Authentication.CheckForUpdate();
+        return this.Authentication.State.skipWhile(state => state === SN_1.LoginState.Pending).first().flatMap(state => {
             return this.httpProviderRef.Ajax(returnsType, {
                 url: `${this.ODataBaseUrl}/${path}`,
                 method: method,
