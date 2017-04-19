@@ -19,7 +19,7 @@ class RefreshResponse {
     access: string;
 }
 
-interface IToken {
+interface ITokenPayload {
     iss: string;
     sub: string;
     aud: string;
@@ -30,6 +30,23 @@ interface IToken {
 }
 
 class Token {
+
+    private get tokenPayload(): ITokenPayload {
+        try {
+            return JSON.parse(Buffer.from(this.payloadEncoded, 'base64').toString()) as ITokenPayload;
+        } catch (err) {
+            return {
+                aud: '',
+                exp: 0,
+                iat: 0,
+                iss: '',
+                name: '',
+                nbf: 0,
+                sub: ''
+            }
+        }
+    };
+
     private fromEpoch(epoch: number): Date {
         let d = new Date(0);
         d.setUTCSeconds(epoch);
@@ -37,33 +54,50 @@ class Token {
     }
 
     public get Username(): string {
-        return this.tokenData.name;
+        return this.tokenPayload.name;
     };
 
-    public GetData() {
-        return this.tokenData;
+    public GetPayload() {
+        return this.tokenPayload;
     }
 
     public get ExpirationTime() {
-        return this.fromEpoch(this.tokenData.exp);
+        return this.fromEpoch(this.tokenPayload.exp);
     }
 
     public get NotBefore() {
-        return this.fromEpoch(this.tokenData.nbf);
+        return this.fromEpoch(this.tokenPayload.nbf);
     }
 
     public IsValid() {
         let now = new Date();
-        return this.tokenData && this.ExpirationTime > now && this.NotBefore < now;
+        return this.tokenPayload && this.ExpirationTime > now && this.NotBefore < now;
     }
 
     public get IssuedDate() {
-        return this.fromEpoch(this.tokenData.iat);
+        return this.fromEpoch(this.tokenPayload.iat);
     }
-    constructor(private readonly tokenData: IToken) { }
+
+    public toString() {
+        return `${this.headerEncoded}.${this.payloadEncoded}`;
+    }
+
+
+    public static FromHeadAndPayload(headAndPayload: string): Token {
+        let [head, payload] = headAndPayload.split('.');
+        return new Token(head, payload)
+    }
+
+    public static get Empty(): Token {
+        return new Token('', '');
+    }
+
+    private constructor(private readonly headerEncoded: string, private readonly payloadEncoded: string) {
+    }
 }
 
 class TokenStore {
+
     constructor(private readonly baseUrl: string) {
     }
 
@@ -76,25 +110,17 @@ class TokenStore {
         const storeKey = `${this.tokenKeyPrefix}${key}`;
         try {
             if (typeof localStorage === 'undefined') {
-                return new Token(JSON.parse(this.innerStore[storeKey]));
+                return Token.FromHeadAndPayload(this.innerStore[storeKey]);
             }
-            return new Token(JSON.parse(localStorage.getItem(storeKey)));
+            return Token.FromHeadAndPayload(localStorage.getItem(storeKey));
         } catch (err) {
-            return new Token({
-                exp: 0,
-                aud: '',
-                iat: 0,
-                iss: '',
-                name: '',
-                nbf: 0,
-                sub: ''
-            });
+            return Token.Empty;
         }
     }
 
     public SetToken(key: TokenType, token: Token) {
         const storeKey = `${this.tokenKeyPrefix}${key}`;
-        let dtaString = JSON.stringify(token.GetData());
+        let dtaString = token.toString();
         if (typeof localStorage === 'undefined') {
             this.innerStore[storeKey] = dtaString;
         } else {
@@ -119,22 +145,43 @@ class TokenStore {
 }
 
 export class Authentication {
-
     public readonly State: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
-
     private TokenStore = new TokenStore(this.repository.baseUrl);
-    private accessToken: Token;
-    private refreshToken: Token;
-
+    private accessToken: Token = Token.Empty;
+    private refreshToken: Token = Token.Empty;
     public CheckForUpdate() {
         if (this.accessToken.IsValid() || !this.refreshToken.IsValid()) {
-            return Observable.from([true]);
+            return Observable.from([false]);
         } else {
             this.State.next(LoginState.Pending);
+            return this.ExecTokenRefresh();
         }
     }
+    private ExecTokenRefresh() {
+        let refreshBase64 = this.refreshToken.toString();
+        let refresh = this.repository.httpProviderRef.Ajax(RefreshResponse, {
+            method: 'POST',
+            url: `${this.repository.baseUrl}sn-token/refresh`,
+            headers: {
+                'X-Refresh-Data': this.refreshToken.toString(),
+                'X-Authentication-Type': 'Token'
+            }
+        });
 
+        refresh.subscribe(response => {
+            this.TokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
+            this.accessToken = this.TokenStore.AccessToken;
+            this.repository.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
+            this.State.next(LoginState.Authenticated);
+        }, err => {
+            console.warn(`There was an error during token refresh: ${err}`);
+            this.State.next(LoginState.Unauthenticated);
+        });
+
+        return refresh.map(response => { return true });
+    }
     constructor(private repository: Repository<any, any>) {
+
         this.State.subscribe(s => {
             console.log(`SN Login state: '${LoginState[s]}'`)
         });
@@ -153,26 +200,18 @@ export class Authentication {
                 this.State.next(LoginState.Unauthenticated);
             }
         }
-
     }
 
     private handleAuthenticationResponse(response: LoginResponse): boolean {
-
-        let accessBuffer = Buffer.from(response.access.split('.')[1], 'base64');
-        // ToDo: Store payload
-        this.TokenStore.AccessToken = new Token(JSON.parse(accessBuffer.toString()) as IToken)
-        let refreshBuffer = Buffer.from(response.refresh.split('.')[1], 'base64');
-        // ToDo: Store payload
-        this.TokenStore.RefreshToken = new Token(JSON.parse(refreshBuffer.toString()) as IToken)
-
+        this.TokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
+        this.TokenStore.RefreshToken = Token.FromHeadAndPayload(response.refresh);
         if (this.TokenStore.AccessToken.IsValid()) {
             this.State.next(LoginState.Authenticated);
             return true;
         }
-
+        this.repository.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
         this.State.next(LoginState.Unauthenticated);
         return false;
-
     }
 
     /**
@@ -234,7 +273,8 @@ export class Authentication {
      * });
      * ```
      */
-    public Logout() {
-        return this.repository.Ajax(`('Root')/Logout&nocache=${new Date().getTime()}`, 'POST', Boolean);
+    public Logout(): void {
+        this.TokenStore.AccessToken = Token.Empty;
+        this.TokenStore.RefreshToken = Token.Empty;
     }
 }

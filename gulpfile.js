@@ -52,7 +52,7 @@ gulp.task("typedoc", function () {
                 theme: "default",
                 ignoreCompilerErrors: true,
                 version: true,
-                mode: "file",
+                mode: "modules",
                 readme: "sn-client-js/README.md",
                 excludeExternals: true,
                 excludePrivate: true,

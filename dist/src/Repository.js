@@ -27,12 +27,15 @@ class Repository {
     }
     Ajax(path, method, returnsType, body) {
         this.Authentication.CheckForUpdate();
-        return this.Authentication.State.skipWhile(state => state === SN_1.LoginState.Pending).first().flatMap(state => {
+        return this.Authentication.State.skipWhile(state => state === SN_1.LoginState.Pending)
+            .first()
+            .flatMap(state => {
             return this.httpProviderRef.Ajax(returnsType, {
                 url: `${this.ODataBaseUrl}/${path}`,
                 method: method,
                 body: body,
                 crossDomain: this.IsCrossDomain,
+                withCredentials: true,
                 responseType: 'json'
             });
         });

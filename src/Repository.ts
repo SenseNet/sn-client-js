@@ -19,10 +19,10 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
     }
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
-
         this.Authentication.CheckForUpdate();
-
-        return this.Authentication.State.skipWhile(state => state === LoginState.Pending).first().flatMap(state => {
+        return this.Authentication.State.skipWhile(state => state === LoginState.Pending)
+            .first()
+            .flatMap(state => {
             return this.httpProviderRef.Ajax<T>(returnsType,
                 {
                     url: `${this.ODataBaseUrl}/${path}`,
