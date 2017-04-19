@@ -35,7 +35,6 @@ class Repository {
                 method: method,
                 body: body,
                 crossDomain: this.IsCrossDomain,
-                withCredentials: true,
                 responseType: 'json'
             });
         });

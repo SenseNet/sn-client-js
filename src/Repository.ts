@@ -1,6 +1,12 @@
 import { Observable, Subscription } from '@reactivex/rxjs';
 import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, HttpProviders, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction, LoginState } from './SN';
 
+/**
+ * @module Repository
+ * 
+ */
+/** */
+
 type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export abstract class Repository<TProviderType extends HttpProviders.Base, TProviderReturns = any> {
     private static get DEFAULT_BASE_URL(): string {
