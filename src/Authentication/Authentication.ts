@@ -1,7 +1,7 @@
 /**
- * @module "Authentication"
- * 
- * This module is a library module that contains authentication-related classes and references
+ * @module Authentication
+ * @preferred
+ * @description This module that contains authentication-related classes, types and interfaces
  */ /** */
 
 import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore } from './';

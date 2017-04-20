@@ -1,5 +1,5 @@
 /**
- * @module "Authentication"
+ * @module Authentication
  */ /** */
 export interface ITokenPayload {
     iss: string;

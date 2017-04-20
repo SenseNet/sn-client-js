@@ -1,5 +1,5 @@
 /**
- * @module "Authentication"
+ * @module Authentication
  */ /** */
 import { ITokenPayload } from './';
 
