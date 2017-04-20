@@ -1,6 +1,7 @@
-import { Content, SnTestRepository, Schemas, Security, Enums, ContentTypes, HttpProviders } from '../src/SN';
+import { Schemas, Security, Enums, ContentTypes, HttpProviders, Content } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
+import { SnTestRepository } from '../src/Repository';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';

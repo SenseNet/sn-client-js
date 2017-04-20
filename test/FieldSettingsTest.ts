@@ -1,4 +1,4 @@
-import { FieldSettings } from '../src/FieldSettings'
+import { FieldSettings } from '../src/SN'
 import * as Chai from 'chai';
 const expect = Chai.expect;
 

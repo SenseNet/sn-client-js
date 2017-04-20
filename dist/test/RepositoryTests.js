@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const SN_1 = require("../src/SN");
 const rxjs_1 = require("@reactivex/rxjs");
 const Chai = require("chai");
+const Repository_1 = require("../src/Repository");
 const expect = Chai.expect;
 describe('ODataApi', () => {
     let repo;
     beforeEach(() => {
-        repo = new SN_1.SnTestRepository();
+        repo = new Repository_1.SnTestRepository();
     });
     describe('#Login', function () {
         it('should return an obsevable object', () => {

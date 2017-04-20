@@ -1,6 +1,7 @@
-import { ODataApi, Content, SnTestRepository } from '../src/SN';
+import { ODataApi } from '../src/SN';
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { SnTestRepository } from '../src/Repository';
 const expect = Chai.expect;
 
 describe('ODataApi', () => {

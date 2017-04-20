@@ -1,15 +1,17 @@
+/**
+ * @module ODataApiActionObservables
+ * @preferred
+ * @description This module contains methods for sending requests and getting responses from the Content Repository through OData REST API. 
+ * Following methods return Rxjs ActionObservables which are made from the ajax requests' promises. 
+ */ /** */
+
 import * as Rx from '@reactivex/rxjs';
-import { ODataHelper, Content, ODataApi, ODataRequestOptions, IODataParams, CustomAction, } from './SN';
+import { ODataHelper } from './SN';
 const { ajax } = Rx.Observable;
 import { Value, Properties } from 'ts-json-properties';
+import { ODataRequestOptions, IODataParams, CustomAction } from './ODataApi';
+import { Content } from './Content';
 
-/**
- * This module contains methods for sending requests and getting responses from the Content Repository through OData REST API. 
- * 
- * Following methods return Rxjs ActionObservables which are made from the ajax requests' promises. 
- */
-
-export module ODataApiActionObservables {
     /**
      * Constant to hold the service token. By default it is OData.svc but before you start developing with sn-client-js check the related config in your Sense/Net portal's
      * web.config. If there's no ```ODataServiceToken``` config it fallbcks to the default so you also have to use the default 'OData.svc' in your TypeScript or JavaScript code.
@@ -238,4 +240,3 @@ export module ODataApiActionObservables {
             body: JSON.stringify(data)
         });
     }
-}

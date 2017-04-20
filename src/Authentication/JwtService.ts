@@ -8,11 +8,37 @@ import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, Token
 import { Subject, BehaviorSubject, Observable } from '@reactivex/rxjs';
 import { Repository } from '../SN';
 
-export class Authentication {
+/**
+ * This service class manages the JWT authentication, the session and the current login state.
+ */
+export class JwtService {
+    /**
+     * This subject indicates the current state of the service
+     * @default LoginState.Pending
+     */
     public readonly State: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
+    
+    /**
+     * The store for JWT tokens
+     */
     private TokenStore = new TokenStore(this.repository.baseUrl);
+    
+    /**
+     * The current access token
+     * @default Token.Empty
+     */
     private accessToken: Token = Token.Empty;
+    
+    /**
+     * The current refresh token
+     * @default Token.Empty
+     */
     private refreshToken: Token = Token.Empty;
+    
+    /**
+     * Executed before each Ajax call. If the access token has been expired, but the refresh token is still valid, it triggers the token refreshing call
+     * @returns {Observable<boolean>} An observable with a variable that indicates if there was a refresh triggered.
+     */
     public CheckForUpdate() {
         if (this.accessToken.IsValid() || !this.refreshToken.IsValid()) {
             return Observable.from([false]);
@@ -21,6 +47,11 @@ export class Authentication {
             return this.ExecTokenRefresh();
         }
     }
+    
+    /**
+     * Executes the token refresh call. Refresh the token in the Token Store and in the Service, updates the HttpService header
+     * @returns {Observable<boolean>} An observable that will be completed with true on a succesfull refresh
+     */
     private ExecTokenRefresh() {
         let refreshBase64 = this.refreshToken.toString();
         let refresh = this.repository.httpProviderRef.Ajax(RefreshResponse, {
@@ -44,7 +75,7 @@ export class Authentication {
 
         return refresh.map(response => { return true });
     }
-    constructor(private repository: Repository<any, any>) {
+    constructor(private repository: Repository.BaseRepository<any, any>) {
 
         this.State.subscribe(s => {
             console.log(`SN Login state: '${LoginState[s]}'`)
@@ -88,10 +119,10 @@ export class Authentication {
      * @params password {string} Password of the user.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      * ```
-     * let userLogin = Login('alba', 'alba');
+     * let userLogin = service.Login('alba', 'alba');
      * userLogin.subscribe({
      *  next: response => {
-     *      console.log('success');
+     *      console.log('Login success', response);
      *  },
      *  error: error => console.error('something wrong occurred: ' + error.responseJSON.error.message.value),
      *  complete: () => console.log('done'),
@@ -124,21 +155,15 @@ export class Authentication {
     }
 
     /**
-     * Similarly to the Login action above, you can send a logout action to the portal.
-     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
+     * Logs out the current user, sets the tokes to 'empty'
      * ```
-     * let userLogout = Logout();
-     * userLogout.subscribe({
-     *  next: response => {
-     *      console.log('success');
-     *  },
-     *  error: error => console.error('something wrong occurred: ' + error.responseJSON.error.message.value),
-     *  complete: () => console.log('done'),
-     * });
+     * service.Logout();
      * ```
      */
     public Logout(): void {
         this.TokenStore.AccessToken = Token.Empty;
         this.TokenStore.RefreshToken = Token.Empty;
+        this.accessToken = Token.Empty;
+        this.refreshToken = Token.Empty;
     }
 }

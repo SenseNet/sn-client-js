@@ -1,6 +1,9 @@
-import { ODataApi, Content, SnTestRepository, ODataRequestOptions, CustomAction, ODataParams } from '../src/SN';
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { SnTestRepository } from '../src/Repository';
+import { ODataRequestOptions, CustomAction, ODataParams } from '../src/ODataApi';
+import { Content } from '../src/Content';
+
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
@@ -19,7 +22,7 @@ describe('ODataApi', () => {
         expect(observable).to.be.instanceof(Observable);
     });
     it('requests to post a created a Content and returns an Observable object', function () {
-        let content = new Content({Name: 'alma'}, service);
+        let content = new Content({ Name: 'alma' }, service);
         let observable = service.Contents.Post('/workspace/project', content, Content);
         expect(observable).to.be.instanceof(Observable);
     });

@@ -1,6 +1,7 @@
-import { FieldSettings } from './SN';
 /**
- * Module for ContentType schemas.
+ * @module Schemas
+ * @preferred
+ * @description Module for ContentType schemas.
  *
  * A Content Type Definition in Sense/Net is an xml-format configuration file for defining Content Types. The xml configuration (CTD) holds information about the types name and description
  * properties that control how content of this type look and behave (icon, preview generation, indexing), set of fields, etc. This information about the type and its Fields helps us for example
@@ -9,9 +10,11 @@ import { FieldSettings } from './SN';
  * This module provides us description of this Content schemas in Typesript.
  *
  * The ```Schema``` class represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
- */
+ */ /** */
 
-export module Schemas {
+import { FieldSettings } from './SN';
+
+
     /**
      * Class that represents a Schema.
      *
@@ -3444,5 +3447,3 @@ export module Schemas {
             }));
         return schema;
     }
-}
-

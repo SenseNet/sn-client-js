@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const SN_1 = require("./SN");
-class ODataResponse {
-}
-exports.ODataResponse = ODataResponse;
+const _1 = require("./");
+const SN_1 = require("../SN");
 class ODataApi {
     constructor(providerRef, baseUrl, serviceToken, repository) {
         this.baseUrl = baseUrl;
@@ -12,7 +10,8 @@ class ODataApi {
         this.Delete = (id, permanent) => this.repository.Ajax(`/content(${id})/Delete`, 'POST', Object, { 'permanent': permanent });
         this.Patch = (id, fields) => this.repository.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`);
         this.Put = (id, fields) => this.repository.Ajax(`/content(${id})`, 'PUT', Object, `models=[${JSON.stringify(fields)}]`);
-        this.CreateCustomAction = (action, options) => {
+        this.CreateCustomAction = (actionOptions, options) => {
+            let action = new _1.CustomAction(actionOptions);
             let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
             let path = '';
             if (typeof action.id !== 'undefined') {
@@ -75,74 +74,11 @@ class ODataApi {
         return this.repository.Ajax(`${options.path}${SN_1.ODataHelper.buildUrlParamString(options.params)}`, 'GET');
     }
     Create(path, opt, contentType, repository = this.repository) {
-        let content = SN_1.Content.Create(contentType, opt, repository);
-        return this.repository.Ajax(`${SN_1.ODataHelper.getContentURLbyPath(path)}`, 'POST', SN_1.Content, `models=[${JSON.stringify(content.options)}]`);
+        return this.repository.Ajax(`${SN_1.ODataHelper.getContentURLbyPath(path)}`, 'POST', contentType, `models=[${JSON.stringify(opt)}]`);
     }
     Post(path, content, postedContentType) {
         return this.repository.Ajax(`${SN_1.ODataHelper.getContentURLbyPath(path)}`, 'POST', postedContentType, `models=[${SN_1.ODataHelper.stringifyWithoutCircularDependency(content)}]`);
     }
 }
 exports.ODataApi = ODataApi;
-class ODataRequestOptions {
-    constructor(options) {
-        this.params = options.params || [];
-        this.path = `${options.path}`;
-        this.async = options.async || true;
-        this.type = options.type || 'GET';
-        this.success = options.success;
-        this.error = options.error;
-        this.complete = options.complete;
-    }
-}
-exports.ODataRequestOptions = ODataRequestOptions;
-class ODataParams {
-    constructor(options) {
-        this.expand = null;
-        this.select = options.select;
-        this.expand = options.expand;
-        this.orderby = options.orderby;
-        this.top = options.top;
-        this.skip = options.skip;
-        this.filter = options.filter;
-        this.format = options.filter;
-        this.inlinecount = options.inlinecount;
-        this.query = options.query;
-        this.metadata = options.metadata;
-        this.data = options.data || [];
-    }
-}
-exports.ODataParams = ODataParams;
-class CustomAction {
-    constructor(options) {
-        this.params = [];
-        this.requiredParams = [];
-        this.isAction = false;
-        this.noCache = false;
-        this.name = options.name;
-        this.id = options.id;
-        this.path = options.path;
-        this.isAction = options.isAction || false;
-        this.noCache = options.noCache || false;
-        if (options.params) {
-            for (let i = 0; i < options.params.length; i++) {
-                this.params.push(options.params[i]);
-            }
-        }
-        if (options.requiredParams) {
-            for (let i = 0; i < options.requiredParams.length; i++) {
-                this.params.push(options.requiredParams[i]);
-            }
-        }
-    }
-}
-exports.CustomAction = CustomAction;
-class CustomContentAction extends CustomAction {
-    constructor(options) {
-        if (!options.id && !options.path) {
-            throw Error('Content.Id or Content.Path is required for this action');
-        }
-        super(options);
-    }
-}
-exports.CustomContentAction = CustomContentAction;
 //# sourceMappingURL=ODataApi.js.map

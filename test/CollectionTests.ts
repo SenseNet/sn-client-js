@@ -1,6 +1,8 @@
-import { Content, Collection, SnTestRepository, HttpProviders } from '../src/SN'
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { Collection } from '../src/Collection';
+import { SnTestRepository } from '../src/Repository';
+import { Content } from '../src/Content';
 const expect = Chai.expect;
 
 describe('Collection', () => {

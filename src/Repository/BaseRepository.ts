@@ -1,14 +1,17 @@
-import { Observable, Subscription } from '@reactivex/rxjs';
-import { Authentication, Content, ODataApi, ODataHelper, ComplexTypes, HttpProviders, FieldSettings, Security, Schemas, Enums, ODataRequestOptions, CustomAction, LoginState } from './SN';
-
 /**
  * @module Repository
- * 
+ * @preferred
+ * @description This module stores repository-related stuff.
  */
 /** */
 
-type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-export abstract class Repository<TProviderType extends HttpProviders.Base, TProviderReturns = any> {
+import { Observable, Subscription } from '@reactivex/rxjs';
+import { HttpProviders, Content, Authentication, ODataApi, ODataHelper } from '../SN';
+import { IRepository } from './';
+import { RequestMethodType } from '../HttpProviders';
+
+export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
+        implements IRepository<TProviderType, TProviderBaseContentType> {
     private static get DEFAULT_BASE_URL(): string {
         if (typeof window !== 'undefined')
             return (window && window.location && window.location.href) || '';
@@ -17,7 +20,7 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
     private static readonly DEFAULT_SERVICE_TOKEN: string = 'odata.svc';
 
     public get IsCrossDomain() {
-        return this.baseUrl === Repository.DEFAULT_BASE_URL;
+        return this.baseUrl === BaseRepository.DEFAULT_BASE_URL;
     }
 
     public get ODataBaseUrl() {
@@ -26,32 +29,32 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
-        return this.Authentication.State.skipWhile(state => state === LoginState.Pending)
+        return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
             .flatMap(state => {
-            return this.httpProviderRef.Ajax<T>(returnsType,
-                {
-                    url: `${this.ODataBaseUrl}/${path}`,
-                    method: method,
-                    body: body,
-                    crossDomain: this.IsCrossDomain,
-                    responseType: 'json'
-                });
-        });
+                return this.httpProviderRef.Ajax<T>(returnsType,
+                    {
+                        url: `${this.ODataBaseUrl}/${path}`,
+                        method: method,
+                        body: body,
+                        crossDomain: this.IsCrossDomain,
+                        responseType: 'json'
+                    });
+            });
     }
-    public readonly httpProviderRef: HttpProviders.Base;
-    public readonly Contents: ODataApi<TProviderType, any>;
+    public readonly httpProviderRef: HttpProviders.BaseHttpProvider;
+    public readonly Contents: ODataApi.ODataApi<TProviderType, any>;
 
-    public readonly Authentication: Authentication;
+    public readonly Authentication: Authentication.JwtService;
 
     constructor(
         private readonly httpProviderType: { new (): TProviderType },
-        public readonly baseUrl: string = Repository.DEFAULT_BASE_URL,
-        private readonly serviceToken: string = Repository.DEFAULT_SERVICE_TOKEN) {
+        public readonly baseUrl: string = BaseRepository.DEFAULT_BASE_URL,
+        private readonly serviceToken: string = BaseRepository.DEFAULT_SERVICE_TOKEN) {
 
         this.httpProviderRef = new httpProviderType();
-        this.Authentication = new Authentication(this);
-        this.Contents = new ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
+        this.Authentication = new Authentication.JwtService(this);
+        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
     }
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
@@ -69,7 +72,7 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
      * ```
      */
     public GetVersionInfo() {
-        let action = new CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
+        let action = new ODataApi.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
         return this.Contents.CreateCustomAction(action);
     }
     /**
@@ -87,7 +90,7 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
      * ```
      */
     public GetAllContentTypes = () => {
-        let action = new CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
+        let action = new ODataApi.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
         return this.Contents.CreateCustomAction(action);
     }
 
@@ -110,7 +113,7 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
      * })
      * ```
     */
-    public Load<T extends Content = Content>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args): T }): Observable<T> {
+    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args): TContentType }): Observable<TContentType> {
         let o = {};
 
         if (typeof options !== 'undefined') {
@@ -124,7 +127,7 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
         if (typeof idOrPath === 'string') {
             let contentURL = ODataHelper.getContentURLbyPath(idOrPath);
             o['path'] = contentURL;
-            let optionList = new ODataRequestOptions(o as ODataRequestOptions);
+            let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
             return this.Contents.Get(optionList, returns).map(r => {
                 return Content.Create(returns, r.d.results[0], this);
             });
@@ -132,24 +135,11 @@ export abstract class Repository<TProviderType extends HttpProviders.Base, TProv
         else if (typeof idOrPath === 'number') {
             let contentURL = ODataHelper.getContentUrlbyId(idOrPath);
             o['path'] = contentURL;
-            let optionList = new ODataRequestOptions(o as ODataRequestOptions);
+            let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
 
             return this.Contents.Get(optionList, returns).map(r => {
                 return Content.Create(returns, r.d.results[0], this);
             });
         }
     }
-}
-
-export class SnRepository extends Repository<HttpProviders.RxAjax, any>{
-    constructor(baseUrl?: string, serviceToken?: string) {
-        super(HttpProviders.RxAjax, baseUrl, serviceToken);
-    }
-}
-
-export class SnTestRepository extends Repository<HttpProviders.Mock, any>{
-    constructor(baseUrl?: string, serviceToken?: string) {
-        super(HttpProviders.Mock, baseUrl, serviceToken);
-    }
-
 }

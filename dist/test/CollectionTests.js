@@ -1,26 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const SN_1 = require("../src/SN");
 const rxjs_1 = require("@reactivex/rxjs");
 const Chai = require("chai");
+const Collection_1 = require("../src/Collection");
+const Repository_1 = require("../src/Repository");
+const Content_1 = require("../src/Content");
 const expect = Chai.expect;
 describe('Collection', () => {
     let collection;
     let children;
-    let Repo = new SN_1.SnTestRepository();
+    let Repo = new Repository_1.SnTestRepository();
     beforeEach(function () {
         children = [
-            SN_1.Content.Create(SN_1.Content, {
+            Content_1.Content.Create(Content_1.Content, {
                 Id: 1,
                 Name: 'test1',
                 Path: '/'
             }, this.repo),
-            SN_1.Content.Create(SN_1.Content, {
+            Content_1.Content.Create(Content_1.Content, {
                 Id: 2,
                 Name: 'test2'
             }, this.repo)
         ];
-        collection = new SN_1.Collection(children, Repo.Contents);
+        collection = new Collection_1.Collection(children, Repo.Contents);
         collection.Path = 'https://daily.demo.sensenet.com/lorem';
     });
     describe('#Items()', () => {
@@ -36,7 +38,7 @@ describe('Collection', () => {
     describe('#Item(id)', () => {
         it('should return an object with a given id', function () {
             const item = collection.Item(1);
-            expect(item).to.be.instanceof(SN_1.Content);
+            expect(item).to.be.instanceof(Content_1.Content);
             expect(item.Id).to.be.eq(1);
         });
     });

@@ -1,4 +1,4 @@
-export * from './Authentication';
+export * from './JwtService';
 export * from './ITokenPayload';
 export * from './LoginResponse';
 export * from './LoginState';

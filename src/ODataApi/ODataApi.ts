@@ -1,12 +1,14 @@
-import { ODataHelper, HttpProviders, Content, Repository } from './SN';
-import { Observable, AjaxRequest } from '@reactivex/rxjs';
+/**
+ * @module ODataApi
+ * @preferred
+ * 
+ * @description This module contains OData-related classes and functions.
+ */ /** */
 
-export class ODataResponse<T>{
-    d: {
-        results: T[];
-        __count: number;
-    }
-}
+import { IRepository, IContent } from '../Repository';
+import { BaseHttpProvider } from '../HttpProviders';
+import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, IODataApi } from './';
+import { ODataHelper } from '../SN';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -14,13 +16,16 @@ export class ODataResponse<T>{
  * Following methods return Rxjs Observables which are made from the ajax requests' promises. Action methods like Delete or Rename on Content calls this methods,
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
-export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns>{
+export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType extends IContent> implements IODataApi<THttpProvider, TBaseContentType>{
+    /**
+     * The HTTP provider instance for making AJAX calls.
+     */
     private readonly httpProvider: THttpProvider;
     constructor(
         providerRef: { new (): THttpProvider },
         private readonly baseUrl: string,
         private readonly serviceToken: string,
-        private readonly repository: Repository<THttpProvider, any>,
+        private readonly repository: IRepository<THttpProvider, any>,
     ) {
         this.httpProvider = new providerRef();
     }
@@ -32,7 +37,7 @@ export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    public Get<T extends Content>(options: ODataRequestOptions, returns?: { new (...args): T }) {
+    public Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args): T }) {
         return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET');
     }
 
@@ -43,13 +48,12 @@ export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    public Fetch<T extends Content>(options: ODataRequestOptions) {
+    public Fetch<T extends TBaseContentType>(options: ODataRequestOptions) {
         return this.repository.Ajax<T[]>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET');
     }
 
-    public Create<T extends Content, O extends T['options']>(path: string, opt: O, contentType: { new (opt: O, repository): T }, repository = this.repository) {
-        let content = Content.Create(contentType, opt, repository);
-        return this.repository.Ajax(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', Content, `models=[${JSON.stringify(content.options)}]`);
+    public Create<T extends TBaseContentType, O extends T['options']>(path: string, opt: O, contentType: { new (opt: O, repository): T }, repository = this.repository) {
+        return this.repository.Ajax(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', contentType, `models=[${JSON.stringify(opt)}]`);
     }
 
     public Post<T>(path: string, content: T, postedContentType?: { new (...args): T }) {
@@ -120,7 +124,8 @@ export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns
       * @params options {IODataParams} An object that holds the config of the ajax request like urlparameters or data.
       * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
       */
-    public CreateCustomAction = (action: CustomAction, options?: IODataParams) => {
+    public CreateCustomAction = (actionOptions: ICustomActionOptions, options?: IODataParams) => {
+        let action = new CustomAction(actionOptions);
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
@@ -178,137 +183,4 @@ export class ODataApi<THttpProvider extends HttpProviders.Base, TProviderReturns
         }
         return this.repository.Ajax(url, 'POST', Object, data);
     }
-}
-
-
-
-export class ODataRequestOptions {
-    path: string;
-    params: ODataParams[];
-    async: boolean;
-    type: string;
-    success: Function;
-    error: Function;
-    complete: Function;
-
-    constructor(options: IODataRequestOptions) {
-        this.params = options.params || [];
-        this.path = `${options.path}`;
-        this.async = options.async || true;
-        this.type = options.type || 'GET';
-        this.success = options.success;
-        this.error = options.error;
-        this.complete = options.complete;
-    }
-}
-
-export interface IODataRequestOptions {
-    path: string;
-    params?: ODataParams[];
-    async?: boolean;
-    type?: string;
-    success?: Function;
-    error?: Function;
-    complete?: Function;
-}
-
-/**
- * Type of the OData option Object. Contains the possible OData params as properties.
- */
-export class ODataParams {
-    select: string | string[];
-    expand: string | string[] = null;
-    orderby: string | string[];
-    top: string;
-    skip: string;
-    filter: string;
-    format: string;
-    inlinecount: string;
-    query: string;
-    metadata: string;
-    data: Object;
-
-    constructor(options: IODataParams) {
-        this.select = options.select;
-        this.expand = options.expand;
-        this.orderby = options.orderby;
-        this.top = options.top;
-        this.skip = options.skip;
-        this.filter = options.filter;
-        this.format = options.filter;
-        this.inlinecount = options.inlinecount;
-        this.query = options.query;
-        this.metadata = options.metadata;
-        this.data = options.data || [];
-    }
-}
-
-export interface IODataParams {
-    select?: string | string[];
-    expand?: string | string[];
-    orderby?: string | string[];
-    top?: string;
-    skip?: string;
-    filter?: string;
-    format?: string;
-    inlinecount?: string;
-    query?: string;
-    metadata?: string;
-    data?: Object;
-}
-
-export class CustomAction {
-    name: string;
-    id: number;
-    path: string;
-    params: string[] = [];
-    requiredParams: string[] = [];
-    isAction: boolean = false;
-    noCache: boolean = false;
-    constructor(options: ICustomActionOptions) {
-        this.name = options.name;
-        this.id = options.id;
-        this.path = options.path;
-        this.isAction = options.isAction || false;
-        this.noCache = options.noCache || false;
-        if (options.params) {
-            for (let i = 0; i < options.params.length; i++) {
-                this.params.push(options.params[i]);
-            }
-        }
-        if (options.requiredParams) {
-            for (let i = 0; i < options.requiredParams.length; i++) {
-                this.params.push(options.requiredParams[i]);
-            }
-        }
-    }
-}
-
-/**
- * Class that represents a custom action that bounds to a specified content, that has to be identified by its Id or Path
- */
-export class CustomContentAction extends CustomAction {
-
-    /**
-     * @constructs {CustomContentAction}
-     * @param options The custom action options
-     * @throws {Error} if the Id or Path is not provided
-     */
-    constructor(options: ICustomActionOptions) {
-        if (!options.id && !options.path) {
-            throw Error('Content.Id or Content.Path is required for this action');
-        }
-        super(options);
-
-    }
-}
-
-interface ICustomActionOptions {
-    name: string;
-    id?: number;
-    path?: string;
-    params?: string[];
-    requiredParams?: string[];
-    isAction?: boolean;
-    noCache?: boolean;
 }

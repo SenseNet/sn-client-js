@@ -3,11 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const SN_1 = require("../src/SN");
 const Chai = require("chai");
 const rxjs_1 = require("@reactivex/rxjs");
+const Repository_1 = require("../src/Repository");
 const expect = Chai.expect;
 const CONTENT_TYPE = 'Task';
 describe('Content', () => {
     let content;
-    let repo = new SN_1.SnTestRepository();
+    let repo = new Repository_1.SnTestRepository();
     beforeEach(function () {
         content = new SN_1.ContentTypes.Task({
             Id: 1,

@@ -1,14 +1,18 @@
-import { Content, ODataApi, ODataHelper, ODataRequestOptions, IODataParams, CustomAction } from './SN';
-import { Observable } from '@reactivex/rxjs';
-
 /**
- * Class that represents a ```generic``` ```Content``` collection.
+ * @module Collection
+ * @preferred
+ * @description Class that represents a ```generic``` ```Content``` collection.
  *
  * It's the basic container type that wraps up a list of ```Content```. It provides methods to manipulate with ```Content``` like fetching, adding or removing data. It not neccesarily represents
  * a container ```Content``` with a type ```Folder``` or ```ContentList```, it could be also a result of a query. Since it is ```generic``` type of its children items is not defined strictly.
- */
+ */ /** */
 
-export class Collection<T extends Content> {
+import { Observable } from '@reactivex/rxjs';
+import { IODataApi, CustomAction, IODataParams, ODataRequestOptions } from './ODataApi';
+import { ODataHelper } from './SN';
+import { IContent } from './Repository';
+
+export class Collection<T extends IContent> {
     Path: string = '';
 
     /**
@@ -17,7 +21,7 @@ export class Collection<T extends Content> {
     * @param service {ODataApi.Service} The service to use as API Endpoint
     */
     constructor(private items: T[],
-        private service: ODataApi<any, any>) {
+        private service: IODataApi<any, any>) {
     }
 
     /**
@@ -308,7 +312,7 @@ export class Collection<T extends Content> {
         }
         o['path'] = ODataHelper.getContentURLbyPath(this.Path);
         let optionList = new ODataRequestOptions(o as ODataRequestOptions);
-        return this.service.Get(optionList, Content);
+        return this.service.Get<T>(optionList);
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).

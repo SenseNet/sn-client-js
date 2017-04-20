@@ -1,15 +1,21 @@
-export * from './Authentication';
-export * from './ComplexTypes';
-export * from './FieldSettings';
-export * from './Schemas';
-export * from './Enums';
+import * as Authentication from './Authentication';
+import * as ComplexTypes from './ComplexTypes';
+import * as Repository from './Repository';
+import * as ContentTypes from './ContentTypes';
 export * from './Content';
-export * from './ContentTypes';
-export * from './Collection';
-export * from './ODataHelper';
-export * from './ODataAPIActionObservables';
-export * from './ODataApi';
-export * from './Resources';
-export * from './Security';
-export * from './HttpProviders';
-export * from './Repository';
+import * as FieldSettings from './FieldSettings';
+import * as Schemas from './Schemas';
+import * as Enums from './Enums';
+import * as Collection from './Collection';
+import * as ODataHelper from './ODataHelper';
+import * as ODataAPIActionObservables from './ODataAPIActionObservables';
+import * as ODataApi from './ODataApi';
+import * as Resources from './Resources';
+import * as Security from './Security';
+import * as HttpProviders from './HttpProviders';
+
+export {
+    Authentication, ComplexTypes, FieldSettings, Schemas, Enums,
+    ContentTypes, Collection, ODataHelper, ODataAPIActionObservables, ODataApi,
+    Resources, Security, HttpProviders, Repository
+};

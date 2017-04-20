@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const _1 = require("./");
 const rxjs_1 = require("@reactivex/rxjs");
-class Authentication {
+class JwtService {
     constructor(repository) {
         this.repository = repository;
         this.State = new rxjs_1.BehaviorSubject(_1.LoginState.Pending);
@@ -93,5 +93,5 @@ class Authentication {
         this.TokenStore.RefreshToken = _1.Token.Empty;
     }
 }
-exports.Authentication = Authentication;
-//# sourceMappingURL=Authentication.js.map
+exports.JwtService = JwtService;
+//# sourceMappingURL=JwtService.js.map

@@ -2,9 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const SN_1 = require("../src/SN");
 const Chai = require("chai");
+const Repository_1 = require("../src/Repository");
 const expect = Chai.expect;
 describe('ContentTypes', () => {
-    let repo = new SN_1.SnTestRepository();
+    let repo = new Repository_1.SnTestRepository();
     describe('#ContentType', function () {
         const gc = new SN_1.ContentTypes.ContentType({ Id: 1, Type: 'ContentType', Name: '' }, repo);
         it('should return a ContentType type object', function () {

@@ -1,5 +1,6 @@
-import { ContentTypes, CreateContent, SnTestRepository, HttpProviders } from '../src/SN';
+import { ContentTypes, HttpProviders } from '../src/SN';
 import * as Chai from 'chai';
+import { SnTestRepository } from '../src/Repository';
 const expect = Chai.expect;
 
 describe('ContentTypes', () => {
