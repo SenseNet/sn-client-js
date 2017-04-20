@@ -115,8 +115,8 @@ export class JwtService {
      * you will receive a standard ASP.NET auth cookie which will make sure that your subsequent requests will be authorized correctly.
      *
      * As the username and password is sent in clear text, always send these kinds of requests throuigh HTTPS.
-     * @params username {string} Name of the user.
-     * @params password {string} Password of the user.
+     * @param username {string} Name of the user.
+     * @param password {string} Password of the user.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      * ```
      * let userLogin = service.Login('alba', 'alba');
