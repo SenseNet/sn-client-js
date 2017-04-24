@@ -21,7 +21,7 @@ export class JwtService implements IAuthenticationService {
     /**
      * The store for JWT tokens
      */
-    private TokenStore = new TokenStore(this.repository.config.RepositoryUrl);
+    private TokenStore = new TokenStore(this.repository.config.RepositoryUrl, this.repository.config.JwtTokenKeyTeplate);
     
     /**
      * The current access token

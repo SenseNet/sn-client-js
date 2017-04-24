@@ -13,20 +13,18 @@ type TokenType = 'access' | 'refresh';
  */
 export class TokenStore {
 
-    constructor(private readonly baseUrl: string) {
+    constructor(private readonly baseUrl: string, private readonly keyTemplate: string = 'sn-${siteName}-${tokenName}') {
     }
 
-    /**
-     * Gets the prefix to the token (will be used for localStorage key)
-     */
-    private get tokenKeyPrefix() {
-        return `sn-${this.baseUrl}-`;
-    }
 
     /**
      * If localStorage is not available, stores the token data in this in-memory array
      */
     private innerStore: string[] = [];
+
+    private getStoreKey(key: TokenType){
+        return this.keyTemplate.replace('${siteName}', this.baseUrl).replace('${tokenName}', key);
+    }
     
     /**
      * Gets the specified token
@@ -34,7 +32,7 @@ export class TokenStore {
      * @returns {Token} The requested token, or Token.Empty in case of error
      */
     public GetToken(key: TokenType): Token {
-        const storeKey = `${this.tokenKeyPrefix}${key}`;
+        const storeKey = this.getStoreKey(key);
         try {
             if (typeof localStorage === 'undefined') {
                 return Token.FromHeadAndPayload(this.innerStore[storeKey]);
@@ -51,7 +49,7 @@ export class TokenStore {
      * @param token {Token} The token to set with the specified key
      */
     public SetToken(key: TokenType, token: Token) {
-        const storeKey = `${this.tokenKeyPrefix}${key}`;
+        const storeKey = this.getStoreKey(key);
         let dtaString = token.toString();
         if (typeof localStorage === 'undefined') {
             this.innerStore[storeKey] = dtaString;
