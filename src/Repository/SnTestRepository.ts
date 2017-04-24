@@ -11,7 +11,7 @@ export class SnTestRepository extends BaseRepository<HttpProviders.MockHttpProvi
         if (!config){
             config = new SnConfigModel();
         }
-        super(HttpProviders.MockHttpProvider, config, JwtService);
+        super(config, HttpProviders.MockHttpProvider, JwtService);
     }
 
 }

@@ -12,16 +12,10 @@ import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 
 export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
-        implements IRepository<TProviderType, TProviderBaseContentType> {
-    private static get DEFAULT_BASE_URL(): string {
-        if (typeof window !== 'undefined')
-            return (window && window.location && window.location.href) || '';
-        return '';
-    }
-    private static readonly DEFAULT_SERVICE_TOKEN: string = 'odata.svc';
+    implements IRepository<TProviderType, TProviderBaseContentType> {
 
     public get IsCrossDomain() {
-        return this.config.RepositoryUrl === BaseRepository.DEFAULT_BASE_URL;
+        return this.config.RepositoryUrl === SnConfigModel.DEFAULT_BASE_URL;
     }
 
     public get ODataBaseUrl() {
@@ -45,24 +39,18 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     }
     public readonly httpProviderRef: HttpProviders.BaseHttpProvider;
     public readonly Contents: ODataApi.ODataApi<TProviderType, any>;
-
     public readonly Authentication: Authentication.IAuthenticationService;
 
     /**
      * 
      * @param httpProviderType The type of the Http Provider, should extend HttpProviders.BaseHttpProvider
-     * @param baseUrl 
-     * @param serviceToken 
      * @param config 
      * @param authentication 
      */
     constructor(
+        public readonly config: SnConfigModel,        
         private readonly httpProviderType: { new (): TProviderType },
-        // public readonly baseUrl: string = BaseRepository.DEFAULT_BASE_URL,
-        // private readonly serviceToken: string = BaseRepository.DEFAULT_SERVICE_TOKEN,
-        public readonly config: SnConfigModel,
-        authentication: {new(...args): Authentication.IAuthenticationService}) {
-
+        authentication: { new (...args): Authentication.IAuthenticationService }) {
         this.httpProviderRef = new httpProviderType();
         this.Authentication = new authentication(this);
         this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.config.RepositoryUrl, this.config.ODataToken, this);

@@ -5,6 +5,15 @@ import { SnConfigField } from './snconfigfielddecorator';
  * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. It's values are populated from sn.config.js, from command line option or will be asked at runtime in CLI (depending on it's behavior flags).
  */
 export class SnConfigModel {
+
+    public static get DEFAULT_BASE_URL(): string {
+        if (typeof window !== 'undefined')
+            return (window && window.location && window.location.href) || '';
+        return '';
+    }
+    public static readonly DEFAULT_SERVICE_TOKEN: string = 'odata.svc';
+
+
     /**
      * The root URL for the Sense/Net repository (e.g.: demo.sensenet.com)
      */
@@ -13,7 +22,7 @@ export class SnConfigModel {
         FieldDescription: 'URL to the repository (e.g.: demo.sensenet.com)',
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
     })
-    public RepositoryUrl: string;
+    public RepositoryUrl: string = SnConfigModel.DEFAULT_BASE_URL;
     
     /**
      * The service token for the OData Endpoint
@@ -23,7 +32,7 @@ export class SnConfigModel {
         FieldDescription: 'The service token for the OData Endpoint',
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
     })
-    public ODataToken: string = '/OData.svc';
+    public ODataToken: string = SnConfigModel.DEFAULT_SERVICE_TOKEN;
 
     
     /**

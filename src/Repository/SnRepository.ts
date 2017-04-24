@@ -11,6 +11,6 @@ export class SnRepository extends BaseRepository<HttpProviders.RxAjaxHttpProvide
         if (!config){
             config = new SnConfigModel();
         }
-        super(HttpProviders.RxAjaxHttpProvider, config, JwtService);
+        super(config, HttpProviders.RxAjaxHttpProvider, JwtService);
     }
 }
