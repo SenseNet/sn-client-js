@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "1.1.1-beta.1",
+  "version": "1.1.1-development.1",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
   "files": [
@@ -10,7 +10,6 @@
     "coverage"
   ],
   "scripts": {
-    "prepublish": "npm run test && npm run typedoc:md && npm run typedoc:html",
     "commit": "git-cz",
     "gulp": "gulp",
     "pretest": "gulp build:clean && npm run build",
@@ -52,7 +51,8 @@
     "gulp-run": "^1.7.1",
     "nyc": "^10.2.0",
     "ts-json-properties": "1.1.4",
-    "typedoc-plugin-external-module-name": "^1.0.9"
+    "typedoc-plugin-external-module-name": "^1.0.9",
+    "typescript": "^2.3.0"
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",

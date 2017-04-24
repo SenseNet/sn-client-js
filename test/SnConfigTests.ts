@@ -1,8 +1,8 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { SnConfigBehavior } from '../src/config/snconfigbehavior';
-import { SnConfigFieldModel } from '../src/config/snconfigfieldmodel';
-import { SnConfigFieldModelStore } from '../src/config/snconfigfieldmodelstore';
+import { SnConfigBehavior } from '../src/Config/snconfigbehavior';
+import { SnConfigFieldModel } from '../src/Config/snconfigfieldmodel';
+import { SnConfigFieldModelStore } from '../src/Config/snconfigfieldmodelstore';
 
 const expect = Chai.expect;
 
