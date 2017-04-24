@@ -1,0 +1,38 @@
+import { SnConfigBehavior } from './snconfigbehavior';
+import { SnConfigField } from './snconfigfielddecorator';
+
+/**
+ * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. It's values are populated from sn.config.js, from command line option or will be asked at runtime in CLI (depending on it's behavior flags).
+ */
+export class SnConfigModel {
+    /**
+     * The root URL for the Sense/Net repository (e.g.: demo.sensenet.com)
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig | SnConfigBehavior.AllowFromCommandLine,
+        FieldDescription: 'URL to the repository (e.g.: demo.sensenet.com)',
+        Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
+    })
+    public RepositoryUrl: string;
+    
+    /**
+     * The service token for the OData Endpoint
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig | SnConfigBehavior.AllowFromCommandLine,
+        FieldDescription: 'The service token for the OData Endpoint',
+        Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
+    })
+    public ODataToken: string = '/OData.svc';
+
+    
+    /**
+     * This string represents how the Jwt Web Token will be stored in the localStorage.
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'Template will be stored in that format',
+        Question: 'Please specify the template format for the key of the JWT Web Token in the localStorage (e.g.: sn-${siteName}-${tokenName})'
+    })
+    public JwtTokenKeyTeplate: string = 'sn-${siteName}-${tokenName}';
+}

@@ -13,9 +13,10 @@ import * as ODataApi from './ODataApi';
 import * as Resources from './Resources';
 import * as Security from './Security';
 import * as HttpProviders from './HttpProviders';
+import * as Config from './Config';
 
 export {
     Authentication, ComplexTypes, FieldSettings, Schemas, Enums,
     ContentTypes, Collection, ODataHelper, ODataAPIActionObservables, ODataApi,
-    Resources, Security, HttpProviders, Repository
+    Resources, Security, HttpProviders, Repository, Config
 };

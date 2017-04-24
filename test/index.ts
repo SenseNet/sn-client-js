@@ -7,6 +7,7 @@ import * as ODataApiTests from './ODataApiTests';
 import * as ODataHelperTests from './ODataHelperTests';
 import * as RepositoryTests from './RepositoryTests';
 import * as SchemaTests from './SchemaTests';
+import * as SnConfigTests from './SnConfigTests';
 
 export {
     CollectionTests,
@@ -17,5 +18,6 @@ export {
     ODataApiTests,
     ODataHelperTests,
     RepositoryTests,
-    SchemaTests
+    SchemaTests,
+    SnConfigTests
 }

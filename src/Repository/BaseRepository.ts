@@ -9,6 +9,7 @@ import { Observable, Subscription } from '@reactivex/rxjs';
 import { HttpProviders, Content, Authentication, ODataApi, ODataHelper } from '../SN';
 import { IRepository } from './';
 import { RequestMethodType } from '../HttpProviders';
+import { SnConfigModel } from '../Config/snconfigmodel';
 
 export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
         implements IRepository<TProviderType, TProviderBaseContentType> {
@@ -20,11 +21,11 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     private static readonly DEFAULT_SERVICE_TOKEN: string = 'odata.svc';
 
     public get IsCrossDomain() {
-        return this.baseUrl === BaseRepository.DEFAULT_BASE_URL;
+        return this.config.RepositoryUrl === BaseRepository.DEFAULT_BASE_URL;
     }
 
     public get ODataBaseUrl() {
-        return `${this.baseUrl}/${this.serviceToken}`;
+        return `${this.config.RepositoryUrl}/${this.config.ODataToken}`;
     }
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
@@ -45,16 +46,26 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     public readonly httpProviderRef: HttpProviders.BaseHttpProvider;
     public readonly Contents: ODataApi.ODataApi<TProviderType, any>;
 
-    public readonly Authentication: Authentication.JwtService;
+    public readonly Authentication: Authentication.IAuthenticationService;
 
+    /**
+     * 
+     * @param httpProviderType The type of the Http Provider, should extend HttpProviders.BaseHttpProvider
+     * @param baseUrl 
+     * @param serviceToken 
+     * @param config 
+     * @param authentication 
+     */
     constructor(
         private readonly httpProviderType: { new (): TProviderType },
-        public readonly baseUrl: string = BaseRepository.DEFAULT_BASE_URL,
-        private readonly serviceToken: string = BaseRepository.DEFAULT_SERVICE_TOKEN) {
+        // public readonly baseUrl: string = BaseRepository.DEFAULT_BASE_URL,
+        // private readonly serviceToken: string = BaseRepository.DEFAULT_SERVICE_TOKEN,
+        public readonly config: SnConfigModel,
+        authentication: {new(...args): Authentication.IAuthenticationService}) {
 
         this.httpProviderRef = new httpProviderType();
-        this.Authentication = new Authentication.JwtService(this);
-        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.baseUrl, this.serviceToken, this);
+        this.Authentication = new authentication(this);
+        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.config.RepositoryUrl, this.config.ODataToken, this);
     }
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
