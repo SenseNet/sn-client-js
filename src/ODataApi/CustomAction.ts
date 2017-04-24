@@ -2,6 +2,9 @@
  * @module ODataApi
  */ /** */
 
+/**
+ * Class that represents a custom action that is not bounded to a specified content
+ */
 export class CustomAction {
     name: string;
     id: number;
@@ -48,6 +51,9 @@ export class CustomContentAction extends CustomAction {
     }
 }
 
+/**
+ * Interface that represents an options to institiating a CustomAction or CustomContentAction
+ */
 export interface ICustomActionOptions {
     name: string;
     id?: number;
