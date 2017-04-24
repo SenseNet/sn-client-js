@@ -4,14 +4,14 @@
  * @description This module that contains authentication-related classes, types and interfaces
  */ /** */
 
-import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore } from './';
+import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore, IAuthenticationService } from './';
 import { Subject, BehaviorSubject, Observable } from '@reactivex/rxjs';
 import { Repository } from '../SN';
 
 /**
  * This service class manages the JWT authentication, the session and the current login state.
  */
-export class JwtService {
+export class JwtService implements IAuthenticationService {
     /**
      * This subject indicates the current state of the service
      * @default LoginState.Pending
@@ -21,7 +21,7 @@ export class JwtService {
     /**
      * The store for JWT tokens
      */
-    private TokenStore = new TokenStore(this.repository.baseUrl);
+    private TokenStore = new TokenStore(this.repository.config.RepositoryUrl);
     
     /**
      * The current access token
@@ -56,7 +56,7 @@ export class JwtService {
         let refreshBase64 = this.refreshToken.toString();
         let refresh = this.repository.httpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
-            url: `${this.repository.baseUrl}sn-token/refresh`,
+            url: `${this.repository.config.RepositoryUrl}sn-token/refresh`,
             headers: {
                 'X-Refresh-Data': this.refreshToken.toString(),
                 'X-Authentication-Type': 'Token'
@@ -137,7 +137,7 @@ export class JwtService {
 
         this.repository.httpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: `${this.repository.baseUrl}sn-token/login`,
+            url: `${this.repository.config.RepositoryUrl}sn-token/login`,
             headers: {
                 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`
