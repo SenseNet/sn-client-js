@@ -3,7 +3,14 @@
   "version": "1.1.1-beta.1",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
+  "files": [
+    "dist",
+    "src",
+    "documentation",
+    "coverage"
+  ],
   "scripts": {
+    "prepublish": "npm run test && npm run typedoc:md && npm run typedoc:html",
     "commit": "git-cz",
     "gulp": "gulp",
     "pretest": "gulp build:clean && npm run build",
