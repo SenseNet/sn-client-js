@@ -1,4 +1,11 @@
 /**
+ * @module Config
+ * @preferred
+ * @description Library module for storing configuration related classes and interfaces.
+ *//** */
+
+
+/**
  * This enum represents an SnConfig field behavior. Values can be used as flags.
  */
 export enum SnConfigBehavior {

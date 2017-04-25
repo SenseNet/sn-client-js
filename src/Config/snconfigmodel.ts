@@ -1,8 +1,12 @@
+/**
+ * @module Config
+ *//** */
+
 import { SnConfigBehavior } from './snconfigbehavior';
 import { SnConfigField } from './snconfigfielddecorator';
 
 /**
- * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. It's values are populated from sn.config.js, from command line option or will be asked at runtime in CLI (depending on it's behavior flags).
+ * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. The values can be populated from sn.config.js.
  */
 export class SnConfigModel {
 
@@ -23,7 +27,7 @@ export class SnConfigModel {
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
     })
     public RepositoryUrl: string = SnConfigModel.DEFAULT_BASE_URL;
-    
+
     /**
      * The service token for the OData Endpoint
      */
@@ -34,7 +38,7 @@ export class SnConfigModel {
     })
     public ODataToken: string = SnConfigModel.DEFAULT_SERVICE_TOKEN;
 
-    
+
     /**
      * This string represents how the Jwt Web Token will be stored in the localStorage.
      */
@@ -44,4 +48,19 @@ export class SnConfigModel {
         Question: 'Please specify the template format for the key of the JWT Web Token in the localStorage (e.g.: sn-${siteName}-${tokenName})'
     })
     public JwtTokenKeyTeplate: string = 'sn-${siteName}-${tokenName}';
+
+    /**
+     *
+     * @param {Partial<SnConfigMoel>} config Partial config values, the default values will be overwritten if provided
+     * @constructs {SnConfigModel}
+     */
+    constructor(config?: Partial<SnConfigModel>) {
+        if (config) {
+            for (let key in config) {
+                if (config[key]) {
+                    this[key] = config[key];
+                }
+            }
+        }
+    }
 }

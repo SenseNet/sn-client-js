@@ -58,7 +58,8 @@ gulp.task("typedoc", function () {
                 readme: "sn-client-js/README.md",
                 excludeExternals: true,
                 excludePrivate: true,
-                includes: "docs"
+                includes: "docs",
+                experimentalDecorators: true
             }));
 });
 

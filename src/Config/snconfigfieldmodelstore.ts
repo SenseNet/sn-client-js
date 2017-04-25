@@ -1,3 +1,7 @@
+/**
+ * @module Config
+ *//** */
+
 import { SnConfigBehavior } from './snconfigbehavior';
 import { SnConfigFieldModel } from './snconfigfieldmodel';
 
