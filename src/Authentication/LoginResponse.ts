@@ -1,6 +1,7 @@
 /**
  * @module Authentication
 */ /** */
+
 /**
  * This class represents a plain response body that is returned from Sense/NET ECM in case of a succesfully login.
  */

@@ -15,11 +15,11 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     implements IRepository<TProviderType, TProviderBaseContentType> {
 
     public get IsCrossDomain() {
-        return this.config.RepositoryUrl === SnConfigModel.DEFAULT_BASE_URL;
+        return this.Config.RepositoryUrl !== SnConfigModel.DEFAULT_BASE_URL;
     }
 
     public get ODataBaseUrl() {
-        return `${this.config.RepositoryUrl}/${this.config.ODataToken}`;
+        return `${this.Config.RepositoryUrl}${this.Config.ODataToken}`;
     }
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
@@ -41,19 +41,20 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     public readonly Contents: ODataApi.ODataApi<TProviderType, any>;
     public readonly Authentication: Authentication.IAuthenticationService;
 
+    public readonly Config: SnConfigModel;
+
     /**
      * 
      * @param httpProviderType The type of the Http Provider, should extend HttpProviders.BaseHttpProvider
      * @param config 
      * @param authentication 
      */
-    constructor(
-        public readonly config: SnConfigModel,        
-        private readonly httpProviderType: { new (): TProviderType },
-        authentication: { new (...args): Authentication.IAuthenticationService }) {
+    constructor(config: Partial<SnConfigModel>, private readonly httpProviderType: { new (): TProviderType }, authentication: { new (...args): Authentication.IAuthenticationService }) {
         this.httpProviderRef = new httpProviderType();
-        this.Authentication = new authentication(this);
-        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.config.RepositoryUrl, this.config.ODataToken, this);
+        this.Config = new SnConfigModel(config);
+        //warning: constructor parameterization is not type-safe
+        this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTeplate);
+        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.Config.RepositoryUrl, this.Config.ODataToken, this);
     }
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the

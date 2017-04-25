@@ -6,7 +6,7 @@
 
 import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore, IAuthenticationService } from './';
 import { Subject, BehaviorSubject, Observable } from '@reactivex/rxjs';
-import { Repository } from '../SN';
+import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
 
 /**
  * This service class manages the JWT authentication, the session and the current login state.
@@ -16,12 +16,16 @@ export class JwtService implements IAuthenticationService {
      * This subject indicates the current state of the service
      * @default LoginState.Pending
      */
-    public readonly State: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
+    public get State(): Observable<LoginState>{
+        return this.stateSubject.asObservable();
+    }
+
+    private readonly stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
     
     /**
      * The store for JWT tokens
      */
-    private TokenStore = new TokenStore(this.repository.config.RepositoryUrl, this.repository.config.JwtTokenKeyTeplate);
+    private TokenStore = new TokenStore(this.repositoryUrl, this.tokenTemplate);
     
     /**
      * The current access token
@@ -43,7 +47,7 @@ export class JwtService implements IAuthenticationService {
         if (this.accessToken.IsValid() || !this.refreshToken.IsValid()) {
             return Observable.from([false]);
         } else {
-            this.State.next(LoginState.Pending);
+            this.stateSubject.next(LoginState.Pending);
             return this.ExecTokenRefresh();
         }
     }
@@ -54,9 +58,9 @@ export class JwtService implements IAuthenticationService {
      */
     private ExecTokenRefresh() {
         let refreshBase64 = this.refreshToken.toString();
-        let refresh = this.repository.httpProviderRef.Ajax(RefreshResponse, {
+        let refresh = this.httpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
-            url: `${this.repository.config.RepositoryUrl}sn-token/refresh`,
+            url: `${this.repositoryUrl}sn-token/refresh`,
             headers: {
                 'X-Refresh-Data': this.refreshToken.toString(),
                 'X-Authentication-Type': 'Token'
@@ -66,16 +70,19 @@ export class JwtService implements IAuthenticationService {
         refresh.subscribe(response => {
             this.TokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
             this.accessToken = this.TokenStore.AccessToken;
-            this.repository.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
-            this.State.next(LoginState.Authenticated);
+            this.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
+            this.stateSubject.next(LoginState.Authenticated);
         }, err => {
             console.warn(`There was an error during token refresh: ${err}`);
-            this.State.next(LoginState.Unauthenticated);
+            this.stateSubject.next(LoginState.Unauthenticated);
         });
 
         return refresh.map(response => { return true });
     }
-    constructor(private repository: Repository.BaseRepository<any, any>) {
+
+    constructor(private readonly httpProviderRef: BaseHttpProvider,
+                private readonly repositoryUrl: string,
+                private readonly tokenTemplate: string) {
 
         this.State.subscribe(s => {
             console.log(`SN Login state: '${LoginState[s]}'`)
@@ -86,13 +93,13 @@ export class JwtService implements IAuthenticationService {
 
         if (this.accessToken.IsValid()) {
             // Access Token is valid. Nothing to do.
-            this.State.next(LoginState.Authenticated);
+            this.stateSubject.next(LoginState.Authenticated);
         } else {
             if (this.refreshToken.IsValid()) {
                 this.CheckForUpdate();
             } else {
                 // Both Access token and Refresh tokens are invalid. Nothing to do, user is unauthenticated.
-                this.State.next(LoginState.Unauthenticated);
+                this.stateSubject.next(LoginState.Unauthenticated);
             }
         }
     }
@@ -101,11 +108,11 @@ export class JwtService implements IAuthenticationService {
         this.TokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
         this.TokenStore.RefreshToken = Token.FromHeadAndPayload(response.refresh);
         if (this.TokenStore.AccessToken.IsValid()) {
-            this.State.next(LoginState.Authenticated);
+            this.stateSubject.next(LoginState.Authenticated);
             return true;
         }
-        this.repository.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
-        this.State.next(LoginState.Unauthenticated);
+        this.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
+        this.stateSubject.next(LoginState.Unauthenticated);
         return false;
     }
 
@@ -132,12 +139,12 @@ export class JwtService implements IAuthenticationService {
     public Login(username: string, password: string) {
         let sub = new Subject<boolean>();
 
-        this.State.next(LoginState.Pending);
+        this.stateSubject.next(LoginState.Pending);
         let authToken: String = new Buffer(`${username}:${password}`).toString('base64');
 
-        this.repository.httpProviderRef.Ajax(LoginResponse, {
+        this.httpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: `${this.repository.config.RepositoryUrl}sn-token/login`,
+            url: `${this.repositoryUrl}sn-token/login`,
             headers: {
                 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`
@@ -147,7 +154,7 @@ export class JwtService implements IAuthenticationService {
                 let result = this.handleAuthenticationResponse(r);
                 sub.next(result);
             }, err => {
-                this.State.next(LoginState.Unauthenticated);
+                this.stateSubject.next(LoginState.Unauthenticated);
                 sub.next(false);
             });
 
@@ -165,5 +172,6 @@ export class JwtService implements IAuthenticationService {
         this.TokenStore.RefreshToken = Token.Empty;
         this.accessToken = Token.Empty;
         this.refreshToken = Token.Empty;
+        this.stateSubject.next(LoginState.Unauthenticated);
     }
 }
