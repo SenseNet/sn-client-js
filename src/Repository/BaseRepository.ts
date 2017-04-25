@@ -10,6 +10,7 @@ import { HttpProviders, Content, Authentication, ODataApi, ODataHelper } from '.
 import { IRepository } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
+import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
 
 export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
     implements IRepository<TProviderType, TProviderBaseContentType> {
@@ -113,33 +114,23 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * })
      * ```
     */
-    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args): TContentType }): Observable<TContentType> {
-        let o = {};
-
-        if (typeof options !== 'undefined') {
-            o['params'] = options;
-        }
-
+    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(idOrPath: string | number, options?: ODataApi.IODataParams, version?: string, returns?: { new (...args): TContentType }): Observable<TContentType> {
         if (!returns) {
             returns = Content as { new (...args) };
         }
+        let contentURL = typeof idOrPath === 'string' ?
+            ODataHelper.getContentURLbyPath(idOrPath) :
+            ODataHelper.getContentUrlbyId(idOrPath);
 
-        if (typeof idOrPath === 'string') {
-            let contentURL = ODataHelper.getContentURLbyPath(idOrPath);
-            o['path'] = contentURL;
-            let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
-            return this.Contents.Get(optionList, returns).map(r => {
-                return Content.Create(returns, r.d.results[0], this);
-            });
-        }
-        else if (typeof idOrPath === 'number') {
-            let contentURL = ODataHelper.getContentUrlbyId(idOrPath);
-            o['path'] = contentURL;
-            let optionList = new ODataApi.ODataRequestOptions(o as ODataApi.ODataRequestOptions);
+        let params = new ODataApi.ODataParams(options || {});
 
-            return this.Contents.Get(optionList, returns).map(r => {
-                return Content.Create(returns, r.d.results[0], this);
-            });
-        }
+        let odataRequestOptions = new ODataRequestOptions({
+            path: contentURL,
+            params: params
+        })
+        return this.Contents.Get(odataRequestOptions, returns).map(r => {
+            return Content.Create(returns, r.d, this);
+        });
+
     }
 }

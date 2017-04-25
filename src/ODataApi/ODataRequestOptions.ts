@@ -6,7 +6,7 @@ import { ODataParams } from './';
 
 export class ODataRequestOptions {
     path: string;
-    params: ODataParams[];
+    params: ODataParams;
     async: boolean;
     type: string;
     success: Function;
@@ -14,7 +14,7 @@ export class ODataRequestOptions {
     complete: Function;
 
     constructor(options: IODataRequestOptions) {
-        this.params = options.params || [];
+        this.params = options.params;
         this.path = `${options.path}`;
         this.async = options.async || true;
         this.type = options.type || 'GET';
@@ -26,7 +26,7 @@ export class ODataRequestOptions {
 
 export interface IODataRequestOptions {
     path: string;
-    params?: ODataParams[];
+    params?: ODataParams;
     async?: boolean;
     type?: string;
     success?: Function;

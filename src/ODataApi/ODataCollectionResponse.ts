@@ -5,6 +5,9 @@
 /**
  * Generic Class that represents a basic OData Response structure
  */
-export class ODataResponse<T>{
-    d: T;
+export class ODataCollectionResponse<T>{
+    d: {
+        results: T[];
+        __count: number;
+    }
 }
