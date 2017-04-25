@@ -26,9 +26,10 @@ export abstract class BaseHttpProvider {
      * @param options Additional RxJs AjaxRequest options (the global headers will be overridden)
      */
     public Ajax<T>(tReturnType: { new (...args): T }, options?: AjaxRequest): Observable<T> {
-        this.headers.forEach((value, key) => {
-            options.headers[key] = value;
-        });
+        options.headers = options.headers || [];
+        for (let key in this.headers){
+            options.headers[key] = this.headers[key];
+        }
         return this.AjaxInner(tReturnType, options);
     };
     

@@ -34,7 +34,7 @@ export class TokenStore {
     public GetToken(key: TokenType): Token {
         const storeKey = this.getStoreKey(key);
         try {
-            if (typeof localStorage === 'undefined') {
+            if (typeof localStorage === 'undefined' || this.innerStore[storeKey]) {
                 return Token.FromHeadAndPayload(this.innerStore[storeKey]);
             }
             return Token.FromHeadAndPayload(localStorage.getItem(storeKey));

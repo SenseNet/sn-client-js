@@ -27,24 +27,13 @@ export class JwtService implements IAuthenticationService {
      */
     private TokenStore = new TokenStore(this.repositoryUrl, this.tokenTemplate);
     
-    /**
-     * The current access token
-     * @default Token.Empty
-     */
-    private accessToken: Token = Token.Empty;
-    
-    /**
-     * The current refresh token
-     * @default Token.Empty
-     */
-    private refreshToken: Token = Token.Empty;
     
     /**
      * Executed before each Ajax call. If the access token has been expired, but the refresh token is still valid, it triggers the token refreshing call
      * @returns {Observable<boolean>} An observable with a variable that indicates if there was a refresh triggered.
      */
     public CheckForUpdate() {
-        if (this.accessToken.IsValid() || !this.refreshToken.IsValid()) {
+        if (this.TokenStore.AccessToken.IsValid() || !this.TokenStore.RefreshToken.IsValid()) {
             return Observable.from([false]);
         } else {
             this.stateSubject.next(LoginState.Pending);
@@ -57,20 +46,18 @@ export class JwtService implements IAuthenticationService {
      * @returns {Observable<boolean>} An observable that will be completed with true on a succesfull refresh
      */
     private ExecTokenRefresh() {
-        let refreshBase64 = this.refreshToken.toString();
+        let refreshBase64 = this.TokenStore.RefreshToken.toString();
         let refresh = this.httpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
             url: `${this.repositoryUrl}sn-token/refresh`,
             headers: {
-                'X-Refresh-Data': this.refreshToken.toString(),
+                'X-Refresh-Data': this.TokenStore.RefreshToken.toString(),
                 'X-Authentication-Type': 'Token'
             }
         });
 
         refresh.subscribe(response => {
             this.TokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
-            this.accessToken = this.TokenStore.AccessToken;
-            this.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
             this.stateSubject.next(LoginState.Authenticated);
         }, err => {
             console.warn(`There was an error during token refresh: ${err}`);
@@ -85,17 +72,14 @@ export class JwtService implements IAuthenticationService {
                 private readonly tokenTemplate: string) {
 
         this.State.subscribe(s => {
-            console.log(`SN Login state: '${LoginState[s]}'`)
+            this.httpProviderRef.SetGlobalHeader('X-Access-Data', this.TokenStore.AccessToken.toString());
         });
 
-        this.accessToken = this.TokenStore.AccessToken;
-        this.refreshToken = this.TokenStore.RefreshToken;
-
-        if (this.accessToken.IsValid()) {
+        if (this.TokenStore.AccessToken.IsValid()) {
             // Access Token is valid. Nothing to do.
             this.stateSubject.next(LoginState.Authenticated);
         } else {
-            if (this.refreshToken.IsValid()) {
+            if (this.TokenStore.RefreshToken.IsValid()) {
                 this.CheckForUpdate();
             } else {
                 // Both Access token and Refresh tokens are invalid. Nothing to do, user is unauthenticated.
@@ -111,7 +95,6 @@ export class JwtService implements IAuthenticationService {
             this.stateSubject.next(LoginState.Authenticated);
             return true;
         }
-        this.httpProviderRef.SetGlobalHeader('X-Access-Data', response.access);
         this.stateSubject.next(LoginState.Unauthenticated);
         return false;
     }
@@ -170,8 +153,6 @@ export class JwtService implements IAuthenticationService {
     public Logout(): void {
         this.TokenStore.AccessToken = Token.Empty;
         this.TokenStore.RefreshToken = Token.Empty;
-        this.accessToken = Token.Empty;
-        this.refreshToken = Token.Empty;
         this.stateSubject.next(LoginState.Unauthenticated);
     }
 }
