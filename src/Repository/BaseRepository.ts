@@ -21,7 +21,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     }
 
     public get ODataBaseUrl() {
-        return `${this.Config.RepositoryUrl}${this.Config.ODataToken}`;
+        return ODataHelper.joinPaths(this.Config.RepositoryUrl, this.Config.ODataToken);
     }
 
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
@@ -31,7 +31,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
             .flatMap(state => {
                 return this.httpProviderRef.Ajax<T>(returnsType,
                     {
-                        url: `${this.ODataBaseUrl}/${path}`,
+                        url: ODataHelper.joinPaths(this.ODataBaseUrl, path),
                         method: method,
                         body: body,
                         crossDomain: this.IsCrossDomain,

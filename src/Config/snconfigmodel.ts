@@ -15,7 +15,7 @@ export class SnConfigModel {
      */
     public static get DEFAULT_BASE_URL(): string {
         if (typeof window !== 'undefined')
-            return (window && window.location && window.location.host) || '';
+            return (window && window.location && window.location.origin) || '';
         return '';
     }
     

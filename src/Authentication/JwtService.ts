@@ -7,6 +7,7 @@
 import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore, IAuthenticationService, TokenPersist } from './';
 import { Subject, BehaviorSubject, Observable } from '@reactivex/rxjs';
 import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
+import { ODataHelper } from '../SN';
 
 /**
  * This service class manages the JWT authentication, the session and the current login state.
@@ -49,7 +50,7 @@ export class JwtService implements IAuthenticationService {
         let refreshBase64 = this.TokenStore.RefreshToken.toString();
         let refresh = this.httpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
-            url: `${this.repositoryUrl}sn-token/refresh`,
+            url: ODataHelper.joinPaths(this.repositoryUrl, 'sn-token/refresh'),
             headers: {
                 'X-Refresh-Data': this.TokenStore.RefreshToken.toString(),
                 'X-Authentication-Type': 'Token'
@@ -132,7 +133,7 @@ export class JwtService implements IAuthenticationService {
 
         this.httpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: `${this.repositoryUrl}sn-token/login`,
+            url: ODataHelper.joinPaths(this.repositoryUrl, 'sn-token/login'),
             headers: {
                 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`

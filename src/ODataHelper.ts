@@ -135,5 +135,22 @@ export function stringifyWithoutCircularDependency(content: any): string {
         }
         return value;
     });
+}
 
+/**
+ * 
+ * @param args The list of the paths to join
+ */
+export function joinPaths(...args: string[]) {
+    function trimSlashes(path: string): string {
+        if (path.endsWith('/')) {
+            path = path.substring(0, path.length - 1)
+        }
+        if (path.startsWith('/')) {
+            path = path.substring(1, path.length);
+        }
+        return path;
+    }
+
+    return args.map(trimSlashes).join('/');
 }
