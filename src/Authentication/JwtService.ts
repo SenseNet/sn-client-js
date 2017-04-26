@@ -4,7 +4,7 @@
  * @description This module that contains authentication-related classes, types and interfaces
  */ /** */
 
-import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore, IAuthenticationService } from './';
+import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore, IAuthenticationService, TokenPersist } from './';
 import { Subject, BehaviorSubject, Observable } from '@reactivex/rxjs';
 import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
 
@@ -21,11 +21,11 @@ export class JwtService implements IAuthenticationService {
     }
 
     private readonly stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
-    
+
     /**
      * The store for JWT tokens
      */
-    private TokenStore = new TokenStore(this.repositoryUrl, this.tokenTemplate);
+    private TokenStore: TokenStore = new TokenStore(this.repositoryUrl, this.tokenTemplate, (this.persist === 'session') ? TokenPersist.Session : TokenPersist.Expiration);
     
     
     /**
@@ -69,10 +69,15 @@ export class JwtService implements IAuthenticationService {
 
     constructor(private readonly httpProviderRef: BaseHttpProvider,
                 private readonly repositoryUrl: string,
-                private readonly tokenTemplate: string) {
+                private readonly tokenTemplate: string,
+                public readonly persist: 'session' | 'expiration') {
 
-        this.State.subscribe(s => {
+        this.stateSubject = new BehaviorSubject<LoginState>(LoginState.Pending);
+
+        this.State.subscribe((s) => {
+            console.group(`SnLoginState -> ${LoginState[s]}`);
             this.httpProviderRef.SetGlobalHeader('X-Access-Data', this.TokenStore.AccessToken.toString());
+            console.groupEnd();
         });
 
         if (this.TokenStore.AccessToken.IsValid()) {
@@ -151,8 +156,8 @@ export class JwtService implements IAuthenticationService {
      * ```
      */
     public Logout(): void {
-        this.TokenStore.AccessToken = Token.Empty;
-        this.TokenStore.RefreshToken = Token.Empty;
+        this.TokenStore.AccessToken = Token.CreateEmpty();
+        this.TokenStore.RefreshToken = Token.CreateEmpty();
         this.stateSubject.next(LoginState.Unauthenticated);
     }
 }

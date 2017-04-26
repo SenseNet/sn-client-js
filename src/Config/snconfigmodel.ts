@@ -10,11 +10,18 @@ import { SnConfigField } from './snconfigfielddecorator';
  */
 export class SnConfigModel {
 
+    /**
+     * The default base URL, returns window.location if available
+     */
     public static get DEFAULT_BASE_URL(): string {
         if (typeof window !== 'undefined')
-            return (window && window.location && window.location.href) || '';
+            return (window && window.location && window.location.host) || '';
         return '';
     }
+    
+    /**
+     * The default Sense/Net OData Service token (odata.svc)
+     */
     public static readonly DEFAULT_SERVICE_TOKEN: string = 'odata.svc';
 
 
@@ -47,7 +54,18 @@ export class SnConfigModel {
         FieldDescription: 'Template will be stored in that format',
         Question: 'Please specify the template format for the key of the JWT Web Token in the localStorage (e.g.: sn-${siteName}-${tokenName})'
     })
-    public JwtTokenKeyTeplate: string = 'sn-${siteName}-${tokenName}';
+    public JwtTokenKeyTemplate: string = 'sn-${siteName}-${tokenName}';
+
+
+    /**
+     * This string describes how long the JWT token should be persisted.
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The behavoir how long the JWT tokens should be persisted, can be "session" or "expiration"',
+        Question: ''
+    })
+    public JwtTokenPersist: 'session' | 'expiration' = 'session';
 
     /**
      *

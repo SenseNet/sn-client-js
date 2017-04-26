@@ -62,7 +62,7 @@ export class Token {
         return new Token(head, payload)
     }
 
-    public static get Empty(): Token {
+    public static CreateEmpty(): Token {
         return new Token('', '');
     }
 

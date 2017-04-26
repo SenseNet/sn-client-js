@@ -11,6 +11,7 @@ import { IRepository } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
+import { TokenPersist } from '../Authentication/';
 
 export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
     implements IRepository<TProviderType, TProviderBaseContentType> {
@@ -54,7 +55,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
         //warning: constructor parameterization is not type-safe
-        this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTeplate);
+        this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
         this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.Config.RepositoryUrl, this.Config.ODataToken, this);
     }
     /**
