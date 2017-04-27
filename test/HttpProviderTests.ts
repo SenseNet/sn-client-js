@@ -3,12 +3,14 @@ import { suite, test } from 'mocha-typescript';
 import { SnConfigBehavior } from '../src/Config/snconfigbehavior';
 import { SnConfigFieldModel } from '../src/Config/snconfigfieldmodel';
 import { SnConfigFieldModelStore } from '../src/Config/snconfigfieldmodelstore';
-import { MockHttpProvider } from '../src/HttpProviders';
+import { RxAjaxHttpProvider } from '../src/HttpProviders';
+import { Observable } from '@reactivex/rxjs';
+import { MockHttpProvider } from './Mocks/MockHttpProvider';
 
 const expect = Chai.expect;
 
 @suite('BaseHttpProvider')
-export class BaseHttpProviderTests {
+export class HttpProviderTests {
 
     private readonly testHeaderName = 'testHeader';
     private readonly testHeaderValue = 'testHeaderValue';
@@ -29,7 +31,13 @@ export class BaseHttpProviderTests {
         options[this.testHeaderName] = 'modifiedValue';
         p.Ajax(Object, options).toPromise();
         expect(p.lastOptions.headers[this.testHeaderName, this.testHeaderValue]);
+    }
 
+    @test('RxHttpProvider should return an Observable<TReturns>')
+    public rxObservableTest(){
+        let p = new RxAjaxHttpProvider();
+        let obs = p.Ajax(Object, {});
+        expect(obs).to.be.instanceof(Observable);
     }
 
 }

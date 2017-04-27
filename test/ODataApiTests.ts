@@ -1,13 +1,13 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
-import { SnTestRepository } from '../src/Repository';
 import { ODataRequestOptions, CustomAction, ODataParams } from '../src/ODataApi';
 import { Content } from '../src/Content';
+import { MockRepository } from './Mocks/MockRepository';
 
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
-    let service = new SnTestRepository();
+    let service = new MockRepository();
 
     it('request a Content and returns an Observable object', function () {
         const options = new ODataRequestOptions({ path: '/workspace/project' })

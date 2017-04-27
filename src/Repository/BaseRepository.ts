@@ -74,8 +74,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * ```
      */
     public GetVersionInfo() {
-        let action = new ODataApi.CustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
-        return this.Contents.CreateCustomAction(action);
+        return this.Contents.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -92,8 +91,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * ```
      */
     public GetAllContentTypes = () => {
-        let action = new ODataApi.CustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
-        return this.Contents.CreateCustomAction(action);
+        return this.Contents.CreateCustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
     }
 
     /**

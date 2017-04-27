@@ -3,7 +3,7 @@
  *//** */
 
 import { Observable, ReplaySubject, AjaxRequest } from '@reactivex/rxjs';
-import { BaseHttpProvider } from './';
+import { BaseHttpProvider } from '../../src/HttpProviders';
 
 /**
  * This HttpProvider can be used for test purposes only, it doesn't make any API calls

@@ -1,15 +1,15 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 import { Collection } from '../src/Collection';
-import { SnTestRepository } from '../src/Repository';
 import { Content } from '../src/Content';
+import { MockRepository } from './Mocks/MockRepository';
 const expect = Chai.expect;
 
 describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new SnTestRepository();
+  let Repo = new MockRepository();
 
   beforeEach(function () {
     children = [

@@ -1,4 +1,4 @@
-import * as BaseHttpProviderTests from './BaseHttpProviderTests';
+import * as HttpProviderTests from './HttpProviderTests';
 import * as CollectionTests from './CollectionTests';
 import * as ContentTests from './ContentTests';
 import * as ContentTypeTests from './ContentTypeTests';
@@ -9,9 +9,10 @@ import * as ODataHelperTests from './ODataHelperTests';
 import * as RepositoryTests from './RepositoryTests';
 import * as SchemaTests from './SchemaTests';
 import * as SnConfigTests from './SnConfigTests';
+import * as TokenTests from './TokenTests';
 
 export {
-    BaseHttpProviderTests,
+    HttpProviderTests,
     CollectionTests,
     ContentTests,
     ContentTypeTests,
@@ -21,5 +22,6 @@ export {
     ODataHelperTests,
     RepositoryTests,
     SchemaTests,
-    SnConfigTests
+    SnConfigTests,
+    TokenTests
 }

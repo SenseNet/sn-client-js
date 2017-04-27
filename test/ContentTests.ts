@@ -1,14 +1,14 @@
 import { Schemas, Security, Enums, ContentTypes, HttpProviders, Content } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
-import { SnTestRepository } from '../src/Repository';
+import { MockRepository } from './Mocks/MockRepository';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
 
 describe('Content', () => {
     let content: ContentTypes.Task;
-    let repo = new SnTestRepository();
+    let repo = new MockRepository();
 
     beforeEach(function () {
         content = new ContentTypes.Task({
