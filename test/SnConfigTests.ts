@@ -6,7 +6,7 @@ import { SnConfigFieldModelStore } from '../src/Config/snconfigfieldmodelstore';
 
 const expect = Chai.expect;
 
-@suite('SnConfig Tests')
+@suite('SnConfig')
 export class SnConfigTests {
 
     @test('SnConfigFieldModel Should be constructed with SnConfigBehavior.Default')

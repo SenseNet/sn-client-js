@@ -1,3 +1,4 @@
+import * as BaseHttpProviderTests from './BaseHttpProviderTests';
 import * as CollectionTests from './CollectionTests';
 import * as ContentTests from './ContentTests';
 import * as ContentTypeTests from './ContentTypeTests';
@@ -10,6 +11,7 @@ import * as SchemaTests from './SchemaTests';
 import * as SnConfigTests from './SnConfigTests';
 
 export {
+    BaseHttpProviderTests,
     CollectionTests,
     ContentTests,
     ContentTypeTests,
