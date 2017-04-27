@@ -82,3 +82,29 @@ describe('#buildRequestBody', function () {
         expect(body).to.be.eq('models=[{"permanent":false,"comment":"aaa"}]');
     });
 });
+
+describe('#stringifyWithoutCircularDependency', function () {
+    it('stringified value should be the same as JSON.stringify without circular dependency', function () {
+        const object = {str: 'string', value: 'value', bool: true, number: 123};
+        const jsonSerialized = JSON.stringify(object);
+        const circularSerialized = ODataHelper.stringifyWithoutCircularDependency(object);
+        expect(circularSerialized).to.be.eq(jsonSerialized);
+    });
+});
+
+describe('#joinPaths', function () {
+    it('should join with slashes', function () {
+        let joined = ODataHelper.joinPaths('path1', 'path2', 'path3');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+
+    it('should remove slashes from the beginning of the segments', function () {
+        let joined = ODataHelper.joinPaths('/path1', 'path2', '/path3');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+
+    it('should remove slashes from the end of the segments', function () {
+        let joined = ODataHelper.joinPaths('path1', 'path2/', 'path3/');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+});

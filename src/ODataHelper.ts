@@ -124,6 +124,10 @@ export function isItemPath(path: string): boolean {
     return path.indexOf("('") >= 0 && path.indexOf("')") === path.length - 2;
 }
 
+/**
+ * Method that allows to serialize an object, without circular dependencies. Already serialized objects will be skipped.
+ * @param content The content object to be serialized
+ */
 export function stringifyWithoutCircularDependency(content: any): string {
     let serialized = [];
     return JSON.stringify(content, (key, value) => {
@@ -138,7 +142,7 @@ export function stringifyWithoutCircularDependency(content: any): string {
 }
 
 /**
- * 
+ * Method that allows to join paths without multiple or missing slashes
  * @param args The list of the paths to join
  */
 export function joinPaths(...args: string[]) {
