@@ -126,11 +126,12 @@ export function isItemPath(path: string): boolean {
 
 /**
  * Method that allows to serialize an object, without circular dependencies. Already serialized objects will be skipped.
- * @param content The content object to be serialized
+ * @param object {any} The content object to be serialized
+ * @param space {number|string}
  */
-export function stringifyWithoutCircularDependency(content: any): string {
+export function stringifyWithoutCircularDependency(object: any, space?: number | string): string {
     let serialized = [];
-    return JSON.stringify(content, (key, value) => {
+    let replacer = (key, value) => {
         if (typeof value === 'object' && value !== null) {
             if (serialized.indexOf(value) !== -1) {
                 return;
@@ -138,7 +139,9 @@ export function stringifyWithoutCircularDependency(content: any): string {
             serialized.push(value);
         }
         return value;
-    });
+    };
+
+    return JSON.stringify(object, replacer, space);
 }
 
 /**
