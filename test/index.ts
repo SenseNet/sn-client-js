@@ -1,4 +1,5 @@
 import * as HttpProviderTests from './HttpProviderTests';
+import * as JwtServiceTests from './JwtServiceTests';
 import * as CollectionTests from './CollectionTests';
 import * as ContentTests from './ContentTests';
 import * as ContentTypeTests from './ContentTypeTests';
@@ -10,9 +11,11 @@ import * as RepositoryTests from './RepositoryTests';
 import * as SchemaTests from './SchemaTests';
 import * as SnConfigTests from './SnConfigTests';
 import * as TokenTests from './TokenTests';
+import * as TokenStoreTests from './TokenStoreTests';
 
 export {
     HttpProviderTests,
+    JwtServiceTests,
     CollectionTests,
     ContentTests,
     ContentTypeTests,
@@ -23,5 +26,6 @@ export {
     RepositoryTests,
     SchemaTests,
     SnConfigTests,
-    TokenTests
+    TokenTests,
+    TokenStoreTests
 }

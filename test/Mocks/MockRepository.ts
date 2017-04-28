@@ -15,6 +15,8 @@ export class MockRepository extends BaseRepository<MockHttpProvider, Content>{
             config = new SnConfigModel();
         }
         super(config, MockHttpProvider, MockAuthService);
+
+        let auth = (this.Authentication as MockAuthService);
     }
 
 }

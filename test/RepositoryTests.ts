@@ -3,6 +3,7 @@ import { suite, test } from 'mocha-typescript';
 import { Observable } from '@reactivex/rxjs';
 import { SnConfigModel } from '../src/Config';
 import { MockRepository } from './Mocks/MockRepository';
+import { MockAuthService } from './Mocks/MockAuthService';
 
 const expect = Chai.expect;
 
@@ -24,10 +25,8 @@ export class BaseHttpProviderTests {
         expect(this.repo.ODataBaseUrl).to.be.eq('https://localhost/odata.svc');
     }
 
-
-    @test('Login should return an Observable<boolean>')
-    public ODataApi() {
-        let loginResponse = this.repo.Authentication.Login('test', 'test');
-        Chai.expect(loginResponse).to.be.instanceof(Observable);
+    public a(){
+        this.repo.IsCrossDomain
     }
+
 }
