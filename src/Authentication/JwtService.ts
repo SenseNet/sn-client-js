@@ -21,6 +21,14 @@ export class JwtService implements IAuthenticationService {
         return this.stateSubject.asObservable();
     }
 
+    /**
+     * Gets the current state of the service
+     * @default LoginState.Pending
+     */
+    public get CurrentState(): LoginState{
+        return this.stateSubject.getValue();
+    }
+
     private readonly stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
 
     /**
@@ -76,9 +84,7 @@ export class JwtService implements IAuthenticationService {
         this.stateSubject = new BehaviorSubject<LoginState>(LoginState.Pending);
 
         this.State.subscribe((s) => {
-            console.group(`SnLoginState -> ${LoginState[s]}`);
             this.httpProviderRef.SetGlobalHeader('X-Access-Data', this.TokenStore.AccessToken.toString());
-            console.groupEnd();
         });
 
         if (this.TokenStore.AccessToken.IsValid()) {

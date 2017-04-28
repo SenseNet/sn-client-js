@@ -109,11 +109,6 @@ export class TokenStore {
             default:
                 break;
         }
-        // if (typeof localStorage === 'undefined') {
-        //     this.innerStore[storeKey] = dtaString;
-        // } else {
-        //     localStorage.setItem(storeKey, dtaString);
-        // }
     }
 
     /**
