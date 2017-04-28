@@ -6,8 +6,8 @@
 /** */
 
 import { Observable, Subscription } from '@reactivex/rxjs';
-import { HttpProviders, Content, Authentication, ODataApi, ODataHelper } from '../SN';
-import { IRepository } from './';
+import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
+import { IRepository, VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
@@ -54,9 +54,10 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     constructor(config: Partial<SnConfigModel>, private readonly httpProviderType: { new (): TProviderType }, authentication: { new (...args): Authentication.IAuthenticationService }) {
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
-        //warning: constructor parameterization is not type-safe
+
+        //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this.Config.RepositoryUrl, this.Config.ODataToken, this);
+        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this);
     }
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
@@ -74,7 +75,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * ```
      */
     public GetVersionInfo() {
-        return this.Contents.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false });
+        return this.Contents.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, null, VersionInfo);
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -90,8 +91,14 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * });
      * ```
      */
-    public GetAllContentTypes = () => {
-        return this.Contents.CreateCustomAction({ name: 'GetAllContentTypes', path: '/Root', isAction: false });
+    public GetAllContentTypes(){
+        return this.Contents.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
+                name: 'GetAllContentTypes', 
+                path: '/Root', 
+                isAction: false
+            }, 
+            null, 
+            ODataApi.ODataCollectionResponse);
     }
 
     /**
@@ -130,6 +137,5 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
         return this.Contents.Get(odataRequestOptions, returns).map(r => {
             return Content.Create(returns, r.d, this);
         });
-
     }
 }
