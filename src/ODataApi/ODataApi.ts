@@ -24,8 +24,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
     private readonly httpProvider: THttpProvider;
     constructor(
         providerRef: { new (): THttpProvider },
-        private readonly baseUrl: string,
-        private readonly serviceToken: string,
         private readonly repository: IRepository<THttpProvider, any>,
     ) {
         this.httpProvider = new providerRef();
@@ -133,15 +131,18 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
       * @params options {IODataParams} An object that holds the config of the ajax request like urlparameters or data.
       * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
       */
-    public CreateCustomAction = (actionOptions: ICustomActionOptions, options?: IODataParams) => {
+    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams, returns?: {new(...args): TReturnType}){
+        if (!returns){
+            returns = Object as {new(...args)};
+        }
         let action = new CustomAction(actionOptions);
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
-            path = `${this.baseUrl}${ODataHelper.getContentUrlbyId(action.id)}/${action.name}`;
+            path = ODataHelper.joinPaths(ODataHelper.getContentUrlbyId(action.id), action.name);
         }
         else {
-            path = `${this.baseUrl}${ODataHelper.getContentURLbyPath(action.path)}/${action.name}`;
+            path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`
@@ -156,28 +157,16 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            return this.httpProvider.Ajax(Object, {
-                url: `${path}${ODataHelper.buildUrlParamString(action.params)}`,
-                method: 'GET',
-                responseType: 'json',
-                crossDomain: this.repository.IsCrossDomain,
-            })
+            return this.repository.Ajax(path, 'GET', returns);
         }
         else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                return this.httpProvider.Ajax(Object, {
-                    url: `${path}`,
-                    method: 'POST',
-                    crossDomain: this.repository.IsCrossDomain,
+                return this.repository.Ajax(path, 'POST', returns, {
                     body: JSON.stringify(options.data)
                 });
             }
             else {
-                return this.httpProvider.Ajax(Object, {
-                    url: `${path}`,
-                    method: 'POST',
-                    crossDomain: this.repository.IsCrossDomain
-                });
+                return this.repository.Ajax(path, 'POST', returns);
             }
         }
     }
