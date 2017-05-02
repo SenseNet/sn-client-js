@@ -1,8 +1,12 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
-import { ODataRequestOptions, CustomAction, ODataParams } from '../src/ODataApi';
+import { ODataRequestOptions, CustomAction, ODataParams, ODataCollectionResponse } from '../src/ODataApi';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
+import { MockHttpProvider } from './Mocks/MockHttpProvider';
+import { MockAuthService } from './Mocks/MockAuthService';
+import { LoginState } from '../src/Authentication';
+import { ODataApi } from '../src/SN';
 
 const expect = Chai.expect;
 
@@ -13,9 +17,25 @@ describe('ODataApi', () => {
         const options = new ODataRequestOptions({ path: '/workspace/project' })
         expect(typeof service.Contents.Get(options)).to.be.eq('object');
     });
-    it('request a collection of Content and returns an Observable object', function () {
+    it('request a collection of Content and returns an Observable object', function (done) {
+        (service.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
+        (service.httpProviderRef as MockHttpProvider).setResponse({
+            d: {
+                __count: 1,
+                results: [
+                    { Id: 1 }
+                ]
+            }
+        } as ODataCollectionResponse<Content>)
         const options = new ODataRequestOptions({ path: '/workspace/project' })
-        expect(typeof service.Contents.Fetch(options)).to.be.eq('object');
+        service.Contents.Fetch(options).first().subscribe(result => {
+            expect(result.d.results[0].Id).to.be.eq(1);
+            expect(result.d.results[0]).to.be.instanceof(Content);
+            done();
+        }, done)
+
+
+
     });
     it('requests to create a Content and returns an Observable object', function () {
         let observable = service.Contents.Create('/workspace/project', { Id: 1, Type: 'Article', DisplayName: 'Article' }, Content);
@@ -64,5 +84,18 @@ describe('ODataApi', () => {
     it('creates a new copy of ODataParams', () => {
         const params = new ODataParams({ select: 'DisplayName' });
         expect(typeof params).to.be.eq('object');
+    });
+
+    it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
+        const params = new ODataParams({ select: 'DisplayName' });
+        let http = (service.httpProviderRef as MockHttpProvider);
+        http.setResponse({success: true});
+        let action = service.Contents.CreateCustomAction({
+            path: `localhost/OData.svc('Root')`,
+            name: 'exampleAction'
+        }).first().subscribe(resp => {
+            done();
+            expect(http.lastUrl).to.contains('OData.svc/(');
+        });
     });
 });

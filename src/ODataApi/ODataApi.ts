@@ -10,6 +10,7 @@ import { BaseHttpProvider } from '../HttpProviders';
 import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, IODataApi, ODataCollectionResponse } from './';
 import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
+import { Content } from '../Content';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -51,10 +52,17 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
-    public Fetch<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args): T }): Observable<ODataCollectionResponse<T>> {
+    public Fetch<T extends TBaseContentType = TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args): T }): Observable<ODataCollectionResponse<T>> {
+
+        if (!returns) {
+            returns = Content as {new(...args)};
+        }
+
         return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET')
             .map(resp => {
-                resp.d.results.map(r => r = new returns(r));
+                resp.d.results = resp.d.results.map(r => {
+                    return new returns(r);
+                });
                 return resp;
             });
     }
@@ -151,7 +159,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         if (path.indexOf('OData.svc(') > -1) {
             const start = path.indexOf('(');
             path = path.slice(0, start) + '/' + path.slice(start);
-            console.log(path);
         }
 
         let body = action.params.length > 0 ? JSON.stringify(options.data) : '';

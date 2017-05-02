@@ -31,10 +31,16 @@ export class MockHttpProvider extends BaseHttpProvider {
         this._nextError = error;
     }
 
+    private _lastUrl: string = '';
+    public get lastUrl(){
+        return this._lastUrl;
+    }
+
 
     protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
-        let subject = new ReplaySubject<T>()
+        let subject = new ReplaySubject<T>();
         setTimeout(() => {
+            this._lastUrl = options.url;
             if (this._nextResponse) {
                 subject.next(this._nextResponse);
                 this._nextResponse = null;

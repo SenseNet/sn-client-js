@@ -74,12 +74,9 @@ export class TokenStore {
                     return Token.FromHeadAndPayload(this.localStorageRef.getItem(storeKey));
                 case TokenStoreType.SessionStorage:
                     return Token.FromHeadAndPayload(this.sessionStorageRef.getItem(storeKey));
-                
                 case TokenStoreType.ExpirationCookie:
                 case TokenStoreType.SessionCookie:
                     return this.getTokenFromCookie(storeKey);
-                default:
-                    return Token.CreateEmpty();
             }
         } catch (err) {
             return Token.CreateEmpty();
@@ -109,8 +106,6 @@ export class TokenStore {
                 break;
             case TokenStoreType.SessionCookie:
                 this.setTokenToCookie(storeKey, token, TokenPersist.Session);
-                break;
-            default:
                 break;
         }
     }
