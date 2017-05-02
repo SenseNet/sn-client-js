@@ -42,12 +42,16 @@ export class JwtService implements IAuthenticationService {
      * @returns {Observable<boolean>} An observable with a variable that indicates if there was a refresh triggered.
      */
     public CheckForUpdate() {
-        if (this.TokenStore.AccessToken.IsValid() || !this.TokenStore.RefreshToken.IsValid()) {
+        if (this.TokenStore.AccessToken.IsValid()){
+            this.stateSubject.next(LoginState.Authenticated);
             return Observable.from([false]);
-        } else {
-            this.stateSubject.next(LoginState.Pending);
-            return this.ExecTokenRefresh();
-        }
+        } 
+        if (!this.TokenStore.RefreshToken.IsValid()) {
+            this.stateSubject.next(LoginState.Unauthenticated);
+            return Observable.from([false]);
+        } 
+        this.stateSubject.next(LoginState.Pending);
+        return this.ExecTokenRefresh();
     }
     
     /**
@@ -86,18 +90,7 @@ export class JwtService implements IAuthenticationService {
         this.State.subscribe((s) => {
             this.httpProviderRef.SetGlobalHeader('X-Access-Data', this.TokenStore.AccessToken.toString());
         });
-
-        if (this.TokenStore.AccessToken.IsValid()) {
-            // Access Token is valid. Nothing to do.
-            this.stateSubject.next(LoginState.Authenticated);
-        } else {
-            if (this.TokenStore.RefreshToken.IsValid()) {
-                this.CheckForUpdate();
-            } else {
-                // Both Access token and Refresh tokens are invalid. Nothing to do, user is unauthenticated.
-                this.stateSubject.next(LoginState.Unauthenticated);
-            }
-        }
+        this.CheckForUpdate();
     }
 
     private handleAuthenticationResponse(response: LoginResponse): boolean {
@@ -116,7 +109,7 @@ export class JwtService implements IAuthenticationService {
      * successful or HTTP 403 Forbidden message if it wasn’t. If the username does not contain a domain prefix, the configured default domain will be used. After you logged in the user successfully,
      * you will receive a standard ASP.NET auth cookie which will make sure that your subsequent requests will be authorized correctly.
      *
-     * As the username and password is sent in clear text, always send these kinds of requests throuigh HTTPS.
+     * The username and password is sent in clear text, always send these kinds of requests through HTTPS.
      * @param username {string} Name of the user.
      * @param password {string} Password of the user.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
