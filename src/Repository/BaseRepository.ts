@@ -134,8 +134,6 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
             path: contentURL,
             params: params
         })
-        return this.Contents.Get(odataRequestOptions, returns).map(r => {
-            return Content.Create(returns, r.d, this);
-        });
+        return this.Contents.Get(odataRequestOptions, returns).map(r => r.d);
     }
 }
