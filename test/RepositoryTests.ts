@@ -20,8 +20,8 @@ export class BaseHttpProviderTests {
         this.repo = new MockRepository(cfg);
     };
 
-    @test('ODataBaseUrl should return a valid URL based on RepositoryUrl and ODataToken')
-    public ODataBaseUrl(){
+    @test
+    public 'ODataBaseUrl should return a valid URL based on RepositoryUrl and ODataToken'(){
         expect(this.repo.ODataBaseUrl).to.be.eq('https://localhost/odata.svc');
     }
 

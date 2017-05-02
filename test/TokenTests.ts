@@ -15,8 +15,8 @@ export class TokenTests {
     }
 
 
-    @test('Construct token from encoded head and payload has valid serialized values')
-    public ConstructFromHeadAndPayload(){
+    @test
+    public 'Construct token from encoded head and payload has valid serialized values'(){
         let t = this.createTestToken();
         
         expect(t.Username).to.be.eq('BuiltIn\\Admin');
@@ -26,15 +26,15 @@ export class TokenTests {
         expect(t.NotBefore.toUTCString()).to.be.eq('Thu, 27 Apr 2017 09:14:46 GMT');
     }
 
-    @test('Create empty token')
-    public CreateEmpty(){
+    @test
+    public 'Create empty token'(){
         let t = Token.CreateEmpty();
         expect(t.Username).to.be.eq('')
         expect(t.IsValid()).to.be.false;
     }
 
-    @test('toString should return the original head and payload')
-    public toStringTest(){
+    @test
+    public 'toString should return the original head and payload'(){
         let t = this.createTestToken();
         expect(t.toString()).to.be.eq(`${this.head}.${this.payload}`);
     }

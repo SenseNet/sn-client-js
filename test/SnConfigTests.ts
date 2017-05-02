@@ -9,27 +9,27 @@ const expect = Chai.expect;
 @suite('SnConfig')
 export class SnConfigTests {
 
-    @test('SnConfigFieldModel Should be constructed with SnConfigBehavior.Default')
-    public ConfigEntryCtor() {
+    @test
+    public 'SnConfigFieldModel Should be constructed with SnConfigBehavior.Default'() {
         const fieldModel = new SnConfigFieldModel();
         expect(fieldModel.Behavior).to.be.eq(SnConfigBehavior.Default);
     }
 
-    @test('SnConfigFieldModelStore Should throw error if entity isn\'t in the store ')
-    public StoreMissing() {
+    @test
+    public 'SnConfigFieldModelStore Should throw error if entity isn\'t in the store '() {
         const find = () => { SnConfigFieldModelStore.Get('exampleFieldName'); };
         expect(find).to.throw(Error);
     }
 
-    @test('SnConfigFieldModelStore Should throw an error if you try to add a field that already exists')
-    public StoreDuplicate() {
+    @test
+    public 'SnConfigFieldModelStore Should throw an error if you try to add a field that already exists'() {
         const add = () => { SnConfigFieldModelStore.Add({ FieldName: 'Example', Question: 'ExampleQuestion', Behavior: SnConfigBehavior.Default }); };
         add();  // add once
         expect(add).to.throw(Error);
     }
 
-    @test('GetCommandOptions should return only commands that has AllowFromCommandLine flag')
-    public GetCmmandOptions() {
+    @test
+    public 'GetCommandOptions should return only commands that has AllowFromCommandLine flag'() {
         const commands = SnConfigFieldModelStore.GetCommandOptions();
         commands.forEach((command) => {
             const isAllowed = (command.Behavior & SnConfigBehavior.AllowFromCommandLine) === SnConfigBehavior.AllowFromCommandLine;

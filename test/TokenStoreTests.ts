@@ -19,26 +19,26 @@ export class TokenStoreTests {
         this.testToken = Token.FromHeadAndPayload('eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzZW5zZW5ldCIsInN1YiI6ImF1dGgiLCJhdWQiOiJjbGllbnQiLCJleHAiOjE0OTMzODM3NTQsImlhdCI6MTQ5MzM4MzY5NCwibmJmIjoxNDkzMzgzNjk0LCJuYW1lIjoiQnVpbHRJblxcQWRtaW4ifQ');
     }
 
-    @test('Construct an in-memory store')
-    public constructInMemory(){
+    @test
+    public 'Construct an in-memory store'(){
         expect(this.tokenStore.TokenStoreType).to.be.eq(TokenStoreType.InMemory)
     }
 
     
-    @test('Verify that store is constructed with invalid tokens initially')
-    public constructCookieExpiration(){
+    @test
+    public 'Verify that store is constructed with invalid tokens initially'(){
         expect(this.tokenStore.AccessToken.IsValid()).to.be.eq(false);
         expect(this.tokenStore.RefreshToken.IsValid()).to.be.eq(false);
     }
 
-    @test('Verify setting AccessToken')
-    public setAccessToken(){
+    @test
+    public 'Verify setting AccessToken'(){
         this.tokenStore.AccessToken = this.testToken;
         expect(this.tokenStore.AccessToken.toString()).to.be.eq(this.testToken.toString());
     }    
 
-    @test('Verify setting RefreshToken')
-    public setRefreshToken(){
+    @test
+    public 'Verify setting RefreshToken'(){
         this.tokenStore.RefreshToken = this.testToken;
         expect(this.tokenStore.RefreshToken.toString()).to.be.eq(this.testToken.toString());
     }

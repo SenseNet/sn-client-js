@@ -15,15 +15,15 @@ export class HttpProviderTests {
     private readonly testHeaderName = 'testHeader';
     private readonly testHeaderValue = 'testHeaderValue';
 
-    @test('#setGlobalHeaders')
+    @test
     public setGlobalHeaders(){
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this.testHeaderName, this.testHeaderValue);
         let headers = p.actualHeaders;
         Chai.expect(headers[this.testHeaderName]).to.be.eq(this.testHeaderValue);
     }
-    @test('globalHeaders should override options.headers')
-    public globalHeadersOverride(){
+    @test
+    public 'globalHeaders should override options.headers'() {
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this.testHeaderName, this.testHeaderValue);
 
@@ -33,8 +33,8 @@ export class HttpProviderTests {
         expect(p.lastOptions.headers[this.testHeaderName, this.testHeaderValue]);
     }
 
-    @test('RxHttpProvider should return an Observable<TReturns>')
-    public rxObservableTest(){
+    @test
+    public 'RxHttpProvider should return an Observable<TReturns>'() {
         let p = new RxAjaxHttpProvider();
         let obs = p.Ajax(Object, {});
         expect(obs).to.be.instanceof(Observable);
