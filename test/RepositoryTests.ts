@@ -8,6 +8,7 @@ import { MockHttpProvider } from './Mocks/MockHttpProvider';
 import { VersionInfo, SnRepository } from '../src/Repository';
 import { ContentTypes, Content } from '../src/SN';
 import { LoginState } from '../src/Authentication';
+import { ODataCollectionResponse } from '../src/ODataApi/index';
 
 const expect = Chai.expect;
 
@@ -46,15 +47,18 @@ export class BaseHttpProviderTests {
 
     @test 'GetAllContentTypes should be return a valid content type collection'() {
 
-        let cResponse = [
-            {
-                Name: 'testContentType',
-                Type: 'ContentType',
-                options: {},
-                // repository: null,
-
+        let cResponse = {
+            d: {
+                __count: 1,
+                results: [
+                    {
+                        Name: 'testContentType',
+                        Type: 'ContentType',
+                        options: {},
+                    }
+                ]
             }
-        ];
+        } as ODataCollectionResponse<ContentTypes.ContentType>;
         (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
         this.repo.GetAllContentTypes().first().subscribe(types => {
             expect(types.d.__count).to.be.eq(1);
@@ -101,12 +105,12 @@ export class BaseHttpProviderTests {
         });
     }
 
-    @test 'SnRepository should have a default Config, if not provided'(){
+    @test 'SnRepository should have a default Config, if not provided'() {
         let snRepo = new SnRepository();
         expect(snRepo.Config.RepositoryUrl).to.be.eq(SnConfigModel.DEFAULT_BASE_URL);
     }
 
-    @test 'SnRepository should respect the provided config'(){
+    @test 'SnRepository should respect the provided config'() {
         let snRepo = new SnRepository(new SnConfigModel({
             RepositoryUrl: 'https://demo.sensenet.com'
         }));
