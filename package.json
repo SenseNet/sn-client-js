@@ -16,7 +16,6 @@
     "commit": "git-cz",
     "pretest": "npm run build",
     "test": "nyc mocha -p tsconfig.json dist/test/index.js",
-    "posttest": "nyc report --reporter=json && nyc report --reporter=lcov",
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "semantic-release": "semantic-release pre && semantic-release post",
@@ -44,14 +43,22 @@
     "url": "https://github.com/SenseNet/sn-client-js/issues"
   },
   "nyc": {
-    "exclude": "dist/test/**/*.*"
+    "exclude": "dist/test/**/*.*",
+    "include": "dist/src/**/*.js",
+    "check-coverage": true,
+    "cache": true,
+    "all": true,
+    "reporter": [
+      "lcov",
+      "text-summary",
+      "json"
+    ]
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "5.3.0",
-    "nyc": "10.2.0",
-    "ts-json-properties": "1.2.0",
-    "typescript": "^2.3.2"
+    "@reactivex/rxjs": "^5.3.1",
+    "nyc": "^10.3.0",
+    "ts-json-properties": "1.2.0"
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",
@@ -74,8 +81,8 @@
     "rimraf": "^2.6.1",
     "semantic-release": "^6.3.2",
     "ts-json-properties": "1.2.0",
-    "tslint": "5.1.0",
-    "typedoc": "0.6.0",
+    "tslint": "^5.2.0",
+    "typedoc": "^0.6.0",
     "typedoc-md-theme": "^1.0.1",
     "typedoc-plugin-external-module-name": "^1.0.9",
     "typescript": "2.3.2"
