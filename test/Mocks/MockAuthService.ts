@@ -27,8 +27,8 @@ export class MockAuthService implements IAuthenticationService {
         return subject.asObservable();
 
     }
-    Logout(): void {
-        //
+    Logout(): Observable<boolean> {
+        return Observable.from([true]);
     }
 
 }

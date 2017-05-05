@@ -155,9 +155,10 @@ export class JwtService implements IAuthenticationService {
      * service.Logout();
      * ```
      */
-    public Logout(): void {
+    public Logout(): Observable<boolean> {
         this.TokenStore.AccessToken = Token.CreateEmpty();
         this.TokenStore.RefreshToken = Token.CreateEmpty();
         this.stateSubject.next(LoginState.Unauthenticated);
+        return new BehaviorSubject(false).asObservable();
     }
 }

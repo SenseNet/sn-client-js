@@ -10,6 +10,6 @@ export interface IAuthenticationService {
     readonly State: Observable<LoginState>;
     CheckForUpdate();
     Login(username: string, password: string): Observable<boolean>;
-    Logout(): void;
+    Logout(): Observable<boolean>;
 
 }
