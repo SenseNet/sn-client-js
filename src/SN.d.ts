@@ -14,9 +14,10 @@ import * as Resources from './Resources';
 import * as Security from './Security';
 import * as HttpProviders from './HttpProviders';
 import * as Config from './Config';
+import * as Mocks from '../test/Mocks';
 
 export {
     Authentication, ComplexTypes, FieldSettings, Schemas, Enums,
     ContentTypes, Collection, ODataHelper, ODataAPIActionObservables, ODataApi,
-    Resources, Security, HttpProviders, Repository, Config
+    Resources, Security, HttpProviders, Repository, Config, Mocks
 };
