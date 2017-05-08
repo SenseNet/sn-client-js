@@ -32,14 +32,13 @@ export class MockHttpProvider extends BaseHttpProvider {
     }
 
     private _lastUrl: string = '';
-    public get lastUrl(){
+    public get lastUrl() {
         return this._lastUrl;
     }
 
+    public UseTimeout: boolean = true;
 
-    protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
-        let subject = new ReplaySubject<T>();
-        setTimeout(() => {
+    private runMocks<T>(subject: ReplaySubject<T>, options?: AjaxRequest){
             this._lastUrl = options.url;
             if (this._nextResponse) {
                 subject.next(this._nextResponse);
@@ -49,7 +48,14 @@ export class MockHttpProvider extends BaseHttpProvider {
                 subject.error(this._nextError);
                 this._nextError = null;
             }
-        });
+    }
+
+
+    protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
+        let subject = new ReplaySubject<T>();
+
+        this.UseTimeout ? setTimeout(() => this.runMocks(subject, options)) : this.runMocks(subject, options);
+
         this._lastOptions = options;
         return subject.asObservable();
     }
