@@ -25,7 +25,7 @@ export class ODataParams {
         this.top = options.top;
         this.skip = options.skip;
         this.filter = options.filter;
-        this.format = options.filter;
+        this.format = options.format;
         this.inlinecount = options.inlinecount;
         this.query = options.query;
         this.metadata = options.metadata;
