@@ -68,11 +68,14 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
     }
 
     public Create<T extends TBaseContentType, O extends T['options']>(path: string, opt: O, contentType: { new (opt: O, repository): T }, repository = this.repository) {
-        return this.repository.Ajax(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', contentType, `models=[${JSON.stringify(opt)}]`);
+        opt.__ContentType = opt.Type || contentType.name;
+        return this.repository.Ajax(ODataHelper.getContentURLbyPath(path), 'POST', contentType, JSON.stringify(opt)); //JSON.stringify({models: [ opt ] }));
     }
 
-    public Post<T>(path: string, content: T, postedContentType?: { new (...args): T }) {
-        return this.repository.Ajax<T>(`${ODataHelper.getContentURLbyPath(path)}`, 'POST', postedContentType, `models=[${ODataHelper.stringifyWithoutCircularDependency(content)}]`);
+    public Post<T extends TBaseContentType>(path: string, content: T, postedContentType?: { new (...args): T }) {
+        let opt = content.options;
+        opt.__ContentType = opt.Type || postedContentType.name;
+        return this.repository.Ajax<T>(ODataHelper.getContentURLbyPath(path), 'POST', postedContentType, JSON.stringify(opt)); // JSON.stringify({models: [ opt ] })); //`models=[${ODataHelper.stringifyWithoutCircularDependency(content)}]`);
     }
 
     /**
@@ -84,7 +87,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
      */
     public Delete = (id: number, permanent: boolean) =>
-        this.repository.Ajax(`/content(${id})/Delete`, 'POST', Object, { 'permanent': permanent })
+        this.repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent })
 
     // this.httpProvider.Ajax({
     //     url: `${this.baseUrl}/content(${id})/Delete`,
@@ -104,13 +107,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
     public Patch = (id: number, fields: Object) =>
         this.repository.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`)
 
-    // this.httpProvider.Ajax({
-    //     url: `${this.baseUrl}/content(${id})`,
-    //     method: 'PATCH',
-    //     responseType: 'json',
-    //     crossDomain: this.isCrossDomain,
-    //     body: `models=[${JSON.stringify(fields)}]`
-    // })
 
     /**
      * Method to set multiple fields of a Content and clear the rest through OData REST API.
@@ -122,14 +118,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      */
     public Put = (id: number, fields: Object) =>
         this.repository.Ajax(`/content(${id})`, 'PUT', Object, `models=[${JSON.stringify(fields)}]`);
-
-    // this.httpProvider.Ajax({
-    //     url: `${this.baseUrl}/content(${id})`,
-    //     method: 'PUT',
-    //     responseType: 'json',
-    //     crossDomain: this.isCrossDomain,
-    //     body: `models=[${JSON.stringify(fields)}]`
-    // })
 
     /**
       * Creates a wrapper function for a callable custom OData action.
