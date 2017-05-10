@@ -88,7 +88,7 @@ export class JwtService implements IAuthenticationService {
         this.stateSubject = new BehaviorSubject<LoginState>(LoginState.Pending);
 
         this.State.subscribe((s) => {
-            this.httpProviderRef.SetGlobalHeader('X-Access-Data', this.TokenStore.AccessToken.toString());
+            this.httpProviderRef.SetGlobalHeader('X-Access-Data', this.TokenStore.AccessToken.IsValid ? this.TokenStore.AccessToken.toString() : null);
         });
         this.CheckForUpdate();
     }
