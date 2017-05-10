@@ -21,7 +21,7 @@ export class Collection<T extends IContent> {
     * @param service {ODataApi.Service} The service to use as API Endpoint
     */
     constructor(private items: T[],
-        private service: IODataApi<any, any>) {
+                private service: IODataApi<any, any>) {
     }
 
     /**
