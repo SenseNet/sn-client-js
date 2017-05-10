@@ -61,7 +61,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET')
             .map(resp => {
                 resp.d.results = resp.d.results.map(r => {
-                    return new returns(r);
+                    return new returns(r, this.repository);
                 });
                 return resp;
             });
