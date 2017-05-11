@@ -57,8 +57,8 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "^5.3.1",
-    "nyc": "^10.3.0",
+    "@reactivex/rxjs": "^5.4.0",
+    "nyc": "^10.3.2",
     "ts-json-properties": "1.2.0"
   },
   "devDependencies": {
@@ -80,7 +80,7 @@
     "mocha": "3.3.0",
     "mocha-typescript": "^1.0.23",
     "rimraf": "^2.6.1",
-    "semantic-release": "^6.3.2",
+    "semantic-release": "^6.3.6",
     "ts-json-properties": "1.2.0",
     "tslint": "^5.2.0",
     "typedoc": "^0.6.0",
