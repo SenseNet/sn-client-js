@@ -8,6 +8,7 @@ import { HttpProviders } from '../SN';
 
 export interface IAuthenticationService {
     readonly State: Observable<LoginState>;
+    readonly CurrentState: LoginState;
     CheckForUpdate();
     Login(username: string, password: string): Observable<boolean>;
     Logout(): Observable<boolean>;

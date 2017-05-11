@@ -14,6 +14,10 @@ export class MockAuthService implements IAuthenticationService {
     public get State(): Observable<LoginState>{
         return this.stateSubject.asObservable();
     }
+
+    public get CurrentState(): LoginState{
+        return this.stateSubject.value;
+    }
     CheckForUpdate() {
         //
     }
