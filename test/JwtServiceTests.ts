@@ -31,11 +31,14 @@ export class JwtServiceTests {
     @test
     public 'State change should update global header on HttpProvider to access token head & payload'() {
         let headers = this.httpProvider.actualHeaders;
-        expect(headers['X-Access-Data']).to.be.eq('.');
+        let validToken = MockTokenFactory.CreateValid();
 
-        (this.jwtService['TokenStore'] as TokenStore).AccessToken = Token.FromHeadAndPayload('a.b');
+        expect(headers['X-Access-Data']).to.be.eq(undefined);
+
+
+        (this.jwtService['TokenStore'] as TokenStore).AccessToken =  validToken; // Token.FromHeadAndPayload('a.b');
         (this.jwtService['stateSubject'] as BehaviorSubject<LoginState>).next(LoginState.Authenticated);
-        expect(headers['X-Access-Data']).to.be.eq('a.b');
+        expect(headers['X-Access-Data']).to.be.eq(validToken.toString());
     }
 
 

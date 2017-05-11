@@ -20,6 +20,12 @@ export abstract class BaseHttpProvider {
         this.headers[headerName] = headerValue;
     }
 
+    public UnsetGlobalHeader(headerName) {
+        const index = this.headers.indexOf(headerName);
+        if (index > -1)
+            this.headers = this.headers.splice(index, 1);
+    }
+
     /**
      * Public entry point for executing Ajax calls using a specific provider
      * @param tReturnType The return type
