@@ -7,6 +7,7 @@ import { MockHttpProvider } from './Mocks/MockHttpProvider';
 import { MockAuthService } from './Mocks/MockAuthService';
 import { LoginState } from '../src/Authentication';
 import { ODataApi } from '../src/SN';
+import { ContentType } from '../src/ContentTypes';
 
 const expect = Chai.expect;
 
@@ -50,10 +51,14 @@ describe('ODataApi', () => {
         expect(typeof service.Contents.Delete(1111, false)).to.be.eq('object');
     });
     it('requests to patch a Content and returns an Observable object', function () {
-        expect(typeof service.Contents.Patch(1111, { DisplayName: 'test' })).to.be.eq('object');
+        expect(typeof service.Contents.Patch(1111, Content, { DisplayName: 'test' })).to.be.eq('object');
     });
     it('requests to put a Content and returns an Observable object', function () {
-        expect(typeof service.Contents.Put(1111, { DisplayName: 'test' })).to.be.eq('object');
+        expect(typeof service.Contents.Put(1111, ContentType, { 
+            DisplayName: 'test',
+            Type: 'testType',
+            Name: 'alma'
+        })).to.be.eq('object');
     });
     it('requests to create a custom action (checkout) by id, sends a request and returns an Observable object', function () {
         let action = new CustomAction({ name: 'CheckOut', id: 111, isAction: true })

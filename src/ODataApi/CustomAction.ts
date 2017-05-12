@@ -3,7 +3,7 @@
  */ /** */
 
 /**
- * Class that represents a custom action that is not bounded to a specified content
+ * Class that represents a custom OData Action
  */
 export class CustomAction {
     name: string;

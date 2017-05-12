@@ -3,6 +3,6 @@
  *//** */
 
 /**
- * The available Request method types, supported by the Sense/Net ECM OData Endpoint.
+ * The available Request method types, supported by the sense NET ECM OData Endpoint.
  */
 export type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';

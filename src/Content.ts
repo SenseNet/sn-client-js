@@ -129,7 +129,7 @@ export class Content implements IContent {
         if (typeof newName !== 'undefined') {
             fields['Name'] = newName;
         }
-        return this.repository.Contents.Patch(this.Id, fields);
+        return this.repository.Contents.Patch(this.Id, this.constructor as {new(...args)}, fields);
     }
     /**
      * Saves the content with its given modified fields to the Content Repository.
@@ -150,10 +150,10 @@ export class Content implements IContent {
      */
     Save(fields: Object, override: boolean = false, options?: Object) {
         if (override) {
-            return this.repository.Contents.Put(this.Id, fields);
+            return this.repository.Contents.Put(this.Id, this.constructor as {new(...args)}, fields);
         }
         else {
-            return this.repository.Contents.Patch(this.Id, fields);
+            return this.repository.Contents.Patch(this.Id, this.constructor as {new(...args)}, fields);
         }
     }
     /**
