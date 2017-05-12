@@ -13,12 +13,21 @@ type TokenType = 'access' | 'refresh';
  * This class is intended to store token data in LocalStorage or in-memory storage.
  */
 export class TokenStore {
-    constructor(private readonly baseUrl: string, 
-                private readonly keyTemplate: string = 'sn-${siteName}-${tokenName}', 
-                private readonly tokenPersist: TokenPersist,
-                private documentRef: Partial<Document> = (typeof document === 'object') ? document : undefined,
-                private localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
-                private sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
+
+    /**
+    * @param {strnig} baseUrl The Base URL to the related site
+    * @param {string} keyTemplate The template to use when generating keys in the local/session storage or for a cookie. ${siteName} and ${tokenName} will be replaced
+    * @param {TokenPersist} tokenPersist Setting that indicates if the token should be persisted per session (browser close) or per Token expiration (based on the token `exp` property)
+    * @param {Partial<Document>} documentRef The Document reference (used by unit tests)
+    * @param {Storage} localStorageRef The localStorage reference (used by unit tests)
+    * @param {Storage} sessionStorageRef The sessionStorage reference (used by unit tests)
+     */
+    constructor(private readonly baseUrl: string,
+        private readonly keyTemplate: string = 'sn-${siteName}-${tokenName}',
+        private readonly tokenPersist: TokenPersist,
+        private documentRef: Partial<Document> = (typeof document === 'object') ? document : undefined,
+        private localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
+        private sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
         let storesAvailable = (typeof this.localStorageRef !== 'undefined' && typeof this.sessionStorageRef !== 'undefined');
         let cookieAvailable = (typeof this.documentRef !== 'undefined' && typeof this.documentRef.cookie !== 'undefined');
 
@@ -36,6 +45,9 @@ export class TokenStore {
      */
     private innerStore: string[] = [];
 
+    /**
+     * The type of the generated Token Store
+     */
     public readonly TokenStoreType: TokenStoreType;
 
     private getStoreKey(key: TokenType) {
@@ -45,15 +57,15 @@ export class TokenStore {
     private getTokenFromCookie(key: string): Token {
         let prefix = key + '=';
         let cookieVal = this.documentRef.cookie.split(';')
-                .map(v => v.trim())
-                .find(v => v.trim().indexOf(prefix) === 0)
-                .substring(prefix.length);
+            .map(v => v.trim())
+            .find(v => v.trim().indexOf(prefix) === 0)
+            .substring(prefix.length);
         return Token.FromHeadAndPayload(cookieVal);
     }
 
-    private setTokenToCookie(key: string, Token: Token, persist: TokenPersist): void{
+    private setTokenToCookie(key: string, Token: Token, persist: TokenPersist): void {
         let cookie = `${key}=${Token.toString()}`;
-        if (persist === TokenPersist.Expiration){
+        if (persist === TokenPersist.Expiration) {
             cookie += `; expires=${Token.ExpirationTime.toUTCString()};`
         }
         this.documentRef.cookie = cookie;

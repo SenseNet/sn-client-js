@@ -19,7 +19,7 @@ export class MockAuthService implements IAuthenticationService {
         return this.stateSubject.value;
     }
     CheckForUpdate() {
-        //
+        return Observable.from([false]);
     }
     Login(username: string, password: string): Observable<boolean> {
         let subject = new ReplaySubject<boolean>();

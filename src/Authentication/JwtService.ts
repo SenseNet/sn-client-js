@@ -41,7 +41,7 @@ export class JwtService implements IAuthenticationService {
      * Executed before each Ajax call. If the access token has been expired, but the refresh token is still valid, it triggers the token refreshing call
      * @returns {Observable<boolean>} An observable with a variable that indicates if there was a refresh triggered.
      */
-    public CheckForUpdate() {
+    public CheckForUpdate(): Observable<boolean> {
         if (this.TokenStore.AccessToken.IsValid()){
             this.stateSubject.next(LoginState.Authenticated);
             return Observable.from([false]);
@@ -80,6 +80,13 @@ export class JwtService implements IAuthenticationService {
         return refresh.map(response => { return true });
     }
 
+    /**
+     * @param {BaseHttpProvider} httpProviderRef The Http Provider to use (e.g. login / logout / session renew requests)
+     * @param {string} repositoryUrl The URL for the repository
+     * @param {string} tokenTemplate The template to use when generating token keys in session/local storage or in a cookie. ${siteName} and ${tokenName} will be replaced.
+     * @param {'session' | 'expiration'} persist Sets up if the tokens should be persisted per session (browser close) or per token expiration (based on the token)
+     * @constructs JwtService
+     */
     constructor(private readonly httpProviderRef: BaseHttpProvider,
                 private readonly repositoryUrl: string,
                 private readonly tokenTemplate: string,
