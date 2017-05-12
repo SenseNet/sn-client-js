@@ -20,6 +20,11 @@ export abstract class BaseHttpProvider {
         this.headers[headerName] = headerValue;
     }
 
+    /**
+     * Removes a specified HTTP header from the global header settings
+     * @param headerName The name of the header
+     * 
+     */
     public UnsetGlobalHeader(headerName) {
         const index = this.headers.indexOf(headerName);
         if (index > -1)
