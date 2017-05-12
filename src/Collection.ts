@@ -17,11 +17,11 @@ export class Collection<T extends IContent> {
 
     /**
     * @constructs Collection
-    * @param items {T[]} An array that holds items.
-    * @param service {ODataApi.Service} The service to use as API Endpoint
+    * @param {T[]} items An array that holds items.
+    * @param { IODataApi<any, any> } service The service to use as API Endpoint
     */
     constructor(private items: T[],
-                private service: IODataApi<any, any>) {
+                private service: IODataApi<any, T>) {
     }
 
     /**
@@ -37,18 +37,14 @@ export class Collection<T extends IContent> {
 
     /**
      * Returns an item by the given id.
-     * @returns {Content}
+     * @param {number} id The content's id
+     * @returns {Content} the specified content
      * ```ts
      * collection.GetItem(1234);
      * ```
      */
-    public Item(id: number) {
-        let item;
-        for (let i = 0; i < this.items.length; i++) {
-            if (this.items[i].Id === id) {
-                return this.items[i];
-            }
-        }
+    public Item(id: number): T {
+        return this.items.find(i => i.Id === id);
     }
 
     /**
@@ -79,7 +75,7 @@ export class Collection<T extends IContent> {
      * });
      * ```
      */
-    public Add(content: T): Observable<any> {
+    public Add(content: T): Observable<T> {
         const newcontent = this.service.Post<T>(this.Path, content);
         newcontent
             .subscribe({
@@ -181,11 +177,10 @@ export class Collection<T extends IContent> {
         let optionList = new ODataRequestOptions(o as ODataRequestOptions);
         const children = this.service.Fetch<T>(optionList);
         children
-            .subscribe({
-                next: (items) => {
-                    this.items = items;
-                }
-            }
+            .subscribe(
+                    (items) => {
+                        this.items = items.d.results;
+                    }
             );
         return children;
     }

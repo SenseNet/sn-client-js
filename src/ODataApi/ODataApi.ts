@@ -180,8 +180,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Patch = <T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: Partial<T['options']>) =>
-        this.repository.Ajax(`/content(${id})`, 'PATCH', Object, `models=[${JSON.stringify(fields)}]`)
+    public Patch = <T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: Partial<T['options']>): Observable<T> =>
+        this.repository.Ajax(`/content(${id})`, 'PATCH', contentType, `models=[${JSON.stringify(fields)}]`)
 
 
     /**
@@ -253,7 +253,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         }
     }
 
-    public Upload = (path: string, data: Object, creation: boolean) => {
+    public Upload = (path: string, data: Object, creation: boolean): Observable<Object> => {
         let url = `${ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;
