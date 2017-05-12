@@ -180,8 +180,12 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Patch = <T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: Partial<T['options']>): Observable<T> =>
-        this.repository.Ajax(`/content(${id})`, 'PATCH', contentType, `models=[${JSON.stringify(fields)}]`)
+    public Patch<T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: Partial<T['options']>): Observable<T>{
+        
+        let contentTypeWithResponse = ODataResponse as {new(...args): ODataResponse<T>};
+        return this.repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
+            .map(result => result.d);
+    }
 
 
     /**
@@ -202,8 +206,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Put = <T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: T['options']): Observable<T> =>
-        this.repository.Ajax<T>(`/content(${id})`, 'PUT', contentType, `models=[${JSON.stringify(fields)}]`);
+    public Put<T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: T['options']): Observable<T>{
+        let contentTypeWithResponse = ODataResponse as {new(...args): ODataResponse<T>};
+        return this.repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
+            .map(result => result.d);
+    }
 
     /**
       * Creates a wrapper function for a callable custom OData action.

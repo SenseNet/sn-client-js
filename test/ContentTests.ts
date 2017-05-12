@@ -1,7 +1,9 @@
 import { Schemas, Security, Enums, ContentTypes, HttpProviders, Content } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
-import { MockRepository } from './Mocks/MockRepository';
+import { MockHttpProvider, MockRepository, MockAuthService } from './Mocks';
+import { ODataCollectionResponse } from '../src/ODataApi/ODataCollectionResponse';
+import { LoginState } from '../src/Authentication/LoginState';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
@@ -16,6 +18,7 @@ describe('Content', () => {
             DueDate: null,
             Name: 'alma'
         }, repo);
+        (repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
     });
     describe('#Create()', () => {
         it('should return an object', function () {
@@ -49,8 +52,18 @@ describe('Content', () => {
         });
     });
     describe('#Rename()', () => {
-        it('should return an Observable object', function () {
-            expect(content.Rename('aaa')).to.be.instanceof(Observable);
+        it('should return an Observable object', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    Name: 'aaa'
+                }
+            })
+
+            content.Rename('aaa').subscribe(result => {
+                expect(result.Name).to.be.eq('aaa');
+                done();
+            })
+            
         });
     });
     describe('#Rename()', () => {
@@ -84,8 +97,20 @@ describe('Content', () => {
         });
     });
     describe('#GetAllowedChildTypes()', () => {
-        it('should return an Observable object', function () {
-            expect(content.GetAllowedChildTypes()).to.be.instanceof(Observable);
+        it('should return an Observable object', function (done) {
+
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    __count: 1,
+                    results: [
+                        { Name: 'MyCustomType1' }
+                    ]
+                }
+            });
+            content.GetAllowedChildTypes().subscribe(resp => {
+                expect(resp[0].Name).to.be.eq('MyCustomType1');
+                done();
+            })
         });
     });
     describe('#GetAllowedChildTypes()', () => {

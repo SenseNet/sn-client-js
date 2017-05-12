@@ -13,7 +13,7 @@ import { Observable } from '@reactivex/rxjs';
  */
 export interface IODataApi<THttpProviderType extends BaseHttpProvider, TBaseContentType extends IContent> {
     Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args): T }): Observable<ODataResponse<T>> ;
-    Fetch<T extends TBaseContentType>(options: ODataRequestOptions): Observable<ODataCollectionResponse<T>>;
+    Fetch<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args): T }): Observable<ODataCollectionResponse<T>>;
     Create<T extends TBaseContentType, O extends T['options']>(path: string, opt: O, contentType: { new (opt: O, repository): T }, repository: IRepository<THttpProviderType, TBaseContentType>): Observable<T>;
     Post<T>(path: string, content: T, postedContentType?: { new (...args): T }): Observable<T>;
     Delete(id: number, permanent: boolean): Observable<any>;

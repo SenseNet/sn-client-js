@@ -41,10 +41,11 @@
  * related to async data streams.
  */ /** */
 
-import { ComplexTypes, FieldSettings, Schemas, Security, Enums, ODataHelper } from './SN';
+import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes, } from './SN';
 import { IRepository } from './Repository/IRepository';
 import { IContent } from './Repository/IContent';
-import { ODataRequestOptions } from './ODataApi';
+import { ODataRequestOptions, ODataCollectionResponse, ODataResponse } from './ODataApi';
+import { Observable } from '@reactivex/rxjs';
 
 export class Content implements IContent {
     Id?: number;
@@ -71,7 +72,8 @@ export class Content implements IContent {
 
     /**
      * @constructs Content
-     * @param options {Object} An object implementing IContentOptions interface;
+     * @param {IContentOptions} options An object implementing IContentOptions interface
+     * @param {IRepository} repository The Repoitory instance
      */
     constructor(public readonly options: IContentOptions, private repository: IRepository<any, any>) {
         this.Id = options.Id;
@@ -101,14 +103,13 @@ export class Content implements IContent {
      * });
      * ```
     */
-    Delete(permanently: boolean = false) {
+    Delete(permanently: boolean = false): Observable<any> {
         return this.repository.Contents.Delete(this.Id, permanently);
     }
     /**
      * Modifies the DisplayName or the DisplayName and the Name of a content item in the Content Repository.
-     * @params newDisplayName {string} New display name of the content.
-     * @params newName {string=} New name of the content.
-     * @params options {Object=} JSON object with the possible ODATA parameters like select, expand, etc.
+     * @param {string} newDisplayNameNew display name of the content.
+     * @param {string} newName New name of the content.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      * ```
      * let rename = content.Rename('New Title');
@@ -121,7 +122,7 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Rename(newDisplayName: string, newName?: string, options?: Object) {
+    Rename(newDisplayName: string, newName?: string): Observable<this> {
         let fields = {};
         if (typeof newDisplayName !== 'undefined') {
             fields['DisplayName'] = newDisplayName;
@@ -148,7 +149,7 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Save(fields: Object, override: boolean = false, options?: Object) {
+    Save(fields: Object, override: boolean = false): Observable<this> {
         if (override) {
             return this.repository.Contents.Put(this.Id, this.constructor as {new(...args)}, fields);
         }
@@ -212,9 +213,15 @@ export class Content implements IContent {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: Object) {
+    GetAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
         let optionList = this.deferredFunctionBuilder(this.Id, 'AllowedChildTypes', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        let reqoptions = new ODataRequestOptions({
+            path: optionList.path
+        });
+        return this.repository.Contents.Fetch(reqoptions, ContentTypes.ContentType)
+            .map(r => { 
+                return r.d.results
+            });
     }
     /**
      * Method that returns effective allowed child type list of a content.
