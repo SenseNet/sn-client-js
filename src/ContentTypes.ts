@@ -51,7 +51,7 @@ export class ContentType extends Content {
      * @constructs ContentType
      * @param options {object} An object implementing {@link IContentTypeOptions} interface
      */
-    constructor(options: IContentTypeOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IContentTypeOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Id = options.Id;
         this.ParentId = options.ParentId;
@@ -168,7 +168,7 @@ export class GenericContent extends Content {
      * @constructs GenericContent
      * @param options {object} An object implementing {@link IGenericContentOptions} interface
      */
-    constructor(options: IGenericContentOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IGenericContentOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Id = options.Id;
         this.ParentId = options.ParentId;
@@ -295,7 +295,7 @@ export class ContentLink extends GenericContent {
      * @constructs ContentLink
      * @param options {object} An object implementing {@link IContentLinkOptions} interface
      */
-    constructor(options: IContentLinkOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IContentLinkOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Link = options.Link;
     }
@@ -329,7 +329,7 @@ export class File extends GenericContent {
      * @constructs File
      * @param options {object} An object implementing {@link IFileOptions} interface
      */
-    constructor(options: IFileOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IFileOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Binary = options.Binary;
         this.Size = options.Size;
@@ -369,7 +369,7 @@ export class DynamicJsonContent extends File {
      * @constructs DynamicJsonContent
      * @param options {object} An object implementing {@link IDynamicJsonContentOptions} interface
      */
-    constructor(options: IDynamicJsonContentOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IDynamicJsonContentOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -393,7 +393,7 @@ export class ExecutableFile extends File {
      * @constructs ExecutableFile
      * @param options {object} An object implementing {@link IExecutableFileOptions} interface
      */
-    constructor(options: IExecutableFileOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IExecutableFileOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -418,7 +418,7 @@ export class HtmlTemplate extends File {
      * @constructs HtmlTemplate
      * @param options {object} An object implementing {@link IHtmlTemplateOptions} interface
      */
-    constructor(options: IHtmlTemplateOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IHtmlTemplateOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.TemplateText = options.TemplateText;
     }
@@ -448,7 +448,7 @@ export class Image extends File {
      * @constructs Image
      * @param options {object} An object implementing {@link IImageOptions} interface
      */
-    constructor(options: IImageOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IImageOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Keywords = options.Keywords;
         this.DateTaken = options.DateTaken;
@@ -480,7 +480,7 @@ export class PreviewImage extends Image {
      * @constructs PreviewImage
      * @param options {object} An object implementing {@link IPreviewImageOptions} interface
      */
-    constructor(options: IPreviewImageOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IPreviewImageOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -505,7 +505,7 @@ export class Settings extends File {
      * @constructs Settings
      * @param options {object} An object implementing {@link ISettingsOptions} interface
      */
-    constructor(options: ISettingsOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ISettingsOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.GlobalOnly = options.GlobalOnly;
     }
@@ -532,7 +532,7 @@ export class IndexingSettings extends Settings {
      * @constructs IndexingSettings
      * @param options {object} An object implementing {@link IIndexingSettingsOptions} interface
      */
-    constructor(options: IIndexingSettingsOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IIndexingSettingsOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.TextExtractorInstances = options.TextExtractorInstances;
     }
@@ -558,7 +558,7 @@ export class LoggingSettings extends Settings {
      * @constructs LoggingSettings
      * @param options {object} An object implementing {@link ILoggingSettingsOptions} interface
      */
-    constructor(options: ILoggingSettingsOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ILoggingSettingsOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -582,7 +582,7 @@ export class PortalSettings extends Settings {
      * @constructs PortalSettings
      * @param options {object} An object implementing {@link IPortalSettingsOptions} interface
      */
-    constructor(options: IPortalSettingsOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IPortalSettingsOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -606,7 +606,7 @@ export class SystemFile extends File {
      * @constructs SystemFile
      * @param options {object} An object implementing {@link ISystemFileOptions} interface
      */
-    constructor(options: ISystemFileOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ISystemFileOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -631,7 +631,7 @@ export class Resource extends SystemFile {
      * @constructs Resource
      * @param options {object} An object implementing {@link IResourceOptions} interface
      */
-    constructor(options: IResourceOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IResourceOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Downloads = options.Downloads;
     }
@@ -657,7 +657,7 @@ export class Folder extends GenericContent {
      * @constructs Folder
      * @param options {object} An object implementing {@link IFolderOptions} interface
      */
-    constructor(options: IFolderOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IFolderOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -695,7 +695,7 @@ export class ContentList extends Folder {
      * @constructs ContentList
      * @param options {object} An object implementing {@link IContentListOptions} interface
      */
-    constructor(options: IContentListOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IContentListOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.ContentListDefinition = options.ContentListDefinition;
         this.DefaultView = options.DefaultView;
@@ -748,7 +748,7 @@ export class Aspect extends ContentList {
      * @constructs Aspect
      * @param options {object} An object implementing {@link IAspectOptions} interface
      */
-    constructor(options: IAspectOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IAspectOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.AspectDefinition = options.AspectDefinition;
     }
@@ -774,7 +774,7 @@ export class ItemList extends ContentList {
      * @constructs ItemList
      * @param options {object} An object implementing {@link IItemListOptions} interface
      */
-    constructor(options: IItemListOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IItemListOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -798,7 +798,7 @@ export class CustomList extends ItemList {
      * @constructs CustomList
      * @param options {object} An object implementing {@link ICustomListOptions} interface
      */
-    constructor(options: ICustomListOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ICustomListOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -822,7 +822,7 @@ export class MemoList extends ItemList {
      * @constructs MemoList
      * @param options {object} An object implementing {@link IMemoListOptions} interface
      */
-    constructor(options: IMemoListOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IMemoListOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -846,7 +846,7 @@ export class TaskList extends ItemList {
      * @constructs TaskList
      * @param options {object} An object implementing {@link ITaskListOptions} interface
      */
-    constructor(options: ITaskListOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ITaskListOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -870,7 +870,7 @@ export class Library extends ContentList {
      * @constructs Library
      * @param options {object} An object implementing {@link ILibraryOptions} interface
      */
-    constructor(options: ILibraryOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ILibraryOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -894,7 +894,7 @@ export class DocumentLibrary extends Library {
      * @constructs DocumentLibrary
      * @param options {object} An object implementing {@link IDocumentLibraryOptions} interface
      */
-    constructor(options: IDocumentLibraryOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IDocumentLibraryOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -919,7 +919,7 @@ export class ImageLibrary extends Library {
      * @constructs ImageLibrary
      * @param options {object} An object implementing {@link IImageLibraryOptions} interface
      */
-    constructor(options: IImageLibraryOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IImageLibraryOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.CoverImage = options.CoverImage;
     }
@@ -946,7 +946,7 @@ export class Device extends Folder {
      * @constructs Device
      * @param options {object} An object implementing {@link IDeviceOptions} interface
      */
-    constructor(options: IDeviceOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IDeviceOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.UserAgentPattern = options.UserAgentPattern;
     }
@@ -974,7 +974,7 @@ export class Domain extends Folder {
      * @constructs Domain
      * @param options {object} An object implementing {@link IDomainOptions} interface
      */
-    constructor(options: IDomainOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IDomainOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.SyncGuid = options.SyncGuid;
         this.LastSync = options.LastSync;
@@ -1002,7 +1002,7 @@ export class Domains extends Folder {
      * @constructs Domains
      * @param options {object} An object implementing {@link IDomainsOptions} interface
      */
-    constructor(options: IDomainsOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IDomainsOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1029,7 +1029,7 @@ export class Email extends Folder {
      * @constructs Email
      * @param options {object} An object implementing {@link IEmailOptions} interface
      */
-    constructor(options: IEmailOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IEmailOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.From = options.From;
         this.Body = options.Body;
@@ -1061,7 +1061,7 @@ export class OrganizationalUnit extends Folder {
      * @constructs OrganizationalUnit
      * @param options {object} An object implementing {@link IOrganizationalUnitOptions} interface
      */
-    constructor(options: IOrganizationalUnitOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IOrganizationalUnitOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.SyncGuid = options.SyncGuid;
         this.LastSync = options.LastSync;
@@ -1089,7 +1089,7 @@ export class PortalRoot extends Folder {
      * @constructs PortalRoot
      * @param options {object} An object implementing {@link IPortalRootOptions} interface
      */
-    constructor(options: IPortalRootOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IPortalRootOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1113,7 +1113,7 @@ export class ProfileDomain extends Folder {
      * @constructs ProfileDomain
      * @param options {object} An object implementing {@link IProfileDomainOptions} interface
      */
-    constructor(options: IProfileDomainOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IProfileDomainOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1137,7 +1137,7 @@ export class Profiles extends Folder {
      * @constructs Profiles
      * @param options {object} An object implementing {@link IProfilesOptions} interface
      */
-    constructor(options: IProfilesOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IProfilesOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1161,7 +1161,7 @@ export class RuntimeContentContainer extends Folder {
      * @constructs RuntimeContentContainer
      * @param options {object} An object implementing {@link IRuntimeContentContainerOptions} interface
      */
-    constructor(options: IRuntimeContentContainerOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IRuntimeContentContainerOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1185,7 +1185,7 @@ export class Sites extends Folder {
      * @constructs Sites
      * @param options {object} An object implementing {@link ISitesOptions} interface
      */
-    constructor(options: ISitesOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ISitesOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1212,7 +1212,7 @@ export class SmartFolder extends Folder {
      * @constructs SmartFolder
      * @param options {object} An object implementing {@link ISmartFolderOptions} interface
      */
-    constructor(options: ISmartFolderOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ISmartFolderOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Query = options.Query;
         this.EnableAutofilters = options.EnableAutofilters;
@@ -1242,7 +1242,7 @@ export class SystemFolder extends Folder {
      * @constructs SystemFolder
      * @param options {object} An object implementing {@link ISystemFolderOptions} interface
      */
-    constructor(options: ISystemFolderOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ISystemFolderOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1266,7 +1266,7 @@ export class Resources extends SystemFolder {
      * @constructs Resources
      * @param options {object} An object implementing {@link IResourcesOptions} interface
      */
-    constructor(options: IResourcesOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IResourcesOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1295,7 +1295,7 @@ export class TrashBag extends Folder {
      * @constructs TrashBag
      * @param options {object} An object implementing {@link ITrashBagOptions} interface
      */
-    constructor(options: ITrashBagOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ITrashBagOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.KeepUntil = options.KeepUntil;
         this.OriginalPath = options.OriginalPath;
@@ -1336,7 +1336,7 @@ export class Workspace extends Folder {
      * @constructs Workspace
      * @param options {object} An object implementing {@link IWorkspaceOptions} interface
      */
-    constructor(options: IWorkspaceOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IWorkspaceOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Manager = options.Manager;
         this.Deadline = options.Deadline;
@@ -1382,7 +1382,7 @@ export class Site extends Workspace {
      * @constructs Site
      * @param options {object} An object implementing {@link ISiteOptions} interface
      */
-    constructor(options: ISiteOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ISiteOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Language = options.Language;
         this.EnableClientBasedCulture = options.EnableClientBasedCulture;
@@ -1425,7 +1425,7 @@ export class TrashBin extends Workspace {
      * @constructs TrashBin
      * @param options {object} An object implementing {@link ITrashBinOptions} interface
      */
-    constructor(options: ITrashBinOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ITrashBinOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.MinRetentionTime = options.MinRetentionTime;
         this.SizeQuota = options.SizeQuota;
@@ -1456,7 +1456,7 @@ export class UserProfile extends Workspace {
      * @constructs UserProfile
      * @param options {object} An object implementing {@link IUserProfileOptions} interface
      */
-    constructor(options: IUserProfileOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IUserProfileOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.User = options.User;
     }
@@ -1485,7 +1485,7 @@ export class Group extends GenericContent {
      * @constructs Group
      * @param options {object} An object implementing {@link IGroupOptions} interface
      */
-    constructor(options: IGroupOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IGroupOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Members = options.Members;
         this.SyncGuid = options.SyncGuid;
@@ -1515,7 +1515,7 @@ export class ListItem extends GenericContent {
      * @constructs ListItem
      * @param options {object} An object implementing {@link IListItemOptions} interface
      */
-    constructor(options: IListItemOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IListItemOptions, repository: IRepository<any, any>) {
         super(options, repository);
     }
 
@@ -1540,7 +1540,7 @@ export class CustomListItem extends ListItem {
      * @constructs CustomListItem
      * @param options {object} An object implementing {@link ICustomListItemOptions} interface
      */
-    constructor(options: ICustomListItemOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ICustomListItemOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.WorkflowsRunning = options.WorkflowsRunning;
     }
@@ -1569,7 +1569,7 @@ export class Memo extends ListItem {
      * @constructs Memo
      * @param options {object} An object implementing {@link IMemoOptions} interface
      */
-    constructor(options: IMemoOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IMemoOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Date = options.Date;
         this.MemoType = options.MemoType;
@@ -1608,7 +1608,7 @@ export class Task extends ListItem {
      * @constructs Task
      * @param options {object} An object implementing {@link ITaskOptions} interface
      */
-    constructor(options: ITaskOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: ITaskOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.StartDate = options.StartDate;
         this.DueDate = options.DueDate;
@@ -1652,7 +1652,7 @@ export class Query extends GenericContent {
      * @constructs Query
      * @param options {object} An object implementing {@link IQueryOptions} interface
      */
-    constructor(options: IQueryOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IQueryOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.Query = options.Query;
         this.QueryType = options.QueryType;
@@ -1707,7 +1707,7 @@ export class User extends GenericContent {
      * @constructs User
      * @param options {object} An object implementing {@link IUserOptions} interface
      */
-    constructor(options: IUserOptions, repository: IRepository<any, any>) {
+    constructor(public readonly options: IUserOptions, repository: IRepository<any, any>) {
         super(options, repository);
         this.LoginName = options.LoginName;
         this.JobTitle = options.JobTitle;
