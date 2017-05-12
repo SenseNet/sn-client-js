@@ -1,7 +1,7 @@
 /**
  * @module Repository
  * @preferred
- * @description This module stores repository-related stuff.
+ * @description This module stores the Repository (entry-point to sense NET API) related classes, interfaces and functions.
  */
 /** */
 
@@ -13,17 +13,34 @@ import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
 import { TokenPersist } from '../Authentication/';
 
+/**
+ *
+ */
 export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
     implements IRepository<TProviderType, TProviderBaseContentType> {
 
+    /**
+     * Will be true if the Repository's host differs from the current host
+     */
     public get IsCrossDomain() {
         return this.Config.RepositoryUrl !== SnConfigModel.DEFAULT_BASE_URL;
     }
 
+    /**
+     * Returns the Repository's base OData Url (e.g.: https://demo.sensenet.com/odata.svc)
+     */
     public get ODataBaseUrl() {
         return ODataHelper.joinPaths(this.Config.RepositoryUrl, this.Config.ODataToken);
     }
 
+    /**
+     * Public endpoint for making Ajax calls to the Repository
+     * @param {string} path The Path for the call
+     * @param {RequestMethodType} method The method type
+     * @param {{ new (...args): T }} returnsType The expected return type
+     * @param {any} body The post body (optional)
+     * @returns {Observable<T>} An observable, which will be updated with the response.
+     */
     public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
@@ -39,19 +56,36 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
                     });
             });
     }
+    
+    /**
+     * Reference to the Http Provider used by the current repository
+     */
     public readonly httpProviderRef: HttpProviders.BaseHttpProvider;
+    
+    /**
+     * Reference to the OData API used by the current repository
+     */
     public readonly Contents: ODataApi.ODataApi<TProviderType, any>;
+    
+    /**
+     * Reference to the Authentication Service used by the current repository
+     */
     public readonly Authentication: Authentication.IAuthenticationService;
 
+    /**
+     * Reference to the configuration used by the current repository
+     */
     public readonly Config: SnConfigModel;
 
     /**
-     * 
+     * @param config The Repository's configuration entry
      * @param httpProviderType The type of the Http Provider, should extend HttpProviders.BaseHttpProvider
-     * @param config 
-     * @param authentication 
+     * @param authentication The type of the Authentication Service to be used.
      */
-    constructor(config: Partial<SnConfigModel>, private readonly httpProviderType: { new (): TProviderType }, authentication: { new (...args): Authentication.IAuthenticationService }) {
+    constructor(config: Partial<SnConfigModel>, 
+                private readonly httpProviderType: { new (): TProviderType }, 
+                authentication: { new (...args): Authentication.IAuthenticationService }) {
+
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
 
@@ -59,6 +93,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
         this.Contents = new ODataApi.ODataApi(this.httpProviderType, this);
     }
+    
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
      * subject in the SnAdmin article. You can read detailed description of the function result.
@@ -79,7 +114,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     }
     /**
      * Returns the list of all ContentTypes in the system.
-     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
+     * @returns {Observable<ODataCollectionResponse<ContentTypes.ContentType>>} Returns an RxJS observable that you can subscribe of in your code.
      * ```
      * let getAllContentTypes = GetAllContentTypes();
      * getAllContentTypes.subscribe({
@@ -91,7 +126,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * });
      * ```
      */
-    public GetAllContentTypes(){
+    public GetAllContentTypes(): Observable<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>{
         return this.Contents.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
                 name: 'GetAllContentTypes', 
                 path: '/Root', 
@@ -106,7 +141,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * @param idOrPath {number|string} Id of the requested Content.
      * @param version {string} A string containing the version of the requested Content.
      * @param options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
-     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
+     * @returns {Observable<T>} Returns an RxJS observable that you can subscribe of in your code.
      * ```ts
      * var content = SenseNet.Content.Load(1234, 'A.1', { expand: 'Avatar' });
      * content
@@ -120,7 +155,11 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * })
      * ```
     */
-    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(idOrPath: string | number, options?: ODataApi.IODataParams, version?: string, returns?: { new (...args): TContentType }): Observable<TContentType> {
+    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(
+            idOrPath: string | number,
+            options?: ODataApi.IODataParams,
+            version?: string,
+            returns?: { new (...args): TContentType }): Observable<TContentType> {
         if (!returns) {
             returns = Content as { new (...args) };
         }
