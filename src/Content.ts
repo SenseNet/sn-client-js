@@ -2,7 +2,7 @@
  * @module Content
  * @preferred
  * 
- * @description Top level base type of Sense/Net's Type hierarchy.
+ * @description Top level base type of sense NET's Type hierarchy.
  *
  * Content has the basic properties and functionality that can be reached on all of the inherited types. It's almost the same as an abstract class, it may not be instantiated directly,
  * but it has the basic methods implemented that can be called on obejcts with derived types.

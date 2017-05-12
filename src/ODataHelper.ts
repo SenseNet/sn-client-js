@@ -6,6 +6,8 @@
  */ /** */
 
 // TODO: ezeket vhova kivezetni
+import { ODataApi } from './SN';
+
 const ODATA_PARAMS = ['select', 'expand', 'orderby', 'top', 'skip', 'filter', 'format', 'inlinecount'];
 export const DATA_ROOT = 'OData.svc';
 
@@ -15,10 +17,10 @@ export const DATA_ROOT = 'OData.svc';
  * Checks whether a given parameter is standard OData param or not and based on this information this params get the '$' sign.
  *
  * If there's no select param given, or it is empty 'Id' is the default, so only this field will be on the content in the JSON result. To get all the field values, without selection, set it to 'all', but please avoid this if it's possible.
- * @param options {IODataOptions} Represents an ODataOptions obejct based through the IODataOptions interface. Holds the possible url parameters as properties.
+ * @param {IODataOptions} options Represents an ODataOptions obejct based through the IODataOptions interface. Holds the possible url parameters as properties.
  * @returns {string} String with the url params in the correct format e.g. '$select=DisplayName,Index'&$top=2&metadata=no'.
  */
-export function buildUrlParamString(options?): string {
+export function buildUrlParamString(options?: ODataApi.IODataParams): string {
     if (typeof options === 'undefined') {
         return '';
     }
@@ -122,26 +124,6 @@ export function getContentUrlbyId(id: number): string {
  */
 export function isItemPath(path: string): boolean {
     return path.indexOf("('") >= 0 && path.indexOf("')") === path.length - 2;
-}
-
-/**
- * Method that allows to serialize an object, without circular dependencies. Already serialized objects will be skipped.
- * @param object {any} The content object to be serialized
- * @param space {number|string}
- */
-export function stringifyWithoutCircularDependency(object: any, space?: number | string): string {
-    let serialized = [];
-    let replacer = (key, value) => {
-        if (typeof value === 'object' && value !== null) {
-            if (serialized.indexOf(value) !== -1) {
-                return;
-            }
-            serialized.push(value);
-        }
-        return value;
-    };
-
-    return JSON.stringify(object, replacer, space);
 }
 
 /**

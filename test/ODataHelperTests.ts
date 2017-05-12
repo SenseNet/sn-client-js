@@ -83,15 +83,6 @@ describe('#buildRequestBody', function () {
     });
 });
 
-describe('#stringifyWithoutCircularDependency', function () {
-    it('stringified value should be the same as JSON.stringify without circular dependency', function () {
-        const object = {str: 'string', value: 'value', bool: true, number: 123};
-        const jsonSerialized = JSON.stringify(object);
-        const circularSerialized = ODataHelper.stringifyWithoutCircularDependency(object);
-        expect(circularSerialized).to.be.eq(jsonSerialized);
-    });
-});
-
 describe('#joinPaths', function () {
     it('should join with slashes', function () {
         let joined = ODataHelper.joinPaths('path1', 'path2', 'path3');
