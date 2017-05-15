@@ -1,15 +1,30 @@
 {
   "name": "sn-client-js",
-  "version": "1.1.1-beta.1",
+  "version": "2.0.0-RC.1",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "index.js",
+  "files": [
+    "dist",
+    "src",
+    "test",
+    "documentation",
+    "coverage"
+  ],
   "scripts": {
+    "lint": "node tslint --project ./tsconfig.json",
+    "clean": "rimraf dist",
+    "precommit": "npm run lint",
     "commit": "git-cz",
-    "gulp": "gulp",
-    "test": "istanbul cover _mocha -- -R spec dist/test/*Tests.js",
+    "pretest": "npm run build",
+    "test": "nyc mocha -p tsconfig.json dist/test/index.js",
     "check-coverage": "istanbul check-coverage ",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
-    "semantic-release": "semantic-release pre && semantic-release post"
+    "semantic-release": "semantic-release pre && semantic-release post",
+    "prebuild": "npm run lint && npm run clean",
+    "build": "tsc",
+    "typedoc:md": "gulp typedoc:md",
+    "typedoc:html": "gulp typedoc",    
+    "publish:development": "npm publish --tag development"
   },
   "repository": {
     "type": "git",
@@ -28,22 +43,28 @@
   "bugs": {
     "url": "https://github.com/SenseNet/sn-client-js/issues"
   },
+  "nyc": {
+    "exclude": "dist/test/**/*.*",
+    "include": "dist/src/**/*.js",
+    "check-coverage": true,
+    "cache": true,
+    "all": true,
+    "reporter": [
+      "lcov",
+      "text-summary",
+      "json"
+    ]
+  },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "5.2.0",
-    "app-root-path": "2.0.1",
-    "isomorphic-fetch": "2.2.1",
-    "ts-json-properties": "1.1.4"
+    "@reactivex/rxjs": "^5.4.0",
+    "nyc": "^10.3.2",
+    "ts-json-properties": "1.2.0"
   },
   "devDependencies": {
-    "@reactivex/rxjs": "5.2.0",
     "@types/app-root-path": "1.2.4",
-    "@types/chai": "3.4.35",
-    "@types/mocha": "2.2.39",
-    "@types/node": "7.0.8",
-    "@types/orchestrator": "0.0.30",
-    "@types/sinon": "1.16.35",
-    "app-root-path": "2.0.1",
+    "@types/chai": "3.5.2",
+    "@types/mocha": "2.2.41",
     "chai": "3.5.0",
     "codecov.io": "0.1.6",
     "commitizen": "2.9.6",
@@ -51,24 +72,21 @@
     "del": "2.2.2",
     "fs-then-native": "2.0.0",
     "gulp": "3.9.1",
-    "gulp-header": "1.8.8",
-    "gulp-istanbul": "1.1.1",
-    "gulp-mocha": "3.0.1",
-    "gulp-standard": "9.0.0",
-    "gulp-tslint": "7.1.0",
     "gulp-typedoc": "2.0.2",
-    "gulp-typescript": "3.1.5",
-    "isomorphic-fetch": "2.2.1",
+    "gulp-run": "^1.7.1",
+    "gulp-rename": "^1.2.2",
     "istanbul": "0.4.5",
     "jsdoc-to-markdown": "3.0.0",
-    "mocha": "3.2.0",
-    "remap-istanbul": "0.7.0",
-    "semantic-release": "^6.3.2",
-    "sinon": "1.17.7",
-    "ts-json-properties": "1.1.4",
-    "tslint": "4.5.1",
-    "typedoc": "0.5.7",
-    "typescript": "2.2.1"
+    "mocha": "3.3.0",
+    "mocha-typescript": "^1.0.23",
+    "rimraf": "^2.6.1",
+    "semantic-release": "^6.3.6",
+    "ts-json-properties": "1.2.0",
+    "tslint": "^5.2.0",
+    "typedoc": "^0.6.0",
+    "typedoc-md-theme": "^1.0.1",
+    "typedoc-plugin-external-module-name": "^1.0.9",
+    "typescript": "2.3.2"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"

@@ -1,5 +1,4 @@
-///<reference path="../node_modules/@types/mocha/index.d.ts"/>
-import { ODataHelper } from '../src/ODataHelper'
+import { ODataHelper } from '../src/SN'
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
@@ -10,14 +9,14 @@ describe('ODataHelper', () => {
             expect(isAnItem).to.be.true;
         });
         it('should return false if the given path is a path of a collection', function () {
-            const isNotAnItem = ODataHelper.isItemPath("/workspace");
+            const isNotAnItem = ODataHelper.isItemPath('/workspace');
             expect(isNotAnItem).to.be.false;
         });
     });
     describe('#getContentUrlbyId()', function () {
         it('should return a proper item path by the given id', function () {
             const contentUrl = ODataHelper.getContentUrlbyId(1);
-            expect(contentUrl).to.be.eq("/content(1)")
+            expect(contentUrl).to.be.eq('/content(1)')
         });
     });
     describe('#getContentURLbyPath()', function () {
@@ -31,11 +30,15 @@ describe('ODataHelper', () => {
         });
         it('should return an error message if the given argument is an empty string', function () {
             try {
-                ODataHelper.getContentURLbyPath("");
+                ODataHelper.getContentURLbyPath('');
             }
             catch (err) {
                 expect(err).to.eql(new Error('This is not a valid path.'));
             }
+        });
+        it('should return a proper item path for Root only', () => {
+            let path = ODataHelper.getContentURLbyPath('/Root');
+            expect(path).to.be.eq("/('Root')");
         });
     });
 });
@@ -48,34 +51,51 @@ describe('#buildUrlParamString()', function () {
         const urlParamString = ODataHelper.buildUrlParamString({ metadata: 'no' });
         expect(urlParamString).to.be.eq('?metadata=no&$select=Id,Type');
     });
-    it("should return a string with the given field and Id and Type as selected", function () {
+    it('should return a string with the given field and Id and Type as selected', function () {
         const urlParamString = ODataHelper.buildUrlParamString({ select: 'DisplayName' });
         expect(urlParamString).to.be.eq('?$select=DisplayName,Id,Type&metadata=no');
     });
-    it("should return a string with the given fields and Id and Type as selected", function () {
+    it('should return a string with the given fields and Id and Type as selected', function () {
         const urlParamString = ODataHelper.buildUrlParamString({ select: ['DisplayName', 'Path'] });
         expect(urlParamString).to.be.eq('?$select=DisplayName,Path,Id,Type&metadata=no');
     });
-    it("should return a string with the given parameters", function () {
+    it('should return a string with the given parameters', function () {
         const urlParamString = ODataHelper.buildUrlParamString({ select: ['DisplayName', 'Path'], orderby: 'DisplayName' });
         expect(urlParamString).to.be.eq('?$select=DisplayName,Path,Id,Type&$orderby=DisplayName&metadata=no');
     });
-    it("should return a string with the given parameters", function () {
+    it('should return a string with the given parameters', function () {
         const urlParamString = ODataHelper.buildUrlParamString({ select: ['DisplayName', 'Path'], orderby: 'DisplayName', query: "isOf('Article')" });
         expect(urlParamString).to.be.eq("?$select=DisplayName,Path,Id,Type&$orderby=DisplayName&query=isOf('Article')&metadata=no");
     });
-    it("should return a string without select param", function () {
+    it('should return a string without select param', function () {
         const urlParamString = ODataHelper.buildUrlParamString({ select: 'all', orderby: 'DisplayName' });
-        expect(urlParamString).to.be.eq("?$orderby=DisplayName&metadata=no");
+        expect(urlParamString).to.be.eq('?$orderby=DisplayName&metadata=no');
     });
-    it("should return a string without any param", function () {
+    it('should return a string without any param', function () {
         const urlParamString = ODataHelper.buildUrlParamString();
-        expect(urlParamString).to.be.eq("");
+        expect(urlParamString).to.be.eq('');
     });
 });
 describe('#buildRequestBody', function () {
-    it("should return a stringified request body", function () {
+    it('should return a stringified request body', function () {
         const body = ODataHelper.buildRequestBody({ permanent: false, comment: 'aaa' });
         expect(body).to.be.eq('models=[{"permanent":false,"comment":"aaa"}]');
+    });
+});
+
+describe('#joinPaths', function () {
+    it('should join with slashes', function () {
+        let joined = ODataHelper.joinPaths('path1', 'path2', 'path3');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+
+    it('should remove slashes from the beginning of the segments', function () {
+        let joined = ODataHelper.joinPaths('/path1', 'path2', '/path3');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+
+    it('should remove slashes from the end of the segments', function () {
+        let joined = ODataHelper.joinPaths('path1', 'path2/', 'path3/');
+        expect(joined).to.be.eq('path1/path2/path3');
     });
 });

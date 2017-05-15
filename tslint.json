@@ -1,9 +1,7 @@
 {
     "rules": {
-        "class-name": true,
         "comment-format": [
-            true,
-            "check-space"
+            true
         ],
         "indent": [
             true,
@@ -12,15 +10,11 @@
         "no-duplicate-variable": true,
         "no-eval": true,
         "no-internal-module": false,
-        "no-trailing-whitespace": true,
         "no-var-keyword": true,
-        "variable-name": false,
         "one-line": [
             true,
-            "check-open-brace",
-            "check-whitespace"
+            "check-open-brace"
         ],
-        "semicolon": false,
         "triple-equals": [
             true,
             "allow-null-check"
@@ -35,6 +29,12 @@
                 "variable-declaration": "nospace"
             }
         ],
+        "quotemark": [
+            true,
+            "single",
+            "avoid-escape"
+        ],
+        "variable-name": false,
         "whitespace": [
             true,
             "check-branch",
@@ -43,7 +43,9 @@
             "check-separator",
             "check-type"
         ],
-        "max-file-line-count": false
+        "max-file-line-count": [
+            false
+        ]
     },
     "jsRules": {
         "indent": [
@@ -58,13 +60,15 @@
             "check-open-brace",
             "check-whitespace"
         ],
-        "semicolon": false,
+        "semicolon": [
+            false
+        ],
         "triple-equals": [
             true,
             "allow-null-check"
         ],
         "variable-name": [
-            true,
+            false,
             "ban-keywords"
         ],
         "whitespace": [

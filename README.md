@@ -10,14 +10,18 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat)](http://commitizen.github.io/cz-cli/)
 
-This component lets you work with the [SenseNet ECM](https://github.com/SenseNet) Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
+This component lets you work with the [sensenet ECM](https://github.com/SenseNet) Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
 operations.
 
-This library connects to a SenseNet portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of 
+This library connects to a SenseNet portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of
 having to construct ajax requests yourself.
 
 It also provides you the full SenseNet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
 so that you can manage Content easy on client-side knowing the related fields and their settings.
+
+> Tested with the following Sense/Net Services version: 
+> 
+> [![Sense/Net Services](https://img.shields.io/badge/sensenet-7.0.0--beta%20tested-green.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0-beta)
 
 ### Installation on an existing Sense/Net portal
 
@@ -27,19 +31,23 @@ Get the latest stable version with npm
 npm install --save sn-client-js
 ```
 
-or from the [GitHub repository](https://github.com/SenseNet/sn-client-js) and place the downloaded source into your project. If you want to use only the transpiled JavaScript
-modules, you can find them in the dist/src folder and import them like
+or from the [GitHub repository](https://github.com/SenseNet/sn-client-js), build and place the downloaded and builded source into your project. If you want to use only the transpiled JavaScript modules, you can find them in the dist/src folder and import them like
 
-```
+```ts
 var SN = require('/pathtomodule/sn-client-js');
 ```
 
 If you want to use the module types you can find them in the src folder. Import them the following way:
 
-```
-import * as SN from 'sn-client-js';
+```ts
+import { Repository, ContentTypes } as SN from 'sn-client-js';
 
-SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+let repository = new Repository.SnRepository();
+
+this.Repository.Contents.Create('Root/', { 
+	Name: 'myFolder',
+}, ContentTypes.Folder);
+
 ```
 
 ### Installation into an external app with node and npm
@@ -50,64 +58,67 @@ To install the latest stable version
 npm install --save sn-client-js
 ```
 
-Set your Sense/Net portal's url with SetSiteUrl method
+You can specify additional options when creating an SnRepository instance by the following way:
 
+```ts
+import { Repository, Config } as SN from 'sn-client-js';
+
+let repository = new Repository.SnRepository({
+            RepositoryUrl: 'https://my-sensenet-site.com',
+            ODataToken: 'OData.svc',
+            JwtTokenKeyTemplate: 'my-${tokenName}-token-for-${siteName}',
+            JwtTokenPersist: 'expiration'
+        });
 ```
-import { SetSiteUrl } from 'sn-client-js';
-
-SetSiteUrl('https://daily.demo.sensenet.com');
-```
-
-So that you can set the url of your Sense/Net portal that you want to communicate with. To enable your external app to send request against your Sense/Net portal change
-your ```Portal.settings```. For further information about cross-origin resource sharing in Sense/Net check [this](http://wiki.sensenet.com/Cross-origin_resource_sharing#Origin_check)
+ - __RepositoryURL__: The component will communicate with your repositoy using the following url. This will fall back to your _window.location.href_, if not specified. To enable your external app to send request against your sensenet portal change your ```Portal.settings```. For further information about cross-origin resource sharing in sensenet check [this](http://wiki.sensenet.com/Cross-origin_resource_sharing#Origin_check)
 article.
+ - __ODataToken__: Check your Sense/Net portal's web.config and if the ```ODataServiceToken``` is set, you can configure it here for the client side.
+ - __JwtTokenKeyTemplate__ - This will be the template how your JWT tokens will be stored (in _local/session storage_ or as a _cookie_). _${tokenName}_ will be replaced with the token's name ('access' or 'refresh'), _${siteName}_ will be replaced with your site's name
+ - __JwtTokenPersist__ - You can change how JWT Tokens should be persisted on the client, you can use _'session'_, whitch means the token will be invalidated on browser close, or _'expiration'_, in that case the token expiration property will be used (See [JWT Token docs](http://community.sensenet.com/docs/web-token-authentication/) for further details)
 
-Check your Sense/Net portal's web.config and if the ```ODataServiceToken``` is set, use the ```SetServiceToken()``` method to set the same service token on client side.
 
-```
-import { SetServiceToken } from 'sn-client-js';
-
-SetServiceToken('myservicetoken');
-```
 
 ### Import
 
 #### CommonJS
 
-```
+```js
 var SN = require('sn-client-js');
 
-SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+let myRepository = new SN.Repository.SnRepository();
+
+myRepository.Contents.Create('Root/Path', {
+	Name: 'MyFolderName',
+}, SN.ContentTypes.Folder);
+
 ```
 
 ### Typescript
 
-```
-import * as SN from 'sn-client-js';
+```ts
+import { Repository, ContentTypes } as SN from 'sn-client-js';
 
-SN.Content.Create('Folder', { DisplayName: 'My folder' } );
+let repository = new Repository.SnRepository();
+myRepository.Contents.Create('Root/Path', {
+	Name: 'MyFolderName'
+}, ContentTypes.Folder)
+
 ```
 
 ### Building sn-client-js
 
-Building the project, running all the unit tests and the ts linter and get the code coverage report, use:
+To run the linter and building the project, use:
 
 ```
-gulp
+npm run build
 ```
 
 ### Running tests
 
-To execute all unit tests, use:
+To execute all unit tests and generate the coverage report, run:
 
 ```
-gulp test
-```
-
-### Generatings code coverage report
-
-```
-gulp test:coverage
+npm t
 ```
 
 ### Examples
@@ -115,28 +126,41 @@ gulp test:coverage
 ##### Creating a Folder with the name 'Hello world'
  
 ```ts
-let content = new SN.ContentTypes.Folder({ DisplayName: 'Hello world!' });
+repository.Contents.Create('Root/Path', {
+	Name: 'Hello world'
+}, ContentTypes.Folder)
+.subscribe(newFolder=>{
+		console.log('New folder created: ', newFolder)
+	}, err=> {
+		console.error('Error happened during creating a Folder:', err)
+	});
 ```
 
 or
 
 ```ts
-let content = SN.Content.Create('Folder', { DisplayName: 'Hello world!' });
+let folder = new ContentTypes.Folder({
+	Name: 'Hello world'
+}, repository);
+
+repository.Contents.Post('Root/Path', folder, ContentTypes.Folder)
+.subscribe(newFolder=>{
+		console.log('New folder created: ', newFolder)
+	}, err=> {
+		console.error('Error happened during creating a Folder:', err)
+	});
+
 ```
 
 ##### Load a Content by its id
  
 ```ts
-var content = SN.Content.load(1234, 'A.1', { expand: 'Avatar' });
-content
-   .map(response => response.d)
-   .subscribe({
-   		next: response => {
-           //do something with the response
-        },
-        error: error => console.error('something wrong occurred: ' + error),
-        complete: () => console.log('done'),
-})
+repository.Load(1234,{expand: 'Avatar'}, 'A.1', ContentTypes.User)
+.subscribe( user=> {
+		console.log('User:', user);
+	}, err=>{
+		console.error('Error happened during loading an user:', err)
+	});
 ```
 
 ##### Get the Schema of the given ContentType
@@ -148,7 +172,7 @@ let schema = SN.Content.GetSchema('GenericContent');
 ##### Read Collection data
  
 ```ts
-let collection = new SN.Collection([]);
+let collection = new SN.Collection([], repository.Contents);
 var options = new SN.ODataApi.ODataParams({ 
 	select: ["DisplayName", "Lead"], 
 	orderby: 'DisplayName', 
