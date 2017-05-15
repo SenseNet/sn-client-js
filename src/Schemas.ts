@@ -1,7 +1,7 @@
-//file: Schemas.ts
-import { FieldSettings } from './FieldSettings';
 /**
- * Module for ContentType schemas.
+ * @module Schemas
+ * @preferred
+ * @description Module for ContentType schemas.
  *
  * A Content Type Definition in Sense/Net is an xml-format configuration file for defining Content Types. The xml configuration (CTD) holds information about the types name and description
  * properties that control how content of this type look and behave (icon, preview generation, indexing), set of fields, etc. This information about the type and its Fields helps us for example
@@ -10,9 +10,11 @@ import { FieldSettings } from './FieldSettings';
  * This module provides us description of this Content schemas in Typesript.
  *
  * The ```Schema``` class represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
- */
+ */ /** */
 
-export module Schemas {
+import { FieldSettings } from './SN';
+
+
     /**
      * Class that represents a Schema.
      *
@@ -2378,7 +2380,7 @@ export module Schemas {
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS','/Root'],
+                selectionRoots: ['/Root/IMS', '/Root'],
                 name: 'Manager',
                 displayName: 'Project manager',
                 description: 'The person responsible for the project.',
@@ -2706,8 +2708,8 @@ export module Schemas {
         schema.FieldSettings.push(
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
-                allowedTypes: ['User','Group'],
-                selectionRoots: ['/Root/IMS','/Root'],
+                allowedTypes: ['User', 'Group'],
+                selectionRoots: ['/Root/IMS', '/Root'],
                 name: 'Members',
                 displayName: 'Members',
                 description: 'The members of this group.',
@@ -2905,7 +2907,7 @@ export module Schemas {
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS','/Root'],
+                selectionRoots: ['/Root/IMS', '/Root'],
                 name: 'AssignedTo',
                 displayName: 'Assigned to',
                 description: 'List of internal stakeholders.',
@@ -3420,7 +3422,7 @@ export module Schemas {
         schema.FieldSettings.push(
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
-                allowedTypes: ['Workspace','DocumentWorkspace','ProjectWorkspace','SalesWorkspace'],
+                allowedTypes: ['Workspace', 'DocumentWorkspace', 'ProjectWorkspace', 'SalesWorkspace'],
                 name: 'FollowedWorkspaces',
                 displayName: 'Followed workspaces',
                 description: 'List of workspaces followed by the user.',
@@ -3445,5 +3447,3 @@ export module Schemas {
             }));
         return schema;
     }
-}
-

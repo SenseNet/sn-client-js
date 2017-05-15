@@ -10,12 +10,7 @@
         "preserveConstEnums": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "outDir": "./dist",
-        "types": [
-            "chai",
-            "mocha",
-            "node"
-        ]
+        "outDir": "./dist"
     },
     "exclude": [
         "node_modules",

@@ -1,110 +1,106 @@
-import { ODataApi } from '../src/ODataApi';
-import { Content } from '../src/Content';
-import { SetSiteUrl, SetServiceToken } from '../src/Common'
+import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { ODataRequestOptions, CustomAction, ODataParams, ODataCollectionResponse } from '../src/ODataApi';
+import { Content } from '../src/Content';
+import { MockRepository } from './Mocks/MockRepository';
+import { MockHttpProvider } from './Mocks/MockHttpProvider';
+import { MockAuthService } from './Mocks/MockAuthService';
+import { LoginState } from '../src/Authentication';
+import { ODataApi } from '../src/SN';
+import { ContentType } from '../src/ContentTypes';
+
 const expect = Chai.expect;
 
 describe('ODataApi', () => {
-    let window = {}
-    beforeEach(() => {
-        window['serviceToken'] = 'OData.svc';
-        window['siteUrl'] = 'https://daily.demo.sensenet.com';
-    });
+    let service = new MockRepository();
+
     it('request a Content and returns an Observable object', function () {
-        const options = new ODataApi.ODataRequestOptions({ path: '/workspace/project' })
-        expect(typeof ODataApi.GetContent(options)).to.be.eq('object');
+        const options = new ODataRequestOptions({ path: '/workspace/project' })
+        expect(typeof service.Contents.Get(options)).to.be.eq('object');
     });
-    it('request a collection of Content and returns an Observable object', function () {
-        const options = new ODataApi.ODataRequestOptions({ path: '/workspace/project' })
-        expect(typeof ODataApi.FetchContent(options)).to.be.eq('object');
+    it('request a collection of Content and returns an Observable object', function (done) {
+        (service.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
+        (service.httpProviderRef as MockHttpProvider).setResponse({
+            d: {
+                __count: 1,
+                results: [
+                    { Id: 1 }
+                ]
+            }
+        } as ODataCollectionResponse<Content>)
+        const options = new ODataRequestOptions({ path: '/workspace/project' })
+        service.Contents.Fetch(options).first().subscribe(result => {
+            expect(result.d.results[0].Id).to.be.eq(1);
+            expect(result.d.results[0]).to.be.instanceof(Content);
+            done();
+        }, done)
+
+
+
     });
     it('requests to create a Content and returns an Observable object', function () {
-        const content = new Content({ Id: 1, Type: 'Article', DisplayName: 'Article' });
-        expect(typeof ODataApi.CreateContent('/workspace/project', content)).to.be.eq('object');
+        let observable = service.Contents.Create('/workspace/project', { Id: 1, Type: 'Article', DisplayName: 'Article' }, Content);
+        expect(observable).to.be.instanceof(Observable);
+    });
+    it('requests to post a created a Content and returns an Observable object', function () {
+        let content = new Content({ Name: 'alma' }, service);
+        let observable = service.Contents.Post('/workspace/project', content, Content);
+        expect(observable).to.be.instanceof(Observable);
     });
     it('requests to delete a Content and returns an Observable object', function () {
-        expect(typeof ODataApi.DeleteContent(1111, false)).to.be.eq('object');
+        expect(typeof service.Contents.Delete(1111, false)).to.be.eq('object');
     });
     it('requests to patch a Content and returns an Observable object', function () {
-        expect(typeof ODataApi.PatchContent(1111, { DisplayName: 'test' })).to.be.eq('object');
+        expect(typeof service.Contents.Patch(1111, Content, { DisplayName: 'test' })).to.be.eq('object');
     });
     it('requests to put a Content and returns an Observable object', function () {
-        expect(typeof ODataApi.PutContent(1111, { DisplayName: 'test' })).to.be.eq('object');
+        expect(typeof service.Contents.Put(1111, ContentType, { 
+            DisplayName: 'test',
+            Type: 'testType',
+            Name: 'alma'
+        })).to.be.eq('object');
     });
     it('requests to create a custom action (checkout) by id, sends a request and returns an Observable object', function () {
-        let action = new ODataApi.CustomAction({ name: 'CheckOut', id: 111, isAction: true })
-        expect(typeof ODataApi.CreateCustomAction(action)).to.be.eq('object');
+        let action = new CustomAction({ name: 'CheckOut', id: 111, isAction: true })
+        expect(typeof service.Contents.CreateCustomAction(action)).to.be.eq('object');
     });
     it('requests to create a custom action (checkout) by path, sends a request and returns an Observable object', function () {
-        let action = new ODataApi.CustomAction({ name: 'CheckOut', path: '/workspaces/project', isAction: true })
-        expect(typeof ODataApi.CreateCustomAction(action)).to.be.eq('object');
+        let action = new CustomAction({ name: 'CheckOut', path: '/workspaces/project', isAction: true })
+        expect(typeof service.Contents.CreateCustomAction(action)).to.be.eq('object');
     });
     it('requests to create a custom action (chekcin) by id, sends a request and returns an Observable object', function () {
-        let action = new ODataApi.CustomAction({ name: 'CheckIn', id: 111, isAction: true, params: ['checkInComments'] })
-        expect(typeof ODataApi.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
+        let action = new CustomAction({ name: 'CheckIn', id: 111, isAction: true, params: ['checkInComments'] })
+        expect(typeof service.Contents.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
     });
     it('requests to create a custom action (chekcin) by id without cache, sends a request and returns an Observable object', function () {
-        let action = new ODataApi.CustomAction({ name: 'CheckIn', id: 111, isAction: true, noCache: true, params: ['checkInComments'] })
-        expect(typeof ODataApi.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
+        let action = new CustomAction({ name: 'CheckIn', id: 111, isAction: true, noCache: true, params: ['checkInComments'] })
+        expect(typeof service.Contents.CreateCustomAction(action, { data: { 'checkInComments': 'comment' } })).to.be.eq('object');
     });
     it('requests to create a custom function (getpermissions) by id, sends a request and returns an Observable object', function () {
-        let action = new ODataApi.CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
-        expect(typeof ODataApi.CreateCustomAction(action, { data: { 'identity': '/Root/Sites/Default_Site/workspaces/Project/budapestprojectworkspace/Groups/Members' } })).to.be.eq('object');
+        let action = new CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
+        expect(typeof service.Contents.CreateCustomAction(action, { data: { 'identity': '/Root/Sites/Default_Site/workspaces/Project/budapestprojectworkspace/Groups/Members' } })).to.be.eq('object');
     });
     it('requests to upload a Content and returns an Observable object', function () {
-        expect(typeof ODataApi.Upload('/workspaces/Project', {}, false)).to.be.eq('object');
+        expect(typeof service.Contents.Upload('/workspaces/Project', {}, false)).to.be.eq('object');
     });
     it('requests to upload a Content and returns an Observable object', function () {
-        expect(typeof ODataApi.Upload('/workspaces/Project', {}, true)).to.be.eq('object');
-    });
-    it('requests to login a user and returns an Observable object', function () {
-        const action = new ODataApi.CustomAction({ name: 'Login', path: '/Root', isAction: true, requiredParams: ['username', 'password'], noCache: true });
-        expect(typeof ODataApi.Login(action, { data: { 'userName': 'alba', 'password': 'alba' } })).to.be.eq('object');
-    });
-    it('requests to login a user and returns an Observable object', function () {
-        const action = new ODataApi.CustomAction({ name: 'Login', path: '/Root', isAction: true, requiredParams: ['username', 'password'], noCache: false });
-        expect(typeof ODataApi.Login(action, { data: { 'userName': 'alba', 'password': 'alba' } })).to.be.eq('object');
-    });
-    it('requests to logout a user and returns an Observable object', function () {
-        const action = new ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: true });
-        expect(typeof ODataApi.Logout(action, { data: { } })).to.be.eq('object');
-    });
-    it('requests to logout a user and returns an Observable object', function () {
-        const action = new ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: false });
-        expect(typeof ODataApi.Logout(action, { data: { } })).to.be.eq('object');
-    });
-    it('requests to logout a user and returns an Observable object', function () {
-        const action = new ODataApi.CustomAction({ name: 'Logout', path: '/Root', isAction: true, noCache: false });
-        expect(typeof ODataApi.Logout(action)).to.be.eq('object');
+        expect(typeof service.Contents.Upload('/workspaces/Project', {}, true)).to.be.eq('object');
     });
     it('creates a new copy of ODataParams', () => {
-        const params = new ODataApi.ODataParams({ select: 'DisplayName' });
+        const params = new ODataParams({ select: 'DisplayName' });
         expect(typeof params).to.be.eq('object');
     });
-    it('calls the ODATA_SERVICE_TOKEN', () => {
-            const serviceToken = ODataApi.ODATA_SERVICE_TOKEN();
-            expect(serviceToken).to.be.eq('OData.svc');
-        });
-        it('calls the ROOT_URL', () => {
-            const url = ODataApi.ROOT_URL();
-            expect(url).to.be.eq('https://daily.demo.sensenet.com/OData.svc');
-        });
 
-    describe('tests with window object', () => {
-        beforeEach(function () {
-            global['window'] = {
-                serviceToken: 'odata',
-                siteUrl: 'https://daily.demo.sensenet.com'
-            }
-        });
-        it('calls the ODATA_SERVICE_TOKEN', () => {
-            const serviceToken = ODataApi.ODATA_SERVICE_TOKEN();
-            expect(serviceToken).to.be.eq('odata');
-        });
-        it('calls the ROOT_URL', () => {
-            const url = ODataApi.ROOT_URL();
-            expect(url).to.be.eq('https://daily.demo.sensenet.com/odata');
+    it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
+        const params = new ODataParams({ select: 'DisplayName' });
+        let http = (service.httpProviderRef as MockHttpProvider);
+        http.setResponse({success: true});
+        let action = service.Contents.CreateCustomAction({
+            path: `localhost/OData.svc('Root')`,
+            name: 'exampleAction'
+        }).first().subscribe(resp => {
+            done();
+            expect(http.lastUrl).to.contains('OData.svc/(');
         });
     });
-
 });

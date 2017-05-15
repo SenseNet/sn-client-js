@@ -5,3 +5,4 @@ documentation
 npm-debug.log
 debug.log
 tmp
+dist

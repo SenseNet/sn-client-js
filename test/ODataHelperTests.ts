@@ -1,4 +1,4 @@
-import { ODataHelper } from '../src/ODataHelper'
+import { ODataHelper } from '../src/SN'
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
@@ -80,5 +80,22 @@ describe('#buildRequestBody', function () {
     it('should return a stringified request body', function () {
         const body = ODataHelper.buildRequestBody({ permanent: false, comment: 'aaa' });
         expect(body).to.be.eq('models=[{"permanent":false,"comment":"aaa"}]');
+    });
+});
+
+describe('#joinPaths', function () {
+    it('should join with slashes', function () {
+        let joined = ODataHelper.joinPaths('path1', 'path2', 'path3');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+
+    it('should remove slashes from the beginning of the segments', function () {
+        let joined = ODataHelper.joinPaths('/path1', 'path2', '/path3');
+        expect(joined).to.be.eq('path1/path2/path3');
+    });
+
+    it('should remove slashes from the end of the segments', function () {
+        let joined = ODataHelper.joinPaths('path1', 'path2/', 'path3/');
+        expect(joined).to.be.eq('path1/path2/path3');
     });
 });

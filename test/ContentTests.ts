@@ -1,31 +1,24 @@
-import { Content } from '../src/Content';
-import { Schemas } from '../src/Schemas';
-import { Security } from '../src/Security';
-import { Enums } from '../src/Enums';
-import { ContentTypes } from '../src/ContentTypes';
+import { Schemas, Security, Enums, ContentTypes, HttpProviders, Content } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
+import { MockHttpProvider, MockRepository, MockAuthService } from './Mocks';
+import { ODataCollectionResponse } from '../src/ODataApi/ODataCollectionResponse';
+import { LoginState } from '../src/Authentication/LoginState';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
 
 describe('Content', () => {
     let content: ContentTypes.Task;
-    let window = {}
+    let repo = new MockRepository();
+
     beforeEach(function () {
-        beforeEach(() => {
-            global['window'] = {
-                serviceToken: 'OData.svc',
-                siteUrl: 'https://daily.demo.sensenet.com'
-            }
-        });
-
-
         content = new ContentTypes.Task({
             Id: 1,
             DueDate: null,
             Name: 'alma'
-        });
+        }, repo);
+        (repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
     });
     describe('#Create()', () => {
         it('should return an object', function () {
@@ -40,15 +33,15 @@ describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            let newContent = Content.Create(Content, {});
+            let newContent = Content.Create(Content, {}, this.repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
-            let newContent = new Content({});
+            let newContent = new Content({}, this.repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('shoul respect the type field, if provided from settings', () => {
-            let newContent = new Content({});
+            let newContent = new Content({}, this.repo);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         })
@@ -59,8 +52,18 @@ describe('Content', () => {
         });
     });
     describe('#Rename()', () => {
-        it('should return an Observable object', function () {
-            expect(content.Rename('aaa')).to.be.instanceof(Observable);
+        it('should return an Observable object', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    Name: 'aaa'
+                }
+            })
+
+            content.Rename('aaa').subscribe(result => {
+                expect(result.Name).to.be.eq('aaa');
+                done();
+            })
+            
         });
     });
     describe('#Rename()', () => {
@@ -94,8 +97,20 @@ describe('Content', () => {
         });
     });
     describe('#GetAllowedChildTypes()', () => {
-        it('should return an Observable object', function () {
-            expect(content.GetAllowedChildTypes()).to.be.instanceof(Observable);
+        it('should return an Observable object', function (done) {
+
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    __count: 1,
+                    results: [
+                        { Name: 'MyCustomType1' }
+                    ]
+                }
+            });
+            content.GetAllowedChildTypes().subscribe(resp => {
+                expect(resp[0].Name).to.be.eq('MyCustomType1');
+                done();
+            })
         });
     });
     describe('#GetAllowedChildTypes()', () => {
@@ -270,17 +285,17 @@ describe('Content', () => {
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(Content.Load('/workspace/project')).to.be.instanceof(Observable);
+            expect(repo.Load('/workspace/project')).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(Content.Load(111)).to.be.instanceof(Observable);
+            expect(repo.Load(111)).to.be.instanceof(Observable);
         });
     });
     describe('#Load()', () => {
         it('should return an Observable object', function () {
-            expect(Content.Load(111, { select: 'DisplayName' })).to.be.instanceof(Observable);
+            expect(repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(Observable);
         });
     });
     describe('#SetPermissions()', () => {
