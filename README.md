@@ -31,7 +31,7 @@ Get the latest stable version with npm
 npm install --save sn-client-js
 ```
 
-or from the [GitHub repository](https://github.com/SenseNet/sn-client-js), build and place the downloaded source into your project. If you want to use only the transpiled JavaScript modules, you can find them in the dist/src folder and import them like
+or from the [GitHub repository](https://github.com/SenseNet/sn-client-js), build and place the downloaded and builded source into your project. If you want to use only the transpiled JavaScript modules, you can find them in the dist/src folder and import them like
 
 ```ts
 var SN = require('/pathtomodule/sn-client-js');
@@ -61,16 +61,14 @@ npm install --save sn-client-js
 You can specify additional options when creating an SnRepository instance by the following way:
 
 ```ts
-import { Repository, SnConfigModel } as SN from 'sn-client-js';
+import { Repository, Config } as SN from 'sn-client-js';
 
-let myConfig = new SnConfigModel({
+let repository = new Repository.SnRepository({
             RepositoryUrl: 'https://my-sensenet-site.com',
             ODataToken: 'OData.svc',
             JwtTokenKeyTemplate: 'my-${tokenName}-token-for-${siteName}',
             JwtTokenPersist: 'expiration'
         });
-
-let repository = new Repository.SnRepository(myConfig);
 ```
  - __RepositoryURL__: The component will communicate with your repositoy using the following url. This will fall back to your _window.location.href_, if not specified. To enable your external app to send request against your sensenet portal change your ```Portal.settings```. For further information about cross-origin resource sharing in sensenet check [this](http://wiki.sensenet.com/Cross-origin_resource_sharing#Origin_check)
 article.
@@ -84,27 +82,32 @@ article.
 
 #### CommonJS
 
-```
+```js
 var SN = require('sn-client-js');
 
-SN.Content.Create(SN.ContentTypes.Folder, {
-		Name: 'My Folder'
-	});
+let myRepository = new SN.Repository.SnRepository();
+
+myRepository.Contents.Create('Root/Path', {
+	Name: 'MyFolderName',
+}, SN.ContentTypes.Folder);
+
 ```
 
 ### Typescript
 
-```
-import * as SN from 'sn-client-js';
+```ts
+import { Repository, ContentTypes } as SN from 'sn-client-js';
 
-SN.Content.Create(SN.ContentTypes.Folder, {
-		Name: 'My Folder'
-	});
+let repository = new Repository.SnRepository();
+myRepository.Contents.Create('Root/Path', {
+	Name: 'MyFolderName'
+}, ContentTypes.Folder)
+
 ```
 
 ### Building sn-client-js
 
-Running the linter and building the project, use:
+To run the linter and building the project, use:
 
 ```
 npm run build
@@ -123,30 +126,41 @@ npm t
 ##### Creating a Folder with the name 'Hello world'
  
 ```ts
-let content = new SN.ContentTypes.Folder({ Name: 'Hello world!' });
+repository.Contents.Create('Root/Path', {
+	Name: 'Hello world'
+}, ContentTypes.Folder)
+.subscribe(newFolder=>{
+		console.log('New folder created: ', newFolder)
+	}, err=> {
+		console.error('Error happened during creating a Folder:', err)
+	});
 ```
 
 or
 
 ```ts
-let content = SN.Content.Create(SN.ContentTypes.Folder, {
-	Name: 'Hello world!'
-});
+let folder = new ContentTypes.Folder({
+	Name: 'Hello world'
+}, repository);
+
+repository.Contents.Post('Root/Path', folder, ContentTypes.Folder)
+.subscribe(newFolder=>{
+		console.log('New folder created: ', newFolder)
+	}, err=> {
+		console.error('Error happened during creating a Folder:', err)
+	});
+
 ```
 
 ##### Load a Content by its id
  
 ```ts
-var content = SN.Content.load(1234, 'A.1', { expand: 'Avatar' });
-content
-   .map(response => response.d)
-   .subscribe({
-   		next: response => {
-           //do something with the response
-        },
-        error: error => console.error('something wrong occurred: ' + error),
-        complete: () => console.log('done'),
-})
+repository.Load(1234,{expand: 'Avatar'}, 'A.1', ContentTypes.User)
+.subscribe( user=> {
+		console.log('User:', user);
+	}, err=>{
+		console.error('Error happened during loading an user:', err)
+	});
 ```
 
 ##### Get the Schema of the given ContentType
@@ -158,7 +172,7 @@ let schema = SN.Content.GetSchema('GenericContent');
 ##### Read Collection data
  
 ```ts
-let collection = new SN.Collection([]);
+let collection = new SN.Collection([], repository.Contents);
 var options = new SN.ODataApi.ODataParams({ 
 	select: ["DisplayName", "Lead"], 
 	orderby: 'DisplayName', 
