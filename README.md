@@ -40,7 +40,7 @@ var SN = require('/pathtomodule/sn-client-js');
 If you want to use the module types you can find them in the src folder. Import them the following way:
 
 ```ts
-import { Repository, ContentTypes } as SN from 'sn-client-js';
+import { Repository, ContentTypes } from 'sn-client-js';
 
 let repository = new Repository.SnRepository();
 
@@ -61,7 +61,7 @@ npm install --save sn-client-js
 You can specify additional options when creating an SnRepository instance by the following way:
 
 ```ts
-import { Repository, Config } as SN from 'sn-client-js';
+import { Repository, Config } from 'sn-client-js';
 
 let repository = new Repository.SnRepository({
             RepositoryUrl: 'https://my-sensenet-site.com',
