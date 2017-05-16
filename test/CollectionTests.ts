@@ -24,7 +24,7 @@ describe('Collection', () => {
       }, this.repo)];
 
 
-    collection = new Collection(children, Repo.Contents);
+    collection = new Collection(children, Repo.Content);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
   });
   describe('#Items()', () => {

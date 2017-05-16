@@ -65,7 +65,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
     /**
      * Reference to the OData API used by the current repository
      */
-    public readonly Contents: ODataApi.ODataApi<TProviderType, any>;
+    public readonly Content: ODataApi.ODataApi<TProviderType, any>;
     
     /**
      * Reference to the Authentication Service used by the current repository
@@ -91,7 +91,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
 
         //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.Contents = new ODataApi.ODataApi(this.httpProviderType, this);
+        this.Content = new ODataApi.ODataApi(this.httpProviderType, this);
     }
     
     /**
@@ -110,7 +110,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * ```
      */
     public GetVersionInfo() {
-        return this.Contents.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, null, VersionInfo);
+        return this.Content.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, null, VersionInfo);
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -127,7 +127,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * ```
      */
     public GetAllContentTypes(): Observable<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>{
-        return this.Contents.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
+        return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
                 name: 'GetAllContentTypes', 
                 path: '/Root', 
                 isAction: false
@@ -173,6 +173,6 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
             path: contentURL,
             params: params
         })
-        return this.Contents.Get(odataRequestOptions, returns).map(r => r.d);
+        return this.Content.Get(odataRequestOptions, returns).map(r => r.d);
     }
 }
