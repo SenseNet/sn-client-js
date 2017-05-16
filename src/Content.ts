@@ -104,7 +104,7 @@ export class Content implements IContent {
      * ```
     */
     Delete(permanently: boolean = false): Observable<any> {
-        return this.repository.Contents.Delete(this.Id, permanently);
+        return this.repository.Content.Delete(this.Id, permanently);
     }
     /**
      * Modifies the DisplayName or the DisplayName and the Name of a content item in the Content Repository.
@@ -130,7 +130,7 @@ export class Content implements IContent {
         if (typeof newName !== 'undefined') {
             fields['Name'] = newName;
         }
-        return this.repository.Contents.Patch(this.Id, this.constructor as {new(...args)}, fields);
+        return this.repository.Content.Patch(this.Id, this.constructor as {new(...args)}, fields);
     }
     /**
      * Saves the content with its given modified fields to the Content Repository.
@@ -151,10 +151,10 @@ export class Content implements IContent {
      */
     Save(fields: Object, override: boolean = false): Observable<this> {
         if (override) {
-            return this.repository.Contents.Put(this.Id, this.constructor as {new(...args)}, fields);
+            return this.repository.Content.Put(this.Id, this.constructor as {new(...args)}, fields);
         }
         else {
-            return this.repository.Contents.Patch(this.Id, this.constructor as {new(...args)}, fields);
+            return this.repository.Content.Patch(this.Id, this.constructor as {new(...args)}, fields);
         }
     }
     /**
@@ -196,7 +196,7 @@ export class Content implements IContent {
         else {
             optionList = this.deferredFunctionBuilder(this.Path, 'Actions', options);
         }
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Method that returns allowed child type list of a content.
@@ -218,7 +218,7 @@ export class Content implements IContent {
         let reqoptions = new ODataRequestOptions({
             path: optionList.path
         });
-        return this.repository.Contents.Fetch(reqoptions, ContentTypes.ContentType)
+        return this.repository.Content.Fetch(reqoptions, ContentTypes.ContentType)
             .map(r => { 
                 return r.d.results
             });
@@ -240,7 +240,7 @@ export class Content implements IContent {
      */
     GetEffectiveAllowedChildTypes(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'EffectiveAllowedChildTypes', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Method that returns owner of a content.
@@ -259,7 +259,7 @@ export class Content implements IContent {
      */
     GetOwner(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Owner', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Method that returns creator of a content.
@@ -278,7 +278,7 @@ export class Content implements IContent {
      */
     Creator(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'CreatedBy', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Method that returns last modifier of a content.
@@ -297,7 +297,7 @@ export class Content implements IContent {
      */
     Modifier(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'ModifiedBy', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -316,7 +316,7 @@ export class Content implements IContent {
      */
     CheckedOutBy(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'CheckedOutTo', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Method that returns the children of a content.
@@ -339,7 +339,7 @@ export class Content implements IContent {
      */
     Children(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, '', options ? options : null);
-        return this.repository.Contents.Fetch(optionList);
+        return this.repository.Content.Fetch(optionList);
     }
     /**
      * Returns the list of versions.
@@ -362,7 +362,7 @@ export class Content implements IContent {
     */
     GetVersions(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Versions', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Returns the current Workspace.
@@ -385,7 +385,7 @@ export class Content implements IContent {
     */
     GetWorkspace(options?: Object) {
         let optionList = this.deferredFunctionBuilder(this.Id, 'Workspace', options ? options : null);
-        return this.repository.Contents.Get(optionList);
+        return this.repository.Content.Get(optionList);
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -402,7 +402,7 @@ export class Content implements IContent {
      * ```
     */
     Checkout() {
-        return this.repository.Contents.CreateCustomAction({ name: 'CheckOut', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'CheckOut', id: this.Id, isAction: true });
     }
     /**
      * Checkins a content item in the Content Repository.
@@ -424,7 +424,7 @@ export class Content implements IContent {
         (typeof checkInComments !== 'undefined') ?
             action = { name: 'CheckIn', id: this.Id, isAction: true, params: ['checkInComments'] } :
             action = { name: 'CheckIn', id: this.Id, isAction: true };
-        return this.repository.Contents.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
+        return this.repository.Content.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
     }
     /**
      * Performs an undo check out operation on a content item in the Content Repository.
@@ -441,7 +441,7 @@ export class Content implements IContent {
      * ```
     */
     UndoCheckout() {
-        return this.repository.Contents.CreateCustomAction({ name: 'UndoCheckOut', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'UndoCheckOut', id: this.Id, isAction: true });
     }
     /**
      * Performs a force undo check out operation on a content item in the Content Repository.
@@ -458,7 +458,7 @@ export class Content implements IContent {
      * ```
     */
     ForceUndoCheckout() {
-        return this.repository.Contents.CreateCustomAction({ name: 'ForceUndoCheckout', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'ForceUndoCheckout', id: this.Id, isAction: true });
     }
     /**
      * Performs an approve operation on a content, the equivalent of calling Approve() on the Content instance in .NET. Also checks whether the content handler of the subject content
@@ -476,7 +476,7 @@ export class Content implements IContent {
      * ```
     */
     Approve() {
-        return this.repository.Contents.CreateCustomAction({ name: 'Approve', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'Approve', id: this.Id, isAction: true });
     }
     /**
      * Performs a reject operation on a content, the equivalent of calling Reject() on the Content instance in .NET. Also checks whether the content handler
@@ -495,7 +495,7 @@ export class Content implements IContent {
      * ```
     */
     Reject(rejectReason?: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'Reject', id: this.Id, isAction: true, params: ['rejectReason'] },
+        return this.repository.Content.CreateCustomAction({ name: 'Reject', id: this.Id, isAction: true, params: ['rejectReason'] },
             { data: { 'rejectReason': rejectReason ? rejectReason : '' } });
     }
     /**
@@ -514,7 +514,7 @@ export class Content implements IContent {
      * ```
     */
     Publish(rejectReason?: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true });
     }
     /**
      * Restores an old version of the content. Also checks whether the content handler of the subject content inherits GenericContent (otherwise it does not support this operation).
@@ -533,7 +533,7 @@ export class Content implements IContent {
      * ```
     */
     RestoreVersion(version: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true, requiredParams: ['version'] }, { data: { 'version': version ? version : '' } });
+        return this.repository.Content.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true, requiredParams: ['version'] }, { data: { 'version': version ? version : '' } });
     }
     /**
      * Restores a deleted content from the Trash. You can call this action only on a TrashBag content that contains the deleted content itself.
@@ -552,7 +552,7 @@ export class Content implements IContent {
      * ```
     */
     Restore(destination?: string, newname?: boolean) {
-        return this.repository.Contents.CreateCustomAction(
+        return this.repository.Content.CreateCustomAction(
             { name: 'Restore', id: this.Id, isAction: true, params: ['destination', 'newname'] }, {
                 data: {
                     'destination': destination ? destination : '',
@@ -576,7 +576,7 @@ export class Content implements IContent {
      * ```
     */
     MoveTo(path: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
+        return this.repository.Content.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
             , { data: { 'targetPath': path ? path : '' } });
     }
     /**
@@ -595,7 +595,7 @@ export class Content implements IContent {
      * ```
     */
     CopyTo(path: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] },
+        return this.repository.Content.CreateCustomAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] },
             { data: { 'targetPath': path ? path : '' } });
     }
     /**
@@ -614,7 +614,7 @@ export class Content implements IContent {
      * ```
     */
     AddAllowedChildTypes(contentTypes: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'AddAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] }, { data: { 'contentTypes': contentTypes } });
+        return this.repository.Content.CreateCustomAction({ name: 'AddAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] }, { data: { 'contentTypes': contentTypes } });
     }
     /**
      * Removes the given content types from the Allowed content Type list. If the list after removing and the list on the matching CTD are the same, the local list will be removed.
@@ -632,7 +632,7 @@ export class Content implements IContent {
      * ```
     */
     RemoveAllowedChildTypes(contentTypes: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'RemoveAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] },
+        return this.repository.Content.CreateCustomAction({ name: 'RemoveAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] },
             { data: { 'contentTypes': contentTypes } });
     }
 
@@ -711,11 +711,11 @@ export class Content implements IContent {
     SetPermissions(arg: Security.Inheritance | Security.PermissionRequestBody[]) {
         let action;
         if (arg instanceof Array) {
-            return this.repository.Contents.CreateCustomAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] },
+            return this.repository.Content.CreateCustomAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] },
                 { data: { 'entryList': arg } });
         }
         else {
-            return this.repository.Contents.CreateCustomAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] },
+            return this.repository.Content.CreateCustomAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] },
                 { data: { 'inheritance': arg } });
         }
     };
@@ -737,7 +737,7 @@ export class Content implements IContent {
     * ```
      */
     GetPermission(identity?: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] },
             { data: { 'identity': identity ? identity : '' } });
     }
     /**
@@ -759,7 +759,7 @@ export class Content implements IContent {
     * ```
      */
     HasPermission(permissions: string[], user?: string, ) {
-        return this.repository.Contents.CreateCustomAction({ name: 'HasPermission', id: this.Id, isAction: false, requiredParams: ['permissions'], params: ['user'] },
+        return this.repository.Content.CreateCustomAction({ name: 'HasPermission', id: this.Id, isAction: false, requiredParams: ['permissions'], params: ['user'] },
             { data: { 'permissions': permissions, 'user': user ? user : '' } });
     }
     /**
@@ -779,7 +779,7 @@ export class Content implements IContent {
     * ```
      */
     TakeOwnership(userOrGroup?: string) {
-        return this.repository.Contents.CreateCustomAction({ name: 'TakeOwnership', id: this.Id, isAction: true, params: ['userOrGroup'] },
+        return this.repository.Content.CreateCustomAction({ name: 'TakeOwnership', id: this.Id, isAction: true, params: ['userOrGroup'] },
             { data: { 'userOrGroup': userOrGroup ? userOrGroup : '' } });
     }
     /**
@@ -805,7 +805,7 @@ export class Content implements IContent {
     * ```
      */
     SaveQuery(query: string, displayName: string, queryType: Enums.QueryType) {
-        return this.repository.Contents.CreateCustomAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] },
+        return this.repository.Content.CreateCustomAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] },
             { data: { 'query': query, 'displayName': displayName ? displayName : '', queryType: queryType } });
     }
     /**
@@ -826,7 +826,7 @@ export class Content implements IContent {
     * ```
      */
     GetQueries(onlyPublic: boolean = true) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetQueries', id: this.Id, isAction: false, noCache: true, requiredParams: ['onlyPublic'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetQueries', id: this.Id, isAction: false, noCache: true, requiredParams: ['onlyPublic'] },
             { data: { 'onlyPublic': onlyPublic } });
     }
     /**
@@ -844,7 +844,7 @@ export class Content implements IContent {
     * ```
      */
     Finalize() {
-        return this.repository.Contents.CreateCustomAction({ name: 'FinalizeContent', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'FinalizeContent', id: this.Id, isAction: true });
     }
     /**
     * Lets administrators take over the lock of a checked out document from another user. A new locker user can be provided using the 'user' parameter (user path or id as string).
@@ -863,7 +863,7 @@ export class Content implements IContent {
     * ```
      */
     TakeLockOver(userId?: number) {
-        return this.repository.Contents.CreateCustomAction({ name: 'TakeLockOver', id: this.Id, isAction: true, params: ['user'] },
+        return this.repository.Content.CreateCustomAction({ name: 'TakeLockOver', id: this.Id, isAction: true, params: ['user'] },
             { data: { 'user': userId ? userId : '' } });
     }
     /**
@@ -883,7 +883,7 @@ export class Content implements IContent {
     * ```
      */
     RebuildIndex(recursive?: boolean, rebuildLevel?: number) {
-        return this.repository.Contents.CreateCustomAction({ name: 'RebuildIndex', id: this.Id, isAction: true, params: ['recursive', 'rebuildLevel'] }, { data: { 'recursive': recursive ? recursive : false, 'rebuildLevel': rebuildLevel ? rebuildLevel : 0 } });
+        return this.repository.Content.CreateCustomAction({ name: 'RebuildIndex', id: this.Id, isAction: true, params: ['recursive', 'rebuildLevel'] }, { data: { 'recursive': recursive ? recursive : false, 'rebuildLevel': rebuildLevel ? rebuildLevel : 0 } });
     }
     /**
      * Performs a full reindex operation on the content and the whole subtree.
@@ -900,7 +900,7 @@ export class Content implements IContent {
     * ```
      */
     RebuildIndexSubtree() {
-        return this.repository.Contents.CreateCustomAction({ name: 'RebuildIndexSubtree', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'RebuildIndexSubtree', id: this.Id, isAction: true });
     }
     /**
      * Refreshes the index document of the content and the whole subtree using the already existing index data stored in the database.
@@ -917,7 +917,7 @@ export class Content implements IContent {
     * ```
      */
     RefreshIndexSubtree() {
-        return this.repository.Contents.CreateCustomAction({ name: 'RefreshIndexSubtree', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'RefreshIndexSubtree', id: this.Id, isAction: true });
     }
     /**
      * Returns the number of currently existing preview images. If necessary, it can make sure that all preview images are generated and available for a document.
@@ -935,7 +935,7 @@ export class Content implements IContent {
     * ```
      */
     CheckPreviews(generateMissing?: boolean) {
-        return this.repository.Contents.CreateCustomAction({ name: 'CheckPreviews', id: this.Id, isAction: true, params: ['generateMissing'] },
+        return this.repository.Content.CreateCustomAction({ name: 'CheckPreviews', id: this.Id, isAction: true, params: ['generateMissing'] },
             { data: { 'generateMissing': generateMissing ? generateMissing : false } });
     }
     /**
@@ -954,7 +954,7 @@ export class Content implements IContent {
     * ```
      */
     RegeneratePreviews() {
-        return this.repository.Contents.CreateCustomAction({ name: 'RegeneratePreviews', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'RegeneratePreviews', id: this.Id, isAction: true });
     }
     /**
      * Returns the number of pages in a document. If there is no information about page count on the content, it starts a preview generation task to determine the page count.
@@ -971,7 +971,7 @@ export class Content implements IContent {
     * ```
      */
     GetPageCount() {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetPageCount', id: this.Id, isAction: true });
+        return this.repository.Content.CreateCustomAction({ name: 'GetPageCount', id: this.Id, isAction: true });
     }
     /**
      * Gets information about a preview image generated for a specific page in a document. It returns with the path and the dimensions (width/height) of the image. If the image does not exist yet,
@@ -991,7 +991,7 @@ export class Content implements IContent {
     * ```
      */
     PreviewAvailable(page: number) {
-        return this.repository.Contents.CreateCustomAction({ name: 'PreviewAvailable', id: this.Id, isAction: false, requiredParams: ['page'] },
+        return this.repository.Content.CreateCustomAction({ name: 'PreviewAvailable', id: this.Id, isAction: false, requiredParams: ['page'] },
             { data: { 'page': page } });
     }
     /**
@@ -1009,7 +1009,7 @@ export class Content implements IContent {
     * ```
      */
     GetPreviewImagesForOData() {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetPreviewImagesForOData', id: this.Id, isAction: false });
+        return this.repository.Content.CreateCustomAction({ name: 'GetPreviewImagesForOData', id: this.Id, isAction: false });
     }
     /**
      * Returns the list of existing preview images (only the first consecutive batch) as objects with a few information (image path, dimensions). It does not generate any new images.
@@ -1026,7 +1026,7 @@ export class Content implements IContent {
     * ```
      */
     GetExistingPreviewImagesForOData() {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetExistingPreviewImagesForOData', id: this.Id, isAction: false });
+        return this.repository.Content.CreateCustomAction({ name: 'GetExistingPreviewImagesForOData', id: this.Id, isAction: false });
     }
     /**
      * Returns the list of the AllowedChildTypes which are set on the current Content.
@@ -1043,7 +1043,7 @@ export class Content implements IContent {
     * ```
      */
     GetAllowedChildTypesFromCTD() {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetAllowedChildTypesFromCTD', id: this.Id, isAction: false });
+        return this.repository.Content.CreateCustomAction({ name: 'GetAllowedChildTypesFromCTD', id: this.Id, isAction: false });
     }
     /**
      * Identity list that contains every users/groups/organizational units that have any permission setting (according to permission level) in the subtree of the context content.
@@ -1062,7 +1062,7 @@ export class Content implements IContent {
     * ```
      */
     GetRelatedIdentities(level: Security.PermissionLevel, kind: Security.IdentityKind) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] },
             { data: { 'level': level, 'kind': kind } });
     }
     /**
@@ -1085,7 +1085,7 @@ export class Content implements IContent {
     * ```
      */
     GetRelatedPermissions(level: Security.PermissionLevel, explicitOnly: boolean, member: string, includedTypes: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] },
             { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'includedTypes': includedTypes } });
     }
     /**
@@ -1108,7 +1108,7 @@ export class Content implements IContent {
     * ```
      */
     GetRelatedItems(level: Security.PermissionLevel, explicitOnly: boolean, member: string, permissions: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetRelatedItems', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'permissions'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedItems', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'permissions'] },
             { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'permissions': permissions } });
     }
     /**
@@ -1131,7 +1131,7 @@ export class Content implements IContent {
     * ```
      */
     GetRelatedIdentitiesByPermissions(level: Security.PermissionLevel, kind: Security.IdentityKind, permissions: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] },
         { data: { 'level': level, 'kind': kind, 'permissions': permissions } });
     }
     /**
@@ -1154,7 +1154,7 @@ export class Content implements IContent {
     * ```
      */
     GetRelatedItemsOneLevel(level: Security.PermissionLevel, member: string, permissions: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] },
         { data: { 'level': level, 'member': member, 'permissions': permissions } });
     }
     /**
@@ -1175,7 +1175,7 @@ export class Content implements IContent {
     * ```
      */
     GetAllowedUsers(permissions: string[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] },
         { data: { 'permissions': permissions } });
     }
     /**
@@ -1195,7 +1195,7 @@ export class Content implements IContent {
     * ```
      */
     GetParentGroups(directOnly: boolean) {
-        return this.repository.Contents.CreateCustomAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] },
+        return this.repository.Content.CreateCustomAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] },
         { data: { 'directOnly': directOnly } });
     }
     /**
@@ -1214,7 +1214,7 @@ export class Content implements IContent {
     * ```
      */
     AddMembers(contentIds: number[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
+        return this.repository.Content.CreateCustomAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
         { data: { 'contentIds': contentIds } });
     }
     /**
@@ -1233,7 +1233,7 @@ export class Content implements IContent {
     * ```
      */
     RemoveMembers(contentIds: number[]) {
-        return this.repository.Contents.CreateCustomAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
+        return this.repository.Content.CreateCustomAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
         { data: { 'contentIds': contentIds } });
     }
 
@@ -1281,7 +1281,7 @@ export class Content implements IContent {
         if (typeof fileText !== 'undefined') {
             data['FileText'] = fileText;
         }
-        let uploadCreation = this.repository.Contents.Upload(this.Path, data, true);
+        let uploadCreation = this.repository.Content.Upload(this.Path, data, true);
         uploadCreation.subscribe({
             next: (response) => {
                 const data = {
@@ -1290,7 +1290,7 @@ export class Content implements IContent {
                     Overwrite: o,
                     ChunkToken: response
                 };
-                return this.repository.Contents.Upload(this.Path, data, false);
+                return this.repository.Content.Upload(this.Path, data, false);
             }
         });
         return uploadCreation;

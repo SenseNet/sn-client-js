@@ -44,7 +44,7 @@ import { Repository, ContentTypes } as SN from 'sn-client-js';
 
 let repository = new Repository.SnRepository();
 
-this.Repository.Contents.Create('Root/', { 
+this.Repository.Content.Create('Root/', { 
 	Name: 'myFolder',
 }, ContentTypes.Folder);
 
@@ -87,7 +87,7 @@ var SN = require('sn-client-js');
 
 let myRepository = new SN.Repository.SnRepository();
 
-myRepository.Contents.Create('Root/Path', {
+myRepository.Content.Create('Root/Path', {
 	Name: 'MyFolderName',
 }, SN.ContentTypes.Folder);
 
@@ -99,7 +99,7 @@ myRepository.Contents.Create('Root/Path', {
 import { Repository, ContentTypes } as SN from 'sn-client-js';
 
 let repository = new Repository.SnRepository();
-myRepository.Contents.Create('Root/Path', {
+myRepository.Content.Create('Root/Path', {
 	Name: 'MyFolderName'
 }, ContentTypes.Folder)
 
@@ -126,7 +126,7 @@ npm t
 ##### Creating a Folder with the name 'Hello world'
  
 ```ts
-repository.Contents.Create('Root/Path', {
+repository.Content.Create('Root/Path', {
 	Name: 'Hello world'
 }, ContentTypes.Folder)
 .subscribe(newFolder=>{
@@ -143,7 +143,7 @@ let folder = new ContentTypes.Folder({
 	Name: 'Hello world'
 }, repository);
 
-repository.Contents.Post('Root/Path', folder, ContentTypes.Folder)
+repository.Content.Post('Root/Path', folder, ContentTypes.Folder)
 .subscribe(newFolder=>{
 		console.log('New folder created: ', newFolder)
 	}, err=> {
@@ -172,7 +172,7 @@ let schema = SN.Content.GetSchema('GenericContent');
 ##### Read Collection data
  
 ```ts
-let collection = new SN.Collection([], repository.Contents);
+let collection = new SN.Collection([], repository.Content);
 var options = new SN.ODataApi.ODataParams({ 
 	select: ["DisplayName", "Lead"], 
 	orderby: 'DisplayName', 
