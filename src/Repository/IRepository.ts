@@ -28,7 +28,7 @@ export interface IRepository<THttpProviderType extends BaseHttpProvider, TBaseCo
     /**
      * public reference to the OData API used by the repository
      */
-    readonly Contents: IODataApi<THttpProviderType, TBaseContentType>;
+    readonly Content: IODataApi<THttpProviderType, TBaseContentType>;
     
     /**
      * public reference to the Authentication Service used by the reőository
