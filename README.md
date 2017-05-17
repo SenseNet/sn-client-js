@@ -61,7 +61,7 @@ npm install --save sn-client-js
 You can specify additional options when creating an SnRepository instance by the following way:
 
 ```ts
-import { Repository, Config } from 'sn-client-js';
+import { Repository } from 'sn-client-js';
 
 let repository = new Repository.SnRepository({
             RepositoryUrl: 'https://my-sensenet-site.com',
@@ -96,10 +96,10 @@ myRepository.Content.Create('Root/Path', {
 ### Typescript
 
 ```ts
-import { Repository, ContentTypes } as SN from 'sn-client-js';
+import { Repository, ContentTypes } from 'sn-client-js';
 
 let repository = new Repository.SnRepository();
-myRepository.Content.Create('Root/Path', {
+repository.Content.Create('Root/Path', {
 	Name: 'MyFolderName'
 }, ContentTypes.Folder)
 
