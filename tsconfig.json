@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
+        "strict": true,
         "removeComments": true,
         "noImplicitAny": false,
         "target": "es2015",
         "module": "commonjs",
         "moduleResolution": "node",
         "sourceMap": true,
-        "declaration": false,
+        "declaration": true,
         "preserveConstEnums": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
