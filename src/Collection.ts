@@ -43,7 +43,7 @@ export class Collection<T extends IContent> {
      * collection.GetItem(1234);
      * ```
      */
-    public Item(id: number): T {
+    public Item(id: number): T | undefined {
         return this.items.find(i => i.Id === id);
     }
 
@@ -131,11 +131,15 @@ export class Collection<T extends IContent> {
     public Remove(arg: any, permanently: boolean = false): Observable<any> {
         if (typeof arg === 'number') {
             let content = this.items[arg];
-            this.items =
-                this.items.slice(0, arg)
-                    .concat(this.items.slice(arg + 1));
+                if (content && content.Id){
+                this.items =
+                    this.items.slice(0, arg)
+                        .concat(this.items.slice(arg + 1));
 
-            return this.service.Delete(content.Id, permanently ? permanently : false);
+                return this.service.Delete(content.Id, permanently ? permanently : false);
+            } else {
+                return Observable.of(undefined);
+            }
         }
         else {
             let ids = arg.map(i => this.items[i].Id);

@@ -104,7 +104,10 @@ export class Content implements IContent {
      * ```
     */
     Delete(permanently: boolean = false): Observable<any> {
-        return this.repository.Content.Delete(this.Id, permanently);
+        if (this.Id){
+            return this.repository.Content.Delete(this.Id, permanently);
+        }
+        return Observable.of(undefined);
     }
     /**
      * Modifies the DisplayName or the DisplayName and the Name of a content item in the Content Repository.
@@ -123,14 +126,17 @@ export class Content implements IContent {
      * ```
      */
     Rename(newDisplayName: string, newName?: string): Observable<this> {
-        let fields = {};
-        if (typeof newDisplayName !== 'undefined') {
-            fields['DisplayName'] = newDisplayName;
+        if (!this.Id){
+            throw new Error('Content Id not present');
         }
-        if (typeof newName !== 'undefined') {
-            fields['Name'] = newName;
+        let fields: {Name?: string, DisplayName?: string} = {};
+        if (!newDisplayName){
+            fields.DisplayName = newDisplayName;
         }
-        return this.repository.Content.Patch(this.Id, this.constructor as {new(...args)}, fields);
+        if (newName){
+            fields.Name = newName;
+        }
+        return this.repository.Content.Patch(this.Id, this.constructor as {new (...args: any[]): any}, fields);
     }
     /**
      * Saves the content with its given modified fields to the Content Repository.
@@ -150,11 +156,14 @@ export class Content implements IContent {
      * ```
      */
     Save(fields: Object, override: boolean = false): Observable<this> {
+        if (!this.Id){
+            throw new Error('Content Id not present');
+        }
         if (override) {
-            return this.repository.Content.Put(this.Id, this.constructor as {new(...args)}, fields);
+            return this.repository.Content.Put(this.Id, this.constructor as {new(...args: any[]): any}, fields);
         }
         else {
-            return this.repository.Content.Patch(this.Id, this.constructor as {new(...args)}, fields);
+            return this.repository.Content.Patch(this.Id, this.constructor as {new(...args: any[]): any}, fields);
         }
     }
     /**
@@ -165,7 +174,7 @@ export class Content implements IContent {
      *```
      */
     GetSchema(): FieldSettings.FieldSetting[] {
-        return Schemas[`${this.Type}CTD`]();
+        return (Schemas as any)[`${this.Type}CTD` as any]();
     }
     /**
      * Method that returns actions of a content.
@@ -190,11 +199,13 @@ export class Content implements IContent {
             }
         }
         let optionList;
-        if (typeof this.Id !== 'undefined') {
+        if (this.Id) {
             optionList = this.deferredFunctionBuilder(this.Id, 'Actions', options);
         }
-        else {
+        else if (this.Path) {
             optionList = this.deferredFunctionBuilder(this.Path, 'Actions', options);
+        } else {
+            throw new Error('No Id or Path present')
         }
         return this.repository.Content.Get(optionList);
     }
@@ -214,6 +225,9 @@ export class Content implements IContent {
      * ```
      */
     GetAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
         let optionList = this.deferredFunctionBuilder(this.Id, 'AllowedChildTypes', options ? options : null);
         let reqoptions = new ODataRequestOptions({
             path: optionList.path
@@ -239,6 +253,10 @@ export class Content implements IContent {
      * ```
      */
     GetEffectiveAllowedChildTypes(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'EffectiveAllowedChildTypes', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -258,6 +276,10 @@ export class Content implements IContent {
      * ```
      */
     GetOwner(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'Owner', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -277,6 +299,10 @@ export class Content implements IContent {
      * ```
      */
     Creator(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'CreatedBy', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -296,6 +322,10 @@ export class Content implements IContent {
      * ```
      */
     Modifier(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'ModifiedBy', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -315,6 +345,10 @@ export class Content implements IContent {
      * ```
      */
     CheckedOutBy(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'CheckedOutTo', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -338,6 +372,10 @@ export class Content implements IContent {
      * ```
      */
     Children(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, '', options ? options : null);
         return this.repository.Content.Fetch(optionList);
     }
@@ -361,6 +399,10 @@ export class Content implements IContent {
      * ```
     */
     GetVersions(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'Versions', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -384,6 +426,10 @@ export class Content implements IContent {
      * ```
     */
     GetWorkspace(options?: Object) {
+        if (!this.Id){
+            throw new Error('No Id provided');
+        }
+        
         let optionList = this.deferredFunctionBuilder(this.Id, 'Workspace', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
@@ -645,7 +691,7 @@ export class Content implements IContent {
      * ```
      */
     public static GetSchema(type: string): FieldSettings.FieldSetting[] {
-        return Schemas[`${type}CTD`]();
+        return (Schemas as any)[`${type}CTD`]();
     }
 
     /**
@@ -657,7 +703,7 @@ export class Content implements IContent {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository): T }, opt: O, repository: IRepository<any, any>): T {
+    public static Create<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository: IRepository<any, any>): T }, opt: O, repository: IRepository<any, any>): T {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
@@ -669,7 +715,7 @@ export class Content implements IContent {
      * ```
      */
     Schema(): FieldSettings.FieldSetting[] {
-        return Schemas[`${this.Type}CTD`]();
+        return (Schemas as any)[`${this.Type}CTD`]();
     }
     /**
      * Sets permissions on the requested content. You can add or remove permissions for one ore more users or groups using this action or even break/unbreak permission inheritance.
@@ -691,7 +737,7 @@ export class Content implements IContent {
      * });
      * ```
     */
-    SetPermissions(identities: Security.PermissionRequestBody[]);
+
     /**
     * Sets permissions on the requested content. You can add or remove permissions for one ore more users or groups using this action or even break/unbreak permission inheritance.
     * @param inheritance {Security.Inheritance} inheritance: break or unbreak
@@ -707,7 +753,6 @@ export class Content implements IContent {
     * });
     * ```
    */
-    SetPermissions(inheritance: Security.Inheritance);
     SetPermissions(arg: Security.Inheritance | Security.PermissionRequestBody[]) {
         let action;
         if (arg instanceof Array) {
@@ -1084,7 +1129,7 @@ export class Content implements IContent {
     * });
     * ```
      */
-    GetRelatedPermissions(level: Security.PermissionLevel, explicitOnly: boolean, member: string, includedTypes: string[]) {
+    GetRelatedPermissions(level: Security.PermissionLevel, explicitOnly: boolean, member: string, includedTypes?: string[]) {
         return this.repository.Content.CreateCustomAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] },
             { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'includedTypes': includedTypes } });
     }
@@ -1237,7 +1282,7 @@ export class Content implements IContent {
         { data: { 'contentIds': contentIds } });
     }
 
-    private deferredFunctionBuilder(idOrPath: number | string, fieldName, options) {
+    private deferredFunctionBuilder(idOrPath: number | string, fieldName: string, options: any) {
         let contentURL;
         if (typeof idOrPath === 'string') {
             contentURL = ODataHelper.getContentURLbyPath(idOrPath);
@@ -1245,7 +1290,7 @@ export class Content implements IContent {
         else {
             contentURL = ODataHelper.getContentUrlbyId(idOrPath);
         }
-        let o = {};
+        let o: any = {};
         if (options) {
             o['params'] = options;
         }
@@ -1268,8 +1313,12 @@ export class Content implements IContent {
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
     public Upload(contentType: string, fileName: string, overwrite?: boolean, useChunk?: boolean, propertyName?: string, fileText?: string) {
+        if (!this.Path){
+            throw Error('No Path provided!');
+        }
+        
         const o = overwrite ? overwrite : true;
-        const data = {
+        const data: any = {
             ContentType: contentType,
             FileName: fileName,
             Overwrite: o,
@@ -1290,7 +1339,7 @@ export class Content implements IContent {
                     Overwrite: o,
                     ChunkToken: response
                 };
-                return this.repository.Content.Upload(this.Path, data, false);
+                return this.repository.Content.Upload(this.Path as any, data, false);
             }
         });
         return uploadCreation;

@@ -60,7 +60,7 @@ export class FieldSetting {
     ControlHint?: string;
 
     constructor(options: IFieldSettingOptions) {
-        this.Name = options.name;
+        this.Name = options.name || 'Content';
         this.DisplayName = options.displayName;
         this.Icon = options.icon;
         this.ReadOnly = options.readOnly;
@@ -97,10 +97,10 @@ export interface IFieldSettingOptions {
 
 // Used in ContentType, GenericContent, File, Image, TrashBag, TrashBin, Task
 export class IntegerFieldSetting extends FieldSetting {
-    MinValue: number;
-    MaxValue: number;
-    ShowAsPercentage: boolean;
-    Step: number;
+    MinValue?: number;
+    MaxValue?: number;
+    ShowAsPercentage?: boolean;
+    Step?: number;
 
     constructor(options: IIntegerFieldSettingOptions) {
         super(options);
@@ -120,8 +120,8 @@ export interface IIntegerFieldSettingOptions extends IFieldSettingOptions {
 
 // 
 export class TextFieldSetting extends FieldSetting {
-    MinLength: number;
-    MaxLength: number;
+    MinLength?: number;
+    MaxLength?: number;
 
     constructor(options: ITextFieldSettingOptions) {
         super(options);
@@ -137,7 +137,7 @@ export interface ITextFieldSettingOptions extends IFieldSettingOptions {
 
 // Used in ContentType, GenericContent, File, ContentList, Device, Domain, Email, OrganizationalUnit, TrashBag, Group, Task, User
 export class ShortTextFieldSetting extends TextFieldSetting {
-    Regex: string;
+    Regex?: string;
 
     constructor(options: IShortTextFieldSettingOptions) {
         super(options);
@@ -162,9 +162,9 @@ export interface INullFieldSettingOptions extends IFieldSettingOptions {
 
 // Used in ContentType, GenericContent, File, HtmlTemplate, Image, ContentList, Aspect, Email, SmartFolder, Query, User
 export class LongTextFieldSetting extends TextFieldSetting {
-    Rows: number;
-    TextType: TextType;
-    AppendModifications: boolean;
+    Rows?: number;
+    TextType?: TextType;
+    AppendModifications?: boolean;
 
     constructor(options: ILongTextFieldSettingOptions) {
         super(options);
@@ -182,7 +182,7 @@ export interface ILongTextFieldSettingOptions extends ITextFieldSettingOptions {
 
 // Used in ContentType, File, User
 export class BinaryFieldSetting extends FieldSetting {
-    IsText: boolean;
+    IsText?: boolean;
 
     constructor(options: IBinaryFieldSettingOptions) {
         super(options);
@@ -196,11 +196,11 @@ export interface IBinaryFieldSettingOptions extends IFieldSettingOptions {
 
 // Used in ContentType, GenericContent, ContentLink, ContentList, ImageLibrary, TrashBag, Workspace, Site, UserProfile, Group, Memo, Task, User
 export class ReferenceFieldSetting extends FieldSetting {
-    AllowMultiple: boolean;
-    AllowedTypes: string[];
-    SelectionRoots: string[];
-    Query: string;
-    FieldName: string;
+    AllowMultiple?: boolean;
+    AllowedTypes?: string[];
+    SelectionRoots?: string[];
+    Query?: string;
+    FieldName?: string;
 
     constructor(options: IReferenceFieldSettingOptions) {
         super(options);
@@ -222,8 +222,8 @@ export interface IReferenceFieldSettingOptions extends IFieldSettingOptions {
 
 // Used in ContentType, GenericContent, Image, Domain, Email, OrganizationalUnit, TrashBag, Workspace, Group, Memo, Task, User
 export class DateTimeFieldSetting extends FieldSetting {
-    DateTimeMode: DateTimeMode;
-    Precision: DateTimePrecision;
+    DateTimeMode?: DateTimeMode;
+    Precision?: DateTimePrecision;
 
     constructor(options: IDateTimeFieldSettingOptions) {
         super(options);
@@ -239,11 +239,11 @@ export interface IDateTimeFieldSettingOptions extends IFieldSettingOptions {
 
 // Used in GenericContent, ContentList, SmartFolder, Site, Memo, Task, Query, User
 export class ChoiceFieldSetting extends ShortTextFieldSetting {
-    AllowExtraValue: boolean;
-    AllowMultiple: boolean;
-    Options: ComplexTypes.ChoiceOption[];
-    DisplayChoice: DisplayChoice;
-    EnumTypeName: string;
+    AllowExtraValue?: boolean;
+    AllowMultiple?: boolean;
+    Options?: ComplexTypes.ChoiceOption[];
+    DisplayChoice?: DisplayChoice;
+    EnumTypeName?: string;
 
     constructor(options: IChoiceFieldSettingOptions) {
         super(options);
@@ -265,11 +265,11 @@ export interface IChoiceFieldSettingOptions extends IShortTextFieldSettingOption
 
 // Used in GenericContent, File, Resource
 export class NumberFieldSetting extends FieldSetting {
-    MinValue: number;
-    MaxValue: number;
-    Digits: number;
-    ShowAsPercentage: boolean;
-    Step: number;
+    MinValue?: number;
+    MaxValue?: number;
+    Digits?: number;
+    ShowAsPercentage?: boolean;
+    Step?: number;
 
     constructor(options: INumberFieldSettingOptions) {
         super(options);
@@ -291,8 +291,8 @@ export interface INumberFieldSettingOptions extends IFieldSettingOptions {
 
 // Used in GenericContent
 export class RatingFieldSetting extends ShortTextFieldSetting {
-    Range: number;
-    Split: number;
+    Range?: number;
+    Split?: number;
 
     constructor(options: IRatingFieldSettingOptions) {
         super(options);
@@ -308,9 +308,9 @@ export interface IRatingFieldSettingOptions extends IShortTextFieldSettingOption
 
 // Used in User
 export class PasswordFieldSetting extends ShortTextFieldSetting {
-    ReenterTitle: string;
-    ReenterDescription: string;
-    PasswordHistoryLength: number;
+    ReenterTitle?: string;
+    ReenterDescription?: string;
+    PasswordHistoryLength?: number;
 
     constructor(options: IPasswordFieldSettingOptions) {
         super(options);
