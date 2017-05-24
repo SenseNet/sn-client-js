@@ -6,7 +6,7 @@ import { Token, TokenPersist, TokenStoreType } from './';
 /**
  * Indicates the type of the token
  */
-type TokenType = 'access' | 'refresh';
+export type TokenType = 'access' | 'refresh';
 
 
 /**
@@ -25,7 +25,7 @@ export class TokenStore {
     constructor(private readonly baseUrl: string,
         private readonly keyTemplate: string = 'sn-${siteName}-${tokenName}',
         private readonly tokenPersist: TokenPersist,
-        private documentRef: Partial<Document> = (typeof document === 'object') ? document : undefined,
+        private documentRef = (typeof document === 'object') ? document : undefined,
         private localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
         private sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
         let storesAvailable = (typeof this.localStorageRef !== 'undefined' && typeof this.sessionStorageRef !== 'undefined');
@@ -54,21 +54,25 @@ export class TokenStore {
         return this.keyTemplate.replace('${siteName}', this.baseUrl).replace('${tokenName}', key);
     }
 
-    private getTokenFromCookie(key: string): Token {
-        let prefix = key + '=';
-        let cookieVal = this.documentRef.cookie.split(';')
-            .map(v => v.trim())
-            .find(v => v.trim().indexOf(prefix) === 0)
-            .substring(prefix.length);
-        return Token.FromHeadAndPayload(cookieVal);
+    private getTokenFromCookie(key: string, document: Document): Token {
+        const prefix = key + '=';
+        if (document && document.cookie){
+            const cookieVal = document.cookie.split(';')
+                .map(v => v.trim())
+                .find(v => v.trim().indexOf(prefix) === 0);
+            if (cookieVal){
+                return Token.FromHeadAndPayload(cookieVal.substring(prefix.length));
+            }
+        }
+        return Token.CreateEmpty();
     }
 
-    private setTokenToCookie(key: string, Token: Token, persist: TokenPersist): void {
+    private setTokenToCookie(key: string, Token: Token, persist: TokenPersist, doc: Document): void {
         let cookie = `${key}=${Token.toString()}`;
         if (persist === TokenPersist.Expiration) {
             cookie += `; expires=${Token.ExpirationTime.toUTCString()};`
         }
-        this.documentRef.cookie = cookie;
+        doc.cookie = cookie;
     }
 
     /**
@@ -83,12 +87,14 @@ export class TokenStore {
                 case TokenStoreType.InMemory:
                     return Token.FromHeadAndPayload(this.innerStore[storeKey]);
                 case TokenStoreType.LocalStorage:
-                    return Token.FromHeadAndPayload(this.localStorageRef.getItem(storeKey));
+                    return Token.FromHeadAndPayload((this.localStorageRef as any).getItem(storeKey));
                 case TokenStoreType.SessionStorage:
-                    return Token.FromHeadAndPayload(this.sessionStorageRef.getItem(storeKey));
+                    return Token.FromHeadAndPayload((this.sessionStorageRef as any).getItem(storeKey));
                 case TokenStoreType.ExpirationCookie:
                 case TokenStoreType.SessionCookie:
-                    return this.getTokenFromCookie(storeKey);
+                    return this.getTokenFromCookie(storeKey, this.documentRef as Document);
+                    default:
+                    return Token.CreateEmpty();
             }
         } catch (err) {
             return Token.CreateEmpty();
@@ -108,16 +114,16 @@ export class TokenStore {
                 this.innerStore[storeKey] = dtaString;
                 break;
             case TokenStoreType.LocalStorage:
-                this.localStorageRef.setItem(storeKey, dtaString);
+                this.localStorageRef && this.localStorageRef.setItem(storeKey, dtaString);
                 break;
             case TokenStoreType.SessionStorage:
-                this.sessionStorageRef.setItem(storeKey, dtaString);
+                this.sessionStorageRef && this.sessionStorageRef.setItem(storeKey, dtaString);
                 break;
             case TokenStoreType.ExpirationCookie:
-                this.setTokenToCookie(storeKey, token, TokenPersist.Expiration);
+                this.setTokenToCookie(storeKey, token, TokenPersist.Expiration, this.documentRef as Document);
                 break;
             case TokenStoreType.SessionCookie:
-                this.setTokenToCookie(storeKey, token, TokenPersist.Session);
+                this.setTokenToCookie(storeKey, token, TokenPersist.Session, this.documentRef as Document);
                 break;
         }
     }

@@ -41,7 +41,12 @@ describe('Collection', () => {
     it('should return an object with a given id', function () {
       const item = collection.Item(1);
       expect(item).to.be.instanceof(Content);
-      expect(item.Id).to.be.eq(1);
+      if (item && item.Id){
+        expect(item.Id).to.be.eq(1);
+      } else{
+        throw Error('No item in collection, or item doesn\'t have an Id');
+      }
+      
     });
   });
   describe('#Count()', () => {

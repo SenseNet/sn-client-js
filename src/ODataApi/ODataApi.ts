@@ -10,7 +10,7 @@ import { BaseHttpProvider } from '../HttpProviders';
 import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, IODataApi, ODataCollectionResponse } from './';
 import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
-import { Content } from '../Content';
+import { Content, IContentOptions } from '../Content';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -19,12 +19,12 @@ import { Content } from '../Content';
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
 export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType extends IContent> implements IODataApi<THttpProvider, TBaseContentType>{
-   
+
     /**
      * The HTTP provider instance for making AJAX calls.
      */
     private readonly httpProvider: THttpProvider;
-    
+
     /**
      * @param {THttpProvider} providerRef Reference to a specifed HTTP Provider to make Ajax calls
      * @param {IRepository} repository Reference to a Repository instance
@@ -52,10 +52,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      *      });
      * ```
      */
-    public Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args): T }): Observable<ODataResponse<T>> {
+    public Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args: any[]): T }): Observable<ODataResponse<T>> {
+
         return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET')
             .map(resp => {
-                resp.d = new returns(resp.d);
+                resp.d = returns ? new returns(resp.d, this.repository) : new Content(resp.d, this.repository);
                 return resp;
             });
     }
@@ -78,17 +79,16 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * ```
      */
     public Fetch<T extends TBaseContentType = TBaseContentType>(
-            options: ODataRequestOptions,
-            returns?: { new (...args): T }): Observable<ODataCollectionResponse<T>> {
-
-        if (!returns) {
-            returns = Content as {new(...args)};
-        }
+        options: ODataRequestOptions,
+        returnsType?: { new (...args: any[]): T }): Observable<ODataCollectionResponse<T>> {
 
         return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET')
             .map(resp => {
+                if (!returnsType) {
+                    returnsType = Content as { new (...args: any[]): any };
+                }
                 resp.d.results = resp.d.results.map(r => {
-                    return new returns(r, this.repository);
+                    return returnsType && new returnsType(r, this.repository);
                 });
                 return resp;
             });
@@ -113,13 +113,13 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * ```
      */
     public Create<T extends TBaseContentType, O extends T['options']>(
-            path: string,
-            opt: O,
-            contentType: { new (opt: O, repository): T },
-            repository = this.repository): Observable<T> {
+        path: string,
+        opt: O,
+        contentType: { new (opt: O, repository: IRepository<any, any>): T },
+        repository = this.repository): Observable<T> {
 
-                opt.__ContentType = opt.Type || contentType.name;
-                return this.repository.Ajax(ODataHelper.getContentURLbyPath(path), 'POST', contentType, JSON.stringify(opt));
+        opt.__ContentType = opt.Type || contentType.name;
+        return this.repository.Ajax(ODataHelper.getContentURLbyPath(path), 'POST', contentType, JSON.stringify(opt));
     }
 
     /**
@@ -145,11 +145,13 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
     public Post<T extends TBaseContentType>(
         path: string,
         content: T,
-        postedContentType?: { new (...args): T }): Observable<T> {
-
-            let opt = content.options;
-            opt.__ContentType = opt.Type || postedContentType.name;
-            return this.repository.Ajax<T>(ODataHelper.getContentURLbyPath(path), 'POST', postedContentType, JSON.stringify(opt));
+        postedContentType?: { new (...args: any[]): T }): Observable<T> {
+        if (!postedContentType) {
+            postedContentType = content.constructor as { new (...args: any[]): any };
+        }
+        let opt = content.options;
+        opt.__ContentType = opt.Type || postedContentType.name;
+        return this.repository.Ajax<T>(ODataHelper.getContentURLbyPath(path), 'POST', postedContentType, JSON.stringify(opt));
     }
 
     /**
@@ -180,9 +182,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Patch<T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: Partial<T['options']>): Observable<T>{
-        
-        let contentTypeWithResponse = ODataResponse as {new(...args): ODataResponse<T>};
+    public Patch<T extends TBaseContentType>(id: number, contentType: { new (...args: any[]): T }, fields: Partial<T['options']>): Observable<T> {
+
+        let contentTypeWithResponse = ODataResponse as { new (...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
@@ -206,8 +208,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Put<T extends TBaseContentType>(id: number, contentType: {new(...args): T}, fields: T['options']): Observable<T>{
-        let contentTypeWithResponse = ODataResponse as {new(...args): ODataResponse<T>};
+    public Put<T extends TBaseContentType>(id: number, contentType: { new (...args: any[]): T }, fields: T['options']): Observable<T> {
+        let contentTypeWithResponse = ODataResponse as { new (...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
@@ -221,9 +223,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
       * @param {new(...args): TReturnType} returns Th type that the action should return
       * @returns {Observable<TReturnType>} Returns an Rxjs observable whitch will be resolved with TReturnType that you can subscribe of in your code.
       */
-    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams, returns?: {new(...args): TReturnType}): Observable<TReturnType>{
-        if (!returns){
-            returns = Object as {new(...args)};
+    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams, returns?: { new (...args: any[]): TReturnType }): Observable<TReturnType> {
+        if (!returns) {
+            returns = Object as { new (...args: any[]): any };
         }
         let action = new CustomAction(actionOptions);
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
@@ -231,8 +233,10 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         if (typeof action.id !== 'undefined') {
             path = ODataHelper.joinPaths(ODataHelper.getContentUrlbyId(action.id), action.name);
         }
-        else {
+        else if (action.path){
             path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
+        } else {
+            throw Error('No Id or Path provided.')
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`
@@ -243,7 +247,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             path = path.slice(0, start) + '/' + path.slice(start);
         }
 
-        let body = action.params.length > 0 ? JSON.stringify(options.data) : '';
+        let body = action.params.length > 0 && options && options.data ? JSON.stringify(options.data) : '';
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
             return this.repository.Ajax(path, 'GET', returns);

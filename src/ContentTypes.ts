@@ -82,7 +82,7 @@ export class ContentType extends Content {
  * @interface IContentTypeOptions
  * @extends {@link IContentOptions}
  */
-interface IContentTypeOptions extends IContentOptions {
+export interface IContentTypeOptions extends IContentOptions {
     Id?: number;
     ParentId?: number;
     VersionId?: number;
@@ -229,7 +229,7 @@ export class GenericContent extends Content {
  * @interface IGenericContentOptions
  * @extends {@link IContentOptions}
  */
-interface IGenericContentOptions extends IContentOptions {
+export interface IGenericContentOptions extends IContentOptions {
     Id?: number;
     ParentId?: number;
     OwnerId?: number;
@@ -306,7 +306,7 @@ export class ContentLink extends GenericContent {
  * @interface IContentLinkOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IContentLinkOptions extends IGenericContentOptions {
+export interface IContentLinkOptions extends IGenericContentOptions {
     Link?: ComplexTypes.DeferredObject;
 }
 
@@ -347,7 +347,7 @@ export class File extends GenericContent {
  * @interface IFileOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IFileOptions extends IGenericContentOptions {
+export interface IFileOptions extends IGenericContentOptions {
     Binary?: ComplexTypes.DeferredObject;
     Size?: number;
     FullSize?: number;
@@ -379,7 +379,7 @@ export class DynamicJsonContent extends File {
  * @interface IDynamicJsonContentOptions
  * @extends {@link IFileOptions}
  */
-interface IDynamicJsonContentOptions extends IFileOptions {
+export interface IDynamicJsonContentOptions extends IFileOptions {
 }
 
 /**
@@ -403,7 +403,7 @@ export class ExecutableFile extends File {
  * @interface IExecutableFileOptions
  * @extends {@link IFileOptions}
  */
-interface IExecutableFileOptions extends IFileOptions {
+export interface IExecutableFileOptions extends IFileOptions {
 }
 
 /**
@@ -429,7 +429,7 @@ export class HtmlTemplate extends File {
  * @interface IHtmlTemplateOptions
  * @extends {@link IFileOptions}
  */
-interface IHtmlTemplateOptions extends IFileOptions {
+export interface IHtmlTemplateOptions extends IFileOptions {
     TemplateText?: string;
 }
 
@@ -462,7 +462,7 @@ export class Image extends File {
  * @interface IImageOptions
  * @extends {@link IFileOptions}
  */
-interface IImageOptions extends IFileOptions {
+export interface IImageOptions extends IFileOptions {
     Keywords?: string;
     DateTaken?: Date;
     Width?: number;
@@ -490,7 +490,7 @@ export class PreviewImage extends Image {
  * @interface IPreviewImageOptions
  * @extends {@link IImageOptions}
  */
-interface IPreviewImageOptions extends IImageOptions {
+export interface IPreviewImageOptions extends IImageOptions {
 }
 
 /**
@@ -516,7 +516,7 @@ export class Settings extends File {
  * @interface ISettingsOptions
  * @extends {@link IFileOptions}
  */
-interface ISettingsOptions extends IFileOptions {
+export interface ISettingsOptions extends IFileOptions {
     GlobalOnly?: boolean;
 }
 
@@ -543,7 +543,7 @@ export class IndexingSettings extends Settings {
  * @interface IIndexingSettingsOptions
  * @extends {@link ISettingsOptions}
  */
-interface IIndexingSettingsOptions extends ISettingsOptions {
+export interface IIndexingSettingsOptions extends ISettingsOptions {
     TextExtractorInstances?: string;
 }
 
@@ -568,7 +568,7 @@ export class LoggingSettings extends Settings {
  * @interface ILoggingSettingsOptions
  * @extends {@link ISettingsOptions}
  */
-interface ILoggingSettingsOptions extends ISettingsOptions {
+export interface ILoggingSettingsOptions extends ISettingsOptions {
 }
 
 /**
@@ -592,7 +592,7 @@ export class PortalSettings extends Settings {
  * @interface IPortalSettingsOptions
  * @extends {@link ISettingsOptions}
  */
-interface IPortalSettingsOptions extends ISettingsOptions {
+export interface IPortalSettingsOptions extends ISettingsOptions {
 }
 
 /**
@@ -616,7 +616,7 @@ export class SystemFile extends File {
  * @interface ISystemFileOptions
  * @extends {@link IFileOptions}
  */
-interface ISystemFileOptions extends IFileOptions {
+export interface ISystemFileOptions extends IFileOptions {
 }
 
 /**
@@ -642,7 +642,7 @@ export class Resource extends SystemFile {
  * @interface IResourceOptions
  * @extends {@link ISystemFileOptions}
  */
-interface IResourceOptions extends ISystemFileOptions {
+export interface IResourceOptions extends ISystemFileOptions {
     Downloads?: number;
 }
 
@@ -667,7 +667,7 @@ export class Folder extends GenericContent {
  * @interface IFolderOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IFolderOptions extends IGenericContentOptions {
+export interface IFolderOptions extends IGenericContentOptions {
 }
 
 /**
@@ -719,7 +719,7 @@ export class ContentList extends Folder {
  * @interface IContentListOptions
  * @extends {@link IFolderOptions}
  */
-interface IContentListOptions extends IFolderOptions {
+export interface IContentListOptions extends IFolderOptions {
     ContentListDefinition?: string;
     DefaultView?: string;
     AvailableViews?: ComplexTypes.DeferredObject;
@@ -759,7 +759,7 @@ export class Aspect extends ContentList {
  * @interface IAspectOptions
  * @extends {@link IContentListOptions}
  */
-interface IAspectOptions extends IContentListOptions {
+export interface IAspectOptions extends IContentListOptions {
     AspectDefinition?: string;
 }
 
@@ -784,7 +784,7 @@ export class ItemList extends ContentList {
  * @interface IItemListOptions
  * @extends {@link IContentListOptions}
  */
-interface IItemListOptions extends IContentListOptions {
+export interface IItemListOptions extends IContentListOptions {
 }
 
 /**
@@ -808,7 +808,7 @@ export class CustomList extends ItemList {
  * @interface ICustomListOptions
  * @extends {@link IItemListOptions}
  */
-interface ICustomListOptions extends IItemListOptions {
+export interface ICustomListOptions extends IItemListOptions {
 }
 
 /**
@@ -832,7 +832,7 @@ export class MemoList extends ItemList {
  * @interface IMemoListOptions
  * @extends {@link IItemListOptions}
  */
-interface IMemoListOptions extends IItemListOptions {
+export interface IMemoListOptions extends IItemListOptions {
 }
 
 /**
@@ -856,7 +856,7 @@ export class TaskList extends ItemList {
  * @interface ITaskListOptions
  * @extends {@link IItemListOptions}
  */
-interface ITaskListOptions extends IItemListOptions {
+export interface ITaskListOptions extends IItemListOptions {
 }
 
 /**
@@ -880,7 +880,7 @@ export class Library extends ContentList {
  * @interface ILibraryOptions
  * @extends {@link IContentListOptions}
  */
-interface ILibraryOptions extends IContentListOptions {
+export interface ILibraryOptions extends IContentListOptions {
 }
 
 /**
@@ -904,7 +904,7 @@ export class DocumentLibrary extends Library {
  * @interface IDocumentLibraryOptions
  * @extends {@link ILibraryOptions}
  */
-interface IDocumentLibraryOptions extends ILibraryOptions {
+export interface IDocumentLibraryOptions extends ILibraryOptions {
 }
 
 /**
@@ -930,7 +930,7 @@ export class ImageLibrary extends Library {
  * @interface IImageLibraryOptions
  * @extends {@link ILibraryOptions}
  */
-interface IImageLibraryOptions extends ILibraryOptions {
+export interface IImageLibraryOptions extends ILibraryOptions {
     CoverImage?: ComplexTypes.DeferredObject;
 }
 
@@ -957,7 +957,7 @@ export class Device extends Folder {
  * @interface IDeviceOptions
  * @extends {@link IFolderOptions}
  */
-interface IDeviceOptions extends IFolderOptions {
+export interface IDeviceOptions extends IFolderOptions {
     UserAgentPattern?: string;
 }
 
@@ -986,7 +986,7 @@ export class Domain extends Folder {
  * @interface IDomainOptions
  * @extends {@link IFolderOptions}
  */
-interface IDomainOptions extends IFolderOptions {
+export interface IDomainOptions extends IFolderOptions {
     SyncGuid?: string;
     LastSync?: Date;
 }
@@ -1012,7 +1012,7 @@ export class Domains extends Folder {
  * @interface IDomainsOptions
  * @extends {@link IFolderOptions}
  */
-interface IDomainsOptions extends IFolderOptions {
+export interface IDomainsOptions extends IFolderOptions {
 }
 
 /**
@@ -1042,7 +1042,7 @@ export class Email extends Folder {
  * @interface IEmailOptions
  * @extends {@link IFolderOptions}
  */
-interface IEmailOptions extends IFolderOptions {
+export interface IEmailOptions extends IFolderOptions {
     From?: string;
     Body?: string;
     Sent?: Date;
@@ -1073,7 +1073,7 @@ export class OrganizationalUnit extends Folder {
  * @interface IOrganizationalUnitOptions
  * @extends {@link IFolderOptions}
  */
-interface IOrganizationalUnitOptions extends IFolderOptions {
+export interface IOrganizationalUnitOptions extends IFolderOptions {
     SyncGuid?: string;
     LastSync?: Date;
 }
@@ -1099,7 +1099,7 @@ export class PortalRoot extends Folder {
  * @interface IPortalRootOptions
  * @extends {@link IFolderOptions}
  */
-interface IPortalRootOptions extends IFolderOptions {
+export interface IPortalRootOptions extends IFolderOptions {
 }
 
 /**
@@ -1123,7 +1123,7 @@ export class ProfileDomain extends Folder {
  * @interface IProfileDomainOptions
  * @extends {@link IFolderOptions}
  */
-interface IProfileDomainOptions extends IFolderOptions {
+export interface IProfileDomainOptions extends IFolderOptions {
 }
 
 /**
@@ -1147,7 +1147,7 @@ export class Profiles extends Folder {
  * @interface IProfilesOptions
  * @extends {@link IFolderOptions}
  */
-interface IProfilesOptions extends IFolderOptions {
+export interface IProfilesOptions extends IFolderOptions {
 }
 
 /**
@@ -1171,7 +1171,7 @@ export class RuntimeContentContainer extends Folder {
  * @interface IRuntimeContentContainerOptions
  * @extends {@link IFolderOptions}
  */
-interface IRuntimeContentContainerOptions extends IFolderOptions {
+export interface IRuntimeContentContainerOptions extends IFolderOptions {
 }
 
 /**
@@ -1195,7 +1195,7 @@ export class Sites extends Folder {
  * @interface ISitesOptions
  * @extends {@link IFolderOptions}
  */
-interface ISitesOptions extends IFolderOptions {
+export interface ISitesOptions extends IFolderOptions {
 }
 
 /**
@@ -1225,7 +1225,7 @@ export class SmartFolder extends Folder {
  * @interface ISmartFolderOptions
  * @extends {@link IFolderOptions}
  */
-interface ISmartFolderOptions extends IFolderOptions {
+export interface ISmartFolderOptions extends IFolderOptions {
     Query?: string;
     EnableAutofilters?: Enums.EnableAutofilters;
     EnableLifespanFilter?: Enums.EnableLifespanFilter;
@@ -1252,7 +1252,7 @@ export class SystemFolder extends Folder {
  * @interface ISystemFolderOptions
  * @extends {@link IFolderOptions}
  */
-interface ISystemFolderOptions extends IFolderOptions {
+export interface ISystemFolderOptions extends IFolderOptions {
 }
 
 /**
@@ -1276,7 +1276,7 @@ export class Resources extends SystemFolder {
  * @interface IResourcesOptions
  * @extends {@link ISystemFolderOptions}
  */
-interface IResourcesOptions extends ISystemFolderOptions {
+export interface IResourcesOptions extends ISystemFolderOptions {
 }
 
 /**
@@ -1310,7 +1310,7 @@ export class TrashBag extends Folder {
  * @interface ITrashBagOptions
  * @extends {@link IFolderOptions}
  */
-interface ITrashBagOptions extends IFolderOptions {
+export interface ITrashBagOptions extends IFolderOptions {
     KeepUntil?: Date;
     OriginalPath?: string;
     WorkspaceRelativePath?: string;
@@ -1353,7 +1353,7 @@ export class Workspace extends Folder {
  * @interface IWorkspaceOptions
  * @extends {@link IFolderOptions}
  */
-interface IWorkspaceOptions extends IFolderOptions {
+export interface IWorkspaceOptions extends IFolderOptions {
     Manager?: ComplexTypes.DeferredObject;
     Deadline?: Date;
     IsActive: boolean;
@@ -1400,7 +1400,7 @@ export class Site extends Workspace {
  * @interface ISiteOptions
  * @extends {@link IWorkspaceOptions}
  */
-interface ISiteOptions extends IWorkspaceOptions {
+export interface ISiteOptions extends IWorkspaceOptions {
     Language?: Enums.Language;
     EnableClientBasedCulture?: boolean;
     EnableUserBasedCulture?: boolean;
@@ -1438,7 +1438,7 @@ export class TrashBin extends Workspace {
  * @interface ITrashBinOptions
  * @extends {@link IWorkspaceOptions}
  */
-interface ITrashBinOptions extends IWorkspaceOptions {
+export interface ITrashBinOptions extends IWorkspaceOptions {
     MinRetentionTime?: number;
     SizeQuota?: number;
     BagCapacity?: number;
@@ -1467,7 +1467,7 @@ export class UserProfile extends Workspace {
  * @interface IUserProfileOptions
  * @extends {@link IWorkspaceOptions}
  */
-interface IUserProfileOptions extends IWorkspaceOptions {
+export interface IUserProfileOptions extends IWorkspaceOptions {
     User?: ComplexTypes.DeferredObject;
 }
 
@@ -1498,7 +1498,7 @@ export class Group extends GenericContent {
  * @interface IGroupOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IGroupOptions extends IGenericContentOptions {
+export interface IGroupOptions extends IGenericContentOptions {
     Members?: ComplexTypes.DeferredObject;
     SyncGuid?: string;
     LastSync?: Date;
@@ -1525,7 +1525,7 @@ export class ListItem extends GenericContent {
  * @interface IListItemOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IListItemOptions extends IGenericContentOptions {
+export interface IListItemOptions extends IGenericContentOptions {
 }
 
 /**
@@ -1551,7 +1551,7 @@ export class CustomListItem extends ListItem {
  * @interface ICustomListItemOptions
  * @extends {@link IListItemOptions}
  */
-interface ICustomListItemOptions extends IListItemOptions {
+export interface ICustomListItemOptions extends IListItemOptions {
     WorkflowsRunning?: boolean;
 }
 
@@ -1582,7 +1582,7 @@ export class Memo extends ListItem {
  * @interface IMemoOptions
  * @extends {@link IListItemOptions}
  */
-interface IMemoOptions extends IListItemOptions {
+export interface IMemoOptions extends IListItemOptions {
     Date?: Date;
     MemoType?: Enums.MemoType;
     SeeAlso?: ComplexTypes.DeferredObject;
@@ -1627,7 +1627,7 @@ export class Task extends ListItem {
  * @interface ITaskOptions
  * @extends {@link IListItemOptions}
  */
-interface ITaskOptions extends IListItemOptions {
+export interface ITaskOptions extends IListItemOptions {
     StartDate?: Date;
     DueDate: Date;
     AssignedTo?: ComplexTypes.DeferredObject;
@@ -1664,7 +1664,7 @@ export class Query extends GenericContent {
  * @interface IQueryOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IQueryOptions extends IGenericContentOptions {
+export interface IQueryOptions extends IGenericContentOptions {
     Query?: string;
     QueryType?: Enums.QueryType;
 }
@@ -1744,7 +1744,7 @@ export class User extends GenericContent {
  * @interface IUserOptions
  * @extends {@link IGenericContentOptions}
  */
-interface IUserOptions extends IGenericContentOptions {
+export interface IUserOptions extends IGenericContentOptions {
     LoginName: string;
     JobTitle?: string;
     Enabled?: boolean;

@@ -6,12 +6,12 @@ import { ODataParams } from './';
 
 export class ODataRequestOptions {
     path: string;
-    params: ODataParams;
+    params?: ODataParams;
     async: boolean;
     type: string;
-    success: Function;
-    error: Function;
-    complete: Function;
+    success?: Function;
+    error?: Function;
+    complete?: Function;
 
     constructor(options: IODataRequestOptions) {
         this.params = options.params;

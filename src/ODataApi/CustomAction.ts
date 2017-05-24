@@ -7,8 +7,8 @@
  */
 export class CustomAction {
     name: string;
-    id: number;
-    path: string;
+    id?: number;
+    path?: string;
     params: string[] = [];
     requiredParams: string[] = [];
     isAction: boolean = false;
