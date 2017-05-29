@@ -4,11 +4,13 @@ import { ControlMapper } from '../src/ControlMapper';
 import { FieldSettings, ContentTypes } from '../src/SN';
 
 
-class ExampleControlBase{ }
+class ExampleControlBase { }
 
 class ExampleDefaultControl extends ExampleControlBase{ }
 
 class ExampleModifiedControl extends ExampleControlBase { }
+
+class ExampleModifiedControl2 extends ExampleControlBase { }
 
 class ExampleDefaultFieldControl extends ExampleControlBase{ }
 
@@ -86,7 +88,68 @@ export class ControlMapperTests{
     @test
     public 'Should return a correct default control for a specified Content Field'(){
         const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName');
-        Chai.expect(control).to.be.instanceof(ExampleDefaultFieldControl);
+        Chai.expect(control).to.be.eq(ExampleDefaultFieldControl);
+    }
+
+    @test
+    public 'Should return a correct default control for a specified Content Field when FieldSetting has default value'(){
+        this.mapper.SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
+            return ExampleModifiedControl;
+        })
+        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName');
+        Chai.expect(control).to.be.eq(ExampleModifiedControl);
+
+        const controlOther = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName');
+        Chai.expect(control).to.be.eq(ExampleModifiedControl);
+
+        const controlOtherDateTime = this.mapper.GetControlForContentField(ContentTypes.Task, 'DueDate');
+        Chai.expect(controlOtherDateTime).to.be.eq(ExampleDefaultFieldControl);
+
+    }
+
+    @test
+    public 'Should return a correct default control for a specified Content Field when there is a ContentType bound setting specified'(){
+        this.mapper.SetupFieldSettingForControl(ContentTypes.Task, 'DisplayName', (setting) => {
+            return ExampleModifiedControl2;
+        })
+        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName');
+        Chai.expect(control).to.be.eq(ExampleModifiedControl2);
+
+        const control2 = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName');
+        Chai.expect(control2).to.be.eq(ExampleDefaultFieldControl);
+    }
+
+    @test
+    public 'CreateClientSetting should run with defult factory method by default'(){
+        const fieldSetting = new FieldSettings.ShortTextFieldSetting({displayName: 'TestField'});
+        const clientSetting = this.mapper.CreateClientSetting(fieldSetting);
+        Chai.expect(clientSetting.fieldSetting.DisplayName).to.be.eq(fieldSetting.DisplayName);
+    }
+    
+    @test
+    public 'CreateClientSetting should be able to run with an overridden factory method'(){
+        const fieldSetting = new FieldSettings.ShortTextFieldSetting({displayName: 'TestField'});
+        this.mapper.SetClientControlFactory(FieldSettings.ShortTextFieldSetting, (setting => {
+            setting.DisplayName = (setting.DisplayName || '').toUpperCase()
+            return new ExampleClientSetting(setting);
+        }))
+
+        const clientSetting = this.mapper.CreateClientSetting(fieldSetting);
+        Chai.expect(clientSetting.fieldSetting.DisplayName).to.be.eq('TESTFIELD');
+    }
+
+    @test
+    public 'GetAllMappingsForContentTye should be able to return all mappings'(){
+        for (let key in ContentTypes){
+            const fullMapping = this.mapper.GetAllMappingsForContentTye(ContentTypes[key]);
+            Chai.expect(fullMapping.length).to.be.greaterThan(0);
+            fullMapping.forEach(m => {
+                Chai.expect(m.settings).to.be.instanceof(ExampleClientSetting);
+                Chai.expect(m.control).to.be.eq(ExampleDefaultFieldControl);
+            })
+        }
+        
+        
     }
 
 }

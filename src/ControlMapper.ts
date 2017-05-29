@@ -30,6 +30,14 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName?: ActionName): Schemas.Schema {
         const schema = (Schemas as any)[`${contentType.name}CTD` as any]() as Schemas.Schema;
+
+        let currentType = Object.getPrototypeOf(contentType);
+        while (currentType.name !== 'Content') {
+            const parentSchema = (Schemas as any)[`${currentType.name}CTD` as any]();
+            schema.FieldSettings = schema.FieldSettings.concat(parentSchema.FieldSettings);
+            currentType = Object.getPrototypeOf(currentType);
+        }
+
         if (actionName) {
             schema.FieldSettings = schema.FieldSettings.filter(s => {
                 switch (actionName) {
@@ -90,7 +98,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns {TControlBaseType} The specified FieldSetting control
      * @param fieldSetting The FieldSetting to get the control class.
      */
-    public GetControlForFieldSetting<TFieldSettingType extends FieldSettings.FieldSetting>(fieldSetting:  TFieldSettingType): { new (...args: any[]): TControlBaseType } {
+    public GetControlForFieldSetting<TFieldSettingType extends FieldSettings.FieldSetting>(fieldSetting: TFieldSettingType): { new (...args: any[]): TControlBaseType } {
         const fieldSettingSetup = this.fieldSettingDefaults[fieldSetting.constructor.name as any];
         return fieldSettingSetup && fieldSettingSetup(fieldSetting) || this.defaultFieldSettingControlType;
     }
@@ -106,35 +114,59 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      */
 
     public SetupFieldSettingForControl<TFieldSettingType extends FieldSettings.FieldSetting, TContentType extends Content, TField extends keyof TContentType>(
-                contentType: { new (...args: any[]): Content },
-                fieldName: TField,
-                setupControl: (fieldSetting: TFieldSettingType) => { new (...args: any[]): TControlBaseType },
-                fieldSetting?: { new (...args: any[]): TFieldSettingType },
-               
+        contentType: { new (...args: any[]): Content },
+        fieldName: TField,
+        setupControl: (fieldSetting: TFieldSettingType) => { new (...args: any[]): TControlBaseType },
+        fieldSetting?: { new (...args: any[]): TFieldSettingType },
+
     ) {
         this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any] = setupControl;
         return this;
     }
 
 
-    public GetControlForContentField< TContentType extends Content, TField extends keyof TContentType>(
-        contentType: { new (...args: any[]): Content },
+    public GetControlForContentField<TContentType extends Content, TField extends keyof TContentType>(
+        contentType: { new (...args: any[]): TContentType },
         fieldName: TField
-    ){
-        if (this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any]){
-            return this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any];
+    ): {new(...args: any[]): TControlBaseType} {
+
+        const fieldSetting = this.GetTypeSchema(contentType).FieldSettings.find(s => s.Name === fieldName);
+        if (fieldSetting == null) {
+            if (this.defaultFieldSettingControlType == null){
+                throw Error(`No Default field control specified and control not found for ${contentType.name} - ${fieldName} `);
+            }
+            return this.defaultFieldSettingControlType;
+        }
+
+
+        if (this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any]) {
+            return this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any](fieldSetting);
         }
         else {
-            const fieldSetting = this.GetTypeSchema(contentType).FieldSettings.find(s => s.Name === fieldName);
-            if (fieldSetting == null){
-                return this.defaultFieldSettingControlType;
-            }
             return this.GetControlForFieldSetting(fieldSetting);
         }
-
     }
 
-    public GetFieldSettingsForContentTye<TContentType extends Content>(content: { new (...args: any[]): TContentType }, actionName?: ActionName) {
-        this.GetTypeSchema(content, actionName);
+    private fieldSettingBoundClientSettingFactories: ((setting: FieldSettings.FieldSetting) => TClientControlSettings)[] = []
+    public SetClientControlFactory<TFieldSetting extends FieldSettings.FieldSetting>(fieldSettingType: {new(...args: any[]): TFieldSetting}, factoryMethod: (setting: TFieldSetting) => TClientControlSettings){
+        this.fieldSettingBoundClientSettingFactories[fieldSettingType.name] = factoryMethod;
+    }
+
+    public CreateClientSetting<TFieldSetting extends FieldSettings.FieldSetting>(fieldSetting: TFieldSetting){
+        const factoryMethod = this.fieldSettingBoundClientSettingFactories[fieldSetting.constructor.name] || this.clientControlSettingsFactory;
+        return factoryMethod(fieldSetting);
+    }
+
+    public GetAllMappingsForContentTye<TContentType extends Content, K extends keyof TContentType>(contentType: { new (...args: any[]): TContentType }, actionName?: ActionName): {control: {new(...args: any[]): TControlBaseType}, settings: TClientControlSettings}[] {
+        const fieldSettings = this.GetTypeSchema(contentType, actionName).FieldSettings;
+        return fieldSettings.map(f => {
+            const clientSetting = this.CreateClientSetting(f);
+            const control = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K);
+            return {
+                settings: clientSetting,
+                control: control
+            };
+        });
+
     }
 }
