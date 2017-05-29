@@ -14,6 +14,7 @@ import * as Security from './Security';
 import * as HttpProviders from './HttpProviders';
 import * as Config from './Config';
 import * as Mocks from '../test/Mocks';
+export *  from './ControlMapper';
 
 export {
     Authentication, ComplexTypes, FieldSettings, Schemas, Enums,
