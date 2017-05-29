@@ -10,7 +10,7 @@
             "name": "Debug tests",
             "runtimeExecutable": "mocha",
             "windows": {
-                "runtimeExecutable": "mocha.cmd"
+                "runtimeExecutable": "${workspaceRoot}\\node_modules\\.bin\\mocha.cmd"
             },
             "preLaunchTask": "build",
             "runtimeArgs": [
