@@ -45,7 +45,7 @@
   },
   "nyc": {
     "exclude": "dist/test/**/*.*",
-    "include": "dist/src/**/*.js",
+    "include": "dist/src/**/*.*",
     "check-coverage": true,
     "cache": true,
     "all": true,
