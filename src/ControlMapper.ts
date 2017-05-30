@@ -18,6 +18,12 @@ import { ContentTypes, Schemas } from './SN';
 
 export type ActionName = 'new' | 'edit' | 'view';
 
+export class ControlSchema<TControlBaseType, TClientControlSettings> {
+    ContentTypeControl: {new(...args: any[]): TControlBaseType};
+    Schema: Schemas.Schema;
+    FieldMappings: {FieldSettings: FieldSettings.FieldSetting, ControlType: {new(...args: any[]): TControlBaseType}, ClientSettings: TClientControlSettings}[];
+}
+
 export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     constructor(
@@ -148,18 +154,28 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
         return factoryMethod(fieldSetting);
     }
 
-    public GetAllMappingsForContentTye<TContentType extends Content, K extends keyof TContentType>(
+    public GetFullSchemaForContentTye<TContentType extends Content, K extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
-        actionName?: ActionName): {control: {new(...args: any[]): TControlBaseType}, settings: TClientControlSettings}[] {
-        const fieldSettings = this.GetTypeSchema(contentType, actionName).FieldSettings;
-        return fieldSettings.map(f => {
+        actionName?: ActionName): 
+        ControlSchema<TControlBaseType, TClientControlSettings> {
+        const schema = this.GetTypeSchema(contentType, actionName);
+        const mappings = schema.FieldSettings.map(f => {
             const clientSetting: TClientControlSettings = this.CreateClientSetting(f);
             const control: {new(...args: any[]): TControlBaseType} = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K);
             return {
-                settings: clientSetting,
-                control: control
+                FieldSettings: f,
+                ClientSettings: clientSetting,
+                ControlType: control
             };
         });
+        return {
+            Schema: schema,
+            ContentTypeControl: this.GetControlForContentType(contentType),
+            FieldMappings: mappings
+        }
+    }
 
+    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName?: ActionName){
+        return this.GetFullSchemaForContentTye(content.constructor as {new(...args: any[])}, actionName);
     }
 }
