@@ -147,6 +147,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
     private fieldSettingBoundClientSettingFactories: ((setting: FieldSettings.FieldSetting) => TClientControlSettings)[] = []
     public SetClientControlFactory<TFieldSetting extends FieldSettings.FieldSetting>(fieldSettingType: {new(...args: any[]): TFieldSetting}, factoryMethod: (setting: TFieldSetting) => TClientControlSettings){
         this.fieldSettingBoundClientSettingFactories[fieldSettingType.name as any] = factoryMethod;
+        return this;
     }
 
     public CreateClientSetting<TFieldSetting extends FieldSettings.FieldSetting>(fieldSetting: TFieldSetting){
