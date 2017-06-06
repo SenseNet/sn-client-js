@@ -58,12 +58,12 @@
   "homepage": "https://sensenet.com",
   "dependencies": {
     "@reactivex/rxjs": "^5.4.0",
-    "nyc": "^10.3.2",
+    "nyc": "^11.0.2",
     "ts-json-properties": "1.2.0"
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",
-    "@types/chai": "3.5.2",
+    "@types/chai": "4.0.0",
     "@types/mocha": "2.2.41",
     "@types/node": "^7.0.22",
     "chai": "3.5.0",
@@ -78,16 +78,16 @@
     "gulp-rename": "^1.2.2",
     "istanbul": "0.4.5",
     "jsdoc-to-markdown": "3.0.0",
-    "mocha": "3.3.0",
+    "mocha": "3.4.2",
     "mocha-typescript": "^1.0.23",
     "rimraf": "^2.6.1",
     "semantic-release": "^6.3.6",
     "ts-json-properties": "1.2.0",
     "tslint": "^5.2.0",
-    "typedoc": "^0.6.0",
+    "typedoc": "^0.7.0",
     "typedoc-md-theme": "^1.0.1",
     "typedoc-plugin-external-module-name": "^1.0.9",
-    "typescript": "2.3.2"
+    "typescript": "2.3.4"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"
