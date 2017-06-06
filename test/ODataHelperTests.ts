@@ -29,12 +29,8 @@ describe('ODataHelper', () => {
             expect(contentUrl).to.be.eq("/workspace('project')");
         });
         it('should return an error message if the given argument is an empty string', function () {
-            try {
-                ODataHelper.getContentURLbyPath('');
-            }
-            catch (err) {
-                expect(err).to.eql(new Error('This is not a valid path.'));
-            }
+            expect(() => {ODataHelper.getContentURLbyPath(''); })
+                .to.throws()
         });
         it('should return a proper item path for Root only', () => {
             let path = ODataHelper.getContentURLbyPath('/Root');
