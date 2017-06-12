@@ -7,6 +7,23 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Mocha Tests",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "preLaunchTask": "build",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceRoot}/dist/test/index.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "protocol": "inspector",
+            "request": "launch",
             "name": "Debug tests",
             "runtimeExecutable": "mocha",
             "windows": {
@@ -14,7 +31,7 @@
             },
             "preLaunchTask": "build",
             "runtimeArgs": [
-                "--debug-brk",
+                "--inspect-brk",
                 "./dist/test/index.js"
             ],
             "program": "${workspaceRoot}\\test\\index.ts",
