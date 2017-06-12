@@ -69,7 +69,7 @@
     "codecov.io": "0.1.6",
     "commitizen": "2.9.6",
     "cz-conventional-changelog": "2.0.0",
-    "del": "2.2.2",
+    "del": "3.0.0",
     "fs-then-native": "2.0.0",
     "gulp": "3.9.1",
     "gulp-typedoc": "2.0.2",
