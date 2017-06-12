@@ -23,7 +23,7 @@
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
     "typedoc:md": "gulp typedoc:md",
-    "typedoc:html": "gulp typedoc",    
+    "typedoc:html": "gulp typedoc",
     "publish:development": "npm t && npm run typedoc:html && npm publish --tag development"
   },
   "repository": {

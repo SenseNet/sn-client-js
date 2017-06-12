@@ -4,6 +4,7 @@ import * as Repository from './Repository';
 import * as ContentTypes from './ContentTypes';
 export * from './Content';
 import * as FieldSettings from './FieldSettings';
+export * from './Retrier';
 import * as Schemas from './Schemas';
 import * as Enums from './Enums';
 import * as Collection from './Collection';

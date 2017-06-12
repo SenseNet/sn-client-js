@@ -9,6 +9,7 @@ import * as ComplexTypesTests from './ComplexTypesTests';
 import * as ODataApiTests from './ODataApiTests';
 import * as ODataHelperTests from './ODataHelperTests';
 import * as RepositoryTests from './RepositoryTests';
+import * as RetrierTests from './RetrierTests';
 import * as SchemaTests from './SchemaTests';
 import * as SnConfigTests from './SnConfigTests';
 import * as TokenTests from './TokenTests';
@@ -26,6 +27,7 @@ export {
     ODataApiTests,
     ODataHelperTests,
     RepositoryTests,
+    RetrierTests,
     SchemaTests,
     SnConfigTests,
     TokenTests,

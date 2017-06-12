@@ -22,26 +22,6 @@
         },
         {
             "type": "node",
-            "protocol": "inspector",
-            "request": "launch",
-            "name": "Debug tests",
-            "runtimeExecutable": "mocha",
-            "windows": {
-                "runtimeExecutable": "${workspaceRoot}\\node_modules\\.bin\\mocha.cmd"
-            },
-            "preLaunchTask": "build",
-            "runtimeArgs": [
-                "--inspect-brk",
-                "./dist/test/index.js"
-            ],
-            "program": "${workspaceRoot}\\test\\index.ts",
-            "outFiles": [
-                "${workspaceRoot}\\dist\\**\\*.js"
-            ],
-            "port": 5858
-        },
-        {
-            "type": "node",
             "request": "attach",
             "name": "Attach to Process",
             "address": "localhost",
