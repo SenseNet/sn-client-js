@@ -16,7 +16,7 @@ import { TokenPersist } from '../Authentication/';
 /**
  *
  */
-export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
+export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
     implements IRepository<TProviderType, TProviderBaseContentType> {
 
     /**
