@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "2.0.0-RC.3-development3",
+  "version": "2.0.0-RC.4",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "dist/src/SN.js",
   "files": [
@@ -66,11 +66,11 @@
     "@types/chai": "4.0.0",
     "@types/mocha": "2.2.41",
     "@types/node": "^7.0.22",
-    "chai": "3.5.0",
+    "chai": "4.0.2",
     "codecov.io": "0.1.6",
     "commitizen": "2.9.6",
     "cz-conventional-changelog": "2.0.0",
-    "del": "2.2.2",
+    "del": "3.0.0",
     "fs-then-native": "2.0.0",
     "gulp": "3.9.1",
     "gulp-typedoc": "2.0.2",

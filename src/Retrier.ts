@@ -148,6 +148,7 @@ export class Retrier {
         }, this.options.timeoutMs);
 
         while (!succeeded && !timedOut && (this.options.retries > retries)) {
+            retries++;
             if (this.options.onTry){
                 this.options.onTry();
             }
