@@ -87,7 +87,7 @@ export class ControlMapperTests {
 
     @test
     public 'Should return a correct default control for a specified Content Field'() {
-        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName');
+        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName', 'new');
         Chai.expect(control).to.be.eq(ExampleDefaultFieldControl);
     }
 
@@ -96,13 +96,13 @@ export class ControlMapperTests {
         this.mapper.SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
             return ExampleModifiedControl;
         })
-        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName');
+        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName', 'new');
         Chai.expect(control).to.be.eq(ExampleModifiedControl);
 
-        const controlOther = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName');
+        const controlOther = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName', 'new');
         Chai.expect(control).to.be.eq(ExampleModifiedControl);
 
-        const controlOtherDateTime = this.mapper.GetControlForContentField(ContentTypes.Task, 'DueDate');
+        const controlOtherDateTime = this.mapper.GetControlForContentField(ContentTypes.Task, 'DueDate', 'new');
         Chai.expect(controlOtherDateTime).to.be.eq(ExampleDefaultFieldControl);
 
     }
@@ -112,10 +112,10 @@ export class ControlMapperTests {
         this.mapper.SetupFieldSettingForControl(ContentTypes.Task, 'DisplayName', (setting) => {
             return ExampleModifiedControl2;
         })
-        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName');
+        const control = this.mapper.GetControlForContentField(ContentTypes.Task, 'DisplayName', 'new');
         Chai.expect(control).to.be.eq(ExampleModifiedControl2);
 
-        const control2 = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName');
+        const control2 = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName', 'new');
         Chai.expect(control2).to.be.eq(ExampleDefaultFieldControl);
     }
 
@@ -141,7 +141,7 @@ export class ControlMapperTests {
     @test
     public 'GetAllMappingsForContentTye should be able to return all mappings'() {
         for (let key in ContentTypes) {
-            const fullMapping = this.mapper.GetFullSchemaForContentTye(ContentTypes[key]);
+            const fullMapping = this.mapper.GetFullSchemaForContentTye(ContentTypes[key], 'new');
             Chai.expect(fullMapping.FieldMappings.length).to.be.greaterThan(0);
             fullMapping.FieldMappings.forEach(m => {
                 Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
@@ -186,7 +186,7 @@ export class ControlMapperTests {
 
     @test
     public 'GetFullSchemaForContent filtered to New should be able to return all mappings'() {
-        const fullMapping = this.mapper.GetFullSchemaForContent(Content.Create(ContentTypes.Task, {DueDate: new Date(), Name: 'Task1'}, new Mocks.MockRepository())).FieldMappings;
+        const fullMapping = this.mapper.GetFullSchemaForContent(Content.Create(ContentTypes.Task, {DueDate: new Date(), Name: 'Task1'}, new Mocks.MockRepository()), 'new').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
         fullMapping.forEach(m => {
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);

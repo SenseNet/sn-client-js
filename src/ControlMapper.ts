@@ -34,7 +34,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
     ) {
     }
 
-    private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName?: ActionName): Schemas.Schema {
+    private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema {
         const schema = (Schemas as any)[`${contentType.name}CTD` as any]() as Schemas.Schema;
 
         let currentType = Object.getPrototypeOf(contentType);
@@ -131,10 +131,11 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     public GetControlForContentField<TContentType extends Content, TField extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
-        fieldName: TField
+        fieldName: TField,
+        actionName: ActionName
     ): {new(...args: any[]): TControlBaseType} {
 
-        const fieldSetting = this.GetTypeSchema(contentType).FieldSettings.filter(s => s.Name === fieldName)[0];
+        const fieldSetting = this.GetTypeSchema(contentType, actionName).FieldSettings.filter(s => s.Name === fieldName)[0];
 
         if (this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any]) {
             return this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any](fieldSetting);
@@ -157,12 +158,12 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     public GetFullSchemaForContentTye<TContentType extends Content, K extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
-        actionName?: ActionName): 
+        actionName: ActionName): 
         ControlSchema<TControlBaseType, TClientControlSettings> {
         const schema = this.GetTypeSchema(contentType, actionName);
         const mappings = schema.FieldSettings.map(f => {
             const clientSetting: TClientControlSettings = this.CreateClientSetting(f);
-            const control: {new(...args: any[]): TControlBaseType} = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K);
+            const control: {new(...args: any[]): TControlBaseType} = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K, actionName);
             return {
                 FieldSettings: f,
                 ClientSettings: clientSetting,
@@ -176,7 +177,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
         }
     }
 
-    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName?: ActionName){
+    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName: ActionName){
         return this.GetFullSchemaForContentTye(content.constructor as {new(...args: any[])}, actionName);
     }
 }
