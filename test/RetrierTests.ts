@@ -34,7 +34,7 @@ export class RetrierTests{
             let triggered = false;
             await Retrier.Create(async () => false)
             .Setup({
-                onTimeout: () => {
+                onFail: () => {
                     triggered = true;
                 },
                 timeoutMs: 1
@@ -54,5 +54,26 @@ export class RetrierTests{
                 })
                 .Run();
             expect(triggered).to.be.eq(true);
-        }     
+        }
+
+
+        @test
+        public async 'exampleTest'(){
+            const funcToRetry: () => Promise<boolean> = async () => {
+                let hasSucceeded = false;
+                // ...
+                // custom logic
+                // ...
+                return hasSucceeded;
+            }
+            const retrierSuccess = await Retrier.Create(funcToRetry)
+                .Setup({
+                    retries: 3,
+                    retryIntervalMs: 1,
+                    timeoutMs: 1000
+                })
+                .Run();
+
+            expect(retrierSuccess).to.be.eq(false);
+        }
 }
