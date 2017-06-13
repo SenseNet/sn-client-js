@@ -67,7 +67,7 @@ export class BaseHttpProviderTests {
         })
     }
 
-    @test 'Load should return a valid Content'(done) {
+    @test 'Load should return a valid Content'(done: MochaDone) {
         let cResponse = {
             d: {
                 Name: 'testContentType',
@@ -86,7 +86,7 @@ export class BaseHttpProviderTests {
         });
     }
 
-    @test 'Load should return a valid Content with a valid type, if defined'(done) {
+    @test 'Load should return a valid Content with a valid type, if defined'(done: MochaDone) {
         let cResponse = {
             d: {
                 Name: 'testContentType',
@@ -96,7 +96,7 @@ export class BaseHttpProviderTests {
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
         (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
-        this.repo.Load(1, null, null, ContentTypes.User).first().subscribe(response => {
+        this.repo.Load(1, {}, '', ContentTypes.User).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
             expect(response).to.be.instanceof(ContentTypes.User);
             done();

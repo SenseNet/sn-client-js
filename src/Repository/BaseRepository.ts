@@ -16,7 +16,7 @@ import { TokenPersist } from '../Authentication/';
 /**
  *
  */
-export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
+export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
     implements IRepository<TProviderType, TProviderBaseContentType> {
 
     /**
@@ -46,6 +46,9 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
             .flatMap(state => {
+                if (!returnsType){
+                    returnsType = Object as {new(...args)};
+                }
                 return this.httpProviderRef.Ajax<T>(returnsType,
                     {
                         url: ODataHelper.joinPaths(this.ODataBaseUrl, path),
@@ -110,7 +113,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
      * ```
      */
     public GetVersionInfo() {
-        return this.Content.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, null, VersionInfo);
+        return this.Content.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -132,7 +135,7 @@ export abstract class BaseRepository<TProviderType extends HttpProviders.BaseHtt
                 path: '/Root', 
                 isAction: false
             }, 
-            null, 
+            {}, 
             ODataApi.ODataCollectionResponse);
     }
 

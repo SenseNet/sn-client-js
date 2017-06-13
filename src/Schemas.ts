@@ -49,13 +49,13 @@ import { FieldSettings } from './SN';
     * @interface ISchemaOptions
     */
     export interface ISchemaOptions {
-        Icon?: string;
-        DisplayName?: string;
-        Description?: string;
-        AllowIndexing?: boolean;
-        AllowIncrementalNaming?: boolean;
-        AllowedChildTypes?: string[];
-        FieldSettings?: FieldSettings.FieldSetting[];
+        Icon: string;
+        DisplayName: string;
+        Description: string;
+        AllowIndexing: boolean;
+        AllowIncrementalNaming: boolean;
+        AllowedChildTypes: string[];
+        FieldSettings: FieldSettings.FieldSetting[];
     }
 
     /**

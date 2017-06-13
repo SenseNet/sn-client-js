@@ -4,7 +4,7 @@ const expect = Chai.expect;
 
 describe('Schemas', () => {
     describe('#Schema', function () {
-        let schema = new Schemas.Schema({ FieldSettings: [] });
+        let schema = new Schemas.Schema({ FieldSettings: [], Icon: '', DisplayName: '', AllowedChildTypes: [], AllowIncrementalNaming: true, AllowIndexing: true, Description: '' });
         it('should return a schema object', function () {
             schema.FieldSettings.push(
                 new FieldSettings.NumberFieldSetting({

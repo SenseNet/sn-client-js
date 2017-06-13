@@ -40,7 +40,7 @@ for (let key in tokenStorageStoreParameters) {
 
         describe(`TokenStore - ${key}`, () => {
 
-            let tokenStore = new TokenStore(siteName, tokenTemplate, element[0], element[1], element[2], element[3])
+            let tokenStore = new TokenStore(siteName, tokenTemplate, element[0], element[1] as any, element[2], element[3])
             it('should construct the proper store', () => {
                 expect(TokenStoreType[tokenStore.TokenStoreType]).to.be.eq(TokenStoreType[element[4]]);
             });

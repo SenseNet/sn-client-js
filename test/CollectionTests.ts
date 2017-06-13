@@ -3,6 +3,7 @@ import * as Chai from 'chai';
 import { Collection } from '../src/Collection';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
+import { ContentTypes } from '../src/SN';
 const expect = Chai.expect;
 
 describe('Collection', () => {
@@ -13,12 +14,12 @@ describe('Collection', () => {
 
   beforeEach(function () {
     children = [
-      Content.Create(Content, { 
+      Content.Create(Content, {
         Id: 1,
         Name: 'test1',
         Path: '/'
-      }, this.repo), 
-      Content.Create(Content, { 
+      }, this.repo),
+      Content.Create(Content, {
         Id: 2,
         Name: 'test2'
       }, this.repo)];
@@ -41,7 +42,12 @@ describe('Collection', () => {
     it('should return an object with a given id', function () {
       const item = collection.Item(1);
       expect(item).to.be.instanceof(Content);
-      expect(item.Id).to.be.eq(1);
+      if (item && item.Id) {
+        expect(item.Id).to.be.eq(1);
+      } else {
+        throw Error('No item in collection, or item doesn\'t have an Id');
+      }
+
     });
   });
   describe('#Count()', () => {
@@ -51,10 +57,10 @@ describe('Collection', () => {
     });
   });
   describe('#Add()', () => {
-    // it('should return an observable', function () {
-    //   let content = Content.Create(Content, {});
-    //   expect(typeof collection.Add(content)).to.be.instanceof(Observable);
-    // });
+    it('should return an observable', function () {
+      let content = Content.Create(ContentTypes.Task, { DueDate: new Date(), Name: '' }, new MockRepository());
+      expect(collection.Add(content)).to.be.instanceof(Observable);
+    });
   });
   describe('#Remove()', () => {
     it('should return an observable', function () {

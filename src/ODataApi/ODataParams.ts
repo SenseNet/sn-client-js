@@ -6,16 +6,16 @@
  * Type of the OData option Object. Contains the possible OData params as properties.
  */
 export class ODataParams {
-    select: string | string[];
-    expand: string | string[] = null;
-    orderby: string | string[];
-    top: string;
-    skip: string;
-    filter: string;
-    format: string;
-    inlinecount: string;
-    query: string;
-    metadata: string;
+    select?: string | string[];
+    expand?: string | string[];
+    orderby?: string | string[];
+    top?: string;
+    skip?: string;
+    filter?: string;
+    format?: string;
+    inlinecount?: string;
+    query?: string;
+    metadata?: string;
     data: Object;
 
     constructor(options: IODataParams) {

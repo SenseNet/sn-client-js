@@ -38,8 +38,8 @@ export class MockHttpProvider extends BaseHttpProvider {
 
     public UseTimeout: boolean = true;
 
-    private runMocks<T>(subject: ReplaySubject<T>, options?: AjaxRequest){
-            this._lastUrl = options.url;
+    private runMocks<T>(subject: ReplaySubject<T>, options: AjaxRequest){
+            this._lastUrl = options.url || '';
             if (this._nextResponse) {
                 subject.next(this._nextResponse);
                 this._nextResponse = null;
@@ -51,7 +51,7 @@ export class MockHttpProvider extends BaseHttpProvider {
     }
 
 
-    protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options?: AjaxRequest): Observable<T> {
+    protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options: AjaxRequest): Observable<T> {
         let subject = new ReplaySubject<T>();
 
         this.UseTimeout ? setTimeout(() => this.runMocks(subject, options)) : this.runMocks(subject, options);

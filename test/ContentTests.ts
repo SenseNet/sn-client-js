@@ -15,7 +15,7 @@ describe('Content', () => {
     beforeEach(function () {
         content = new ContentTypes.Task({
             Id: 1,
-            DueDate: null,
+            DueDate: new Date(),
             Name: 'alma'
         }, repo);
         (repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
@@ -33,15 +33,15 @@ describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            let newContent = Content.Create(Content, {}, this.repo);
+            let newContent = Content.Create(Content, {}, repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
-            let newContent = new Content({}, this.repo);
+            let newContent = new Content({}, repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('shoul respect the type field, if provided from settings', () => {
-            let newContent = new Content({}, this.repo);
+            let newContent = new Content({}, repo);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         })
@@ -454,7 +454,7 @@ describe('Content', () => {
     });
     describe('#GetRelatedPermissions()', () => {
         it('should return an Observable object', function () {
-            expect(content.GetRelatedPermissions(Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', null)).to.be.instanceof(Observable);
+            expect(content.GetRelatedPermissions(Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne')).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedItems()', () => {
@@ -499,7 +499,7 @@ describe('Content', () => {
         });
         it('should return a Task', function () {
             const schema = content.GetSchema();
-            expect(schema['Icon']).to.eq('FormItem');
+            expect(schema['Icon' as any]).to.eq('FormItem');
         });
     });
     describe('#static GetSchema()', () => {
@@ -508,7 +508,7 @@ describe('Content', () => {
         });
         it('should return a Schema object', function () {
             let schema = Content.GetSchema(CONTENT_TYPE)
-            expect(schema['Icon']).to.eq('FormItem');
+            expect(schema['Icon' as any]).to.eq('FormItem');
         });
     });
     describe('#Schema()', () => {
@@ -517,7 +517,7 @@ describe('Content', () => {
         });
         it('should return a Schema object', function () {
             let schema = content.Schema()
-            expect(schema['Icon']).to.eq('FormItem');
+            expect(schema['Icon' as any]).to.eq('FormItem');
         });
     });
 });

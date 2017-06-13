@@ -1,8 +1,8 @@
 {
   "name": "sn-client-js",
-  "version": "2.0.0-RC.2",
+  "version": "2.0.0-RC.4",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
-  "main": "index.js",
+  "main": "dist/src/SN.js",
   "files": [
     "dist",
     "src",
@@ -23,8 +23,8 @@
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
     "typedoc:md": "gulp typedoc:md",
-    "typedoc:html": "gulp typedoc",    
-    "publish:development": "npm publish --tag development"
+    "typedoc:html": "gulp typedoc",
+    "publish:development": "npm t && npm run typedoc:html && npm publish --tag development"
   },
   "repository": {
     "type": "git",
@@ -45,7 +45,7 @@
   },
   "nyc": {
     "exclude": "dist/test/**/*.*",
-    "include": "dist/src/**/*.js",
+    "include": "dist/src/**/*.*",
     "check-coverage": true,
     "cache": true,
     "all": true,
@@ -65,6 +65,7 @@
     "@types/app-root-path": "1.2.4",
     "@types/chai": "4.0.0",
     "@types/mocha": "2.2.41",
+    "@types/node": "^7.0.22",
     "chai": "4.0.2",
     "codecov.io": "0.1.6",
     "commitizen": "2.9.6",
@@ -91,5 +92,5 @@
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"
   },
-  "typings": "./src/SN.d.ts"
+  "typings": "./dist/src/SN.d.ts"
 }

@@ -12,25 +12,25 @@ const expect = Chai.expect;
 @suite('BaseHttpProvider')
 export class HttpProviderTests {
 
-    private readonly testHeaderName = 'testHeader';
-    private readonly testHeaderValue = 'testHeaderValue';
+    private readonly testHeaderName: string = 'testHeader';
+    private readonly testHeaderValue: string = 'testHeaderValue';
 
     @test
     public setGlobalHeaders(){
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this.testHeaderName, this.testHeaderValue);
         let headers = p.actualHeaders;
-        Chai.expect(headers[this.testHeaderName]).to.be.eq(this.testHeaderValue);
+        Chai.expect(headers[this.testHeaderName as any]).to.be.eq(this.testHeaderValue);
     }
     @test
     public 'globalHeaders should override options.headers'() {
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this.testHeaderName, this.testHeaderValue);
 
-        let options = {};
-        options[this.testHeaderName] = 'modifiedValue';
+        let options: any = {};
+        options[this.testHeaderName as any] = 'modifiedValue';
         p.Ajax(Object, options).toPromise();
-        expect(p.lastOptions.headers[this.testHeaderName, this.testHeaderValue]);
+        expect((p.lastOptions as any).headers[this.testHeaderName as any]).to.be.eq(this.testHeaderValue);
     }
 
     @test
