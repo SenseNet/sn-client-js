@@ -20,7 +20,7 @@ export type ActionName = 'new' | 'edit' | 'view';
 
 export class ControlSchema<TControlBaseType, TClientControlSettings> {
     ContentTypeControl: {new(...args: any[]): TControlBaseType};
-    Schema: Schemas.Schema;
+    Schema: Schemas.Schema<Content>;
     FieldMappings: {FieldSettings: FieldSettings.FieldSetting, ControlType: {new(...args: any[]): TControlBaseType}, ClientSettings: TClientControlSettings}[];
 }
 
@@ -34,15 +34,8 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
     ) {
     }
 
-    private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema {
-        const schema = (Schemas as any)[`${contentType.name}CTD` as any]() as Schemas.Schema;
-
-        let currentType = Object.getPrototypeOf(contentType);
-        while (currentType.name !== 'Content') {
-            const parentSchema = (Schemas as any)[`${currentType.name}CTD` as any]();
-            schema.FieldSettings = schema.FieldSettings.concat(parentSchema.FieldSettings);
-            currentType = Object.getPrototypeOf(currentType);
-        }
+    private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema<TContentType> {
+        const schema = new Schemas.Schema<TContentType>(Content.GetSchema(contentType));
 
         if (actionName) {
             schema.FieldSettings = schema.FieldSettings.filter(s => {

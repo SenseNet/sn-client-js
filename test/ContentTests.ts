@@ -7,6 +7,9 @@ import { LoginState } from '../src/Authentication/LoginState';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
+const CONTENT_NAME = 'TestTask';
+const CONTENT_DUE_TEXT = 'DueText';
+
 
 describe('Content', () => {
     let content: ContentTypes.Task;
@@ -16,11 +19,14 @@ describe('Content', () => {
         content = new ContentTypes.Task({
             Id: 1,
             DueDate: new Date(),
-            Name: 'alma'
+            DueText: CONTENT_DUE_TEXT,
+            Name: CONTENT_NAME
         }, repo);
         (repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
     });
+
     describe('#Create()', () => {
+
         it('should return an object', function () {
             expect(content).to.be.instanceof(Object);
         });
@@ -44,7 +50,13 @@ describe('Content', () => {
             let newContent = new Content({}, repo);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
-        })
+        });
+        it('should be have a correct Name', () => {
+            expect(content.Name).to.be.eq(CONTENT_NAME);
+        });
+        it('should be have a correct DueText', () => {
+            expect(content.DueText).to.be.eq(CONTENT_DUE_TEXT);
+        });
     });
     describe('#Delete()', () => {
         it('should return an Observable object', function () {
@@ -63,7 +75,7 @@ describe('Content', () => {
                 expect(result.Name).to.be.eq('aaa');
                 done();
             })
-            
+
         });
     });
     describe('#Rename()', () => {
@@ -98,7 +110,6 @@ describe('Content', () => {
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', function (done) {
-
             (repo.httpProviderRef as MockHttpProvider).setResponse({
                 d: {
                     __count: 1,
@@ -504,19 +515,19 @@ describe('Content', () => {
     });
     describe('#static GetSchema()', () => {
         it('should return a Schema object', function () {
-            expect(Content.GetSchema(CONTENT_TYPE)).to.be.instanceof(Schemas.Schema);
+            expect(Content.GetSchema(ContentTypes.Task)).to.be.instanceof(Schemas.Schema);
         });
         it('should return a Schema object', function () {
-            let schema = Content.GetSchema(CONTENT_TYPE)
+            let schema = Content.GetSchema(ContentTypes.Task)
             expect(schema['Icon' as any]).to.eq('FormItem');
         });
     });
     describe('#Schema()', () => {
         it('should return a Schema object', function () {
-            expect(content.Schema()).to.be.instanceof(Schemas.Schema);
+            expect(content.GetSchema()).to.be.instanceof(Schemas.Schema);
         });
         it('should return a Schema object', function () {
-            let schema = content.Schema()
+            let schema = content.GetSchema()
             expect(schema['Icon' as any]).to.eq('FormItem');
         });
     });
