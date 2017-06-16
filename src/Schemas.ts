@@ -12,15 +12,15 @@
  * The ```Schema``` class represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
  */ /** */
 
-import { FieldSettings } from './SN';
-
+import { FieldSettings, Content, ContentTypes } from './SN';
 
     /**
      * Class that represents a Schema.
      *
      * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
      */
-    export class Schema {
+    export class Schema<TContentType extends Content> {
+        ContentType: {new(...args): TContentType}
         Icon: string;
         DisplayName: string;
         Description: string;
@@ -28,54 +28,27 @@ import { FieldSettings } from './SN';
         AllowIncrementalNaming: boolean;
         AllowedChildTypes: string[];
         FieldSettings: FieldSettings.FieldSetting[];
-        /**
-         * @constructs Schema
-         * @param options {Object} An object implementing ISchemaOptions interface;
-         */
-        constructor(options: ISchemaOptions) {
-            this.Icon = options.Icon;
-            this.DisplayName = options.DisplayName;
-            this.Description = options.Description;
-            this.FieldSettings = options.FieldSettings;
-            this.AllowIndexing = options.AllowIndexing;
-            this.AllowIncrementalNaming = options.AllowIncrementalNaming;
-            this.AllowedChildTypes = options.AllowedChildTypes;
+
+        constructor(schema: Partial<Schema<TContentType>>){
+            Object.assign(this, schema);
         }
     }
 
-    /**
-    * Interface for classes that represent a Schema.
-    *
-    * @interface ISchemaOptions
-    */
-    export interface ISchemaOptions {
-        Icon: string;
-        DisplayName: string;
-        Description: string;
-        AllowIndexing: boolean;
-        AllowIncrementalNaming: boolean;
-        AllowedChildTypes: string[];
-        FieldSettings: FieldSettings.FieldSetting[];
-    }
+    export const SchemaStore: Schema<Content>[] = [
 
     /**
      * Method that returns the Content Type Definition of the ContentType
      * @returns {Schema}
      */
-    export function ContentTypeCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ContentType,
             DisplayName: '$Ctd-ContentType,DisplayName',
             Description: '$Ctd-ContentType,Description',
             Icon: 'ContentType',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.IntegerFieldSetting({
                 name: 'Id',
                 displayName: 'Id',
@@ -86,8 +59,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ParentId',
                 displayName: 'Id',
@@ -98,8 +70,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'VersionId',
                 readOnly: true,
@@ -108,8 +79,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Name',
                 displayName: 'Uri name',
@@ -119,8 +89,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'CreatedById',
                 readOnly: true,
@@ -129,8 +98,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ModifiedById',
                 readOnly: true,
@@ -139,8 +107,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Version',
                 displayName: 'Version',
@@ -151,8 +118,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Path',
                 displayName: 'Path',
@@ -163,8 +129,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Depth',
                 readOnly: true,
@@ -173,8 +138,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsSystemContent',
                 displayName: 'System Content',
@@ -185,8 +149,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'HandlerName',
                 displayName: 'Handler Name',
@@ -197,8 +160,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ParentTypeName',
                 displayName: 'Parent Type Name',
@@ -209,8 +171,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DisplayName',
                 displayName: 'Name',
@@ -221,8 +182,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Description',
                 displayName: 'Description',
@@ -233,8 +193,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Icon',
                 displayName: 'Icon',
@@ -245,8 +204,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.BinaryFieldSetting({
                 isText: true,
                 name: 'Binary',
@@ -259,8 +217,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'CreatedBy',
                 displayName: 'Created by',
@@ -271,8 +228,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'CreationDate',
@@ -284,8 +240,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'ModifiedBy',
                 displayName: 'Modified by',
@@ -296,8 +251,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 name: 'ModificationDate',
                 displayName: 'Modification date',
@@ -308,8 +262,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableLifespan',
                 displayName: 'Enable Lifespan handling',
@@ -319,27 +272,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the GenericContent
      * @returns {Schema}
      */
-    export function GenericContentCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.GenericContent,
             DisplayName: '$Ctd-GenericContent,DisplayName',
             Description: '$Ctd-GenericContent,Description',
             Icon: 'Content',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.IntegerFieldSetting({
                 name: 'Id',
                 displayName: 'Id',
@@ -350,8 +299,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ParentId',
                 displayName: 'Parent Id',
@@ -362,8 +310,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'OwnerId',
                 displayName: 'Owner Id',
@@ -374,8 +321,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'Owner',
                 displayName: 'Owner',
@@ -386,8 +332,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'VersionId',
                 displayName: 'Version Id',
@@ -398,8 +343,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Icon',
                 displayName: 'Icon',
@@ -410,8 +354,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Name',
                 displayName: 'Name',
@@ -423,8 +366,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:Name'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'CreatedById',
                 displayName: 'Created By (Id)',
@@ -435,8 +377,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ModifiedById',
                 displayName: 'Last Modified By (Id)',
@@ -447,8 +388,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Version',
                 displayName: 'Version',
@@ -459,8 +399,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Path',
                 displayName: 'Path',
@@ -471,8 +410,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Depth',
                 displayName: 'Tree Depth',
@@ -483,8 +421,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsSystemContent',
                 displayName: 'System Content',
@@ -495,8 +432,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsFolder',
                 displayName: 'Folder',
@@ -507,8 +443,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DisplayName',
                 displayName: 'Display Name',
@@ -520,8 +455,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:DisplayName'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Description',
                 displayName: 'Description',
@@ -533,8 +467,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:RichText'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Hidden',
                 displayName: 'Hidden',
@@ -545,8 +478,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Index',
                 displayName: 'Index',
@@ -557,8 +489,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableLifespan',
                 displayName: 'Enable Lifespan',
@@ -569,8 +500,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'ValidFrom',
@@ -582,8 +512,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'ValidTill',
@@ -595,8 +524,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'AllowedChildTypes',
                 displayName: 'Allowed child types',
@@ -607,8 +535,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'EffectiveAllowedChildTypes',
                 displayName: 'Effective allowed child types',
@@ -619,8 +546,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -641,8 +567,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -664,8 +589,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0,
                 controlHint: 'sn:VersioningModeChoice'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'CreatedBy',
                 displayName: 'Created by',
@@ -676,8 +600,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'CreationDate',
@@ -689,8 +612,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'ModifiedBy',
                 displayName: 'Modified By',
@@ -701,8 +623,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'ModificationDate',
@@ -714,8 +635,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -735,8 +655,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -757,8 +676,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0,
                 controlHint: 'sn:ApprovingModeChoice'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Locked',
                 displayName: 'Locked',
@@ -769,8 +687,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'CheckedOutTo',
                 displayName: 'Checked Out To',
@@ -781,8 +698,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'TrashDisabled',
                 displayName: 'Disable Trash',
@@ -794,8 +710,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -816,8 +731,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'ExtensionData',
                 displayName: 'Extension data',
@@ -828,8 +742,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 name: 'BrowseApplication',
@@ -841,8 +754,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Approvable',
                 displayName: 'Approvable By Current User',
@@ -853,8 +765,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsTaggable',
                 displayName: 'Enable Tagging',
@@ -866,8 +777,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Tags',
                 displayName: 'Tags',
@@ -879,8 +789,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0,
                 controlHint: 'sn:TagList'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsRateable',
                 displayName: 'Enable Rating',
@@ -892,8 +801,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'RateStr',
                 displayName: 'Raw value of rating',
@@ -904,8 +812,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NumberFieldSetting({
                 name: 'RateAvg',
                 displayName: 'Average rate',
@@ -916,8 +823,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'RateCount',
                 displayName: 'Rate count',
@@ -928,8 +834,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.RatingFieldSetting({
                 range: 5,
                 split: 1,
@@ -942,8 +847,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Publishable',
                 displayName: 'Publishable By Current User',
@@ -954,8 +858,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 name: 'Versions',
@@ -967,8 +870,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'CheckInComments',
                 displayName: 'Checkin comments',
@@ -979,8 +881,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'RejectReason',
                 displayName: 'Reject reason',
@@ -991,8 +892,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['Workspace'],
@@ -1005,8 +905,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'BrowseUrl',
                 displayName: 'Browse url',
@@ -1017,27 +916,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the ContentLink
      * @returns {Schema}
      */
-    export function ContentLinkCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ContentLink,
             DisplayName: '$Ctd-ContentLink,DisplayName',
             Description: '$Ctd-ContentLink,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 name: 'Link',
@@ -1049,27 +944,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the File
      * @returns {Schema}
      */
-    export function FileCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.File,
             DisplayName: '$Ctd-File,DisplayName',
             Description: '$Ctd-File,Description',
             Icon: 'File',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.BinaryFieldSetting({
                 name: 'Binary',
                 displayName: 'Binary',
@@ -1080,8 +971,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NumberFieldSetting({
                 name: 'Size',
                 displayName: 'Size',
@@ -1092,8 +982,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NumberFieldSetting({
                 name: 'FullSize',
                 displayName: 'Full size',
@@ -1104,8 +993,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'PageCount',
                 displayName: 'Page count',
@@ -1117,8 +1005,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'MimeType',
                 displayName: 'Document MIME type',
@@ -1128,8 +1015,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Shapes',
                 displayName: 'Shapes',
@@ -1140,8 +1026,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'PageAttributes',
                 displayName: 'Page attributes',
@@ -1152,8 +1037,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Watermark',
                 displayName: 'Watermark',
@@ -1164,65 +1048,55 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the DynamicJsonContent
      * @returns {Schema}
      */
-    export function DynamicJsonContentCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.DynamicJsonContent,
             DisplayName: 'Dynamic JSON content',
             Description: '',
             Icon: 'Settings',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the ExecutableFile
      * @returns {Schema}
      */
-    export function ExecutableFileCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ExecutableFile,
             DisplayName: '$Ctd-ExecutableFile,DisplayName',
             Description: '$Ctd-ExecutableFile,Description',
             Icon: 'Application',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the HtmlTemplate
      * @returns {Schema}
      */
-    export function HtmlTemplateCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.HtmlTemplate,
             DisplayName: '$Ctd-HtmlTemplate,DisplayName',
             Description: '$Ctd-HtmlTemplate,Description',
             Icon: 'File',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'TemplateText',
                 displayName: 'Template text',
@@ -1233,27 +1107,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Image
      * @returns {Schema}
      */
-    export function ImageCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Image,
             DisplayName: '$Ctd-Image,DisplayName',
             Description: '$Ctd-Image,Description',
             Icon: 'Image',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'Keywords',
                 displayName: 'Keywords',
@@ -1264,8 +1134,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'DateTaken',
@@ -1277,8 +1146,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Width',
                 displayName: 'Width',
@@ -1288,8 +1156,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Height',
                 displayName: 'Height',
@@ -1299,46 +1166,39 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the PreviewImage
      * @returns {Schema}
      */
-    export function PreviewImageCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.PreviewImage,
             DisplayName: '$Ctd-PreviewImage,DisplayName',
             Description: '$Ctd-PreviewImage,Description',
             Icon: 'Image',
             AllowIndexing: false,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Settings
      * @returns {Schema}
      */
-    export function SettingsCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Settings,
             DisplayName: '$Ctd-Settings,DisplayName',
             Description: '$Ctd-Settings,Description',
             Icon: 'Settings',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.NullFieldSetting({
                 name: 'GlobalOnly',
                 displayName: 'Global only',
@@ -1349,27 +1209,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the IndexingSettings
      * @returns {Schema}
      */
-    export function IndexingSettingsCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.IndexingSettings,
             DisplayName: '$Ctd-IndexingSettings,DisplayName',
             Description: '$Ctd-IndexingSettings,Description',
             Icon: 'Settings',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.NullFieldSetting({
                 name: 'TextExtractorInstances',
                 displayName: 'Text extractor instances',
@@ -1380,84 +1236,71 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the LoggingSettings
      * @returns {Schema}
      */
-    export function LoggingSettingsCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.LoggingSettings,
             DisplayName: '$Ctd-LoggingSettings,DisplayName',
             Description: '$Ctd-LoggingSettings,Description',
             Icon: 'Settings',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the PortalSettings
      * @returns {Schema}
      */
-    export function PortalSettingsCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.PortalSettings,
             DisplayName: '$Ctd-PortalSettings,DisplayName',
             Description: '$Ctd-PortalSettings,Description',
             Icon: 'Settings',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the SystemFile
      * @returns {Schema}
      */
-    export function SystemFileCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.SystemFile,
             DisplayName: '$Ctd-SystemFile,DisplayName',
             Description: '$Ctd-SystemFile,Description',
             Icon: 'File',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Resource
      * @returns {Schema}
      */
-    export function ResourceCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Resource,
             DisplayName: '$Ctd-Resource,DisplayName',
             Description: '$Ctd-Resource,Description',
             Icon: 'Resource',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.NumberFieldSetting({
                 name: 'Downloads',
                 displayName: 'Downloads',
@@ -1468,46 +1311,39 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Folder
      * @returns {Schema}
      */
-    export function FolderCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Folder,
             DisplayName: '$Ctd-Folder,DisplayName',
             Description: '$Ctd-Folder,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the ContentList
      * @returns {Schema}
      */
-    export function ContentListCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ContentList,
             DisplayName: '$Ctd-ContentList,DisplayName',
             Description: '$Ctd-ContentList,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'ContentListDefinition',
                 displayName: 'List Definition',
@@ -1518,8 +1354,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DefaultView',
                 displayName: 'Default view',
@@ -1530,8 +1365,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['ListView'],
@@ -1544,8 +1378,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['FieldSettingContent'],
@@ -1557,8 +1390,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['FieldSettingContent'],
@@ -1570,8 +1402,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ListEmail',
                 displayName: 'Email address of Content List',
@@ -1582,8 +1413,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ExchangeSubscriptionId',
                 displayName: 'Exchange Subscription Id',
@@ -1594,8 +1424,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'OverwriteFiles',
                 displayName: 'Overwrite files with same name',
@@ -1606,8 +1435,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -1628,8 +1456,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'SaveOriginalEmail',
                 displayName: 'Save original email',
@@ -1640,8 +1467,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 selectionRoots: ['/Root/System/Schema/ContentTypes/GenericContent/Workflow/MailProcessorWorkflow'],
@@ -1655,8 +1481,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'OnlyFromLocalGroups',
                 displayName: 'Accept e-mails only from users in local groups',
@@ -1667,8 +1492,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'InboxFolder',
                 displayName: 'Inbox folder',
@@ -1679,8 +1503,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
@@ -1695,27 +1518,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Aspect
      * @returns {Schema}
      */
-    export function AspectCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Aspect,
             DisplayName: '$Ctd-Aspect,DisplayName',
             Description: '$Ctd-Aspect,Description',
             Icon: 'Aspect',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'AspectDefinition',
                 displayName: 'Aspect definition',
@@ -1726,141 +1545,119 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the ItemList
      * @returns {Schema}
      */
-    export function ItemListCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ItemList,
             DisplayName: '$Ctd-ItemList,DisplayName',
             Description: '$Ctd-ItemList,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the CustomList
      * @returns {Schema}
      */
-    export function CustomListCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.CustomList,
             DisplayName: '$Ctd-CustomList,DisplayName',
             Description: '$Ctd-CustomList,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['ListItem'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the MemoList
      * @returns {Schema}
      */
-    export function MemoListCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.MemoList,
             DisplayName: '$Ctd-MemoList,DisplayName',
             Description: '$Ctd-MemoList,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Memo'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the TaskList
      * @returns {Schema}
      */
-    export function TaskListCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.TaskList,
             DisplayName: '$Ctd-TaskList,DisplayName',
             Description: '$Ctd-TaskList,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Task'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Library
      * @returns {Schema}
      */
-    export function LibraryCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Library,
             DisplayName: '$Ctd-Library,DisplayName',
             Description: '$Ctd-Library,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the DocumentLibrary
      * @returns {Schema}
      */
-    export function DocumentLibraryCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.DocumentLibrary,
             DisplayName: '$Ctd-DocumentLibrary,DisplayName',
             Description: '$Ctd-DocumentLibrary,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Folder', 'File'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the ImageLibrary
      * @returns {Schema}
      */
-    export function ImageLibraryCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ImageLibrary,
             DisplayName: '$Ctd-ImageLibrary,DisplayName',
             Description: '$Ctd-ImageLibrary,Description',
             Icon: 'ContentList',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Folder', 'Image'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['Image'],
@@ -1873,27 +1670,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Device
      * @returns {Schema}
      */
-    export function DeviceCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Device,
             DisplayName: '$Ctd-Device,DisplayName',
             Description: '$Ctd-Device,Description',
             Icon: 'Device',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'UserAgentPattern',
                 displayName: 'User agent string',
@@ -1904,27 +1697,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Domain
      * @returns {Schema}
      */
-    export function DomainCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Domain,
             DisplayName: '$Ctd-Domain,DisplayName',
             Description: '$Ctd-Domain,Description',
             Icon: 'Domain',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
                 displayName: 'SyncGuid',
@@ -1935,8 +1724,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'LastSync',
@@ -1948,46 +1736,39 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Domains
      * @returns {Schema}
      */
-    export function DomainsCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Domains,
             DisplayName: '$Ctd-Domains,DisplayName',
             Description: '$Ctd-Domains,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Domain'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Email
      * @returns {Schema}
      */
-    export function EmailCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Email,
             DisplayName: '$Ctd-Email,DisplayName',
             Description: '$Ctd-Email,Description',
             Icon: 'Document',
             AllowIndexing: true,
             AllowIncrementalNaming: true,
             AllowedChildTypes: ['File'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'From',
                 displayName: 'From',
@@ -1998,8 +1779,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 textType: FieldSettings.TextType.RichText,
                 name: 'Body',
@@ -2012,8 +1792,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:RichText'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'Sent',
@@ -2025,27 +1804,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the OrganizationalUnit
      * @returns {Schema}
      */
-    export function OrganizationalUnitCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.OrganizationalUnit,
             DisplayName: '$Ctd-OrganizationalUnit,DisplayName',
             Description: '$Ctd-OrganizationalUnit,Description',
             Icon: 'OrgUnit',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
                 displayName: 'SyncGuid',
@@ -2056,8 +1831,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'LastSync',
@@ -2069,122 +1843,103 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the PortalRoot
      * @returns {Schema}
      */
-    export function PortalRootCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.PortalRoot,
             DisplayName: '$Ctd-PortalRoot,DisplayName',
             Description: '$Ctd-PortalRoot,Description',
             Icon: 'PortalRoot',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'TrashBin', 'DocumentLibrary', 'CustomList', 'Sites', 'Domains', 'Profiles', 'Resources'],
-            FieldSettings: []
-        };
+            AllowedChildTypes: ['Folder', 'SystemFolder', 'TrashBin', 'ContentList', 'CustomList', 'Sites', 'Domains', 'Profiles', 'Resources', 'Workspace'],
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the ProfileDomain
      * @returns {Schema}
      */
-    export function ProfileDomainCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ProfileDomain,
             DisplayName: '$Ctd-ProfileDomain,DisplayName',
             Description: '$Ctd-ProfileDomain,Description',
             Icon: 'Domain',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['UserProfile'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Profiles
      * @returns {Schema}
      */
-    export function ProfilesCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Profiles,
             DisplayName: '$Ctd-Profiles,DisplayName',
             Description: '$Ctd-Profiles,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['ProfileDomain'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the RuntimeContentContainer
      * @returns {Schema}
      */
-    export function RuntimeContentContainerCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.RuntimeContentContainer,
             DisplayName: '$Ctd-RuntimeContentContainer,DisplayName',
             Description: '$Ctd-RuntimeContentContainer,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Sites
      * @returns {Schema}
      */
-    export function SitesCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Sites,
             DisplayName: '$Ctd-Sites,DisplayName',
             Description: '$Ctd-Sites,Description',
             Icon: 'Site',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Site'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the SmartFolder
      * @returns {Schema}
      */
-    export function SmartFolderCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.SmartFolder,
             DisplayName: '$Ctd-SmartFolder,DisplayName',
             Description: '$Ctd-SmartFolder,Description',
             Icon: 'SmartFolder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'Query',
                 displayName: 'Query',
@@ -2196,8 +1951,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:QueryBuilder'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -2217,8 +1971,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -2238,65 +1991,55 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the SystemFolder
      * @returns {Schema}
      */
-    export function SystemFolderCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.SystemFolder,
             DisplayName: '$Ctd-SystemFolder,DisplayName',
             Description: '$Ctd-SystemFolder,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the Resources
      * @returns {Schema}
      */
-    export function ResourcesCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Resources,
             DisplayName: '$Ctd-Resources,DisplayName',
             Description: '$Ctd-Resources,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Resource'],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the TrashBag
      * @returns {Schema}
      */
-    export function TrashBagCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.TrashBag,
             DisplayName: '$Ctd-TrashBag,DisplayName',
             Description: '$Ctd-TrashBag,Description',
             Icon: 'Folder',
             AllowIndexing: true,
             AllowIncrementalNaming: true,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.DateTimeFieldSetting({
                 name: 'KeepUntil',
                 displayName: 'Keep until',
@@ -2307,8 +2050,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'OriginalPath',
                 displayName: 'Original path',
@@ -2319,8 +2061,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'WorkspaceRelativePath',
                 displayName: 'Ctd-TrashBagen-USWorkspaceRelativePath-DisplayName',
@@ -2331,8 +2072,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'WorkspaceId',
                 displayName: 'Ctd-TrashBagen-USWorkspaceId-DisplayName',
@@ -2343,8 +2083,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 name: 'DeletedContent',
@@ -2356,27 +2095,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Workspace
      * @returns {Schema}
      */
-    export function WorkspaceCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Workspace,
             DisplayName: '$Ctd-Workspace,DisplayName',
             Description: '$Ctd-Workspace,Description',
             Icon: 'Workspace',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Folder', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'Workspace'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
@@ -2390,8 +2125,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'Deadline',
@@ -2402,8 +2136,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsActive',
                 displayName: 'Active',
@@ -2415,8 +2148,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['Skin'],
@@ -2429,8 +2161,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsCritical',
                 displayName: 'Is critical',
@@ -2441,8 +2172,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsWallContainer',
                 displayName: 'Wall Container',
@@ -2453,8 +2183,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsFollowed',
                 readOnly: true,
@@ -2463,27 +2192,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Site
      * @returns {Schema}
      */
-    export function SiteCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Site,
             DisplayName: '$Ctd-Site,DisplayName',
             Description: '$Ctd-Site,Description',
             Icon: 'Site',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Folder', 'Workspace', 'Profiles', 'Image', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'SmartFolder'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -2502,8 +2227,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableClientBasedCulture',
                 displayName: 'Enable client-based culture',
@@ -2514,8 +2238,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableUserBasedCulture',
                 displayName: 'Enable user-based culture',
@@ -2526,8 +2249,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'UrlList',
                 displayName: 'URL list',
@@ -2538,8 +2260,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 selectionRoots: ['.'],
@@ -2552,8 +2273,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 selectionRoots: ['.'],
@@ -2566,8 +2286,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['Skin'],
@@ -2581,8 +2300,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'DenyCrossSiteAccess',
                 displayName: 'Deny cross-site access',
@@ -2593,27 +2311,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the TrashBin
      * @returns {Schema}
      */
-    export function TrashBinCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.TrashBin,
             DisplayName: '$Ctd-TrashBin,DisplayName',
             Description: '$Ctd-TrashBin,Description',
             Icon: 'trash',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['TrashBag'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
                 name: 'MinRetentionTime',
@@ -2625,8 +2339,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
                 name: 'SizeQuota',
@@ -2638,8 +2351,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
                 name: 'BagCapacity',
@@ -2652,27 +2364,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the UserProfile
      * @returns {Schema}
      */
-    export function UserProfileCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.UserProfile,
             DisplayName: '$Ctd-UserProfile,DisplayName',
             Description: '$Ctd-UserProfile,Description',
             Icon: 'UserProfile',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['DocumentLibrary', 'MemoList', 'TaskList', 'ImageLibrary', 'CustomList'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
@@ -2685,27 +2393,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Group
      * @returns {Schema}
      */
-    export function GroupCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Group,
             DisplayName: '$Ctd-Group,DisplayName',
             Description: '$Ctd-Group,Description',
             Icon: 'Group',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['User', 'Group'],
@@ -2719,8 +2423,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
                 displayName: 'Sync Guid',
@@ -2731,8 +2434,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'LastSync',
@@ -2744,46 +2446,39 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the ListItem
      * @returns {Schema}
      */
-    export function ListItemCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.ListItem,
             DisplayName: '$Ctd-ListItem,DisplayName',
             Description: '$Ctd-ListItem,Description',
             Icon: 'FormItem',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
+            FieldSettings: [
+        ]
+        }),
 
-        let schema = new Schema(options);
-
-        return schema;
-    }
     /**
      * Method that returns the Content Type Definition of the CustomListItem
      * @returns {Schema}
      */
-    export function CustomListItemCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.CustomListItem,
             DisplayName: '$Ctd-CustomListItem,DisplayName',
             Description: '$Ctd-CustomListItem,Description',
             Icon: 'FormItem',
             AllowIndexing: true,
             AllowIncrementalNaming: true,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.NullFieldSetting({
                 name: 'WorkflowsRunning',
                 readOnly: false,
@@ -2792,27 +2487,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Memo
      * @returns {Schema}
      */
-    export function MemoCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Memo,
             DisplayName: '$Ctd-Memo,DisplayName',
             Description: '$Ctd-Memo,Description',
             Icon: 'Document',
             AllowIndexing: true,
             AllowIncrementalNaming: true,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'Date',
@@ -2825,8 +2516,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: true,
                 allowMultiple: false,
@@ -2846,8 +2536,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 name: 'SeeAlso',
@@ -2859,27 +2548,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Task
      * @returns {Schema}
      */
-    export function TaskCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Task,
             DisplayName: '$Ctd-Task,DisplayName',
             Description: '$Ctd-Task,Description',
             Icon: 'FormItem',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'StartDate',
@@ -2890,8 +2575,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'DueDate',
@@ -2902,8 +2586,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['User'],
@@ -2917,8 +2600,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -2937,8 +2619,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -2959,8 +2640,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
                 maxValue: 100,
@@ -2974,8 +2654,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'RemainingDays',
                 displayName: 'Remaining days',
@@ -2986,8 +2665,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DueText',
                 displayName: 'DueText',
@@ -2997,8 +2675,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DueCssClass',
                 displayName: 'Due style',
@@ -3009,27 +2686,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the Query
      * @returns {Schema}
      */
-    export function QueryCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.Query,
             DisplayName: '$Ctd-Query,DisplayName',
             Description: '$Ctd-Query,Description',
             Icon: 'Query',
             AllowIndexing: true,
             AllowIncrementalNaming: true,
             AllowedChildTypes: [],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'Query',
                 displayName: 'Query',
@@ -3041,8 +2714,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:QueryBuilder'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -3061,27 +2733,23 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
     /**
      * Method that returns the Content Type Definition of the User
      * @returns {Schema}
      */
-    export function UserCTD(): Schema {
-        let options: ISchemaOptions = {
+    new Schema({
+            ContentType: ContentTypes.User,
             DisplayName: '$Ctd-User,DisplayName',
             Description: '$Ctd-User,Description',
             Icon: 'User',
             AllowIndexing: true,
             AllowIncrementalNaming: false,
             AllowedChildTypes: ['Image'],
-            FieldSettings: []
-        };
-
-        let schema = new Schema(options);
-
-        schema.FieldSettings.push(
+            FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 maxLength: 100,
                 name: 'LoginName',
@@ -3093,8 +2761,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'JobTitle',
                 displayName: 'Job title',
@@ -3105,8 +2772,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Enabled',
                 displayName: 'Enabled',
@@ -3117,8 +2783,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Domain',
                 displayName: 'Domain',
@@ -3129,8 +2794,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 regex: '^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
                 name: 'Email',
@@ -3142,8 +2806,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 regex: '[^<]+',
                 name: 'FullName',
@@ -3155,8 +2818,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 name: 'ImageRef',
@@ -3167,8 +2829,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.BinaryFieldSetting({
                 name: 'ImageData',
                 displayName: 'Cover image (binarydata)',
@@ -3178,8 +2839,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.NullFieldSetting({
                 name: 'Avatar',
                 displayName: 'Avatar',
@@ -3191,8 +2851,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
                 controlHint: 'sn:Image'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.PasswordFieldSetting({
                 reenterTitle: 'Re-enter password',
                 reenterDescription: 'Re-enter password.',
@@ -3206,8 +2865,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
                 displayName: 'SyncGuid',
@@ -3218,8 +2876,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'LastSync',
@@ -3231,8 +2888,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.CaptchaFieldSetting({
                 name: 'Captcha',
                 displayName: 'Captcha text',
@@ -3243,8 +2899,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
@@ -3258,8 +2913,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Department',
                 displayName: 'Department',
@@ -3270,8 +2924,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Languages',
                 displayName: 'Languages',
@@ -3282,8 +2935,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 regex: '(^\\d*([-\\s\\+\\(\\)]\\d*)*$)?',
                 name: 'Phone',
@@ -3295,8 +2947,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -3316,8 +2967,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -3337,8 +2987,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.Date,
                 name: 'BirthDate',
@@ -3349,8 +2998,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.LongTextFieldSetting({
                 textType: FieldSettings.TextType.LongText,
                 name: 'Education',
@@ -3363,8 +3011,7 @@ import { FieldSettings } from './SN';
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0,
                 controlHint: 'sn:EducationEditor'
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'TwitterAccount',
                 displayName: 'Twitter account',
@@ -3374,8 +3021,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'FacebookURL',
                 displayName: 'Facebook URL',
@@ -3386,8 +3032,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'LinkedInURL',
                 displayName: 'LinkedIn URL',
@@ -3398,8 +3043,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
@@ -3418,11 +3062,10 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
-                allowedTypes: ['Workspace', 'DocumentWorkspace', 'ProjectWorkspace', 'SalesWorkspace'],
+                allowedTypes: ['Workspace'],
                 name: 'FollowedWorkspaces',
                 displayName: 'Followed workspaces',
                 description: 'List of workspaces followed by the user.',
@@ -3432,8 +3075,7 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0
-            }));
-        schema.FieldSettings.push(
+            }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ProfilePath',
                 displayName: 'Profile path',
@@ -3444,6 +3086,8 @@ import { FieldSettings } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0
-            }));
-        return schema;
-    }
+            }),
+        ]
+        }),
+
+]
