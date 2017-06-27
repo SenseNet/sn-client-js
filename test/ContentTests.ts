@@ -19,9 +19,11 @@ describe('Content', () => {
     beforeEach(function () {
         const options: ContentTypes.ITaskOptions = {
             Id: 1,
+            Path: 'Root/Sites',
             DueDate: '2017-06-27T11:11:11Z',
             DueText: CONTENT_DUE_TEXT,
-            Name: CONTENT_NAME
+            Name: CONTENT_NAME,
+            DisplayName: ''
         };
         content = Content.Create(ContentTypes.Task, options, repo);
         contentSaved = Content.HandleLoadedContent(ContentTypes.Task, options, repo);
@@ -63,6 +65,10 @@ describe('Content', () => {
         it('should have a correct IsSaved parameter', () => {
             expect(content.IsSaved).to.be.eq(false);
         });
+        it('SavedFields should not contain entries', () => {
+            expect(Object.keys(content.SavedFields).length).to.be.eq(0);
+        });
+
     });
     describe('#HandleLoadedContent()', () => {
         it('should return an object', function () {
@@ -78,7 +84,13 @@ describe('Content', () => {
         });
         it('should have a correct IsSaved parameter', () => {
             expect(contentSaved.IsSaved).to.be.eq(true);
-        });        
+        });
+
+        it('should have a list about Saved fields', () => {
+            expect(contentSaved.SavedFields.DueText).to.be.eq(CONTENT_DUE_TEXT);
+            contentSaved.DueText = 'Modified'
+            expect(contentSaved.SavedFields.DueText).to.be.eq(CONTENT_DUE_TEXT);
+        });
     });
 
     describe('#IsDirty', () => {
@@ -88,43 +100,134 @@ describe('Content', () => {
         it('should return true if one or more properties has been changed', function () {
             content.Name = 'Modified DisplayName';
             expect(content.IsDirty).to.be.eq(true);
-        });        
+        });
     });
-    
+
+    describe('#IsValid', () => {
+        it('should return false if there are missing fields', function () {
+            const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
+            expect(emptyContent.IsValid).to.be.eq(false);
+        });
+        it('should return true all complusory fields are filled', function () {
+            expect(content.IsValid).to.be.eq(true);
+        });
+    });
+
     describe('#Delete()', () => {
         it('should return an Observable object', function () {
             expect(content.Delete(false)).to.be.instanceof(Observable);
+        });
+
+        it('should return an Observable on not saved contents', function () {
+            const unsavedContent = Content.Create(ContentTypes.Task, {}, repo);
+            expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
         });
     });
     describe('#Rename()', () => {
         it('should return an Observable object', function (done) {
             (repo.httpProviderRef as MockHttpProvider).setResponse({
                 d: {
-                    Name: 'aaa'
+                    DisplayName: 'aaa',
+                    Name: 'bbb'
                 }
             })
 
-            content.Rename('aaa').subscribe(result => {
-                expect(result.Name).to.be.eq('aaa');
+            contentSaved.Rename('aaa', 'bbb').subscribe(result => {
+                expect(result.DisplayName).to.be.eq('aaa');
+                expect(result.Name).to.be.eq('bbb');
                 done();
             })
+        });
 
-        });
-    });
-    describe('#Rename()', () => {
         it('should return an Observable object', function () {
-            expect(content.Rename('aaa', 'bbb')).to.be.instanceof(Observable);
+            expect(contentSaved.Rename('aaa', 'bbb')).to.be.instanceof(Observable);
+        });
+
+        it('should throw an error if no ID provided', function () {
+            const newContent = Content.Create(ContentTypes.Task, {}, repo);
+            expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
+        });
+
+        it('should throw an error if trying to rename an unsaved content with Id', function () {
+            const newContent = Content.Create(ContentTypes.Task, { Id: 3 }, repo);
+            expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
         });
     });
     describe('#Save()', () => {
-        it('should return an Observable object', function () {
-            expect(content.Save({ DisplayName: 'new' }, true)).to.be.instanceof(Observable);
+
+        it('should throw an error if trying to update, but not saved in the Repository', function () {
+            expect(() => { content.Save({ DisplayName: 'new' }, true) }).to.throw()
         });
-    });
-    describe('#Save()', () => {
+
         it('should return an Observable object', function () {
-            expect(content.Save({ DisplayName: 'new' }, false)).to.be.instanceof(Observable);
+            expect(contentSaved.Save({ DisplayName: 'new' })).to.be.instanceof(Observable);
         });
+
+        it('should throw Error if no Id specified', function () {
+            const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
+            expect(() => { emptyContent.Save({ DisplayName: 'new' }) }).to.throw();
+        });
+
+        it('should do a PATCH request if fields are specified and override is false', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    DisplayName: 'new',
+                }
+            })
+            contentSaved.Save({ DisplayName: 'new' }).subscribe(resp => {
+                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                expect(lastOptions.method).to.be.eq('PATCH');
+                expect(contentSaved.DisplayName).to.be.eq('new');
+                done();
+            });
+        });
+
+        it('should do a PUT request if fields are specified and override is false', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    DisplayName: 'new2',
+                }
+            })
+            contentSaved.Save({ DisplayName: 'new2' }, true).subscribe(resp => {
+                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                expect(lastOptions.method).to.be.eq('PUT');
+                expect(contentSaved.DisplayName).to.be.eq('new2');
+                done();
+            });
+        });
+
+
+        it('should do a POST request if triggering Save on an unsaved Content', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    DisplayName: 'new3',
+                }
+            })
+            content.Save().subscribe(resp => {
+                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                expect(lastOptions.method).to.be.eq('POST');
+                expect(content.DisplayName).to.be.eq('new3');
+                done();
+            });
+        });
+
+        it('should do a PATCH request if triggering Save on an already saved Content', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    DisplayName: 'new3',
+                }
+            })
+
+            contentSaved.DisplayName = 'new3';
+
+            contentSaved.Save().subscribe(resp => {
+                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                expect(lastOptions.method).to.be.eq('PATCH');
+                expect(contentSaved.DisplayName).to.be.eq('new3');
+                done();
+            });
+        });        
+
     });
     describe('#Actions()', () => {
         it('should return an Observable object', function () {
