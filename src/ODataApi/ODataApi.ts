@@ -56,7 +56,10 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
 
         return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET')
             .map(resp => {
-                resp.d = returns ? new returns(resp.d, this.repository) : new Content(resp.d, this.repository);
+                resp.d = returns ? 
+                    Content.HandleLoadedContent(returns, resp.d, this.repository)
+                    : 
+                    Content.HandleLoadedContent(Content, resp.d, this.repository);
                 return resp;
             });
     }
@@ -88,7 +91,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
                     returnsType = Content as { new (...args: any[]): any };
                 }
                 resp.d.results = resp.d.results.map(r => {
-                    return returnsType && new returnsType(r, this.repository);
+                    return returnsType && Content.HandleLoadedContent(returnsType, r, this.repository);
                 });
                 return resp;
             });

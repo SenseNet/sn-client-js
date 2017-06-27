@@ -13,15 +13,18 @@ const CONTENT_DUE_TEXT = 'DueText';
 
 describe('Content', () => {
     let content: ContentTypes.Task;
+    let contentSaved: ContentTypes.Task;
     let repo = new MockRepository();
 
     beforeEach(function () {
-        content = new ContentTypes.Task({
+        const options: ContentTypes.ITaskOptions = {
             Id: 1,
             DueDate: '2017-06-27T11:11:11Z',
             DueText: CONTENT_DUE_TEXT,
             Name: CONTENT_NAME
-        }, repo);
+        };
+        content = Content.Create(ContentTypes.Task, options, repo);
+        contentSaved = Content.HandleLoadedContent(ContentTypes.Task, options, repo);
         (repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
     });
 
@@ -51,13 +54,43 @@ describe('Content', () => {
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         });
-        it('should be have a correct Name', () => {
+        it('should have a correct Name', () => {
             expect(content.Name).to.be.eq(CONTENT_NAME);
         });
-        it('should be have a correct DueText', () => {
+        it('should have a correct DueText', () => {
             expect(content.DueText).to.be.eq(CONTENT_DUE_TEXT);
         });
+        it('should have a correct IsSaved parameter', () => {
+            expect(content.IsSaved).to.be.eq(false);
+        });
     });
+    describe('#HandleLoadedContent()', () => {
+        it('should return an object', function () {
+            expect(contentSaved).to.be.instanceof(Object);
+        });
+        it('should return an instance of a Content', () => {
+            expect(contentSaved).to.be.instanceof(Content);
+        })
+        it('should return an object with the given type and id', function () {
+            const type = content.Type;
+            expect(type).to.eq(CONTENT_TYPE);
+            expect(contentSaved.Id).to.eq(1);
+        });
+        it('should have a correct IsSaved parameter', () => {
+            expect(contentSaved.IsSaved).to.be.eq(true);
+        });        
+    });
+
+    describe('#IsDirty', () => {
+        it('should return false if the content is untouched', function () {
+            expect(content.IsDirty).to.be.eq(false);
+        });
+        it('should return true if one or more properties has been changed', function () {
+            content.Name = 'Modified DisplayName';
+            expect(content.IsDirty).to.be.eq(true);
+        });        
+    });
+    
     describe('#Delete()', () => {
         it('should return an Observable object', function () {
             expect(content.Delete(false)).to.be.instanceof(Observable);

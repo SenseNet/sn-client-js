@@ -59,6 +59,40 @@ export class Content implements IContent {
         this._type = newType;
     }
 
+    private _isSaved: boolean = false;
+
+    public get IsSaved(): boolean {
+        return this._isSaved;
+    }
+
+    private _lastSavedFields: this['options'] = {};
+    public get SavedFields() {
+        return this._lastSavedFields;
+    }
+
+    public GetChanges(): this['options'] {
+        const changedFields: this['options'] = {};
+        for (let field in this._lastSavedFields) {
+            if (this[field] !== this._lastSavedFields[field]) {
+                changedFields[field] = this[field];
+            }
+        }
+        return changedFields;
+    }
+
+    public get IsDirty(): boolean {
+        return Object.keys(this.GetChanges()).length > 0;
+    }
+
+    public get IsValid(): boolean {
+        const schema = this.GetSchema();
+        schema.FieldSettings.forEach(setting => {
+            if (setting.Compulsory && !this[setting.Name])
+                return false;
+        });
+        return true;
+    }
+
     DisplayName?: string;
     Description?: string;
     Icon?: string;
@@ -77,6 +111,7 @@ export class Content implements IContent {
      */
     constructor(public readonly options: IContentOptions, private repository: IRepository<any, any>) {
         Object.assign(this, options);
+        Object.assign(this._lastSavedFields, options);
     }
 
     /**
@@ -146,15 +181,44 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Save(fields: Object, override: boolean = false): Observable<this> {
-        if (!this.Id) {
-            throw new Error('Content Id not present');
+    Save(fields?: Partial<this['options']>, override: boolean = false): Observable<this> {
+
+        const contentType = this.constructor as { new (...args: any[]): any };
+        /** Old save logic */
+
+        if (fields) {
+            if (!this.Id) {
+                throw new Error('Content Id not present');
+            }
+            if (override) {
+                return this.repository.Content.Put(this.Id, contentType, fields);
+            }
+            else {
+                return this.repository.Content.Patch(this.Id, contentType, fields);
+            }
         }
-        if (override) {
-            return this.repository.Content.Put(this.Id, this.constructor as { new (...args: any[]): any }, fields);
-        }
-        else {
-            return this.repository.Content.Patch(this.Id, this.constructor as { new (...args: any[]): any }, fields);
+
+        if (!this.IsSaved) {
+            // Content not saved, verify Path and Post it
+            if (!this.Path) {
+                throw new Error('Cannot create content without a valid Path specified');
+            }
+            return this.repository.Content.Post<this>(this.Path, this, contentType);
+        } else {
+            if (!this.IsDirty) {
+                return Observable.of(this);
+            } else {
+                if (!this.Id) {
+                    throw new Error('Content Id not present');
+                }
+                const changedFields: any = {};
+                for (let field in this._lastSavedFields) {
+                    if (override || this[field] !== this._lastSavedFields[field]) {
+                        changedFields[field] = this[field];
+                    }
+                }
+                return this.repository.Content.Patch(this.Id, contentType, this);
+            }
         }
     }
 
@@ -714,6 +778,21 @@ export class Content implements IContent {
      */
     public static Create<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository: IRepository<any, any>): T }, opt: O, repository: IRepository<any, any>): T {
         let constructed = new newContent(opt, repository);
+        return constructed;
+    }
+
+    /**
+     * Creates a Content object by the given type and options Object that hold the field values.
+     * @param type {string} The Content will be a copy of the given type.
+     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
+     * @returns {SenseNet.Content}
+     * ```ts
+     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
+     * ```
+     */
+    public static HandleLoadedContent<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository: IRepository<any, any>): T }, opt: O, repository: IRepository<any, any>): T {
+        let constructed = Content.Create(newContent, opt, repository);
+        constructed['_isSaved'] = true;
         return constructed;
     }
 
