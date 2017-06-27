@@ -48,10 +48,21 @@ import { ODataRequestOptions, ODataCollectionResponse, ODataResponse } from './O
 import { Observable } from '@reactivex/rxjs';
 
 export class Content implements IContent {
+    
+    /**
+     * An unique identifier for a content
+     */
     Id?: number;
+    
+    /**
+     * Name of the Content
+     */
     Name?: string;
 
     private _type?: string;
+    /**
+     * Type of the Content, e.g.: 'Task' or 'User'
+     */
     public get Type(): string {
         return this._type || this.constructor.name;
     }
@@ -61,15 +72,30 @@ export class Content implements IContent {
 
     private _isSaved: boolean = false;
 
+    /**
+     * Indicates if the content is saved into the Repository or is a new Content
+     */
     public get IsSaved(): boolean {
         return this._isSaved;
     }
 
     private _lastSavedFields: this['options'] = {};
+    protected UpdateLastSavedFields(newFields: this['options']){
+        this._lastSavedFields = newFields;
+        this._isSaved = true;
+        Object.assign(this, newFields);
+    }
+    
+    /**
+     * Returns a list about the fields with their values, as they are saved into the Repository
+     */
     public get SavedFields() {
-        return this._lastSavedFields;
+        return !this.IsSaved ? {} : JSON.parse(JSON.stringify(this._lastSavedFields));
     }
 
+    /**
+     * Returns a list about the changed fields and their new values
+     */
     public GetChanges(): this['options'] {
         const changedFields: this['options'] = {};
         for (let field in this._lastSavedFields) {
@@ -80,17 +106,23 @@ export class Content implements IContent {
         return changedFields;
     }
 
+    
+    /**
+     * Shows if the content has been changed on client-side since the last load
+     */
     public get IsDirty(): boolean {
         return Object.keys(this.GetChanges()).length > 0;
     }
 
+    /**
+     * Indicates that all required fields are filled
+     */
     public get IsValid(): boolean {
         const schema = this.GetSchema();
-        schema.FieldSettings.forEach(setting => {
-            if (setting.Compulsory && !this[setting.Name])
-                return false;
-        });
-        return true;
+        const missings = schema.FieldSettings
+            .filter(s => s.Compulsory && !(this as any)[s.Name])
+        
+        return missings.length === 0;
     }
 
     DisplayName?: string;
@@ -155,14 +187,19 @@ export class Content implements IContent {
         if (!this.Id) {
             throw new Error('Content Id not present');
         }
-        let fields: { Name?: string, DisplayName?: string } = {};
-        if (!newDisplayName) {
+
+        if (!this.IsSaved){
+            throw new Error('Content is not saved. You can rename only saved content!')
+        }
+
+        let fields: this['options'] = {};
+        if (newDisplayName) {
             fields.DisplayName = newDisplayName;
         }
         if (newName) {
             fields.Name = newName;
         }
-        return this.repository.Content.Patch(this.Id, this.constructor as { new (...args: any[]): any }, fields);
+        return this.Save(fields);
     }
     /**
      * Saves the content with its given modified fields to the Content Repository.
@@ -181,43 +218,62 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Save(fields?: Partial<this['options']>, override: boolean = false): Observable<this> {
-
+    Save(fields?: this['options'], override: boolean = false): Observable<this> {
         const contentType = this.constructor as { new (...args: any[]): any };
-        /** Old save logic */
-
+        /** Fields Save logic */
         if (fields) {
             if (!this.Id) {
                 throw new Error('Content Id not present');
             }
+
+            if (!this.IsSaved){
+                throw new Error('The Content is not saved to the Repository, Save it before updating.')
+            }
             if (override) {
-                return this.repository.Content.Put(this.Id, contentType, fields);
+                return this.repository.Content.Put(this.Id, contentType, fields)
+                .map(newFields => {
+                    this.UpdateLastSavedFields(newFields);
+                    return this;
+                });
             }
             else {
-                return this.repository.Content.Patch(this.Id, contentType, fields);
-            }
+                return this.repository.Content.Patch(this.Id, contentType, fields)
+                .map(newFields => {
+                    this.UpdateLastSavedFields(newFields);
+                    return this;
+                });
+            }        
         }
-
+        
         if (!this.IsSaved) {
-            // Content not saved, verify Path and Post it
+            // Content not saved, verify Path and POST it
             if (!this.Path) {
                 throw new Error('Cannot create content without a valid Path specified');
             }
-            return this.repository.Content.Post<this>(this.Path, this, contentType);
+            
+            const postRequest = this.repository.Content.Post<this>(this.Path, this, contentType).share();
+            postRequest.subscribe(newFields => {
+                this.UpdateLastSavedFields(newFields);
+                this._isSaved = true;
+            });
+
+            return postRequest;
         } else {
+            // Content saved
             if (!this.IsDirty) {
+                // No changes, no request
                 return Observable.of(this);
             } else {
                 if (!this.Id) {
                     throw new Error('Content Id not present');
                 }
-                const changedFields: any = {};
-                for (let field in this._lastSavedFields) {
-                    if (override || this[field] !== this._lastSavedFields[field]) {
-                        changedFields[field] = this[field];
-                    }
-                }
-                return this.repository.Content.Patch(this.Id, contentType, this);
+                
+                // Patch content
+                const patchRequest = this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges()).share();
+                patchRequest.subscribe(newFields => {
+                    this.UpdateLastSavedFields(newFields);
+                });
+                return patchRequest;
             }
         }
     }
@@ -782,7 +838,7 @@ export class Content implements IContent {
     }
 
     /**
-     * Creates a Content object by the given type and options Object that hold the field values.
+     * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
      * @param type {string} The Content will be a copy of the given type.
      * @param options {SenseNet.IContentOptions} Optional list of fields and values.
      * @returns {SenseNet.Content}
