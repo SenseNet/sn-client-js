@@ -154,7 +154,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         }
         let opt = content.options;
         opt.__ContentType = opt.Type || postedContentType.name;
-        return this.repository.Ajax<T>(ODataHelper.getContentURLbyPath(path), 'POST', postedContentType, JSON.stringify(opt));
+        return this.repository
+            .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', postedContentType, JSON.stringify(opt))
+            .map(resp => (resp as any).d as T['options']);
     }
 
     /**
@@ -185,7 +187,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Patch<T extends TBaseContentType>(id: number, contentType: { new (...args: any[]): T }, fields: Partial<T['options']>): Observable<T> {
+    public Patch<T extends TBaseContentType>(id: number, contentType: { new (...args: any[]): T }, fields: T['options']): Observable<T['options']> {
 
         let contentTypeWithResponse = ODataResponse as { new (...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
