@@ -18,12 +18,12 @@ export interface IRepository<THttpProviderType extends BaseHttpProvider, TBaseCo
     /**
      * Public API endpoint to make Ajax calls to the current repository
      */
-    Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T>;
+    Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args: any[]): T }, body?: any): Observable<T>;
     
     /**
      * Public API endpoint to load a content from a repository
      */
-    Load<TContentType extends TBaseContentType = TBaseContentType>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args): TContentType }): Observable<TContentType>;
+    Load<TContentType extends TBaseContentType = TBaseContentType>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args: any[]): TContentType }): Observable<TContentType>;
     
     /**
      * public reference to the OData API used by the repository
