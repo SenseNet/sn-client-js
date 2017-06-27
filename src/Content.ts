@@ -65,8 +65,8 @@ export class Content implements IContent {
     IsFolder?: boolean;
     Path?: string;
     Index?: number;
-    CreationDate?: Date;
-    ModificationDate?: Date;
+    CreationDate?: string;
+    ModificationDate?: string;
     Versions?: ComplexTypes.DeferredObject;
     Workspace?: ComplexTypes.DeferredObject;
 
@@ -1360,8 +1360,8 @@ export interface IContentOptions {
     Description?: string;
     Icon?: string;
     Index?: number;
-    CreationDate?: Date;
-    ModificationDate?: Date;
+    CreationDate?: string;
+    ModificationDate?: string;
     IsFolder?: boolean;
     Path?: string;
     Versions?: ComplexTypes.DeferredObject;

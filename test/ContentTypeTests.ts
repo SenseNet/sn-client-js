@@ -267,7 +267,7 @@ describe('ContentTypes', () => {
         });
     });
     describe('#Task', function () {
-        const task = new ContentTypes.Task({ Id: 1, Type: 'Task', Name: '', DueDate: new Date('2020-01-01') }, repo);
+        const task = new ContentTypes.Task({ Id: 1, Type: 'Task', Name: '', DueDate: '2020-06-27T11:11:11Z' }, repo);
         it('should return a Task type object', function () {
             expect(task).to.be.an.instanceof(ContentTypes.Task);
         });

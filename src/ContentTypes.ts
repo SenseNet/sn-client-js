@@ -42,9 +42,9 @@ import { IRepository } from './Repository/IRepository';
         Icon?: string;
         Binary?: ComplexTypes.DeferredObject;
         CreatedBy?: ComplexTypes.DeferredObject;
-        CreationDate?: Date;
+        CreationDate?: string;
         ModifiedBy?: ComplexTypes.DeferredObject;
-        ModificationDate?: Date;
+        ModificationDate?: string;
         EnableLifespan?: boolean;
 
         /**
@@ -79,9 +79,9 @@ import { IRepository } from './Repository/IRepository';
         Icon?: string;
         Binary?: ComplexTypes.DeferredObject;
         CreatedBy?: ComplexTypes.DeferredObject;
-        CreationDate?: Date;
+        CreationDate?: string;
         ModifiedBy?: ComplexTypes.DeferredObject;
-        ModificationDate?: Date;
+        ModificationDate?: string;
         EnableLifespan?: boolean;
     }
 
@@ -110,16 +110,16 @@ import { IRepository } from './Repository/IRepository';
         Hidden?: boolean;
         Index?: number;
         EnableLifespan?: boolean;
-        ValidFrom?: Date;
-        ValidTill?: Date;
+        ValidFrom?: string;
+        ValidTill?: string;
         AllowedChildTypes?: string;
         EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
         CreatedBy?: ComplexTypes.DeferredObject;
-        CreationDate?: Date;
+        CreationDate?: string;
         ModifiedBy?: ComplexTypes.DeferredObject;
-        ModificationDate?: Date;
+        ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
@@ -177,16 +177,16 @@ import { IRepository } from './Repository/IRepository';
         Hidden?: boolean;
         Index?: number;
         EnableLifespan?: boolean;
-        ValidFrom?: Date;
-        ValidTill?: Date;
+        ValidFrom?: string;
+        ValidTill?: string;
         AllowedChildTypes?: string;
         EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
         CreatedBy?: ComplexTypes.DeferredObject;
-        CreationDate?: Date;
+        CreationDate?: string;
         ModifiedBy?: ComplexTypes.DeferredObject;
-        ModificationDate?: Date;
+        ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
@@ -358,7 +358,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export class Image extends File {
         Keywords?: string;
-        DateTaken?: Date;
+        DateTaken?: string;
         Width?: number;
         Height?: number;
 
@@ -378,7 +378,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export interface IImageOptions extends IFileOptions {
         Keywords?: string;
-        DateTaken?: Date;
+        DateTaken?: string;
         Width?: number;
         Height?: number;
     }
@@ -862,7 +862,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export class Domain extends Folder {
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
 
         /**
          * @constructs Domain
@@ -880,7 +880,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export interface IDomainOptions extends IFolderOptions {
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
     }
 
     /**
@@ -915,7 +915,7 @@ import { IRepository } from './Repository/IRepository';
     export class Email extends Folder {
         From?: string;
         Body?: string;
-        Sent?: Date;
+        Sent?: string;
 
         /**
          * @constructs Email
@@ -934,7 +934,7 @@ import { IRepository } from './Repository/IRepository';
     export interface IEmailOptions extends IFolderOptions {
         From?: string;
         Body?: string;
-        Sent?: Date;
+        Sent?: string;
     }
 
     /**
@@ -944,7 +944,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export class OrganizationalUnit extends Folder {
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
 
         /**
          * @constructs OrganizationalUnit
@@ -962,7 +962,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export interface IOrganizationalUnitOptions extends IFolderOptions {
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
     }
 
     /**
@@ -1169,7 +1169,7 @@ import { IRepository } from './Repository/IRepository';
      * @extends {@link Folder}
      */
     export class TrashBag extends Folder {
-        KeepUntil?: Date;
+        KeepUntil?: string;
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
@@ -1190,7 +1190,7 @@ import { IRepository } from './Repository/IRepository';
      * @extends {@link IFolderOptions}
      */
     export interface ITrashBagOptions extends IFolderOptions {
-        KeepUntil?: Date;
+        KeepUntil?: string;
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
@@ -1204,7 +1204,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export class Workspace extends Folder {
         Manager?: ComplexTypes.DeferredObject;
-        Deadline?: Date;
+        Deadline?: string;
         IsActive?: boolean;
         WorkspaceSkin?: ComplexTypes.DeferredObject;
         IsCritical?: boolean;
@@ -1227,7 +1227,7 @@ import { IRepository } from './Repository/IRepository';
      */
     export interface IWorkspaceOptions extends IFolderOptions {
         Manager?: ComplexTypes.DeferredObject;
-        Deadline?: Date;
+        Deadline?: string;
         IsActive?: boolean;
         WorkspaceSkin?: ComplexTypes.DeferredObject;
         IsCritical?: boolean;
@@ -1339,7 +1339,7 @@ import { IRepository } from './Repository/IRepository';
     export class Group extends GenericContent {
         Members?: ComplexTypes.DeferredObject;
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
 
         /**
          * @constructs Group
@@ -1358,7 +1358,7 @@ import { IRepository } from './Repository/IRepository';
     export interface IGroupOptions extends IGenericContentOptions {
         Members?: ComplexTypes.DeferredObject;
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
     }
 
     /**
@@ -1417,7 +1417,7 @@ import { IRepository } from './Repository/IRepository';
      * @extends {@link ListItem}
      */
     export class Memo extends ListItem {
-        Date?: Date;
+        Date?: string;
         MemoType?: Enums.MemoType;
         SeeAlso?: ComplexTypes.DeferredObject;
 
@@ -1436,7 +1436,7 @@ import { IRepository } from './Repository/IRepository';
      * @extends {@link IListItemOptions}
      */
     export interface IMemoOptions extends IListItemOptions {
-        Date?: Date;
+        Date?: string;
         MemoType?: Enums.MemoType;
         SeeAlso?: ComplexTypes.DeferredObject;
     }
@@ -1447,8 +1447,8 @@ import { IRepository } from './Repository/IRepository';
      * @extends {@link ListItem}
      */
     export class Task extends ListItem {
-        StartDate?: Date;
-        DueDate?: Date;
+        StartDate?: string;
+        DueDate?: string;
         AssignedTo?: ComplexTypes.DeferredObject;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
@@ -1472,8 +1472,8 @@ import { IRepository } from './Repository/IRepository';
      * @extends {@link IListItemOptions}
      */
     export interface ITaskOptions extends IListItemOptions {
-        StartDate?: Date;
-        DueDate?: Date;
+        StartDate?: string;
+        DueDate?: string;
         AssignedTo?: ComplexTypes.DeferredObject;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
@@ -1528,7 +1528,7 @@ import { IRepository } from './Repository/IRepository';
         Avatar?: ComplexTypes.DeferredObject;
         Password?: string;
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
         Captcha?: string;
         Manager?: ComplexTypes.DeferredObject;
         Department?: string;
@@ -1536,7 +1536,7 @@ import { IRepository } from './Repository/IRepository';
         Phone?: string;
         Gender?: Enums.Gender;
         MaritalStatus?: Enums.MaritalStatus;
-        BirthDate?: Date;
+        BirthDate?: string;
         Education?: string;
         TwitterAccount?: string;
         FacebookURL?: string;
@@ -1571,7 +1571,7 @@ import { IRepository } from './Repository/IRepository';
         Avatar?: ComplexTypes.DeferredObject;
         Password?: string;
         SyncGuid?: string;
-        LastSync?: Date;
+        LastSync?: string;
         Captcha?: string;
         Manager?: ComplexTypes.DeferredObject;
         Department?: string;
@@ -1579,7 +1579,7 @@ import { IRepository } from './Repository/IRepository';
         Phone?: string;
         Gender?: Enums.Gender;
         MaritalStatus?: Enums.MaritalStatus;
-        BirthDate?: Date;
+        BirthDate?: string;
         Education?: string;
         TwitterAccount?: string;
         FacebookURL?: string;

@@ -58,7 +58,7 @@ describe('Collection', () => {
   });
   describe('#Add()', () => {
     it('should return an observable', function () {
-      let content = Content.Create(ContentTypes.Task, { DueDate: new Date(), Name: '' }, new MockRepository());
+      let content = Content.Create(ContentTypes.Task, { DueDate: '2017-06-27T11:11:11Z', Name: '' }, new MockRepository());
       expect(collection.Add(content)).to.be.instanceof(Observable);
     });
   });

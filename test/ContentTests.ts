@@ -18,7 +18,7 @@ describe('Content', () => {
     beforeEach(function () {
         content = new ContentTypes.Task({
             Id: 1,
-            DueDate: new Date(),
+            DueDate: '2017-06-27T11:11:11Z',
             DueText: CONTENT_DUE_TEXT,
             Name: CONTENT_NAME
         }, repo);
@@ -510,7 +510,7 @@ describe('Content', () => {
         });
         it('should return a Task', function () {
             const schema = content.GetSchema();
-            expect(schema['Icon' as any]).to.eq('FormItem');
+            expect(schema.Icon).to.eq('FormItem');
         });
     });
     describe('#static GetSchema()', () => {
@@ -519,7 +519,7 @@ describe('Content', () => {
         });
         it('should return a Schema object', function () {
             let schema = Content.GetSchema(ContentTypes.Task)
-            expect(schema['Icon' as any]).to.eq('FormItem');
+            expect(schema.Icon).to.eq('FormItem');
         });
     });
     describe('#Schema()', () => {
@@ -528,7 +528,7 @@ describe('Content', () => {
         });
         it('should return a Schema object', function () {
             let schema = content.GetSchema()
-            expect(schema['Icon' as any]).to.eq('FormItem');
+            expect(schema.Icon).to.eq('FormItem');
         });
     });
 });
