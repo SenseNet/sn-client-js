@@ -118,4 +118,16 @@ describe('Collection', () => {
       expect(collection.AllowedChildTypes({ select: 'Name' })).to.be.instanceof(Observable);
     });
   });
+  describe('#Upload()', () => {
+    it('should return an observable', function () {
+      collection['Path'] = '/workspaces/project';
+      expect(collection.Upload('Task', 'task.docx')).to.be.instanceof(Observable);
+    });
+  });
+  describe('#Upload()', () => {
+    it('should return an observable', function () {
+      collection['Path'] = '/workspaces/project';
+      expect(collection.Read('Task')).to.be.instanceof(Observable);
+    });
+  });  
 });
