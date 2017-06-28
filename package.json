@@ -63,9 +63,9 @@
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",
-    "@types/chai": "4.0.0",
+    "@types/chai": "4.0.1",
     "@types/mocha": "2.2.41",
-    "@types/node": "^7.0.22",
+    "@types/node": "^8.0.0",
     "chai": "4.0.2",
     "codecov.io": "0.1.6",
     "commitizen": "2.9.6",
