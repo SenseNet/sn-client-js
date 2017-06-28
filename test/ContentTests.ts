@@ -160,13 +160,29 @@ describe('Content', () => {
             expect(() => { content.Save({ DisplayName: 'new' }, true) }).to.throw()
         });
 
-        it('should return an Observable object', function () {
-            expect(contentSaved.Save({ DisplayName: 'new' })).to.be.instanceof(Observable);
+        it('should return an Observable object and isOperationInProgress should be updated during the operation', function () {
+            const obs = contentSaved.Save({ DisplayName: 'new' });
+            expect(obs).to.be.instanceof(Observable);
+            expect(contentSaved.IsOperationInProgress).to.be.eq(true);
+
+            obs.subscribe(() => {
+                expect(contentSaved.IsOperationInProgress).to.be.eq(false);
+            });
+
         });
 
-        it('should throw Error if no Id specified', function () {
+        it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', function () {
             const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
-            expect(() => { emptyContent.Save({ DisplayName: 'new' }) }).to.throw();
+            expect(() => {
+                const obs = emptyContent.Save({ DisplayName: 'new' })
+                obs.subscribe(() => {
+                    expect(emptyContent.IsOperationInProgress).to.be.eq(false);
+                }, e => {
+
+                })
+                expect(emptyContent.IsOperationInProgress).to.be.eq(true);
+            }).to.throw();
+
         });
 
         it('should do a PATCH request if fields are specified and override is false', function (done) {
@@ -227,7 +243,7 @@ describe('Content', () => {
                 expect(contentSaved.DisplayName).to.be.eq('new3');
                 done();
             });
-        });        
+        });
 
     });
     describe('#Actions()', () => {

@@ -106,8 +106,11 @@ export class Content {
         return changedFields;
     }
 
-    public GetFields(): this['options']{
-        const fieldsToPost = {}  as this['options'];
+    /**
+     * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
+     */
+    public GetFields(): this['options'] {
+        const fieldsToPost = {} as this['options'];
         this.GetSchema().FieldSettings.forEach(s => {
             this[s.Name] && (fieldsToPost[s.Name] = this[s.Name]);
         });
@@ -120,6 +123,15 @@ export class Content {
      */
     public get IsDirty(): boolean {
         return Object.keys(this.GetChanges()).length > 0;
+    }
+
+    private _isOperationInProgress: boolean = false;
+    
+    /**
+     * Shows if there are any operation in progress
+     */
+    public get IsOperationInProgress() {
+        return this._isOperationInProgress;
     }
 
     /**
@@ -209,24 +221,8 @@ export class Content {
         }
         return this.Save(fields);
     }
-    /**
-     * Saves the content with its given modified fields to the Content Repository.
-     * @params fields {Object} Object with the fields that have to be modified.
-     * @params override {boolean=} [false] Determines whether clear the fields that are not given (true) or leave them and modify only the given fields (false).
-     * @params options {Object=} JSON object with the possible ODATA parameters like select, expand, etc.
-     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
-     * ```
-     * let save = content.Save({'Index':2}, true); //Set Index field's value to 2 and clear the rest of the fields.
-     * save.subscribe({
-     *  next: response => {
-     *      console.log(response);
-     *  },
-     *  error: error => console.error('something wrong occurred: ' + error.responseJSON.error.message.value),
-     *  complete: () => console.log('done'),
-     * });
-     * ```
-     */
-    Save(fields?: this['options'], override: boolean = false): Observable<this> {
+
+    private saveContentInternal(fields?: this['options'], override: boolean = false): Observable<this> {
         const contentType = this.constructor as { new(...args: any[]): any };
         /** Fields Save logic */
         if (fields) {
@@ -258,7 +254,7 @@ export class Content {
             if (!this.Path) {
                 throw new Error('Cannot create content without a valid Path specified');
             }
-           
+
 
             return this.repository.Content.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
                 this.UpdateLastSavedFields(resp);
@@ -276,13 +272,43 @@ export class Content {
                 }
 
                 // Patch content
-                return this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges()).share()
+                return this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges())
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
                         return this;
                     });
             }
         }
+    }
+
+    /**
+     * Saves the content with its given modified fields to the Content Repository.
+     * @params fields {Object} Object with the fields that have to be modified.
+     * @params override {boolean=} [false] Determines whether clear the fields that are not given (true) or leave them and modify only the given fields (false).
+     * @params options {Object=} JSON object with the possible ODATA parameters like select, expand, etc.
+     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
+     * ```
+     * let save = content.Save({'Index':2}, true); //Set Index field's value to 2 and clear the rest of the fields.
+     * save.subscribe({
+     *  next: response => {
+     *      console.log(response);
+     *  },
+     *  error: error => console.error('something wrong occurred: ' + error.responseJSON.error.message.value),
+     *  complete: () => console.log('done'),
+     * });
+     * ```
+     */
+    Save(fields?: this['options'], override: boolean = false): Observable<this> {
+
+        this._isOperationInProgress = true;
+        const saveObservable = this.saveContentInternal(fields, override).share();
+        saveObservable.subscribe(success => {
+            this._isOperationInProgress = false;
+        }, (err) => {
+            this._isOperationInProgress = false;
+            throw err;
+        });
+        return saveObservable;
     }
 
     /**
