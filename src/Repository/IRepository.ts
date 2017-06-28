@@ -3,17 +3,17 @@
  */
 /** */
 import { BaseHttpProvider } from '../HttpProviders';
-import { IContent } from './';
 import { Observable } from '@reactivex/rxjs';
-import { IODataApi } from '../ODataApi';
+import { IODataApi, IODataParams } from '../ODataApi';
 import { RequestMethodType } from '../HttpProviders';
 import { IAuthenticationService } from '../Authentication';
 import { SnConfigModel } from '../Config';
+import { Content } from '../Content';
 
 /**
  * Interface that describes the functionality for a sense NET Repository implementation.
  */
-export interface IRepository<THttpProviderType extends BaseHttpProvider, TBaseContentType extends IContent> {
+export interface IRepository<THttpProviderType extends BaseHttpProvider, TBaseContentType extends Content> {
     
     /**
      * Public API endpoint to make Ajax calls to the current repository
@@ -23,7 +23,11 @@ export interface IRepository<THttpProviderType extends BaseHttpProvider, TBaseCo
     /**
      * Public API endpoint to load a content from a repository
      */
-    Load<TContentType extends TBaseContentType = TBaseContentType>(idOrPath: string | number, options?: Object, version?: string, returns?: { new (...args: any[]): TContentType }): Observable<TContentType>;
+    Load<TContentType extends TBaseContentType>(
+        idOrPath: string | number,
+        options?: IODataParams, 
+        version?: string, 
+        returns?: { new (...args: any[]): TContentType }): Observable<TContentType>;
     
     /**
      * public reference to the OData API used by the repository
@@ -39,4 +43,6 @@ export interface IRepository<THttpProviderType extends BaseHttpProvider, TBaseCo
      * public reference to the Configuration used by the repository
      */
     readonly Config: SnConfigModel;
+
+    readonly httpProviderRef: THttpProviderType;
 }

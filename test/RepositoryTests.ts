@@ -71,8 +71,7 @@ export class BaseHttpProviderTests {
         let cResponse = {
             d: {
                 Name: 'testContentType',
-                Type: 'ContentType',
-                options: {},
+                Type: 'ContentType'
             }
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
@@ -91,7 +90,6 @@ export class BaseHttpProviderTests {
             d: {
                 Name: 'testContentType',
                 Type: 'User',
-                options: {},
             }
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);

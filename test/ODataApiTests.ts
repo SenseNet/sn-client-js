@@ -8,6 +8,7 @@ import { MockAuthService } from './Mocks/MockAuthService';
 import { LoginState } from '../src/Authentication';
 import { ODataApi } from '../src/SN';
 import { ContentType } from '../src/ContentTypes';
+import { IRepository } from '../src/Repository/IRepository';
 
 const expect = Chai.expect;
 
@@ -31,7 +32,6 @@ describe('ODataApi', () => {
         const options = new ODataRequestOptions({ path: '/workspace/project' })
         service.Content.Fetch(options).first().subscribe(result => {
             expect(result.d.results[0].Id).to.be.eq(1);
-            expect(result.d.results[0]).to.be.instanceof(Content);
             done();
         }, done)
 
@@ -43,8 +43,7 @@ describe('ODataApi', () => {
         expect(observable).to.be.instanceof(Observable);
     });
     it('requests to post a created a Content and returns an Observable object', function () {
-        let content = new Content({ Name: 'alma' }, service);
-        let observable = service.Content.Post('/workspace/project', content, Content);
+        let observable = service.Content.Post('/workspace/project', { Name: 'alma' }, Content);
         expect(observable).to.be.instanceof(Observable);
     });
     it('requests to delete a Content and returns an Observable object', function () {

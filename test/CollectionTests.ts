@@ -3,14 +3,15 @@ import * as Chai from 'chai';
 import { Collection } from '../src/Collection';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
-import { ContentTypes } from '../src/SN';
+import { ContentTypes, Repository } from '../src/SN';
+import { IRepository } from '../src/Repository/IRepository';
 const expect = Chai.expect;
 
 describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new MockRepository();
+  let Repo = new MockRepository() as IRepository<any, any>;
 
   beforeEach(function () {
     children = [
@@ -25,7 +26,7 @@ describe('Collection', () => {
       }, this.repo)];
 
 
-    collection = new Collection(children, Repo.Content);
+    collection = new Collection(children, Repo, Content);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
   });
   describe('#Items()', () => {
@@ -58,8 +59,8 @@ describe('Collection', () => {
   });
   describe('#Add()', () => {
     it('should return an observable', function () {
-      let content = Content.Create(ContentTypes.Task, { DueDate: '2017-06-27T11:11:11Z', Name: '' }, new MockRepository());
-      expect(collection.Add(content)).to.be.instanceof(Observable);
+      let content = Content.Create(ContentTypes.Task, { DueDate: '2017-06-27T11:11:11Z', Name: '' }, Repo);
+      expect(collection.Add(content.options)).to.be.instanceof(Observable);
     });
   });
   describe('#Remove()', () => {

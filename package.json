@@ -87,7 +87,7 @@
     "typedoc": "^0.7.0",
     "typedoc-md-theme": "^1.0.1",
     "typedoc-plugin-external-module-name": "^1.0.9",
-    "typescript": "2.3.4"
+    "typescript": "2.4.1"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"

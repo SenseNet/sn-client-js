@@ -60,19 +60,19 @@ describe('FieldSettings', () => {
         });
     });
     describe('#ShortText', function () {
-        const shorttext = new FieldSettings.ShortTextFieldSetting('text');
+        const shorttext = new FieldSettings.ShortTextFieldSetting({name: 'text'});
         it('should return a ShortText fieldSetting object', function () {
             expect(shorttext).to.be.an.instanceof(FieldSettings.ShortTextFieldSetting);
         });
     });
     describe('#Number', function () {
-        const number = new FieldSettings.NumberFieldSetting('text');
+        const number = new FieldSettings.NumberFieldSetting({name: 'text'});
         it('should return a Number fieldSetting object', function () {
             expect(number).to.be.an.instanceof(FieldSettings.NumberFieldSetting);
         });
     });
     describe('#Binary', function () {
-        const binary = new FieldSettings.BinaryFieldSetting('text');
+        const binary = new FieldSettings.BinaryFieldSetting({name: 'text'});
         it('should return a Binary fieldSetting object', function () {
             expect(binary).to.be.an.instanceof(FieldSettings.BinaryFieldSetting);
         });

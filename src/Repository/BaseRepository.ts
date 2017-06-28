@@ -41,13 +41,13 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * @param {any} body The post body (optional)
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
-    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
+    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args: any[]): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
             .flatMap(state => {
                 if (!returnsType){
-                    returnsType = Object as {new(...args)};
+                    returnsType = Object as {new(...args: any[]): any};
                 }
                 return this.httpProviderRef.Ajax<T>(returnsType,
                     {
@@ -63,7 +63,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Reference to the Http Provider used by the current repository
      */
-    public readonly httpProviderRef: HttpProviders.BaseHttpProvider;
+    public readonly httpProviderRef: TProviderType;
     
     /**
      * Reference to the OData API used by the current repository
@@ -87,14 +87,14 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      */
     constructor(config: Partial<SnConfigModel>, 
                 private readonly httpProviderType: { new (): TProviderType }, 
-                authentication: { new (...args): Authentication.IAuthenticationService }) {
+                authentication: { new (...args: any[]): Authentication.IAuthenticationService }) {
 
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
 
         //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.Content = new ODataApi.ODataApi(this.httpProviderType, this);
+        this.Content = new ODataApi.ODataApi(this.httpProviderType, this as IRepository<any, any>);
     }
     
     /**
@@ -158,14 +158,12 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * })
      * ```
     */
-    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(
+    public Load<TContentType extends TProviderBaseContentType>(
             idOrPath: string | number,
             options?: ODataApi.IODataParams,
             version?: string,
-            returns?: { new (...args): TContentType }): Observable<TContentType> {
-        if (!returns) {
-            returns = Content as { new (...args) };
-        }
+            returns?: { new (...args: any[]): TContentType }): Observable<TContentType> {
+
         let contentURL = typeof idOrPath === 'string' ?
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
@@ -176,6 +174,12 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
             path: contentURL,
             params: params
         })
-        return this.Content.Get(odataRequestOptions, returns).map(r => r.d);
+        const returnType = returns || Content as { new (...args: any[])};
+
+        return this.Content.Get(odataRequestOptions, returnType)
+            .share()
+            .map(r => {
+                return Content.HandleLoadedContent(returnType, r.d, this as IRepository<any, any>);
+            });
     }
 }

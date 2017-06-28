@@ -43,17 +43,17 @@
 
 import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes, } from './SN';
 import { IRepository } from './Repository/IRepository';
-import { IContent } from './Repository/IContent';
 import { ODataRequestOptions, ODataCollectionResponse, ODataResponse } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
+import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
 
-export class Content implements IContent {
-    
+export class Content {
+
     /**
      * An unique identifier for a content
      */
     Id?: number;
-    
+
     /**
      * Name of the Content
      */
@@ -80,12 +80,12 @@ export class Content implements IContent {
     }
 
     private _lastSavedFields: this['options'] = {};
-    protected UpdateLastSavedFields(newFields: this['options']){
+    protected UpdateLastSavedFields(newFields: this['options']) {
         this._lastSavedFields = newFields;
         this._isSaved = true;
         Object.assign(this, newFields);
     }
-    
+
     /**
      * Returns a list about the fields with their values, as they are saved into the Repository
      */
@@ -106,7 +106,15 @@ export class Content implements IContent {
         return changedFields;
     }
 
-    
+    public GetFields(): this['options']{
+        const fieldsToPost = {}  as this['options'];
+        this.GetSchema().FieldSettings.forEach(s => {
+            this[s.Name] && (fieldsToPost[s.Name] = this[s.Name]);
+        });
+        return fieldsToPost;
+    }
+
+
     /**
      * Shows if the content has been changed on client-side since the last load
      */
@@ -121,7 +129,7 @@ export class Content implements IContent {
         const schema = this.GetSchema();
         const missings = schema.FieldSettings
             .filter(s => s.Compulsory && !(this as any)[s.Name])
-        
+
         return missings.length === 0;
     }
 
@@ -141,7 +149,7 @@ export class Content implements IContent {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(public readonly options: IContentOptions, private repository: IRepository<any, any>) {
+    constructor(public readonly options: IContentOptions, private repository: IRepository<BaseHttpProvider, Content>) {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
     }
@@ -188,7 +196,7 @@ export class Content implements IContent {
             throw new Error('Content Id not present');
         }
 
-        if (!this.IsSaved){
+        if (!this.IsSaved) {
             throw new Error('Content is not saved. You can rename only saved content!')
         }
 
@@ -219,45 +227,44 @@ export class Content implements IContent {
      * ```
      */
     Save(fields?: this['options'], override: boolean = false): Observable<this> {
-        const contentType = this.constructor as { new (...args: any[]): any };
+        const contentType = this.constructor as { new(...args: any[]): any };
         /** Fields Save logic */
         if (fields) {
             if (!this.Id) {
                 throw new Error('Content Id not present');
             }
 
-            if (!this.IsSaved){
+            if (!this.IsSaved) {
                 throw new Error('The Content is not saved to the Repository, Save it before updating.')
             }
             if (override) {
                 return this.repository.Content.Put(this.Id, contentType, fields)
-                .map(newFields => {
-                    this.UpdateLastSavedFields(newFields);
-                    return this;
-                });
+                    .map(newFields => {
+                        this.UpdateLastSavedFields(newFields);
+                        return this;
+                    });
             }
             else {
                 return this.repository.Content.Patch(this.Id, contentType, fields)
-                .map(newFields => {
-                    this.UpdateLastSavedFields(newFields);
-                    return this;
-                });
-            }        
+                    .map(newFields => {
+                        this.UpdateLastSavedFields(newFields);
+                        return this;
+                    });
+            }
         }
-        
+
         if (!this.IsSaved) {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
                 throw new Error('Cannot create content without a valid Path specified');
             }
-            
-            const postRequest = this.repository.Content.Post<this>(this.Path, this, contentType).share();
-            postRequest.subscribe(newFields => {
-                this.UpdateLastSavedFields(newFields);
-                this._isSaved = true;
-            });
+           
 
-            return postRequest;
+            return this.repository.Content.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
+                this.UpdateLastSavedFields(resp);
+                this._isSaved = true;
+                return this;
+            });
         } else {
             // Content saved
             if (!this.IsDirty) {
@@ -267,13 +274,13 @@ export class Content implements IContent {
                 if (!this.Id) {
                     throw new Error('Content Id not present');
                 }
-                
+
                 // Patch content
-                const patchRequest = this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges()).share();
-                patchRequest.subscribe(newFields => {
-                    this.UpdateLastSavedFields(newFields);
-                });
-                return patchRequest;
+                return this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges()).share()
+                    .map(resp => {
+                        this.UpdateLastSavedFields(resp);
+                        return this;
+                    });
             }
         }
     }
@@ -336,7 +343,7 @@ export class Content implements IContent {
         });
         return this.repository.Content.Fetch(reqoptions, ContentTypes.ContentType)
             .map(r => {
-                return r.d.results
+                return r.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this.repository))
             });
     }
     /**
@@ -793,9 +800,9 @@ export class Content implements IContent {
      * var genericContentSchema = SenseNet.Content.getSchema(Content);
      * ```
      */
-    public static GetSchema<TType extends Content>(currentType: { new (...args: any[]): TType }): Schemas.Schema<TType> {
-        if (this._schemaCache[currentType.name]) {
-            return this._schemaCache[currentType.name];
+    public static GetSchema<TType extends Content>(currentType: { new(...args: any[]): TType }): Schemas.Schema<TType> {
+        if (this._schemaCache[currentType.name as any]) {
+            return this._schemaCache[currentType.name as any] as Schemas.Schema<TType>;
         }
         const schema = Schemas.SchemaStore.find(s => s.ContentType === currentType) as Schemas.Schema<TType>;
         if (!schema) {
@@ -808,7 +815,7 @@ export class Content implements IContent {
             let parentSchema = Content.GetSchema(parent);
             schema.FieldSettings = schema.FieldSettings.concat(parentSchema.FieldSettings);
         }
-        this._schemaCache[currentType.name] = schema;
+        this._schemaCache[currentType.name as any] = schema;
         return schema;
     }
 
@@ -820,7 +827,7 @@ export class Content implements IContent {
      *```
      */
     GetSchema(): Schemas.Schema<this> {
-        return Content.GetSchema(this.constructor as { new (...args) });
+        return Content.GetSchema(this.constructor as { new(...args: any[]): any });
     }
 
     /**
@@ -832,7 +839,7 @@ export class Content implements IContent {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository: IRepository<any, any>): T }, opt: O, repository: IRepository<any, any>): T {
+    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: IRepository<any, any>): T {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
@@ -846,9 +853,9 @@ export class Content implements IContent {
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static HandleLoadedContent<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository: IRepository<any, any>): T }, opt: O, repository: IRepository<any, any>): T {
+    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: IRepository<any, any>): T {
         let constructed = Content.Create(newContent, opt, repository);
-        constructed['_isSaved'] = true;
+        (constructed as any)['_isSaved'] = true;
         return constructed;
     }
 
