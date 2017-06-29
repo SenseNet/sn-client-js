@@ -98,7 +98,8 @@ export class Content {
      */
     public GetChanges(): this['options'] {
         const changedFields: this['options'] = {};
-        for (let field in this._lastSavedFields) {
+
+        for (let field in this.GetFields()) {
             if (this[field] !== this._lastSavedFields[field]) {
                 changedFields[field] = this[field];
             }
@@ -222,7 +223,7 @@ export class Content {
         return this.Save(fields);
     }
 
-    private saveContentInternal(fields?: this['options'], override: boolean = false): Observable<this> {
+    private saveContentInternal(fields?: this['options'], override?: boolean): Observable<this> {
         const contentType = this.constructor as { new(...args: any[]): any };
         /** Fields Save logic */
         if (fields) {
@@ -298,7 +299,7 @@ export class Content {
      * });
      * ```
      */
-    Save(fields?: this['options'], override: boolean = false): Observable<this> {
+    Save(fields?: this['options'], override?: boolean): Observable<this> {
 
         this._isOperationInProgress = true;
         const saveObservable = this.saveContentInternal(fields, override).share();

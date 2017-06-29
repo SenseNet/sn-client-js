@@ -15,9 +15,10 @@ const CONTENT_DUE_TEXT = 'DueText';
 describe('Content', () => {
     let content: ContentTypes.Task;
     let contentSaved: ContentTypes.Task;
-    let repo = new MockRepository() as IRepository<any, any>;
+    let repo: IRepository<any, any>;
 
     beforeEach(function () {
+        repo =  new MockRepository() as IRepository<any, any>;
         const options: ContentTypes.ITaskOptions = {
             Id: 1,
             Path: 'Root/Sites',
@@ -182,24 +183,40 @@ describe('Content', () => {
                 })
                 expect(emptyContent.IsOperationInProgress).to.be.eq(true);
             }).to.throw();
+        });
+
+        it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', function () {
+            const savedContent = Content.HandleLoadedContent(ContentTypes.Task, {DisplayName: 'Original'}, repo);
+            savedContent.DisplayName = 'Modified';
+            expect(() => {
+                const obs = savedContent.Save()
+                obs.subscribe(() => {
+                    expect(savedContent.IsOperationInProgress).to.be.eq(false);
+                }, e => {
+
+                })
+                expect(savedContent.IsOperationInProgress).to.be.eq(true);
+            }).to.throw();
 
         });
 
-        it('should do a PATCH request if fields are specified and override is false', function (done) {
+        it('should send a PATCH request if fields are specified and override is false', function (done) {
             (repo.httpProviderRef as MockHttpProvider).setResponse({
                 d: {
                     DisplayName: 'new',
                 }
-            })
-            contentSaved.Save({ DisplayName: 'new' }).subscribe(resp => {
+            });
+            let c = Content.HandleLoadedContent(ContentTypes.Task, {Id: 1 }, repo);
+
+            c.Save({ DisplayName: 'new' }).subscribe(resp => {
                 const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
                 expect(lastOptions.method).to.be.eq('PATCH');
-                expect(contentSaved.DisplayName).to.be.eq('new');
+                expect(c.DisplayName).to.be.eq('new');
                 done();
-            });
+            }, done, done);
         });
 
-        it('should do a PUT request if fields are specified and override is false', function (done) {
+        it('should send a PUT request if fields are specified and override is false', function (done) {
             (repo.httpProviderRef as MockHttpProvider).setResponse({
                 d: {
                     DisplayName: 'new2',
@@ -214,7 +231,7 @@ describe('Content', () => {
         });
 
 
-        it('should do a POST request if triggering Save on an unsaved Content', function (done) {
+        it('should send a POST request if triggering Save on an unsaved Content', function (done) {
             (repo.httpProviderRef as MockHttpProvider).setResponse({
                 d: {
                     DisplayName: 'new3',
@@ -228,7 +245,27 @@ describe('Content', () => {
             });
         });
 
-        it('should do a PATCH request if triggering Save on an already saved Content', function (done) {
+
+        it('should throw error when triggering Save on an unsaved Content without path', function () {
+            let c = Content.Create(ContentTypes.Task, {}, repo);
+            expect(() => {c.Save()}).to.throw();
+        });
+
+        it('should return an Observable without request on a non-dirty content', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setResponse({
+                d: {
+                    DisplayName: 'new3',
+                }
+            })
+            let c = Content.HandleLoadedContent(ContentTypes.Task, {DisplayName: 'test'}, repo);
+            c.Save().subscribe(modifiedContent => {
+                expect(modifiedContent.DisplayName).to.be.eq('test');
+                done();
+            })
+        });  
+
+
+        it('should send a PATCH request if triggering Save on an already saved Content', function (done) {
             (repo.httpProviderRef as MockHttpProvider).setResponse({
                 d: {
                     DisplayName: 'new3',
