@@ -7,7 +7,7 @@
 
 import { Observable, Subscription } from '@reactivex/rxjs';
 import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
-import { IRepository, VersionInfo } from './';
+import { VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
@@ -16,8 +16,7 @@ import { TokenPersist } from '../Authentication/';
 /**
  *
  */
-export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
-    implements IRepository<TProviderType, TProviderBaseContentType> {
+export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content> {
 
     /**
      * Will be true if the Repository's host differs from the current host
@@ -94,7 +93,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
 
         //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.Content = new ODataApi.ODataApi(this.httpProviderType, this as IRepository<any, any>);
+        this.Content = new ODataApi.ODataApi(this.httpProviderType, this);
     }
     
     /**
@@ -179,7 +178,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
         return this.Content.Get(odataRequestOptions, returnType)
             .share()
             .map(r => {
-                return Content.HandleLoadedContent(returnType, r.d, this as IRepository<any, any>);
+                return Content.HandleLoadedContent(returnType, r.d, this);
             });
     }
 }

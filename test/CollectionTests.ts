@@ -4,14 +4,15 @@ import { Collection } from '../src/Collection';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
 import { ContentTypes, Repository } from '../src/SN';
-import { IRepository } from '../src/Repository/IRepository';
+import { BaseRepository } from '../src/Repository/BaseRepository';
+import { MockHttpProvider } from './Mocks/MockHttpProvider';
 const expect = Chai.expect;
 
 describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new MockRepository() as IRepository<any, any>;
+  let Repo = new MockRepository() as BaseRepository<MockHttpProvider, Content>;
 
   beforeEach(function () {
     children = [

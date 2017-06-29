@@ -8,7 +8,6 @@ import { MockAuthService } from './Mocks/MockAuthService';
 import { LoginState } from '../src/Authentication';
 import { ODataApi } from '../src/SN';
 import { ContentType } from '../src/ContentTypes';
-import { IRepository } from '../src/Repository/IRepository';
 
 const expect = Chai.expect;
 

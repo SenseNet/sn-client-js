@@ -5,13 +5,13 @@
  * @description This module contains OData-related classes and functions.
  */ /** */
 
-import { IRepository } from '../Repository';
 import { BaseHttpProvider } from '../HttpProviders';
-import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, IODataApi, ODataCollectionResponse } from './';
+import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, ODataCollectionResponse } from './';
 import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
 import { Content, IContentOptions } from '../Content';
 import * as _ from 'lodash';
+import { BaseRepository } from '../Repository/BaseRepository';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -19,7 +19,7 @@ import * as _ from 'lodash';
  * Following methods return Rxjs Observables which are made from the ajax requests' promises. Action methods like Delete or Rename on Content calls this methods,
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
-export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType extends Content> implements IODataApi<THttpProvider, TBaseContentType>{
+export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType extends Content>{
 
     /**
      * The HTTP provider instance for making AJAX calls.
@@ -28,11 +28,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
 
     /**
      * @param {THttpProvider} providerRef Reference to a specifed HTTP Provider to make Ajax calls
-     * @param {IRepository} repository Reference to a Repository instance
+     * @param {BaseRepository} repository Reference to a Repository instance
      */
     constructor(
         providerRef: { new (): THttpProvider },
-        private readonly repository: IRepository<THttpProvider, any>,
+        private readonly repository: BaseRepository<THttpProvider, any>,
     ) {
         this.httpProvider = new providerRef();
     }
@@ -103,9 +103,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
     public Create<T extends TBaseContentType, O extends T['options']>(
         path: string,
         opt: O,
-        contentType: { new (opt: O, repository: IRepository<any, any>): T },
+        contentType: { new (opt: O, repository: BaseRepository<any, any>): T },
         repository = this.repository): Observable<T['options']> {
-
+            
         (opt as any).__ContentType = opt.Type || contentType.name;
         return this.repository.Ajax(ODataHelper.getContentURLbyPath(path), 'POST', contentType, JSON.stringify(opt));
     }

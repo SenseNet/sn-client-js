@@ -1,13 +1,13 @@
 import { ContentTypes, HttpProviders } from '../src/SN';
 import * as Chai from 'chai';
 import { MockRepository } from './Mocks/MockRepository';
-import { IRepository } from '../src/Repository/IRepository';
+import { BaseRepository } from '../src/Repository/BaseRepository';
 const expect = Chai.expect;
 
 describe('ContentTypes', () => {
 
 
-    let repo = new MockRepository() as IRepository<any, any>;
+    let repo = new MockRepository();
 
     describe('#ContentType', function () {
         const gc = new ContentTypes.ContentType({ Id: 1, Type: 'ContentType', Name: '' }, repo);

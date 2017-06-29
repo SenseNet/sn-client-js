@@ -41,8 +41,7 @@
  * related to async data streams.
  */ /** */
 
-import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes, } from './SN';
-import { IRepository } from './Repository/IRepository';
+import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes, Repository, } from './SN';
 import { ODataRequestOptions, ODataCollectionResponse, ODataResponse } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
@@ -162,7 +161,7 @@ export class Content {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(public readonly options: IContentOptions, private repository: IRepository<BaseHttpProvider, Content>) {
+    constructor(public readonly options: IContentOptions, private repository: Repository.BaseRepository<BaseHttpProvider, Content>) {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
     }
@@ -205,10 +204,7 @@ export class Content {
      * ```
      */
     Rename(newDisplayName: string, newName?: string): Observable<this> {
-        if (!this.Id) {
-            throw new Error('Content Id not present');
-        }
-
+        
         if (!this.IsSaved) {
             throw new Error('Content is not saved. You can rename only saved content!')
         }
@@ -822,7 +818,7 @@ export class Content {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: IRepository<any, any>): T {
+    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: Repository.BaseRepository<any, any>): T {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
@@ -836,7 +832,7 @@ export class Content {
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: IRepository<any, any>): T {
+    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: Repository.BaseRepository<any, any>): T {
         let constructed = Content.Create(newContent, opt, repository);
         (constructed as any)['_isSaved'] = true;
         return constructed;

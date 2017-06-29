@@ -8,10 +8,10 @@
  */ /** */
 
 import { Observable } from '@reactivex/rxjs';
-import { IODataApi, CustomAction, IODataParams, ODataRequestOptions } from './ODataApi';
+import { CustomAction, IODataParams, ODataRequestOptions } from './ODataApi';
 import { ODataHelper } from './SN';
 import { Content } from './Content';
-import { IRepository } from './Repository/IRepository';
+import { BaseRepository } from './Repository/BaseRepository';
 
 export class Collection<T extends Content> {
     Path: string = '';
@@ -22,7 +22,7 @@ export class Collection<T extends Content> {
     * @param { IODataApi<any, any> } service The service to use as API Endpoint
     */
     constructor(private items: T[],
-                private repository: IRepository<any, Content>,
+                private repository: BaseRepository<any, Content>,
                 private readonly contentType: {new(...args: any[]): T} = Content.constructor as {new(...args)}) {
     }
 

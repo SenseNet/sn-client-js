@@ -4,7 +4,7 @@ import { Observable } from '@reactivex/rxjs';
 import { MockHttpProvider, MockRepository, MockAuthService } from './Mocks';
 import { ODataCollectionResponse } from '../src/ODataApi/ODataCollectionResponse';
 import { LoginState } from '../src/Authentication/LoginState';
-import { IRepository } from '../src/Repository/IRepository';
+import { BaseRepository } from '../src/Repository/BaseRepository';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
@@ -15,10 +15,10 @@ const CONTENT_DUE_TEXT = 'DueText';
 describe('Content', () => {
     let content: ContentTypes.Task;
     let contentSaved: ContentTypes.Task;
-    let repo: IRepository<any, any>;
+    let repo: BaseRepository<MockHttpProvider, Content>;
 
     beforeEach(function () {
-        repo =  new MockRepository() as IRepository<any, any>;
+        repo =  new MockRepository();
         const options: ContentTypes.ITaskOptions = {
             Id: 1,
             Path: 'Root/Sites',
@@ -127,7 +127,7 @@ describe('Content', () => {
     });
     describe('#Rename()', () => {
         it('should return an Observable object', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     DisplayName: 'aaa',
                     Name: 'bbb'
@@ -202,7 +202,7 @@ describe('Content', () => {
         });
 
         it('should throw Error is server returns Error, and isOperationInProgress should be set to False', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setError({message: 'serverErrorMessage'});
+            repo.httpProviderRef.setError({message: 'serverErrorMessage'});
             let c = Content.HandleLoadedContent(ContentTypes.Task, {Id: 1 }, repo);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
@@ -214,7 +214,7 @@ describe('Content', () => {
         });        
 
         it('should send a PATCH request if fields are specified and override is false', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     DisplayName: 'new',
                 }
@@ -222,7 +222,7 @@ describe('Content', () => {
             let c = Content.HandleLoadedContent(ContentTypes.Task, {Id: 1 }, repo);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
-                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                const lastOptions = repo.httpProviderRef.lastOptions;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(c.DisplayName).to.be.eq('new');
                 done();
@@ -230,13 +230,13 @@ describe('Content', () => {
         });
 
         it('should send a PUT request if fields are specified and override is false', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     DisplayName: 'new2',
                 }
             })
             contentSaved.Save({ DisplayName: 'new2' }, true).subscribe(resp => {
-                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                const lastOptions = repo.httpProviderRef.lastOptions;
                 expect(lastOptions.method).to.be.eq('PUT');
                 expect(contentSaved.DisplayName).to.be.eq('new2');
                 done();
@@ -251,7 +251,7 @@ describe('Content', () => {
                 }
             })
             content.Save().subscribe(resp => {
-                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                const lastOptions = repo.httpProviderRef.lastOptions;
                 expect(lastOptions.method).to.be.eq('POST');
                 expect(content.DisplayName).to.be.eq('new3');
                 done();
@@ -265,7 +265,7 @@ describe('Content', () => {
         });
 
         it('should return an Observable without request on a non-dirty content', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -279,7 +279,7 @@ describe('Content', () => {
 
 
         it('should send a PATCH request if triggering Save on an already saved Content', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -288,7 +288,7 @@ describe('Content', () => {
             contentSaved.DisplayName = 'new3';
 
             contentSaved.Save().subscribe(resp => {
-                const lastOptions = (repo.httpProviderRef as MockHttpProvider).lastOptions;
+                const lastOptions = repo.httpProviderRef.lastOptions;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(contentSaved.DisplayName).to.be.eq('new3');
                 done();
@@ -313,7 +313,7 @@ describe('Content', () => {
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     __count: 1,
                     results: [
