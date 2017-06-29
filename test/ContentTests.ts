@@ -137,7 +137,7 @@ describe('Content', () => {
                 expect(result.DisplayName).to.be.eq('aaa');
                 expect(result.Name).to.be.eq('bbb');
                 done();
-            })
+            });
         });
 
         it('should return an Observable object', function () {
@@ -283,13 +283,18 @@ describe('Content', () => {
         });
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
+
         it('should return an Observable object', function () {
             expect(content.GetEffectiveAllowedChildTypes()).to.be.instanceof(Observable);
         });
-    });
-    describe('#GetEffectiveAllowedChildTypes()', () => {
+
         it('should return an Observable object', function () {
             expect(content.GetEffectiveAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
+        });
+
+        it('should throw an error if not Id provided', function () {
+            const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
+            expect(() => { emptyContent.GetEffectiveAllowedChildTypes({ select: ['Name'] }) }).to.throw();
         });
     });
     describe('#GetOwner()', () => {
