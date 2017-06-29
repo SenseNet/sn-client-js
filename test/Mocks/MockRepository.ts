@@ -9,8 +9,8 @@ import { SnConfigModel } from '../../src/Config';
 import { Content } from '../../src/Content';
 import { MockAuthService } from './MockAuthService';
 
-export class MockRepository extends BaseRepository<MockHttpProvider, Content>{
-    constructor(config?: SnConfigModel) {
+export class MockRepository extends BaseRepository<MockHttpProvider, MockAuthService, Content>{
+    constructor(config?: Partial<SnConfigModel>) {
         if (!config){
             config = new SnConfigModel();
         }

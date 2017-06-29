@@ -19,8 +19,8 @@ describe('ODataApi', () => {
         expect(typeof service.Content.Get(options)).to.be.eq('object');
     });
     it('request a collection of Content and returns an Observable object', function (done) {
-        (service.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
-        (service.httpProviderRef as MockHttpProvider).setResponse({
+        service.Authentication.stateSubject.next(LoginState.Authenticated);
+        service.httpProviderRef.setResponse({
             d: {
                 __count: 1,
                 results: [
@@ -34,12 +34,6 @@ describe('ODataApi', () => {
             done();
         }, done)
 
-
-
-    });
-    it('requests to create a Content and returns an Observable object', function () {
-        let observable = service.Content.Create('/workspace/project', { Id: 1, Type: 'Article', DisplayName: 'Article' }, Content);
-        expect(observable).to.be.instanceof(Observable);
     });
     it('requests to post a created a Content and returns an Observable object', function () {
         let observable = service.Content.Post('/workspace/project', { Name: 'alma' }, Content);
@@ -91,7 +85,7 @@ describe('ODataApi', () => {
 
     it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
         const params = new ODataParams({ select: 'DisplayName' });
-        let http = (service.httpProviderRef as MockHttpProvider);
+        let http = service.httpProviderRef;
         http.setResponse({success: true});
         let action = service.Content.CreateCustomAction({
             path: `localhost/OData.svc('Root')`,

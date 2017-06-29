@@ -12,7 +12,7 @@ describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new MockRepository() as BaseRepository<MockHttpProvider, Content>;
+  let Repo = new MockRepository();
 
   beforeEach(function () {
     children = [

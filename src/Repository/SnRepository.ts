@@ -11,7 +11,7 @@ import { JwtService } from '../Authentication/JwtService';
  * This class defines a defaul sense NET ECM Repository implementation
  * that uses an RxJs based Ajax HTTP Provider and a JWT Token Authentication Service
  */
-export class SnRepository extends BaseRepository<HttpProviders.RxAjaxHttpProvider, Content>{
+export class SnRepository extends BaseRepository<HttpProviders.RxAjaxHttpProvider, JwtService, Content>{
     /**
      * @param {Partial<SnConfigModel>} config The partial config entry used by the repository
      */

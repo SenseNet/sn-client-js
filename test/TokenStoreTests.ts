@@ -7,11 +7,11 @@ const expect = Chai.expect;
 class MockStorage {
     private innerStore: any[] = []
     public getItem(key: string){
-        return this.innerStore[key];
+        return this.innerStore[key as any];
     }
 
     public setItem(key: string, value: any){
-        this.innerStore[key] = value;
+        this.innerStore[key as any] = value;
     }
 }
 
@@ -34,7 +34,7 @@ for (let key in tokenStorageStoreParameters) {
         let siteName: string = 'https://localhost';
         let tokenTemplate: string = '${siteName}-${tokenName}';
 
-        let element = tokenStorageStoreParameters[key] as testParams;
+        let element = (tokenStorageStoreParameters as any)[key] as testParams;
         let testToken = Token.FromHeadAndPayload('eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzZW5zZW5ldCIsInN1YiI6ImF1dGgiLCJhdWQiOiJjbGllbnQiLCJleHAiOjE0OTMzODM3NTQsImlhdCI6MTQ5MzM4MzY5NCwibmJmIjoxNDkzMzgzNjk0LCJuYW1lIjoiQnVpbHRJblxcQWRtaW4ifQ');
 
 

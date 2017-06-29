@@ -51,7 +51,7 @@ import { BaseRepository } from './Repository';
          * @constructs ContentType
          * @param options {object} An object implementing {@link IContentTypeOptions} interface
          */
-        constructor(public readonly options: IContentTypeOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IContentTypeOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -147,7 +147,7 @@ import { BaseRepository } from './Repository';
          * @constructs GenericContent
          * @param options {object} An object implementing {@link IGenericContentOptions} interface
          */
-        constructor(public readonly options: IGenericContentOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IGenericContentOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -223,7 +223,7 @@ import { BaseRepository } from './Repository';
          * @constructs ContentLink
          * @param options {object} An object implementing {@link IContentLinkOptions} interface
          */
-        constructor(public readonly options: IContentLinkOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IContentLinkOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -256,7 +256,7 @@ import { BaseRepository } from './Repository';
          * @constructs File
          * @param options {object} An object implementing {@link IFileOptions} interface
          */
-        constructor(public readonly options: IFileOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IFileOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -288,7 +288,7 @@ import { BaseRepository } from './Repository';
          * @constructs DynamicJsonContent
          * @param options {object} An object implementing {@link IDynamicJsonContentOptions} interface
          */
-        constructor(public readonly options: IDynamicJsonContentOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IDynamicJsonContentOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -312,7 +312,7 @@ import { BaseRepository } from './Repository';
          * @constructs ExecutableFile
          * @param options {object} An object implementing {@link IExecutableFileOptions} interface
          */
-        constructor(public readonly options: IExecutableFileOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IExecutableFileOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -337,7 +337,7 @@ import { BaseRepository } from './Repository';
          * @constructs HtmlTemplate
          * @param options {object} An object implementing {@link IHtmlTemplateOptions} interface
          */
-        constructor(public readonly options: IHtmlTemplateOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IHtmlTemplateOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -366,7 +366,7 @@ import { BaseRepository } from './Repository';
          * @constructs Image
          * @param options {object} An object implementing {@link IImageOptions} interface
          */
-        constructor(public readonly options: IImageOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IImageOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -394,7 +394,7 @@ import { BaseRepository } from './Repository';
          * @constructs PreviewImage
          * @param options {object} An object implementing {@link IPreviewImageOptions} interface
          */
-        constructor(public readonly options: IPreviewImageOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IPreviewImageOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -419,7 +419,7 @@ import { BaseRepository } from './Repository';
          * @constructs Settings
          * @param options {object} An object implementing {@link ISettingsOptions} interface
          */
-        constructor(public readonly options: ISettingsOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ISettingsOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -445,7 +445,7 @@ import { BaseRepository } from './Repository';
          * @constructs IndexingSettings
          * @param options {object} An object implementing {@link IIndexingSettingsOptions} interface
          */
-        constructor(public readonly options: IIndexingSettingsOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IIndexingSettingsOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -470,7 +470,7 @@ import { BaseRepository } from './Repository';
          * @constructs LoggingSettings
          * @param options {object} An object implementing {@link ILoggingSettingsOptions} interface
          */
-        constructor(public readonly options: ILoggingSettingsOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ILoggingSettingsOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -494,7 +494,7 @@ import { BaseRepository } from './Repository';
          * @constructs PortalSettings
          * @param options {object} An object implementing {@link IPortalSettingsOptions} interface
          */
-        constructor(public readonly options: IPortalSettingsOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IPortalSettingsOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -518,7 +518,7 @@ import { BaseRepository } from './Repository';
          * @constructs SystemFile
          * @param options {object} An object implementing {@link ISystemFileOptions} interface
          */
-        constructor(public readonly options: ISystemFileOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ISystemFileOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -543,7 +543,7 @@ import { BaseRepository } from './Repository';
          * @constructs Resource
          * @param options {object} An object implementing {@link IResourceOptions} interface
          */
-        constructor(public readonly options: IResourceOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IResourceOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -568,7 +568,7 @@ import { BaseRepository } from './Repository';
          * @constructs Folder
          * @param options {object} An object implementing {@link IFolderOptions} interface
          */
-        constructor(public readonly options: IFolderOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IFolderOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -606,7 +606,7 @@ import { BaseRepository } from './Repository';
          * @constructs ContentList
          * @param options {object} An object implementing {@link IContentListOptions} interface
          */
-        constructor(public readonly options: IContentListOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IContentListOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -645,7 +645,7 @@ import { BaseRepository } from './Repository';
          * @constructs Aspect
          * @param options {object} An object implementing {@link IAspectOptions} interface
          */
-        constructor(public readonly options: IAspectOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IAspectOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -670,7 +670,7 @@ import { BaseRepository } from './Repository';
          * @constructs ItemList
          * @param options {object} An object implementing {@link IItemListOptions} interface
          */
-        constructor(public readonly options: IItemListOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IItemListOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -694,7 +694,7 @@ import { BaseRepository } from './Repository';
          * @constructs CustomList
          * @param options {object} An object implementing {@link ICustomListOptions} interface
          */
-        constructor(public readonly options: ICustomListOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ICustomListOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -718,7 +718,7 @@ import { BaseRepository } from './Repository';
          * @constructs MemoList
          * @param options {object} An object implementing {@link IMemoListOptions} interface
          */
-        constructor(public readonly options: IMemoListOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IMemoListOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -742,7 +742,7 @@ import { BaseRepository } from './Repository';
          * @constructs TaskList
          * @param options {object} An object implementing {@link ITaskListOptions} interface
          */
-        constructor(public readonly options: ITaskListOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ITaskListOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -766,7 +766,7 @@ import { BaseRepository } from './Repository';
          * @constructs Library
          * @param options {object} An object implementing {@link ILibraryOptions} interface
          */
-        constructor(public readonly options: ILibraryOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ILibraryOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -790,7 +790,7 @@ import { BaseRepository } from './Repository';
          * @constructs DocumentLibrary
          * @param options {object} An object implementing {@link IDocumentLibraryOptions} interface
          */
-        constructor(public readonly options: IDocumentLibraryOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IDocumentLibraryOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -815,7 +815,7 @@ import { BaseRepository } from './Repository';
          * @constructs ImageLibrary
          * @param options {object} An object implementing {@link IImageLibraryOptions} interface
          */
-        constructor(public readonly options: IImageLibraryOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IImageLibraryOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -841,7 +841,7 @@ import { BaseRepository } from './Repository';
          * @constructs Device
          * @param options {object} An object implementing {@link IDeviceOptions} interface
          */
-        constructor(public readonly options: IDeviceOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IDeviceOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -868,7 +868,7 @@ import { BaseRepository } from './Repository';
          * @constructs Domain
          * @param options {object} An object implementing {@link IDomainOptions} interface
          */
-        constructor(public readonly options: IDomainOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IDomainOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -894,7 +894,7 @@ import { BaseRepository } from './Repository';
          * @constructs Domains
          * @param options {object} An object implementing {@link IDomainsOptions} interface
          */
-        constructor(public readonly options: IDomainsOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IDomainsOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -921,7 +921,7 @@ import { BaseRepository } from './Repository';
          * @constructs Email
          * @param options {object} An object implementing {@link IEmailOptions} interface
          */
-        constructor(public readonly options: IEmailOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IEmailOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -950,7 +950,7 @@ import { BaseRepository } from './Repository';
          * @constructs OrganizationalUnit
          * @param options {object} An object implementing {@link IOrganizationalUnitOptions} interface
          */
-        constructor(public readonly options: IOrganizationalUnitOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IOrganizationalUnitOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -976,7 +976,7 @@ import { BaseRepository } from './Repository';
          * @constructs PortalRoot
          * @param options {object} An object implementing {@link IPortalRootOptions} interface
          */
-        constructor(public readonly options: IPortalRootOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IPortalRootOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1000,7 +1000,7 @@ import { BaseRepository } from './Repository';
          * @constructs ProfileDomain
          * @param options {object} An object implementing {@link IProfileDomainOptions} interface
          */
-        constructor(public readonly options: IProfileDomainOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IProfileDomainOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1024,7 +1024,7 @@ import { BaseRepository } from './Repository';
          * @constructs Profiles
          * @param options {object} An object implementing {@link IProfilesOptions} interface
          */
-        constructor(public readonly options: IProfilesOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IProfilesOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1048,7 +1048,7 @@ import { BaseRepository } from './Repository';
          * @constructs RuntimeContentContainer
          * @param options {object} An object implementing {@link IRuntimeContentContainerOptions} interface
          */
-        constructor(public readonly options: IRuntimeContentContainerOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IRuntimeContentContainerOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1072,7 +1072,7 @@ import { BaseRepository } from './Repository';
          * @constructs Sites
          * @param options {object} An object implementing {@link ISitesOptions} interface
          */
-        constructor(public readonly options: ISitesOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ISitesOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1099,7 +1099,7 @@ import { BaseRepository } from './Repository';
          * @constructs SmartFolder
          * @param options {object} An object implementing {@link ISmartFolderOptions} interface
          */
-        constructor(public readonly options: ISmartFolderOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ISmartFolderOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1126,7 +1126,7 @@ import { BaseRepository } from './Repository';
          * @constructs SystemFolder
          * @param options {object} An object implementing {@link ISystemFolderOptions} interface
          */
-        constructor(public readonly options: ISystemFolderOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ISystemFolderOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1150,7 +1150,7 @@ import { BaseRepository } from './Repository';
          * @constructs Resources
          * @param options {object} An object implementing {@link IResourcesOptions} interface
          */
-        constructor(public readonly options: IResourcesOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IResourcesOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1179,7 +1179,7 @@ import { BaseRepository } from './Repository';
          * @constructs TrashBag
          * @param options {object} An object implementing {@link ITrashBagOptions} interface
          */
-        constructor(public readonly options: ITrashBagOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ITrashBagOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1215,7 +1215,7 @@ import { BaseRepository } from './Repository';
          * @constructs Workspace
          * @param options {object} An object implementing {@link IWorkspaceOptions} interface
          */
-        constructor(public readonly options: IWorkspaceOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IWorkspaceOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1254,7 +1254,7 @@ import { BaseRepository } from './Repository';
          * @constructs Site
          * @param options {object} An object implementing {@link ISiteOptions} interface
          */
-        constructor(public readonly options: ISiteOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ISiteOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1289,7 +1289,7 @@ import { BaseRepository } from './Repository';
          * @constructs TrashBin
          * @param options {object} An object implementing {@link ITrashBinOptions} interface
          */
-        constructor(public readonly options: ITrashBinOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ITrashBinOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1317,7 +1317,7 @@ import { BaseRepository } from './Repository';
          * @constructs UserProfile
          * @param options {object} An object implementing {@link IUserProfileOptions} interface
          */
-        constructor(public readonly options: IUserProfileOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IUserProfileOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1345,7 +1345,7 @@ import { BaseRepository } from './Repository';
          * @constructs Group
          * @param options {object} An object implementing {@link IGroupOptions} interface
          */
-        constructor(public readonly options: IGroupOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IGroupOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1372,7 +1372,7 @@ import { BaseRepository } from './Repository';
          * @constructs ListItem
          * @param options {object} An object implementing {@link IListItemOptions} interface
          */
-        constructor(public readonly options: IListItemOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IListItemOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1397,7 +1397,7 @@ import { BaseRepository } from './Repository';
          * @constructs CustomListItem
          * @param options {object} An object implementing {@link ICustomListItemOptions} interface
          */
-        constructor(public readonly options: ICustomListItemOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ICustomListItemOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1425,7 +1425,7 @@ import { BaseRepository } from './Repository';
          * @constructs Memo
          * @param options {object} An object implementing {@link IMemoOptions} interface
          */
-        constructor(public readonly options: IMemoOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IMemoOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1461,7 +1461,7 @@ import { BaseRepository } from './Repository';
          * @constructs Task
          * @param options {object} An object implementing {@link ITaskOptions} interface
          */
-        constructor(public readonly options: ITaskOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: ITaskOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1496,7 +1496,7 @@ import { BaseRepository } from './Repository';
          * @constructs Query
          * @param options {object} An object implementing {@link IQueryOptions} interface
          */
-        constructor(public readonly options: IQueryOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IQueryOptions, repository: BaseRepository) {
             super(options, repository);
         }
 
@@ -1549,7 +1549,7 @@ import { BaseRepository } from './Repository';
          * @constructs User
          * @param options {object} An object implementing {@link IUserOptions} interface
          */
-        constructor(public readonly options: IUserOptions, repository: BaseRepository<any, any>) {
+        constructor(public readonly options: IUserOptions, repository: BaseRepository) {
             super(options, repository);
         }
 

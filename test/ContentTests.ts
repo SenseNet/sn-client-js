@@ -4,7 +4,6 @@ import { Observable } from '@reactivex/rxjs';
 import { MockHttpProvider, MockRepository, MockAuthService } from './Mocks';
 import { ODataCollectionResponse } from '../src/ODataApi/ODataCollectionResponse';
 import { LoginState } from '../src/Authentication/LoginState';
-import { BaseRepository } from '../src/Repository/BaseRepository';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
@@ -15,7 +14,7 @@ const CONTENT_DUE_TEXT = 'DueText';
 describe('Content', () => {
     let content: ContentTypes.Task;
     let contentSaved: ContentTypes.Task;
-    let repo: BaseRepository<MockHttpProvider, Content>;
+    let repo: MockRepository;
 
     beforeEach(function () {
         repo =  new MockRepository();
@@ -29,7 +28,7 @@ describe('Content', () => {
         };
         content = Content.Create(ContentTypes.Task, options, repo);
         contentSaved = Content.HandleLoadedContent(ContentTypes.Task, options, repo);
-        (repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
+        repo.Authentication.stateSubject.next(LoginState.Authenticated);
     });
 
     describe('#Create()', () => {

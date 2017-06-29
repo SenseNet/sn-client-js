@@ -22,8 +22,8 @@ export class Collection<T extends Content> {
     * @param { IODataApi<any, any> } service The service to use as API Endpoint
     */
     constructor(private items: T[],
-                private repository: BaseRepository<any, Content>,
-                private readonly contentType: {new(...args: any[]): T} = Content.constructor as {new(...args)}) {
+                private repository: BaseRepository,
+                private readonly contentType: {new(...args: any[]): T} = Content.constructor as {new(...args: any[]): any}) {
     }
 
     /**

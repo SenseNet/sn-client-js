@@ -41,10 +41,11 @@
  * related to async data streams.
  */ /** */
 
-import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes, Repository, } from './SN';
-import { ODataRequestOptions, ODataCollectionResponse, ODataResponse } from './ODataApi';
+import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
+import { ODataRequestOptions } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
-import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
+import { ActionModel } from './Repository/ActionModel';
+import { BaseRepository } from './Repository/BaseRepository';
 
 export class Content {
 
@@ -161,7 +162,7 @@ export class Content {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(public readonly options: IContentOptions, private repository: Repository.BaseRepository<BaseHttpProvider, Content>) {
+    constructor(public readonly options: IContentOptions, private repository: BaseRepository) {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
     }
@@ -322,7 +323,7 @@ export class Content {
      * });
      * ```
      */
-    Actions(scenario?: string) {
+    Actions(scenario?: string): Observable<ActionModel> {
         let options = {};
         if (typeof scenario !== 'undefined') {
             options = {
@@ -330,7 +331,8 @@ export class Content {
             }
         }
         let optionList = this.deferredFunctionBuilder('Actions', options);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList)
+            .map(resp => resp.d.Actions);
     }
     /**
      * Method that returns allowed child type list of a content.
@@ -374,7 +376,10 @@ export class Content {
      */
     GetEffectiveAllowedChildTypes(options?: Object) {
         let optionList = this.deferredFunctionBuilder('EffectiveAllowedChildTypes', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList)
+            .map(r => {
+                return r.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this.repository))
+            });
     }
     /**
      * Method that returns owner of a content.
@@ -393,7 +398,10 @@ export class Content {
      */
     GetOwner(options?: Object) {
         let optionList = this.deferredFunctionBuilder('Owner', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList)
+            .map(res => {
+                return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
+            });
     }
     /**
      * Method that returns creator of a content.
@@ -412,7 +420,10 @@ export class Content {
      */
     Creator(options?: Object) {
         let optionList = this.deferredFunctionBuilder('CreatedBy', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList)
+            .map(res => {
+                return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
+            });
     }
     /**
      * Method that returns last modifier of a content.
@@ -431,7 +442,10 @@ export class Content {
      */
     Modifier(options?: Object) {
         let optionList = this.deferredFunctionBuilder('ModifiedBy', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList)
+            .map(res => {
+                    return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
+            });
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -450,7 +464,10 @@ export class Content {
      */
     CheckedOutBy(options?: Object) {
         let optionList = this.deferredFunctionBuilder('CheckedOutTo', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList)
+            .map(res => {
+                return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
+            });
     }
     /**
      * Method that returns the children of a content.
@@ -473,7 +490,10 @@ export class Content {
      */
     Children(options?: Object) {
         let optionList = this.deferredFunctionBuilder('', options ? options : null);
-        return this.repository.Content.Fetch(optionList);
+        return this.repository.Content.Fetch(optionList)
+            .map(r => {
+                r.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
+            });
     }
     /**
      * Returns the list of versions.
@@ -496,7 +516,9 @@ export class Content {
     */
     GetVersions(options?: Object) {
         let optionList = this.deferredFunctionBuilder('Versions', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList).map(res => {
+            return Content.HandleLoadedContent(this.constructor as {new(...args)}, res.d, this.repository);
+        });
     }
     /**
      * Returns the current Workspace.
@@ -519,7 +541,9 @@ export class Content {
     */
     GetWorkspace(options?: Object) {
         let optionList = this.deferredFunctionBuilder('Workspace', options ? options : null);
-        return this.repository.Content.Get(optionList);
+        return this.repository.Content.Get(optionList).map(res => {
+            return Content.HandleLoadedContent(Content, res.d, this.repository);
+        });
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -818,7 +842,8 @@ export class Content {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: Repository.BaseRepository<any, any>): T {
+    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, 
+                            repository: BaseRepository): T {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
@@ -832,7 +857,8 @@ export class Content {
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, repository: Repository.BaseRepository<any, any>): T {
+    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, 
+        repository: BaseRepository): T {
         let constructed = Content.Create(newContent, opt, repository);
         (constructed as any)['_isSaved'] = true;
         return constructed;

@@ -32,7 +32,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      */
     constructor(
         providerRef: { new (): THttpProvider },
-        private readonly repository: BaseRepository<THttpProvider, any>,
+        private readonly repository: BaseRepository<THttpProvider>,
     ) {
         this.httpProvider = new providerRef();
     }
@@ -80,34 +80,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         returnsType?: { new (...args: any[]): T }): Observable<ODataCollectionResponse<T['options']>> {
 
         return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET').share();
-    }
-
-    /**
-     * Method to create a content in the sense NET Content Repoository.
-     * @param {string} path The Path of the content
-     * @param {IContentOptions} opt The options (fields) for the content to be created.
-     * @param { new(opt, repository):T } contentType The type of the content
-     * @param {IRepository} repository The repository for the content creation
-     * @returns {Observable<T>} An observable whitch will be updated with the created content.
-     * 
-     * ```ts
-     * myODataApi.Create('Root/Sites/Default_site/todos', {
-     *       Name: 'My New Task',
-     *       DueDate: new Date(),
-     *      }, ContentTypes.Task)
-     *  .subscribe(result=>{
-     *      console.log('My New Task is:', result);
-     *  });
-     * ```
-     */
-    public Create<T extends TBaseContentType, O extends T['options']>(
-        path: string,
-        opt: O,
-        contentType: { new (opt: O, repository: BaseRepository<any, any>): T },
-        repository = this.repository): Observable<T['options']> {
-            
-        (opt as any).__ContentType = opt.Type || contentType.name;
-        return this.repository.Ajax(ODataHelper.getContentURLbyPath(path), 'POST', contentType, JSON.stringify(opt));
     }
 
     /**

@@ -11,12 +11,14 @@ import { VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
-import { TokenPersist } from '../Authentication/';
+import { TokenPersist, IAuthenticationService } from '../Authentication/';
 
 /**
  *
  */
-export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content> {
+export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider, 
+                            TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
+                            TProviderBaseContentType extends Content = Content> {
 
     /**
      * Will be true if the Repository's host differs from the current host
@@ -72,7 +74,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Reference to the Authentication Service used by the current repository
      */
-    public readonly Authentication: Authentication.IAuthenticationService;
+    public readonly Authentication: TAuthenticationServiceType;
 
     /**
      * Reference to the configuration used by the current repository
@@ -86,7 +88,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      */
     constructor(config: Partial<SnConfigModel>, 
                 private readonly httpProviderType: { new (): TProviderType }, 
-                authentication: { new (...args: any[]): Authentication.IAuthenticationService }) {
+                authentication: { new (...args: any[]): TAuthenticationServiceType }) {
 
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
@@ -128,14 +130,17 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * });
      * ```
      */
-    public GetAllContentTypes(): Observable<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>{
+    public GetAllContentTypes(): Observable<ContentTypes.ContentType[]>{
         return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
                 name: 'GetAllContentTypes', 
                 path: '/Root', 
                 isAction: false
             }, 
-            {}, 
-            ODataApi.ODataCollectionResponse);
+            undefined,
+            ODataApi.ODataCollectionResponse)
+            .map(resp => {
+                return resp.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this));
+            }); ;
     }
 
     /**
@@ -173,7 +178,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
             path: contentURL,
             params: params
         })
-        const returnType = returns || Content as { new (...args: any[])};
+        const returnType = returns || Content as { new (...args: any[]): any};
 
         return this.Content.Get(odataRequestOptions, returnType)
             .share()
