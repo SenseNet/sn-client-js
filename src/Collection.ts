@@ -333,13 +333,12 @@ export class Collection<T extends Content> {
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
-    public Upload(contentType: string, fileName: string, overwrite?: boolean, useChunk?: boolean, propertyName?: string, fileText?: string): Observable<any> {
-        const o = overwrite ? overwrite : true;
+    public Upload(contentType: string, fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName?: string, fileText?: string): Observable<any> {
         const data = {
             ContentType: contentType,
             FileName: fileName,
-            Overwrite: o,
-            UseChunk: useChunk ? useChunk : false
+            Overwrite: overwrite,
+            UseChunk: useChunk
         };
         if (typeof propertyName !== 'undefined') {
             data['PropertyName'] = propertyName;
@@ -353,7 +352,7 @@ export class Collection<T extends Content> {
                 const data = {
                     ContentType: contentType,
                     FileName: fileName,
-                    Overwrite: o,
+                    Overwrite: overwrite,
                     ChunkToken: response
                 };
                 return this.repository.Content.Upload(this.Path, data, false);
