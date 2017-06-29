@@ -26,9 +26,9 @@ export abstract class BaseHttpProvider {
      * 
      */
     public UnsetGlobalHeader(headerName) {
-        const index = this.headers.indexOf(headerName);
-        if (index > -1)
-            this.headers = this.headers.splice(index, 1);
+        if (this.headers[headerName]){
+            delete this.headers[headerName];
+        }
     }
 
     /**

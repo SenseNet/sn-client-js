@@ -16,9 +16,6 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
     }
 
     protected AjaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
-        let observable = Observable.ajax(options).share().map(req => {
-            return req.response as T;
-        });
-        return observable;
+        return Observable.ajax(options).map(req => req.response as T).share();
     }
 }

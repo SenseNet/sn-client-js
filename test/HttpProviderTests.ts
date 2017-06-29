@@ -22,6 +22,19 @@ export class HttpProviderTests {
         let headers = p.actualHeaders;
         Chai.expect(headers[this.testHeaderName as any]).to.be.eq(this.testHeaderValue);
     }
+
+    @test
+    public unsetGlobalHeaders(){
+        let p = new MockHttpProvider();
+        p.SetGlobalHeader(this.testHeaderName, this.testHeaderValue);
+        let headers = p.actualHeaders;
+        Chai.expect(headers[this.testHeaderName as any]).to.be.eq(this.testHeaderValue);
+
+        p.UnsetGlobalHeader(this.testHeaderName);
+        headers = p.actualHeaders;
+        Chai.expect(headers[this.testHeaderName as any]).to.be.undefined;
+    }    
+
     @test
     public 'globalHeaders should override options.headers'() {
         let p = new MockHttpProvider();
