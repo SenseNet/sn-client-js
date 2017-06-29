@@ -307,7 +307,6 @@ export class Content {
             this._isOperationInProgress = false;
         }, (err) => {
             this._isOperationInProgress = false;
-            throw err;
         });
         return saveObservable;
     }
@@ -334,15 +333,7 @@ export class Content {
                 'scenario': scenario
             }
         }
-        let optionList;
-        if (this.Id) {
-            optionList = this.deferredFunctionBuilder(this.Id, 'Actions', options);
-        }
-        else if (this.Path) {
-            optionList = this.deferredFunctionBuilder(this.Path, 'Actions', options);
-        } else {
-            throw new Error('No Id or Path present')
-        }
+        let optionList = this.deferredFunctionBuilder('Actions', options);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -361,10 +352,7 @@ export class Content {
      * ```
      */
     GetAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-        let optionList = this.deferredFunctionBuilder(this.Id, 'AllowedChildTypes', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('AllowedChildTypes', options ? options : null);
         let reqoptions = new ODataRequestOptions({
             path: optionList.path
         });
@@ -389,11 +377,7 @@ export class Content {
      * ```
      */
     GetEffectiveAllowedChildTypes(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'EffectiveAllowedChildTypes', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('EffectiveAllowedChildTypes', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -412,11 +396,7 @@ export class Content {
      * ```
      */
     GetOwner(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'Owner', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('Owner', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -435,11 +415,7 @@ export class Content {
      * ```
      */
     Creator(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'CreatedBy', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('CreatedBy', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -458,11 +434,7 @@ export class Content {
      * ```
      */
     Modifier(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'ModifiedBy', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('ModifiedBy', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -481,11 +453,7 @@ export class Content {
      * ```
      */
     CheckedOutBy(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'CheckedOutTo', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('CheckedOutTo', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -508,11 +476,7 @@ export class Content {
      * ```
      */
     Children(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, '', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('', options ? options : null);
         return this.repository.Content.Fetch(optionList);
     }
     /**
@@ -535,11 +499,7 @@ export class Content {
      * ```
     */
     GetVersions(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'Versions', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('Versions', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -562,11 +522,7 @@ export class Content {
      * ```
     */
     GetWorkspace(options?: Object) {
-        if (!this.Id) {
-            throw new Error('No Id provided');
-        }
-
-        let optionList = this.deferredFunctionBuilder(this.Id, 'Workspace', options ? options : null);
+        let optionList = this.deferredFunctionBuilder('Workspace', options ? options : null);
         return this.repository.Content.Get(optionList);
     }
     /**
@@ -1451,13 +1407,15 @@ export class Content {
             { data: { 'contentIds': contentIds } });
     }
 
-    private deferredFunctionBuilder(idOrPath: number | string, fieldName: string, options: any) {
+    private deferredFunctionBuilder(fieldName: string, options: any) {
         let contentURL;
-        if (typeof idOrPath === 'string') {
-            contentURL = ODataHelper.getContentURLbyPath(idOrPath);
+        if (this.Id) {
+            contentURL = ODataHelper.getContentUrlbyId(this.Id);
         }
-        else {
-            contentURL = ODataHelper.getContentUrlbyId(idOrPath);
+        else if (this.Path) {
+            contentURL = ODataHelper.getContentURLbyPath(this.Path);
+        } else {
+            throw Error('No Id or Path provided');
         }
         let o: any = {};
         if (options) {

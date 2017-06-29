@@ -184,6 +184,7 @@ describe('Content', () => {
                 expect(emptyContent.IsOperationInProgress).to.be.eq(true);
             }).to.throw();
         });
+        
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', function () {
             const savedContent = Content.HandleLoadedContent(ContentTypes.Task, {DisplayName: 'Original'}, repo);
@@ -199,6 +200,18 @@ describe('Content', () => {
             }).to.throw();
 
         });
+
+        it('should throw Error is server returns Error, and isOperationInProgress should be set to False', function (done) {
+            (repo.httpProviderRef as MockHttpProvider).setError({message: 'serverErrorMessage'});
+            let c = Content.HandleLoadedContent(ContentTypes.Task, {Id: 1 }, repo);
+
+            c.Save({ DisplayName: 'new' }).subscribe(resp => {
+                done('Error should be thrown here');
+            }, err => {
+                expect(c.IsOperationInProgress).to.be.false;
+                done();
+            }, done);
+        });        
 
         it('should send a PATCH request if fields are specified and override is false', function (done) {
             (repo.httpProviderRef as MockHttpProvider).setResponse({
@@ -313,11 +326,17 @@ describe('Content', () => {
                 done();
             })
         });
-    });
-    describe('#GetAllowedChildTypes()', () => {
+
         it('should return an Observable object', function () {
             expect(content.GetAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
         });
+
+        it('should throw an Error if no Id specified', function () {
+            const c = Content.Create(ContentTypes.Task, {DisplayName: 'a'}, repo);
+            expect(() => {c.GetAllowedChildTypes({ select: ['Name'] })}).to.throw();
+        });
+
+
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
 
