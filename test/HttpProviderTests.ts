@@ -29,7 +29,7 @@ export class HttpProviderTests {
 
         p.UnsetGlobalHeader(this.testHeaderName);
         headers = p.actualHeaders;
-        Chai.expect(headers[this.testHeaderName as any]).to.be.undefined;
+        Chai.expect(headers[this.testHeaderName as any]).to.be.eq(undefined);
     }    
 
     @test

@@ -30,7 +30,7 @@ export class TokenTests {
     public 'Create empty token'(){
         let t = Token.CreateEmpty();
         expect(t.Username).to.be.eq('')
-        expect(t.IsValid()).to.be.false;
+        expect(t.IsValid()).to.be.eq(false);
     }
 
     @test
