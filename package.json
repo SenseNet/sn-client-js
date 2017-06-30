@@ -11,7 +11,7 @@
     "coverage"
   ],
   "scripts": {
-    "lint": "node tslint --project ./tsconfig.json",
+    "lint": "./node_modules/.bin/tslint --project tsconfig.json --type-check",
     "clean": "rimraf dist",
     "precommit": "npm run lint",
     "commit": "git-cz",
