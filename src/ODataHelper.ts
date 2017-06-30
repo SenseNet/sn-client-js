@@ -21,11 +21,11 @@ export const DATA_ROOT = 'OData.svc';
  * @returns {string} String with the url params in the correct format e.g. '$select=DisplayName,Index'&$top=2&metadata=no'.
  */
 export const buildUrlParamString: (options?: ODataApi.IODataParams) => string = (options?: ODataApi.IODataParams): string => {
-    if (typeof options === 'undefined') {
+    if (!options) {
         return '';
     }
     let params: string = '?';
-    if (typeof options.select !== 'undefined') {
+    if (options.select) {
         if (typeof options.select === 'string' && options.select !== 'all') {
             let value = options.select;
             options.select = [value, 'Id', 'Type'];
@@ -42,7 +42,7 @@ export const buildUrlParamString: (options?: ODataApi.IODataParams) => string = 
     }
     for (let key in options) {
 
-        if (typeof options[key] !== 'undefined') {
+        if (options[key]) {
             if (ODATA_PARAMS.indexOf(key) > -1) {
                 params += `$${key}=`;
                 if (typeof options[key] === 'string') {
