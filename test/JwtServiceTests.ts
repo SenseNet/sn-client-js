@@ -1,6 +1,6 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { JwtService, TokenStore, TokenPersist, LoginResponse, Token, LoginState } from '../src/Authentication';
+import { JwtService, TokenStore, TokenPersist, LoginResponse, LoginState } from '../src/Authentication';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 import { Observable, BehaviorSubject } from '@reactivex/rxjs';
 import { MockTokenFactory } from './Mocks/MockTokenFactory';
