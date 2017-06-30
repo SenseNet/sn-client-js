@@ -42,7 +42,7 @@
  */ /** */
 
 import { Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
-import { ODataRequestOptions } from './ODataApi';
+import { ODataRequestOptions, ODataResponse, ODataCollectionResponse } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
@@ -127,7 +127,7 @@ export class Content {
     }
 
     private _isOperationInProgress: boolean = false;
-    
+
     /**
      * Shows if there are any operation in progress
      */
@@ -205,7 +205,7 @@ export class Content {
      * ```
      */
     Rename(newDisplayName: string, newName?: string): Observable<this> {
-        
+
         if (!this.IsSaved) {
             throw new Error('Content is not saved. You can rename only saved content!')
         }
@@ -354,10 +354,7 @@ export class Content {
         let reqoptions = new ODataRequestOptions({
             path: optionList.path
         });
-        return this.repository.Content.Fetch(reqoptions, ContentTypes.ContentType)
-            .map(r => {
-                return r.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this.repository))
-            });
+        return this.FromCollectionResponseObservable(this.repository.Content.Fetch(reqoptions, ContentTypes.ContentType), ContentTypes.ContentType);
     }
     /**
      * Method that returns effective allowed child type list of a content.
@@ -374,12 +371,9 @@ export class Content {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: Object) {
+    GetEffectiveAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
         let optionList = this.deferredFunctionBuilder('EffectiveAllowedChildTypes', options ? options : null);
-        return this.repository.Content.Get(optionList)
-            .map(r => {
-                return r.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this.repository))
-            });
+        return this.FromCollectionResponseObservable(this.repository.Content.Get(optionList), ContentTypes.ContentType);
     }
     /**
      * Method that returns owner of a content.
@@ -396,12 +390,9 @@ export class Content {
      * });
      * ```
      */
-    GetOwner(options?: Object) {
+    GetOwner(options?: Object): Observable<ContentTypes.User> {
         let optionList = this.deferredFunctionBuilder('Owner', options ? options : null);
-        return this.repository.Content.Get(optionList)
-            .map(res => {
-                return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
-            });
+        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
     }
     /**
      * Method that returns creator of a content.
@@ -418,12 +409,9 @@ export class Content {
      * });
      * ```
      */
-    Creator(options?: Object) {
+    Creator(options?: Object): Observable<ContentTypes.User> {
         let optionList = this.deferredFunctionBuilder('CreatedBy', options ? options : null);
-        return this.repository.Content.Get(optionList)
-            .map(res => {
-                return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
-            });
+        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
     }
     /**
      * Method that returns last modifier of a content.
@@ -440,12 +428,9 @@ export class Content {
      * });
      * ```
      */
-    Modifier(options?: Object) {
+    Modifier(options?: Object): Observable<ContentTypes.User> {
         let optionList = this.deferredFunctionBuilder('ModifiedBy', options ? options : null);
-        return this.repository.Content.Get(optionList)
-            .map(res => {
-                    return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
-            });
+        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -462,12 +447,9 @@ export class Content {
      * });
      * ```
      */
-    CheckedOutBy(options?: Object) {
+    CheckedOutBy(options?: Object): Observable<ContentTypes.User> {
         let optionList = this.deferredFunctionBuilder('CheckedOutTo', options ? options : null);
-        return this.repository.Content.Get(optionList)
-            .map(res => {
-                return Content.HandleLoadedContent(ContentTypes.User, res.d, this.repository);
-            });
+        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
     }
     /**
      * Method that returns the children of a content.
@@ -488,12 +470,9 @@ export class Content {
      * });
      * ```
      */
-    Children(options?: Object) {
+    Children(options?: Object): Observable<Content[]> {
         let optionList = this.deferredFunctionBuilder('', options ? options : null);
-        return this.repository.Content.Fetch(optionList)
-            .map(r => {
-                r.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
-            });
+        return this.FromCollectionResponseObservable(this.repository.Content.Fetch(optionList), Content);
     }
     /**
      * Returns the list of versions.
@@ -514,11 +493,9 @@ export class Content {
      * });
      * ```
     */
-    GetVersions(options?: Object) {
+    GetVersions(options?: Object): Observable<this[]> {
         let optionList = this.deferredFunctionBuilder('Versions', options ? options : null);
-        return this.repository.Content.Get(optionList).map(res => {
-            return Content.HandleLoadedContent(this.constructor as {new(...args)}, res.d, this.repository);
-        });
+        return this.FromCollectionResponseObservable(this.repository.Content.Get(optionList), this.constructor as {new()});
     }
     /**
      * Returns the current Workspace.
@@ -539,11 +516,9 @@ export class Content {
      * });
      * ```
     */
-    GetWorkspace(options?: Object) {
+    GetWorkspace(options?: Object): Observable<Content> {
         let optionList = this.deferredFunctionBuilder('Workspace', options ? options : null);
-        return this.repository.Content.Get(optionList).map(res => {
-            return Content.HandleLoadedContent(Content, res.d, this.repository);
-        });
+        return this.FromResponseObservable(this.repository.Content.Get(optionList), Content);
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -842,10 +817,23 @@ export class Content {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, 
-                            repository: BaseRepository): T {
+    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
+        repository: BaseRepository): T {
         let constructed = new newContent(opt, repository);
         return constructed;
+    }
+
+    protected FromResponseObservable<T extends Content>(
+        odataResponse: Observable<ODataResponse<T['options']>>,
+        contentType: { new(...args: any[]): T } = Content as { new(...args) }): Observable<T> {
+        return odataResponse.map(resp => Content.Create(contentType, resp.d, this.repository));
+    }
+
+    protected FromCollectionResponseObservable<T extends Content>(
+        odataResponse: Observable<ODataCollectionResponse<T['options']>>,
+        contentType: { new(...args: any[]): T } = Content as { new(...args) }): Observable<T[]> {
+        return odataResponse.map(resp =>
+            resp.d.results.map(c => Content.Create(contentType, c, this.repository)));
     }
 
     /**
@@ -857,7 +845,7 @@ export class Content {
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O, 
+    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
         repository: BaseRepository): T {
         let constructed = Content.Create(newContent, opt, repository);
         (constructed as any)['_isSaved'] = true;
