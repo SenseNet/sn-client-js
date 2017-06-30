@@ -100,7 +100,7 @@ export class ControlMapperTests {
         Chai.expect(control).to.be.eq(ExampleModifiedControl);
 
         const controlOther = this.mapper.GetControlForContentField(ContentTypes.User, 'DisplayName', 'new');
-        Chai.expect(control).to.be.eq(ExampleModifiedControl);
+        Chai.expect(controlOther).to.be.eq(ExampleModifiedControl);
 
         const controlOtherDateTime = this.mapper.GetControlForContentField(ContentTypes.Task, 'DueDate', 'new');
         Chai.expect(controlOtherDateTime).to.be.eq(ExampleDefaultFieldControl);

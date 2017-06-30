@@ -3,9 +3,7 @@ import * as Chai from 'chai';
 import { Collection } from '../src/Collection';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
-import { ContentTypes, Repository } from '../src/SN';
-import { BaseRepository } from '../src/Repository/BaseRepository';
-import { MockHttpProvider } from './Mocks/MockHttpProvider';
+import { ContentTypes } from '../src/SN';
 const expect = Chai.expect;
 
 describe('Collection', () => {

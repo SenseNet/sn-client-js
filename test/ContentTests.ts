@@ -1,8 +1,7 @@
-import { Schemas, Security, Enums, ContentTypes, HttpProviders, Content } from '../src/SN';
+import { Schemas, Security, Enums, ContentTypes, Content } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
-import { MockHttpProvider, MockRepository, MockAuthService } from './Mocks';
-import { ODataCollectionResponse } from '../src/ODataApi/ODataCollectionResponse';
+import { MockRepository } from './Mocks';
 import { LoginState } from '../src/Authentication/LoginState';
 const expect = Chai.expect;
 
@@ -244,7 +243,7 @@ describe('Content', () => {
 
 
         it('should send a POST request if triggering Save on an unsaved Content', function (done) {
-            (repo.httpProviderRef as MockHttpProvider).setResponse({
+            repo.httpProviderRef.setResponse({
                 d: {
                     DisplayName: 'new3',
                 }

@@ -2,7 +2,7 @@
  * @module HttpProviders
  *//** */
 
-import { Observable, ReplaySubject, AjaxRequest } from '@reactivex/rxjs';
+import { Observable, AjaxRequest } from '@reactivex/rxjs';
 import { BaseHttpProvider } from './';
 
 /**

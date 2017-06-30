@@ -1,6 +1,5 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { Observable } from '@reactivex/rxjs';
 import { SnConfigModel } from '../src/Config';
 import { MockRepository } from './Mocks/MockRepository';
 import { MockAuthService } from './Mocks/MockAuthService';

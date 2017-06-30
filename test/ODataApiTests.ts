@@ -3,10 +3,7 @@ import * as Chai from 'chai';
 import { ODataRequestOptions, CustomAction, ODataParams, ODataCollectionResponse } from '../src/ODataApi';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
-import { MockHttpProvider } from './Mocks/MockHttpProvider';
-import { MockAuthService } from './Mocks/MockAuthService';
 import { LoginState } from '../src/Authentication';
-import { ODataApi } from '../src/SN';
 import { ContentType } from '../src/ContentTypes';
 
 const expect = Chai.expect;
@@ -84,10 +81,9 @@ describe('ODataApi', () => {
     });
 
     it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
-        const params = new ODataParams({ select: 'DisplayName' });
         let http = service.httpProviderRef;
         http.setResponse({success: true});
-        let action = service.Content.CreateCustomAction({
+        service.Content.CreateCustomAction({
             path: `localhost/OData.svc('Root')`,
             name: 'exampleAction'
         }).first().subscribe(resp => {

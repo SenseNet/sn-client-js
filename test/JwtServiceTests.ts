@@ -157,7 +157,6 @@ export class JwtServiceTests {
     }    
 
     @test 'Login should resolve with false and set state to Unauthenticated, when request failed. '(done: MochaDone) {
-        let refreshToken = MockTokenFactory.CreateValid();
         this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         t.Login('user', 'pass').first().subscribe(result => {

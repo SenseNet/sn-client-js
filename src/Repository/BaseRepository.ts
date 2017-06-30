@@ -5,13 +5,13 @@
  */
 /** */
 
-import { Observable, Subscription } from '@reactivex/rxjs';
+import { Observable } from '@reactivex/rxjs';
 import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
 import { VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
-import { TokenPersist, IAuthenticationService } from '../Authentication/';
+import { IAuthenticationService } from '../Authentication/';
 
 /**
  *

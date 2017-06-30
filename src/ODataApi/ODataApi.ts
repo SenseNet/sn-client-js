@@ -9,8 +9,7 @@ import { BaseHttpProvider } from '../HttpProviders';
 import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, ODataCollectionResponse } from './';
 import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
-import { Content, IContentOptions } from '../Content';
-import * as _ from 'lodash';
+import { Content } from '../Content';
 import { BaseRepository } from '../Repository/BaseRepository';
 
 /**
@@ -206,8 +205,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             const start = path.indexOf('(');
             path = path.slice(0, start) + '/' + path.slice(start);
         }
-
-        let body = action.params.length > 0 && options && options.data ? JSON.stringify(options.data) : '';
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
             return this.repository.Ajax(path, 'GET', returns);

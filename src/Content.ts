@@ -41,7 +41,7 @@
  * related to async data streams.
  */ /** */
 
-import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
+import { Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
 import { ODataRequestOptions } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
@@ -901,7 +901,6 @@ export class Content {
     * ```
    */
     SetPermissions(arg: Security.Inheritance | Security.PermissionRequestBody[]) {
-        let action;
         if (arg instanceof Array) {
             return this.repository.Content.CreateCustomAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] },
                 { data: { 'entryList': arg } });

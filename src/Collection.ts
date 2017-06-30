@@ -231,7 +231,6 @@ export class Collection<T extends Content> {
     public Move(items: number[], targetPath: string): Observable<any>;
     public Move(arg: any, targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
-            let content = this.items[arg];
             this.items =
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
@@ -284,7 +283,6 @@ export class Collection<T extends Content> {
     public Copy(items: number[], targetPath: string): Observable<any>;
     public Copy(arg: any, targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
-            let content = this.items[arg];
             let action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.repository.Content.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }

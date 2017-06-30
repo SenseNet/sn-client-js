@@ -1,8 +1,5 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { SnConfigBehavior } from '../src/Config/snconfigbehavior';
-import { SnConfigFieldModel } from '../src/Config/snconfigfieldmodel';
-import { SnConfigFieldModelStore } from '../src/Config/snconfigfieldmodelstore';
 import { RxAjaxHttpProvider } from '../src/HttpProviders';
 import { Observable } from '@reactivex/rxjs';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';

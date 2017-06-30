@@ -1,5 +1,4 @@
 import * as Chai from 'chai';
-import { suite, test } from 'mocha-typescript';
 import { TokenStore, TokenPersist, TokenStoreType, Token } from '../src/Authentication';
 
 const expect = Chai.expect;

@@ -33,7 +33,7 @@ export class TokenStore {
 
         if (!storesAvailable && !cookieAvailable) {
             this.TokenStoreType = TokenStoreType.InMemory;
-        } else if (tokenPersist === TokenPersist.Expiration) {
+        } else if (this.tokenPersist === TokenPersist.Expiration) {
             storesAvailable ? this.TokenStoreType = TokenStoreType.LocalStorage : this.TokenStoreType = TokenStoreType.ExpirationCookie;
         } else {
             storesAvailable ? this.TokenStoreType = TokenStoreType.SessionStorage : this.TokenStoreType = TokenStoreType.SessionCookie;

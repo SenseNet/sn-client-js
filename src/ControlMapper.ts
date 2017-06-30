@@ -14,7 +14,7 @@
 
 import { Content } from './Content';
 import * as FieldSettings from './FieldSettings';
-import { ContentTypes, Schemas } from './SN';
+import { Schemas } from './SN';
 
 export type ActionName = 'new' | 'edit' | 'view';
 
@@ -27,7 +27,7 @@ export class ControlSchema<TControlBaseType, TClientControlSettings> {
 export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     constructor(
-        private readonly controlBaseType: { new (...args: any[]): TControlBaseType },
+        public readonly controlBaseType: { new (...args: any[]): TControlBaseType },
         private readonly clientControlSettingsFactory: (fieldSetting: FieldSettings.FieldSetting) => TClientControlSettings,
         private readonly defaultControlType?: { new (...args: any[]): TControlBaseType },
         private readonly defaultFieldSettingControlType?: { new (...args: any[]): TControlBaseType },

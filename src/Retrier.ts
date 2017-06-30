@@ -138,7 +138,7 @@ export class Retrier {
 
         this.isRunning = true;
 
-        let timeoutTimer = setTimeout(() => {
+        setTimeout(() => {
             if (!succeeded) {
                 timedOut = true;
             }

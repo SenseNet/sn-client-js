@@ -15,7 +15,7 @@
  * 
  *//** */
 import { Content, IContentOptions } from './Content';
-import { Enums, FieldSettings, ComplexTypes } from './SN';
+import { Enums, ComplexTypes } from './SN';
 import { BaseRepository } from './Repository';
 
 

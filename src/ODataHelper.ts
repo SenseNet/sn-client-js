@@ -25,7 +25,6 @@ export function buildUrlParamString(options?: ODataApi.IODataParams): string {
         return '';
     }
     let params: string = '?';
-    let currentCount = 0;
     if (typeof options.select !== 'undefined') {
         if (typeof options.select === 'string' && options.select !== 'all') {
             let value = options.select;
