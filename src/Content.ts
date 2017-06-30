@@ -42,7 +42,7 @@
  */ /** */
 
 import { Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
-import { ODataRequestOptions, ODataResponse, ODataCollectionResponse } from './ODataApi';
+import { ODataRequestOptions, ODataParams } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
@@ -324,13 +324,9 @@ export class Content {
      * ```
      */
     Actions(scenario?: string): Observable<ActionModel> {
-        let options = {};
-        if (typeof scenario !== 'undefined') {
-            options = {
-                'scenario': scenario
-            }
-        }
-        let optionList = this.deferredFunctionBuilder('Actions', options);
+        let optionList = this.GetDeferredRequestOptions('Actions', new ODataParams({
+            scenario: scenario
+        }));
         return this.repository.Content.Get(optionList)
             .map(resp => resp.d.Actions);
     }
@@ -349,12 +345,8 @@ export class Content {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
-        let optionList = this.deferredFunctionBuilder('AllowedChildTypes', options ? options : null);
-        let reqoptions = new ODataRequestOptions({
-            path: optionList.path
-        });
-        return this.FromCollectionResponseObservable(this.repository.Content.Fetch(reqoptions, ContentTypes.ContentType), ContentTypes.ContentType);
+    GetAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
+        return this.GetDeferredCollection('AllowedChildTypes', options, ContentTypes.ContentType);
     }
     /**
      * Method that returns effective allowed child type list of a content.
@@ -371,9 +363,8 @@ export class Content {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
-        let optionList = this.deferredFunctionBuilder('EffectiveAllowedChildTypes', options ? options : null);
-        return this.FromCollectionResponseObservable(this.repository.Content.Get(optionList), ContentTypes.ContentType);
+    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
+        return this.GetDeferredCollection('EffectiveAllowedChildTypes', options, ContentTypes.ContentType);
     }
     /**
      * Method that returns owner of a content.
@@ -390,10 +381,11 @@ export class Content {
      * });
      * ```
      */
-    GetOwner(options?: Object): Observable<ContentTypes.User> {
-        let optionList = this.deferredFunctionBuilder('Owner', options ? options : null);
-        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
+    GetOwner(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('Owner', options, ContentTypes.User);
     }
+
+
     /**
      * Method that returns creator of a content.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -409,9 +401,8 @@ export class Content {
      * });
      * ```
      */
-    Creator(options?: Object): Observable<ContentTypes.User> {
-        let optionList = this.deferredFunctionBuilder('CreatedBy', options ? options : null);
-        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
+    Creator(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('CreatedBy', options, ContentTypes.User);
     }
     /**
      * Method that returns last modifier of a content.
@@ -428,9 +419,8 @@ export class Content {
      * });
      * ```
      */
-    Modifier(options?: Object): Observable<ContentTypes.User> {
-        let optionList = this.deferredFunctionBuilder('ModifiedBy', options ? options : null);
-        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
+    Modifier(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('ModifiedBy', options, ContentTypes.User);
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -447,9 +437,8 @@ export class Content {
      * });
      * ```
      */
-    CheckedOutBy(options?: Object): Observable<ContentTypes.User> {
-        let optionList = this.deferredFunctionBuilder('CheckedOutTo', options ? options : null);
-        return this.FromResponseObservable(this.repository.Content.Get(optionList), ContentTypes.User);
+    CheckedOutBy(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('CheckedOutTo', options, ContentTypes.User);
     }
     /**
      * Method that returns the children of a content.
@@ -470,9 +459,8 @@ export class Content {
      * });
      * ```
      */
-    Children(options?: Object): Observable<Content[]> {
-        let optionList = this.deferredFunctionBuilder('', options ? options : null);
-        return this.FromCollectionResponseObservable(this.repository.Content.Fetch(optionList), Content);
+    Children(options?: ODataParams): Observable<Content[]> {
+        return this.GetDeferredCollection('' as any, options);
     }
     /**
      * Returns the list of versions.
@@ -493,9 +481,8 @@ export class Content {
      * });
      * ```
     */
-    GetVersions(options?: Object): Observable<this[]> {
-        let optionList = this.deferredFunctionBuilder('Versions', options ? options : null);
-        return this.FromCollectionResponseObservable(this.repository.Content.Get(optionList), this.constructor as {new()});
+    GetVersions(options?: ODataParams): Observable<this[]> {
+        return this.GetDeferredContent('Versions', options, this.constructor as {new()});
     }
     /**
      * Returns the current Workspace.
@@ -516,9 +503,8 @@ export class Content {
      * });
      * ```
     */
-    GetWorkspace(options?: Object): Observable<Content> {
-        let optionList = this.deferredFunctionBuilder('Workspace', options ? options : null);
-        return this.FromResponseObservable(this.repository.Content.Get(optionList), Content);
+    GetWorkspace(options?: ODataParams): Observable<Content> {
+        return this.GetDeferredContent('Workspace', options, Content);
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -821,19 +807,6 @@ export class Content {
         repository: BaseRepository): T {
         let constructed = new newContent(opt, repository);
         return constructed;
-    }
-
-    protected FromResponseObservable<T extends Content>(
-        odataResponse: Observable<ODataResponse<T['options']>>,
-        contentType: { new(...args: any[]): T } = Content as { new(...args) }): Observable<T> {
-        return odataResponse.map(resp => Content.Create(contentType, resp.d, this.repository));
-    }
-
-    protected FromCollectionResponseObservable<T extends Content>(
-        odataResponse: Observable<ODataCollectionResponse<T['options']>>,
-        contentType: { new(...args: any[]): T } = Content as { new(...args) }): Observable<T[]> {
-        return odataResponse.map(resp =>
-            resp.d.results.map(c => Content.Create(contentType, c, this.repository)));
     }
 
     /**
@@ -1416,7 +1389,25 @@ export class Content {
             { data: { 'contentIds': contentIds } });
     }
 
-    private deferredFunctionBuilder(fieldName: string, options: any) {
+    public GetDeferredContent<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
+        fieldName: K,
+        options?: ODataParams,
+        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType> {
+
+        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
+        return this.repository.Content.Get(requestOptions).map(resp => Content.Create(contentType, resp.d, this.repository));
+    }
+
+    public GetDeferredCollection<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
+        fieldName: K,
+        options?: ODataParams,
+        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType[]> {
+        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
+        return this.repository.Content.Fetch(requestOptions).map(resp =>
+            resp.d.results.map(c => Content.Create(contentType, c, this.repository)));
+    }
+
+    protected GetDeferredRequestOptions(fieldName: string, options?: ODataParams) {
         let contentURL;
         if (this.Id) {
             contentURL = ODataHelper.getContentUrlbyId(this.Id);
@@ -1426,13 +1417,13 @@ export class Content {
         } else {
             throw Error('No Id or Path provided');
         }
-        let o: any = {};
-        if (options) {
-            o['params'] = options;
-        }
-        o['path'] = `${contentURL}/${fieldName}`;
-        return o as ODataRequestOptions;
+        return new ODataRequestOptions({
+            path: ODataHelper.joinPaths(contentURL, fieldName),
+            params: options
+        });
     }
+
+
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
      * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the
