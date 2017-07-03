@@ -56,7 +56,8 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
                         method: method,
                         body: body,
                         crossDomain: this.IsCrossDomain,
-                        responseType: 'json'
+                        withCredentials: this.IsCrossDomain,
+                        responseType: 'json',
                     });
             });
     }

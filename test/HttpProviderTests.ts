@@ -45,6 +45,7 @@ export class HttpProviderTests {
 
     @test
     public 'RxHttpProvider should return an Observable<TReturns>'() {
+        (global as any).XMLHttpRequest = class { open(){}; send(){}; setRequestHeader(){}};
         let p = new RxAjaxHttpProvider();
         let obs = p.Ajax(Object, {});
         expect(obs).to.be.instanceof(Observable);
