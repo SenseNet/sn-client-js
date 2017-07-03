@@ -460,7 +460,14 @@ export class Content {
      * ```
      */
     Children(options?: ODataParams): Observable<Content[]> {
-        return this.GetDeferredCollection('' as any, options);
+        if (!this.Path) {
+            throw new Error('No path specified');
+        }
+        return this.repository.Content.Fetch( new ODataRequestOptions({
+            path: this.Path
+        }), Content).map(resp => {
+            return resp.d.results.map(c => new Content(c, this.repository));
+        });
     }
     /**
      * Returns the list of versions.
@@ -791,7 +798,8 @@ export class Content {
      *```
      */
     GetSchema(): Schemas.Schema<this> {
-        return Content.GetSchema(this.constructor as { new(...args: any[]): any });
+        const contentType = (ContentTypes as any)[this.Type] as {new(...args)};
+        return Content.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
     }
 
     /**
