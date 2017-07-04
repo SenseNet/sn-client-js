@@ -76,7 +76,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      */
     public Fetch<T extends TBaseContentType = TBaseContentType>(
         options: ODataRequestOptions,
-        returnsType?: { new (...args: any[]): T }): Observable<ODataCollectionResponse<T['options']>> {
+        returnsType?: { new (...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
 
         return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET').share();
     }
