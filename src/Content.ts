@@ -113,7 +113,7 @@ export class Content {
     public GetFields(): this['options'] {
         const fieldsToPost = {} as this['options'];
         this.GetSchema().FieldSettings.forEach(s => {
-            this[s.Name] && (fieldsToPost[s.Name] = this[s.Name]);
+            this[s.Name] !== undefined && (fieldsToPost[s.Name] = this[s.Name]);
         });
         return fieldsToPost;
     }
