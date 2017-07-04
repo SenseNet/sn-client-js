@@ -466,7 +466,7 @@ export class Content {
         return this.repository.Content.Fetch( new ODataRequestOptions({
             path: this.Path
         }), Content).map(resp => {
-            return resp.d.results.map(c => new Content(c, this.repository));
+            return resp.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
         });
     }
     /**
