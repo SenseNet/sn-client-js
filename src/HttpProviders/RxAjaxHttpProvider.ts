@@ -20,7 +20,6 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
         const sub = new Subject<T>();
         const req = new XMLHttpRequest();
         req.open(options.method || 'GET', options.url || '', true);
-
         if (options.headers){
             for (let headerName in options.headers || []){
                 if (options.headers[headerName])
@@ -37,7 +36,7 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
             }
         }
 
-        req.send();
+        req.send(options.body);
 
         req.onerror = sub.error;
         return sub.asObservable();
