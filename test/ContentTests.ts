@@ -16,7 +16,7 @@ describe('Content', () => {
     let repo: MockRepository;
 
     beforeEach(() => {
-        repo =  new MockRepository();
+        repo = new MockRepository();
         const options: ContentTypes.ITaskOptions = {
             Id: 1,
             Path: 'Root/Sites',
@@ -182,10 +182,10 @@ describe('Content', () => {
                 expect(emptyContent.IsOperationInProgress).to.be.eq(true);
             }).to.throw();
         });
-        
+
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const savedContent = Content.HandleLoadedContent(ContentTypes.Task, {DisplayName: 'Original'}, repo);
+            const savedContent = Content.HandleLoadedContent(ContentTypes.Task, { DisplayName: 'Original' }, repo);
             savedContent.DisplayName = 'Modified';
             expect(() => {
                 const obs = savedContent.Save()
@@ -200,8 +200,8 @@ describe('Content', () => {
         });
 
         it('should throw Error is server returns Error, and isOperationInProgress should be set to False', (done) => {
-            repo.httpProviderRef.setError({message: 'serverErrorMessage'});
-            let c = Content.HandleLoadedContent(ContentTypes.Task, {Id: 1 }, repo);
+            repo.httpProviderRef.setError({ message: 'serverErrorMessage' });
+            let c = Content.HandleLoadedContent(ContentTypes.Task, { Id: 1 }, repo);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
                 done('Error should be thrown here');
@@ -209,7 +209,7 @@ describe('Content', () => {
                 expect(c.IsOperationInProgress).to.be.eq(false);
                 done();
             }, done);
-        });        
+        });
 
         it('should send a PATCH request if fields are specified and override is false', (done) => {
             repo.httpProviderRef.setResponse({
@@ -217,7 +217,7 @@ describe('Content', () => {
                     DisplayName: 'new',
                 }
             });
-            let c = Content.HandleLoadedContent(ContentTypes.Task, {Id: 1 }, repo);
+            let c = Content.HandleLoadedContent(ContentTypes.Task, { Id: 1 }, repo);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
                 const lastOptions = repo.httpProviderRef.lastOptions;
@@ -259,7 +259,7 @@ describe('Content', () => {
 
         it('should throw error when triggering Save on an unsaved Content without path', () => {
             let c = Content.Create(ContentTypes.Task, {}, repo);
-            expect(() => {c.Save()}).to.throw();
+            expect(() => { c.Save() }).to.throw();
         });
 
         it('should return an Observable without request on a non-dirty content', (done) => {
@@ -268,12 +268,12 @@ describe('Content', () => {
                     DisplayName: 'new3',
                 }
             })
-            let c = Content.HandleLoadedContent(ContentTypes.Task, {DisplayName: 'test'}, repo);
+            let c = Content.HandleLoadedContent(ContentTypes.Task, { DisplayName: 'test' }, repo);
             c.Save().subscribe(modifiedContent => {
                 expect(modifiedContent.DisplayName).to.be.eq('test');
                 done();
             })
-        });  
+        });
 
 
         it('should send a PATCH request if triggering Save on an already saved Content', (done) => {
@@ -349,8 +349,8 @@ describe('Content', () => {
         });
 
         it('should throw an Error if no Id specified', () => {
-            const c = Content.Create(ContentTypes.Task, {DisplayName: 'a'}, repo);
-            expect(() => {c.GetAllowedChildTypes({ select: ['Name'] })}).to.throw();
+            const c = Content.Create(ContentTypes.Task, { DisplayName: 'a' }, repo);
+            expect(() => { c.GetAllowedChildTypes({ select: ['Name'] }) }).to.throw();
         });
 
 
@@ -414,11 +414,36 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.Children()).to.be.instanceof(Observable);
         });
-    });
-    describe('#Children()', () => {
+
         it('should return an Observable object', () => {
             expect(content.Children({ select: ['Name'] })).to.be.instanceof(Observable);
         });
+
+        it('should throw error if no path provided', () => {
+            const contentWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            expect(() => {contentWithoutPath.Children()}).to.throw();
+        });
+
+        it('should be resolved with a list of content', (done) => {
+
+            repo.httpProviderRef.setResponse({
+                d:
+                {
+                    results: [
+                        {
+                            Name: 'Content'
+                        }
+                    ]
+                }
+            })
+
+            content.Children().subscribe(children => {
+                expect(children[0]).to.be.instanceof(Content);
+                done();
+            }, done)
+        });
+
+
     });
     describe('#Versions()', () => {
         it('should return an Observable object', () => {
@@ -744,9 +769,9 @@ describe('Content', () => {
             expect(schema.Icon).to.eq('FormItem');
         });
         it('should throw if no Schema found', () => {
-            class ContentWithoutSchema extends Content{};
+            class ContentWithoutSchema extends Content { };
             const contentInstance = Content.Create(ContentWithoutSchema, {}, repo);
-            expect(() => {contentInstance.GetSchema(); }).to.throw()
+            expect(() => { contentInstance.GetSchema(); }).to.throw()
         });
 
 
