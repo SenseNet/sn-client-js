@@ -120,7 +120,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * @param {number} permanentc Determines whether the Content should be moved to the Trash or be deleted permanently.
      * @returns {Observable} Returns an observable that you can subscribe of in your code.
      */
-    public Delete = (id: number, permanent: boolean): Observable<any> =>
+    public Delete = (id: number, permanent?: boolean): Observable<any> =>
         this.repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent })
 
 

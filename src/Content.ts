@@ -182,7 +182,7 @@ export class Content {
      * });
      * ```
     */
-    Delete(permanently: boolean = false): Observable<any> {
+    Delete(permanently?: boolean): Observable<any> {
         if (this.Id) {
             return this.repository.Content.Delete(this.Id, permanently);
         }
@@ -323,12 +323,14 @@ export class Content {
      * });
      * ```
      */
-    Actions(scenario?: string): Observable<ActionModel> {
+    Actions(scenario?: string): Observable<ActionModel[]> {
         let optionList = this.GetDeferredRequestOptions('Actions', new ODataParams({
             scenario: scenario
         }));
         return this.repository.Content.Get(optionList)
-            .map(resp => resp.d.Actions);
+            .map(resp => {
+                return resp.d.Actions;
+            });
     }
     /**
      * Method that returns allowed child type list of a content.

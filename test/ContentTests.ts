@@ -298,6 +298,25 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.Actions()).to.be.instanceof(Observable);
         });
+
+        it('should retrieve an Action list', (done) => {
+            repo.httpProviderRef.setResponse({
+                d: {
+                    Actions: [
+                        {
+                            Name: 'Action1',
+                            DisplayName: 'Action One'
+                        }
+                    ]
+                }
+            });
+            content.Actions().subscribe(actions => {
+                expect(actions[0].Name).to.be.eq('Action1');
+                done();
+            }, done);
+            expect(content.Actions()).to.be.instanceof(Observable);
+        });
+
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
@@ -724,6 +743,13 @@ describe('Content', () => {
             const schema = content.GetSchema();
             expect(schema.Icon).to.eq('FormItem');
         });
+        it('should throw if no Schema found', () => {
+            class ContentWithoutSchema extends Content{};
+            const contentInstance = Content.Create(ContentWithoutSchema, {}, repo);
+            expect(() => {contentInstance.GetSchema(); }).to.throw()
+        });
+
+
     });
     describe('#static GetSchema()', () => {
         it('should return a Schema object', () => {
