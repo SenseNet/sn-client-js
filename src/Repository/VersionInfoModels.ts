@@ -1,9 +1,9 @@
 /**
- * @module VersionInfoModels
+ * @module Repository
  * @preferred
  * 
  * @description This module contains models for Sense/Net ECM's GetVersionInfo custom action
- */
+ */ /** */
 
 
 /**
