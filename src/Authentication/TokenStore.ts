@@ -33,7 +33,7 @@ export class TokenStore {
 
         if (!storesAvailable && !cookieAvailable) {
             this.TokenStoreType = TokenStoreType.InMemory;
-        } else if (tokenPersist === TokenPersist.Expiration) {
+        } else if (this.tokenPersist === TokenPersist.Expiration) {
             storesAvailable ? this.TokenStoreType = TokenStoreType.LocalStorage : this.TokenStoreType = TokenStoreType.ExpirationCookie;
         } else {
             storesAvailable ? this.TokenStoreType = TokenStoreType.SessionStorage : this.TokenStoreType = TokenStoreType.SessionCookie;
@@ -85,7 +85,7 @@ export class TokenStore {
         try {
             switch (this.TokenStoreType) {
                 case TokenStoreType.InMemory:
-                    return Token.FromHeadAndPayload(this.innerStore[storeKey]);
+                    return Token.FromHeadAndPayload(this.innerStore[storeKey as any]);
                 case TokenStoreType.LocalStorage:
                     return Token.FromHeadAndPayload((this.localStorageRef as any).getItem(storeKey));
                 case TokenStoreType.SessionStorage:
@@ -111,7 +111,7 @@ export class TokenStore {
         let dtaString = token.toString();
         switch (this.TokenStoreType) {
             case TokenStoreType.InMemory:
-                this.innerStore[storeKey] = dtaString;
+                this.innerStore[storeKey as any] = dtaString;
                 break;
             case TokenStoreType.LocalStorage:
                 this.localStorageRef && this.localStorageRef.setItem(storeKey, dtaString);

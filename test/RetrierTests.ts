@@ -76,4 +76,29 @@ export class RetrierTests{
 
             expect(retrierSuccess).to.be.eq(false);
         }
+
+        @test
+        public async 'Should throw error when started twice'(){
+            const retrier = Retrier.Create(async () => {return false; });
+            
+            retrier.Run();
+
+            try {
+                await retrier.Run();
+                throw new Error('Should have failed.');
+            } catch (error) {
+                // 
+            }
+        }
+
+        @test
+        public 'Should throw error when trying to set up after started'(){
+            const retrier = Retrier.Create(async () => {return false; });
+            retrier.Run();
+            expect(() => {
+                retrier.Setup({
+                    retries: 2
+                })
+            }).to.throw();
+        }
 }

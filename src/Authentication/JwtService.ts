@@ -4,7 +4,7 @@
  * @description This module that contains authentication-related classes, types and interfaces
  */ /** */
 
-import { LoginState, LoginResponse, RefreshResponse, ITokenPayload, Token, TokenStore, IAuthenticationService, TokenPersist } from './';
+import { LoginState, LoginResponse, RefreshResponse, Token, TokenStore, IAuthenticationService, TokenPersist } from './';
 import { Subject, BehaviorSubject, Observable } from '@reactivex/rxjs';
 import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
 import { ODataHelper } from '../SN';
@@ -59,7 +59,6 @@ export class JwtService implements IAuthenticationService {
      * @returns {Observable<boolean>} An observable that will be completed with true on a succesfull refresh
      */
     private ExecTokenRefresh() {
-        let refreshBase64 = this.TokenStore.RefreshToken.toString();
         let refresh = this.httpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
             url: ODataHelper.joinPaths(this.repositoryUrl, 'sn-token/refresh'),

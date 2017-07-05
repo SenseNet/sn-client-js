@@ -20,13 +20,12 @@ export const DATA_ROOT = 'OData.svc';
  * @param {IODataOptions} options Represents an ODataOptions obejct based through the IODataOptions interface. Holds the possible url parameters as properties.
  * @returns {string} String with the url params in the correct format e.g. '$select=DisplayName,Index'&$top=2&metadata=no'.
  */
-export function buildUrlParamString(options?: ODataApi.IODataParams): string {
-    if (typeof options === 'undefined') {
+export const buildUrlParamString: (options?: ODataApi.IODataParams) => string = (options?: ODataApi.IODataParams): string => {
+    if (!options) {
         return '';
     }
     let params: string = '?';
-    let currentCount = 0;
-    if (typeof options.select !== 'undefined') {
+    if (options.select) {
         if (typeof options.select === 'string' && options.select !== 'all') {
             let value = options.select;
             options.select = [value, 'Id', 'Type'];
@@ -43,7 +42,7 @@ export function buildUrlParamString(options?: ODataApi.IODataParams): string {
     }
     for (let key in options) {
 
-        if (typeof options[key] !== 'undefined') {
+        if (options[key]) {
             if (ODATA_PARAMS.indexOf(key) > -1) {
                 params += `$${key}=`;
                 if (typeof options[key] === 'string') {
@@ -82,7 +81,7 @@ export function buildUrlParamString(options?: ODataApi.IODataParams): string {
  * @param options
  * @returns {string} Models array with the given options in string format e.g. 'models=["{ '__ContentType':'EventList' , 'DisplayName': 'Calendar', 'Index': 2 }"]'.
  */
-export function buildRequestBody(options) {
+export const buildRequestBody = (options) => {
     let stringifiedOptions = JSON.stringify(options);
     return `models=[${stringifiedOptions}]`;
 }
@@ -91,7 +90,7 @@ export function buildRequestBody(options) {
  * @param path {string} Path that you want to format.
  * @returns {string} Path in entity format e.g. /workspaces('project') from /workspaces/project
  */
-export function getContentURLbyPath(path: string): string {
+export const getContentURLbyPath: (path: string) => string = (path: string): string => {
     if (typeof path === 'undefined' || path.indexOf('/') < 0 || path.length <= 1) {
         throw new Error('This is not a valid path.');
     }
@@ -114,7 +113,7 @@ export function getContentURLbyPath(path: string): string {
  * @param id {number} Id of the Content.
  * @returns {string} e.g. /content(123)
  */
-export function getContentUrlbyId(id: number): string {
+export const getContentUrlbyId: (id: number) => string = (id: number) => {
     return `/content(${id})`;
 }
 /**
@@ -122,7 +121,7 @@ export function getContentUrlbyId(id: number): string {
  * @param path {string} Path that you want to test.
  * @returns {boolean} Returns if the given path is a path of a Content or not.
  */
-export function isItemPath(path: string): boolean {
+export const isItemPath: (path: string) => boolean = (path) => {
     return path.indexOf("('") >= 0 && path.indexOf("')") === path.length - 2;
 }
 
@@ -130,8 +129,8 @@ export function isItemPath(path: string): boolean {
  * Method that allows to join paths without multiple or missing slashes
  * @param args The list of the paths to join
  */
-export function joinPaths(...args: string[]) {
-    function trimSlashes(path: string): string {
+export const joinPaths = (...args: string[]) => {
+    const trimSlashes = (path: string) => {
         if (path.endsWith('/')) {
             path = path.substring(0, path.length - 1)
         }

@@ -14,13 +14,7 @@ export class ODataRequestOptions {
     complete?: Function;
 
     constructor(options: IODataRequestOptions) {
-        this.params = options.params;
-        this.path = `${options.path}`;
-        this.async = options.async || true;
-        this.type = options.type || 'GET';
-        this.success = options.success;
-        this.error = options.error;
-        this.complete = options.complete;
+        Object.assign(this, options);
     }
 }
 

@@ -16,7 +16,8 @@ export class ODataParams {
     inlinecount?: string;
     query?: string;
     metadata?: string;
-    data: Object;
+    data?: Object;
+    scenario?: string;
 
     constructor(options: IODataParams) {
         this.select = options.select;
@@ -30,6 +31,7 @@ export class ODataParams {
         this.query = options.query;
         this.metadata = options.metadata;
         this.data = options.data || [];
+        this.scenario = options.scenario;
     }
 }
 
@@ -45,4 +47,5 @@ export interface IODataParams {
     query?: string;
     metadata?: string;
     data?: Object;
+    scenario?: string;
 }

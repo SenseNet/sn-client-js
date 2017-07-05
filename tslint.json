@@ -1,4 +1,5 @@
 {
+    
     "rules": {
         "comment-format": [
             true
@@ -11,9 +12,14 @@
         "no-eval": true,
         "no-internal-module": false,
         "no-var-keyword": true,
+        "no-unused-variable": true,
+        "no-unused-expression": [true, "allow-fast-null-checks"],
         "one-line": [
             true,
             "check-open-brace"
+        ],
+        "only-arrow-functions": [
+            true
         ],
         "triple-equals": [
             true,

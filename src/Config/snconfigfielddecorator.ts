@@ -11,7 +11,7 @@ import { SnConfigFieldModelStore } from './snconfigfieldmodelstore';
  * @returns {function(SnConfigModel)} A factory method which fills the SnConfigModelStore
  * with for the decorated field with the provided field model data
  */
-export function SnConfigField(model: SnConfigFieldModel) {
+export const SnConfigField = (model: SnConfigFieldModel) => {
     return (target: any, propertyName: string) => {
         model.FieldName = propertyName;
         model.StoreKey = `${target.constructor.name}.${propertyName}`;
