@@ -57,7 +57,7 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "^5.4.1",
+    "@reactivex/rxjs": "^5.4.2",
     "nyc": "^11.0.2",
     "ts-json-properties": "1.2.0"
   },
