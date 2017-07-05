@@ -68,7 +68,7 @@ export class RetrierOptions {
  * Utility class for retrying operations.
  * Usage example:
  * ```
- *             const funcToRetry: () => Promise<boolean> = async () => {
+ *          const funcToRetry: () => Promise<boolean> = async () => {
  *              let hasSucceeded = false;
  *              // ...
  *              // custom logic

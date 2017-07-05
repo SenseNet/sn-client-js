@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "2.0.0-RC.4-development2",
+  "version": "2.0.0",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "dist/src/SN.js",
   "files": [
@@ -57,7 +57,7 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "^5.4.1",
+    "@reactivex/rxjs": "^5.4.2",
     "nyc": "^11.0.2",
     "ts-json-properties": "1.2.0"
   },
