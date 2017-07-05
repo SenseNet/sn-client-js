@@ -1,6 +1,5 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { Observable } from '@reactivex/rxjs';
 import { SnConfigModel } from '../src/Config';
 import { MockRepository } from './Mocks/MockRepository';
 import { MockAuthService } from './Mocks/MockAuthService';
@@ -18,11 +17,12 @@ export class BaseHttpProviderTests {
     private repo: MockRepository;
 
     public before() {
-        let cfg = new SnConfigModel({
+        this.repo = new MockRepository({
             RepositoryUrl: 'https://localhost',
             ODataToken: 'odata.svc'
         });
-        this.repo = new MockRepository(cfg);
+
+        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
     };
 
     @test
@@ -45,7 +45,7 @@ export class BaseHttpProviderTests {
         })
     }
 
-    @test 'GetAllContentTypes should be return a valid content type collection'() {
+    @test 'GetAllContentTypes should be return a valid content type collection'(done: MochaDone) {
 
         let cResponse = {
             d: {
@@ -59,20 +59,20 @@ export class BaseHttpProviderTests {
                 ]
             }
         } as ODataCollectionResponse<ContentTypes.ContentType>;
-        (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
+        this.repo.httpProviderRef.setResponse(cResponse);
         this.repo.GetAllContentTypes().first().subscribe(types => {
-            expect(types.d.__count).to.be.eq(1);
-            expect(types.d[0].Name).to.be.eq('testContentType');
-            expect(types.d[0]).to.be.instanceof(ContentTypes.ContentType);
-        })
+            expect(types.length).to.be.eq(1);
+            expect(types[0].Name).to.be.eq('testContentType');
+            expect(types[0]).to.be.instanceof(ContentTypes.ContentType);
+            done();
+        }, done)
     }
 
     @test 'Load should return a valid Content'(done: MochaDone) {
         let cResponse = {
             d: {
                 Name: 'testContentType',
-                Type: 'ContentType',
-                options: {},
+                Type: 'ContentType'
             }
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
@@ -91,7 +91,6 @@ export class BaseHttpProviderTests {
             d: {
                 Name: 'testContentType',
                 Type: 'User',
-                options: {},
             }
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);

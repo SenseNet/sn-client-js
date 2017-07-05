@@ -41,22 +41,109 @@
  * related to async data streams.
  */ /** */
 
-import { FieldSettings, Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes, } from './SN';
-import { IRepository } from './Repository/IRepository';
-import { IContent } from './Repository/IContent';
-import { ODataRequestOptions, ODataCollectionResponse, ODataResponse } from './ODataApi';
+import { Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
+import { ODataRequestOptions, ODataParams } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
+import { ActionModel } from './Repository/ActionModel';
+import { BaseRepository } from './Repository/BaseRepository';
 
-export class Content implements IContent {
+export class Content {
+
+    /**
+     * An unique identifier for a content
+     */
     Id?: number;
+
+    /**
+     * Name of the Content
+     */
     Name?: string;
 
     private _type?: string;
+    /**
+     * Type of the Content, e.g.: 'Task' or 'User'
+     */
     public get Type(): string {
         return this._type || this.constructor.name;
     }
     public set Type(newType: string) {
         this._type = newType;
+    }
+
+    private _isSaved: boolean = false;
+
+    /**
+     * Indicates if the content is saved into the Repository or is a new Content
+     */
+    public get IsSaved(): boolean {
+        return this._isSaved;
+    }
+
+    private _lastSavedFields: this['options'] = {};
+    protected UpdateLastSavedFields(newFields: this['options']) {
+        this._lastSavedFields = newFields;
+        this._isSaved = true;
+        Object.assign(this, newFields);
+    }
+
+    /**
+     * Returns a list about the fields with their values, as they are saved into the Repository
+     */
+    public get SavedFields() {
+        return !this.IsSaved ? {} : JSON.parse(JSON.stringify(this._lastSavedFields));
+    }
+
+    /**
+     * Returns a list about the changed fields and their new values
+     */
+    public GetChanges(): this['options'] {
+        const changedFields: this['options'] = {};
+
+        for (let field in this.GetFields()) {
+            if (this[field] !== this._lastSavedFields[field]) {
+                changedFields[field] = this[field];
+            }
+        }
+        return changedFields;
+    }
+
+    /**
+     * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
+     */
+    public GetFields(): this['options'] {
+        const fieldsToPost = {} as this['options'];
+        this.GetSchema().FieldSettings.forEach(s => {
+            this[s.Name] !== undefined && (fieldsToPost[s.Name] = this[s.Name]);
+        });
+        return fieldsToPost;
+    }
+
+
+    /**
+     * Shows if the content has been changed on client-side since the last load
+     */
+    public get IsDirty(): boolean {
+        return Object.keys(this.GetChanges()).length > 0;
+    }
+
+    private _isOperationInProgress: boolean = false;
+
+    /**
+     * Shows if there are any operation in progress
+     */
+    public get IsOperationInProgress() {
+        return this._isOperationInProgress;
+    }
+
+    /**
+     * Indicates that all required fields are filled
+     */
+    public get IsValid(): boolean {
+        const schema = this.GetSchema();
+        const missings = schema.FieldSettings
+            .filter(s => s.Compulsory && !(this as any)[s.Name])
+
+        return missings.length === 0;
     }
 
     DisplayName?: string;
@@ -65,8 +152,8 @@ export class Content implements IContent {
     IsFolder?: boolean;
     Path?: string;
     Index?: number;
-    CreationDate?: Date;
-    ModificationDate?: Date;
+    CreationDate?: string;
+    ModificationDate?: string;
     Versions?: ComplexTypes.DeferredObject;
     Workspace?: ComplexTypes.DeferredObject;
 
@@ -75,17 +162,9 @@ export class Content implements IContent {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(public readonly options: IContentOptions, private repository: IRepository<any, any>) {
-        this.Id = options.Id;
-        this.Name = options.Name;
-        this.DisplayName = options.DisplayName;
-        this.ModificationDate = options.ModificationDate;
-        this.CreationDate = options.CreationDate;
-        this.Description = options.Description;
-        this.Icon = options.Icon;
-        this.IsFolder = options.IsFolder;
-        this.Path = options.Path;
-        this.Index = options.Index;
+    constructor(public readonly options: IContentOptions, private repository: BaseRepository) {
+        Object.assign(this, options);
+        Object.assign(this._lastSavedFields, options);
     }
 
     /**
@@ -103,8 +182,8 @@ export class Content implements IContent {
      * });
      * ```
     */
-    Delete(permanently: boolean = false): Observable<any> {
-        if (this.Id){
+    Delete(permanently?: boolean): Observable<any> {
+        if (this.Id) {
             return this.repository.Content.Delete(this.Id, permanently);
         }
         return Observable.of(undefined);
@@ -126,18 +205,80 @@ export class Content implements IContent {
      * ```
      */
     Rename(newDisplayName: string, newName?: string): Observable<this> {
-        if (!this.Id){
-            throw new Error('Content Id not present');
+
+        if (!this.IsSaved) {
+            throw new Error('Content is not saved. You can rename only saved content!')
         }
-        let fields: {Name?: string, DisplayName?: string} = {};
-        if (!newDisplayName){
+
+        let fields: this['options'] = {};
+        if (newDisplayName) {
             fields.DisplayName = newDisplayName;
         }
-        if (newName){
+        if (newName) {
             fields.Name = newName;
         }
-        return this.repository.Content.Patch(this.Id, this.constructor as {new (...args: any[]): any}, fields);
+        return this.Save(fields);
     }
+
+    private saveContentInternal(fields?: this['options'], override?: boolean): Observable<this> {
+        const contentType = this.constructor as { new(...args: any[]): any };
+        /** Fields Save logic */
+        if (fields) {
+            if (!this.Id) {
+                throw new Error('Content Id not present');
+            }
+
+            if (!this.IsSaved) {
+                throw new Error('The Content is not saved to the Repository, Save it before updating.')
+            }
+            if (override) {
+                return this.repository.Content.Put(this.Id, contentType, fields)
+                    .map(newFields => {
+                        this.UpdateLastSavedFields(newFields);
+                        return this;
+                    });
+            }
+            else {
+                return this.repository.Content.Patch(this.Id, contentType, fields)
+                    .map(newFields => {
+                        this.UpdateLastSavedFields(newFields);
+                        return this;
+                    });
+            }
+        }
+
+        if (!this.IsSaved) {
+            // Content not saved, verify Path and POST it
+            if (!this.Path) {
+                throw new Error('Cannot create content without a valid Path specified');
+            }
+
+
+            return this.repository.Content.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
+                this.UpdateLastSavedFields(resp);
+                this._isSaved = true;
+                return this;
+            });
+        } else {
+            // Content saved
+            if (!this.IsDirty) {
+                // No changes, no request
+                return Observable.of(this);
+            } else {
+                if (!this.Id) {
+                    throw new Error('Content Id not present');
+                }
+
+                // Patch content
+                return this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges())
+                    .map(resp => {
+                        this.UpdateLastSavedFields(resp);
+                        return this;
+                    });
+            }
+        }
+    }
+
     /**
      * Saves the content with its given modified fields to the Content Repository.
      * @params fields {Object} Object with the fields that have to be modified.
@@ -155,27 +296,18 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Save(fields: Object, override: boolean = false): Observable<this> {
-        if (!this.Id){
-            throw new Error('Content Id not present');
-        }
-        if (override) {
-            return this.repository.Content.Put(this.Id, this.constructor as {new(...args: any[]): any}, fields);
-        }
-        else {
-            return this.repository.Content.Patch(this.Id, this.constructor as {new(...args: any[]): any}, fields);
-        }
+    Save(fields?: this['options'], override?: boolean): Observable<this> {
+
+        this._isOperationInProgress = true;
+        const saveObservable = this.saveContentInternal(fields, override).share();
+        saveObservable.subscribe(success => {
+            this._isOperationInProgress = false;
+        }, (err) => {
+            this._isOperationInProgress = false;
+        });
+        return saveObservable;
     }
-    /**
-     * Returns the Content Type Schema of the Content.
-     * @returns {FieldSettings.FieldSetting[]} Array of fieldsettings.
-     *```ts
-     * let schema = SenseNet.Content.GetSchema('GenericContent');
-     *```
-     */
-    GetSchema(): FieldSettings.FieldSetting[] {
-        return (Schemas as any)[`${this.Type}CTD` as any]();
-    }
+
     /**
      * Method that returns actions of a content.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -191,23 +323,14 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Actions(scenario?: string) {
-        let options = {};
-        if (typeof scenario !== 'undefined') {
-            options = {
-                'scenario': scenario
-            }
-        }
-        let optionList;
-        if (this.Id) {
-            optionList = this.deferredFunctionBuilder(this.Id, 'Actions', options);
-        }
-        else if (this.Path) {
-            optionList = this.deferredFunctionBuilder(this.Path, 'Actions', options);
-        } else {
-            throw new Error('No Id or Path present')
-        }
-        return this.repository.Content.Get(optionList);
+    Actions(scenario?: string): Observable<ActionModel[]> {
+        let optionList = this.GetDeferredRequestOptions('Actions', new ODataParams({
+            scenario: scenario
+        }));
+        return this.repository.Content.Get(optionList)
+            .map(resp => {
+                return resp.d.Actions;
+            });
     }
     /**
      * Method that returns allowed child type list of a content.
@@ -224,18 +347,8 @@ export class Content implements IContent {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: Object): Observable<ContentTypes.ContentType[]> {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        let optionList = this.deferredFunctionBuilder(this.Id, 'AllowedChildTypes', options ? options : null);
-        let reqoptions = new ODataRequestOptions({
-            path: optionList.path
-        });
-        return this.repository.Content.Fetch(reqoptions, ContentTypes.ContentType)
-            .map(r => { 
-                return r.d.results
-            });
+    GetAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
+        return this.GetDeferredCollection('AllowedChildTypes', options, ContentTypes.ContentType);
     }
     /**
      * Method that returns effective allowed child type list of a content.
@@ -252,13 +365,8 @@ export class Content implements IContent {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'EffectiveAllowedChildTypes', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
+        return this.GetDeferredCollection('EffectiveAllowedChildTypes', options, ContentTypes.ContentType);
     }
     /**
      * Method that returns owner of a content.
@@ -275,14 +383,11 @@ export class Content implements IContent {
      * });
      * ```
      */
-    GetOwner(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'Owner', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    GetOwner(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('Owner', options, ContentTypes.User);
     }
+
+
     /**
      * Method that returns creator of a content.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -298,13 +403,8 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Creator(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'CreatedBy', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    Creator(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('CreatedBy', options, ContentTypes.User);
     }
     /**
      * Method that returns last modifier of a content.
@@ -321,13 +421,8 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Modifier(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'ModifiedBy', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    Modifier(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('ModifiedBy', options, ContentTypes.User);
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -344,13 +439,8 @@ export class Content implements IContent {
      * });
      * ```
      */
-    CheckedOutBy(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'CheckedOutTo', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    CheckedOutBy(options?: ODataParams): Observable<ContentTypes.User> {
+        return this.GetDeferredContent('CheckedOutTo', options, ContentTypes.User);
     }
     /**
      * Method that returns the children of a content.
@@ -371,13 +461,15 @@ export class Content implements IContent {
      * });
      * ```
      */
-    Children(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
+    Children(options?: ODataParams): Observable<Content[]> {
+        if (!this.Path) {
+            throw new Error('No path specified');
         }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, '', options ? options : null);
-        return this.repository.Content.Fetch(optionList);
+        return this.repository.Content.Fetch( new ODataRequestOptions({
+            path: this.Path
+        }), Content).map(resp => {
+            return resp.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
+        });
     }
     /**
      * Returns the list of versions.
@@ -398,13 +490,8 @@ export class Content implements IContent {
      * });
      * ```
     */
-    GetVersions(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'Versions', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    GetVersions(options?: ODataParams): Observable<this[]> {
+        return this.GetDeferredContent('Versions', options, this.constructor as {new()});
     }
     /**
      * Returns the current Workspace.
@@ -425,13 +512,8 @@ export class Content implements IContent {
      * });
      * ```
     */
-    GetWorkspace(options?: Object) {
-        if (!this.Id){
-            throw new Error('No Id provided');
-        }
-        
-        let optionList = this.deferredFunctionBuilder(this.Id, 'Workspace', options ? options : null);
-        return this.repository.Content.Get(optionList);
+    GetWorkspace(options?: ODataParams): Observable<Content> {
+        return this.GetDeferredContent('Workspace', options, Content);
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -682,16 +764,44 @@ export class Content implements IContent {
             { data: { 'contentTypes': contentTypes } });
     }
 
+    private static _schemaCache: Schemas.Schema<Content>[] = [];
     /**
      * Returns the Content Type Schema of the given Content Type;
      * @param type {string} The name of the Content Type;
-     * @returns {FieldSettings.FieldSetting[]}
+     * @returns {Schemas.Schema}
      * ```ts
-     * var genericContentSchema = SenseNet.Content.getSchema('GenericContent'); // genericContentSchema is an array of FieldSettings
+     * var genericContentSchema = SenseNet.Content.getSchema(Content);
      * ```
      */
-    public static GetSchema(type: string): FieldSettings.FieldSetting[] {
-        return (Schemas as any)[`${type}CTD`]();
+    public static GetSchema<TType extends Content>(currentType: { new(...args: any[]): TType }): Schemas.Schema<TType> {
+        if (this._schemaCache[currentType.name as any]) {
+            return this._schemaCache[currentType.name as any] as Schemas.Schema<TType>;
+        }
+        const schema = Schemas.SchemaStore.find(s => s.ContentType === currentType) as Schemas.Schema<TType>;
+        if (!schema) {
+            throw new Error(`No Schema for Content Type '${currentType.name}'`)
+        }
+        const parent = Object.getPrototypeOf(currentType);
+        const parentSchema = parent && Schemas.SchemaStore.find(s => s.ContentType === parent);
+
+        if (parentSchema) {
+            let parentSchema = Content.GetSchema(parent);
+            schema.FieldSettings = schema.FieldSettings.concat(parentSchema.FieldSettings);
+        }
+        this._schemaCache[currentType.name as any] = schema;
+        return schema;
+    }
+
+    /**
+     * Returns the Content Type Schema of the Content.
+     * @returns {Schemas.Schema} Array of fieldsettings.
+     *```ts
+     * let schema = SenseNet.Content.GetSchema(Content);
+     *```
+     */
+    GetSchema(): Schemas.Schema<this> {
+        const contentType = (ContentTypes as any)[this.Type] as {new(...args)};
+        return Content.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
     }
 
     /**
@@ -703,20 +813,28 @@ export class Content implements IContent {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends IContent, O extends T['options']>(newContent: { new (opt: O, repository: IRepository<any, any>): T }, opt: O, repository: IRepository<any, any>): T {
+    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
+        repository: BaseRepository): T {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
+
     /**
-     * Returns the Content Type Schema of the Content;
-     * @returns {FieldSettings.FieldSetting[]}
+     * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
+     * @param type {string} The Content will be a copy of the given type.
+     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
+     * @returns {SenseNet.Content}
      * ```ts
-     * var schema = content.Schema();
+     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    Schema(): FieldSettings.FieldSetting[] {
-        return (Schemas as any)[`${this.Type}CTD`]();
+    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
+        repository: BaseRepository): T {
+        let constructed = Content.Create(newContent, opt, repository);
+        (constructed as any)['_isSaved'] = true;
+        return constructed;
     }
+
     /**
      * Sets permissions on the requested content. You can add or remove permissions for one ore more users or groups using this action or even break/unbreak permission inheritance.
      * @param identities {Security.PermissionRequestBody[]} Permission entry list: array of permission entry objects, containing an identity Id or Path and one or more permission
@@ -754,7 +872,6 @@ export class Content implements IContent {
     * ```
    */
     SetPermissions(arg: Security.Inheritance | Security.PermissionRequestBody[]) {
-        let action;
         if (arg instanceof Array) {
             return this.repository.Content.CreateCustomAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] },
                 { data: { 'entryList': arg } });
@@ -1177,7 +1294,7 @@ export class Content implements IContent {
      */
     GetRelatedIdentitiesByPermissions(level: Security.PermissionLevel, kind: Security.IdentityKind, permissions: string[]) {
         return this.repository.Content.CreateCustomAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] },
-        { data: { 'level': level, 'kind': kind, 'permissions': permissions } });
+            { data: { 'level': level, 'kind': kind, 'permissions': permissions } });
     }
     /**
      * This structure is designed for getting tree of content that are permitted or denied for groups/organizational units in the selected subtree. The result content are not in a paged list:
@@ -1200,7 +1317,7 @@ export class Content implements IContent {
      */
     GetRelatedItemsOneLevel(level: Security.PermissionLevel, member: string, permissions: string[]) {
         return this.repository.Content.CreateCustomAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] },
-        { data: { 'level': level, 'member': member, 'permissions': permissions } });
+            { data: { 'level': level, 'member': member, 'permissions': permissions } });
     }
     /**
      * Returns a content collection that represents users who have enough permissions to a requested resource. The permissions effect on the user and through direct or indirect group membership
@@ -1221,7 +1338,7 @@ export class Content implements IContent {
      */
     GetAllowedUsers(permissions: string[]) {
         return this.repository.Content.CreateCustomAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] },
-        { data: { 'permissions': permissions } });
+            { data: { 'permissions': permissions } });
     }
     /**
      * Returns a content collection that represents groups where the given user or group is member directly or indirectly. This function can be used only on a resource content that is
@@ -1241,7 +1358,7 @@ export class Content implements IContent {
      */
     GetParentGroups(directOnly: boolean) {
         return this.repository.Content.CreateCustomAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] },
-        { data: { 'directOnly': directOnly } });
+            { data: { 'directOnly': directOnly } });
     }
     /**
      * Administrators can add new members to a group using this action. The list of new members can be provided using the 'contentIds' parameter (list of user or group ids).
@@ -1260,7 +1377,7 @@ export class Content implements IContent {
      */
     AddMembers(contentIds: number[]) {
         return this.repository.Content.CreateCustomAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
-        { data: { 'contentIds': contentIds } });
+            { data: { 'contentIds': contentIds } });
     }
     /**
      * Administrators can remove members from a group using this action. The list of removable members can be provided using the 'contentIds' parameter (list of user or group ids).
@@ -1279,24 +1396,44 @@ export class Content implements IContent {
      */
     RemoveMembers(contentIds: number[]) {
         return this.repository.Content.CreateCustomAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
-        { data: { 'contentIds': contentIds } });
+            { data: { 'contentIds': contentIds } });
     }
 
-    private deferredFunctionBuilder(idOrPath: number | string, fieldName: string, options: any) {
-        let contentURL;
-        if (typeof idOrPath === 'string') {
-            contentURL = ODataHelper.getContentURLbyPath(idOrPath);
-        }
-        else {
-            contentURL = ODataHelper.getContentUrlbyId(idOrPath);
-        }
-        let o: any = {};
-        if (options) {
-            o['params'] = options;
-        }
-        o['path'] = `${contentURL}/${fieldName}`;
-        return o as ODataRequestOptions;
+    public GetDeferredContent<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
+        fieldName: K,
+        options?: ODataParams,
+        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType> {
+
+        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
+        return this.repository.Content.Get(requestOptions).map(resp => Content.Create(contentType, resp.d, this.repository));
     }
+
+    public GetDeferredCollection<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
+        fieldName: K,
+        options?: ODataParams,
+        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType[]> {
+        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
+        return this.repository.Content.Fetch(requestOptions).map(resp =>
+            resp.d.results.map(c => Content.Create(contentType, c, this.repository)));
+    }
+
+    protected GetDeferredRequestOptions(fieldName: string, options?: ODataParams) {
+        let contentURL;
+        if (this.Id) {
+            contentURL = ODataHelper.getContentUrlbyId(this.Id);
+        }
+        else if (this.Path) {
+            contentURL = ODataHelper.getContentURLbyPath(this.Path);
+        } else {
+            throw Error('No Id or Path provided');
+        }
+        return new ODataRequestOptions({
+            path: ODataHelper.joinPaths(contentURL, fieldName),
+            params: options
+        });
+    }
+
+
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
      * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the
@@ -1313,10 +1450,10 @@ export class Content implements IContent {
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
     public Upload(contentType: string, fileName: string, overwrite?: boolean, useChunk?: boolean, propertyName?: string, fileText?: string) {
-        if (!this.Path){
+        if (!this.Path) {
             throw Error('No Path provided!');
         }
-        
+
         const o = overwrite ? overwrite : true;
         const data: any = {
             ContentType: contentType,
@@ -1360,8 +1497,8 @@ export interface IContentOptions {
     Description?: string;
     Icon?: string;
     Index?: number;
-    CreationDate?: Date;
-    ModificationDate?: Date;
+    CreationDate?: string;
+    ModificationDate?: string;
     IsFolder?: boolean;
     Path?: string;
     Versions?: ComplexTypes.DeferredObject;

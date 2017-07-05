@@ -5,19 +5,20 @@
  */
 /** */
 
-import { Observable, Subscription } from '@reactivex/rxjs';
+import { Observable } from '@reactivex/rxjs';
 import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
-import { IRepository, VersionInfo } from './';
+import { VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
-import { TokenPersist } from '../Authentication/';
+import { IAuthenticationService } from '../Authentication/';
 
 /**
  *
  */
-export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider, TProviderBaseContentType extends Content>
-    implements IRepository<TProviderType, TProviderBaseContentType> {
+export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider, 
+                            TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
+                            TProviderBaseContentType extends Content = Content> {
 
     /**
      * Will be true if the Repository's host differs from the current host
@@ -41,13 +42,13 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * @param {any} body The post body (optional)
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
-    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args): T }, body?: any): Observable<T> {
+    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args: any[]): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
             .flatMap(state => {
                 if (!returnsType){
-                    returnsType = Object as {new(...args)};
+                    returnsType = Object as {new(...args: any[]): any};
                 }
                 return this.httpProviderRef.Ajax<T>(returnsType,
                     {
@@ -55,7 +56,8 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
                         method: method,
                         body: body,
                         crossDomain: this.IsCrossDomain,
-                        responseType: 'json'
+                        withCredentials: this.IsCrossDomain,
+                        responseType: 'json',
                     });
             });
     }
@@ -63,7 +65,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Reference to the Http Provider used by the current repository
      */
-    public readonly httpProviderRef: HttpProviders.BaseHttpProvider;
+    public readonly httpProviderRef: TProviderType;
     
     /**
      * Reference to the OData API used by the current repository
@@ -73,7 +75,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Reference to the Authentication Service used by the current repository
      */
-    public readonly Authentication: Authentication.IAuthenticationService;
+    public readonly Authentication: TAuthenticationServiceType;
 
     /**
      * Reference to the configuration used by the current repository
@@ -87,7 +89,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      */
     constructor(config: Partial<SnConfigModel>, 
                 private readonly httpProviderType: { new (): TProviderType }, 
-                authentication: { new (...args): Authentication.IAuthenticationService }) {
+                authentication: { new (...args: any[]): TAuthenticationServiceType }) {
 
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
@@ -129,14 +131,17 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * });
      * ```
      */
-    public GetAllContentTypes(): Observable<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>{
+    public GetAllContentTypes(): Observable<ContentTypes.ContentType[]>{
         return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
                 name: 'GetAllContentTypes', 
                 path: '/Root', 
                 isAction: false
             }, 
-            {}, 
-            ODataApi.ODataCollectionResponse);
+            undefined,
+            ODataApi.ODataCollectionResponse)
+            .map(resp => {
+                return resp.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this));
+            }); ;
     }
 
     /**
@@ -158,14 +163,12 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * })
      * ```
     */
-    public Load<TContentType extends TProviderBaseContentType = TProviderBaseContentType>(
+    public Load<TContentType extends TProviderBaseContentType>(
             idOrPath: string | number,
             options?: ODataApi.IODataParams,
             version?: string,
-            returns?: { new (...args): TContentType }): Observable<TContentType> {
-        if (!returns) {
-            returns = Content as { new (...args) };
-        }
+            returns?: { new (...args: any[]): TContentType }): Observable<TContentType> {
+
         let contentURL = typeof idOrPath === 'string' ?
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
@@ -176,6 +179,12 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
             path: contentURL,
             params: params
         })
-        return this.Content.Get(odataRequestOptions, returns).map(r => r.d);
+        const returnType = returns || Content as { new (...args: any[]): any};
+
+        return this.Content.Get(odataRequestOptions, returnType)
+            .share()
+            .map(r => {
+                return Content.HandleLoadedContent(returnType, r.d, this);
+            });
     }
 }

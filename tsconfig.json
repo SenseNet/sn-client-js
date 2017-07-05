@@ -3,6 +3,7 @@
         "strict": true,
         "removeComments": true,
         "noImplicitAny": false,
+        "noUnusedLocals": true,
         "target": "es2015",
         "module": "commonjs",
         "moduleResolution": "node",
@@ -11,7 +12,8 @@
         "preserveConstEnums": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "skipLibCheck": true
     },
     "exclude": [
         "node_modules",

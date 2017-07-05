@@ -1,8 +1,5 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { SnConfigBehavior } from '../src/Config/snconfigbehavior';
-import { SnConfigFieldModel } from '../src/Config/snconfigfieldmodel';
-import { SnConfigFieldModelStore } from '../src/Config/snconfigfieldmodelstore';
 import { RxAjaxHttpProvider } from '../src/HttpProviders';
 import { Observable } from '@reactivex/rxjs';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
@@ -22,6 +19,19 @@ export class HttpProviderTests {
         let headers = p.actualHeaders;
         Chai.expect(headers[this.testHeaderName as any]).to.be.eq(this.testHeaderValue);
     }
+
+    @test
+    public unsetGlobalHeaders(){
+        let p = new MockHttpProvider();
+        p.SetGlobalHeader(this.testHeaderName, this.testHeaderValue);
+        let headers = p.actualHeaders;
+        Chai.expect(headers[this.testHeaderName as any]).to.be.eq(this.testHeaderValue);
+
+        p.UnsetGlobalHeader(this.testHeaderName);
+        headers = p.actualHeaders;
+        Chai.expect(headers[this.testHeaderName as any]).to.be.eq(undefined);
+    }    
+
     @test
     public 'globalHeaders should override options.headers'() {
         let p = new MockHttpProvider();
@@ -35,6 +45,7 @@ export class HttpProviderTests {
 
     @test
     public 'RxHttpProvider should return an Observable<TReturns>'() {
+        (global as any).XMLHttpRequest = class { open(){}; send(){}; setRequestHeader(){}};
         let p = new RxAjaxHttpProvider();
         let obs = p.Ajax(Object, {});
         expect(obs).to.be.instanceof(Observable);
