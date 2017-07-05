@@ -4,7 +4,6 @@
  
 import { Observable } from '@reactivex/rxjs';
 import { LoginState } from './';
-import { HttpProviders } from '../SN';
 
 /**
  * Interface that describes how injectable Authentication Services should work

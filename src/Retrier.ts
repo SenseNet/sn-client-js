@@ -68,7 +68,7 @@ export class RetrierOptions {
  * Utility class for retrying operations.
  * Usage example:
  * ```
- *             const funcToRetry: () => Promise<boolean> = async () => {
+ *          const funcToRetry: () => Promise<boolean> = async () => {
  *              let hasSucceeded = false;
  *              // ...
  *              // custom logic
@@ -117,10 +117,7 @@ export class Retrier {
         if (this.isRunning){
             throw Error('Retrier already started!');
         }
-
-        for (let field in options){
-            this.options[field] = options[field];
-        }
+        Object.assign(this.options, options);
         return this;
     }
 
@@ -141,7 +138,7 @@ export class Retrier {
 
         this.isRunning = true;
 
-        let timeoutTimer = setTimeout(() => {
+        setTimeout(() => {
             if (!succeeded) {
                 timedOut = true;
             }

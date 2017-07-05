@@ -7,42 +7,51 @@
  * @description Module for mapping controls content types and / or field settings to specified front-end controls
  *
  * ```
- * // ToDo-Usage example
+ * let controlMapper = new ControlMapper(MyBaseControlClass, myConfigFactory, DefaultViewComponent, DefaultFieldComponent)
+ *       .SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
+ *          switch (setting.Name) {
+ *              case 'Name':
+ *                  return NameField;
+ *              case 'DisplayName':
+ *                  return DisplayName;
+ *              default:
+ *                  break;
+ *          }
+ *          return ShortText;
+ *       })
  * 
  * ```
  */ /** */
 
 import { Content } from './Content';
 import * as FieldSettings from './FieldSettings';
-import { ContentTypes, Schemas } from './SN';
+import { Schemas } from './SN';
 
 export type ActionName = 'new' | 'edit' | 'view';
 
 export class ControlSchema<TControlBaseType, TClientControlSettings> {
     ContentTypeControl: {new(...args: any[]): TControlBaseType};
-    Schema: Schemas.Schema;
+    Schema: Schemas.Schema<Content>;
     FieldMappings: {FieldSettings: FieldSettings.FieldSetting, ControlType: {new(...args: any[]): TControlBaseType}, ClientSettings: TClientControlSettings}[];
 }
 
 export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     constructor(
-        private readonly controlBaseType: { new (...args: any[]): TControlBaseType },
+        public readonly controlBaseType: { new (...args: any[]): TControlBaseType },
         private readonly clientControlSettingsFactory: (fieldSetting: FieldSettings.FieldSetting) => TClientControlSettings,
         private readonly defaultControlType?: { new (...args: any[]): TControlBaseType },
         private readonly defaultFieldSettingControlType?: { new (...args: any[]): TControlBaseType },
     ) {
     }
 
-    private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName?: ActionName): Schemas.Schema {
-        const schema = (Schemas as any)[`${contentType.name}CTD` as any]() as Schemas.Schema;
-
-        let currentType = Object.getPrototypeOf(contentType);
-        while (currentType.name !== 'Content') {
-            const parentSchema = (Schemas as any)[`${currentType.name}CTD` as any]();
-            schema.FieldSettings = schema.FieldSettings.concat(parentSchema.FieldSettings);
-            currentType = Object.getPrototypeOf(currentType);
-        }
+    /**
+     * Method for getting a specified Schema object for a content type. The FieldSettings will be filtered based on the provided actionName.
+     * @param contentType The type of the content (e.g. ContentTypes.Task)
+     * @param actionName The name of the action. Can be 'new' / 'view' / 'edit'
+     */
+    private GetTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema<TContentType> {
+        const schema = new Schemas.Schema<TContentType>(Content.GetSchema(contentType));
 
         if (actionName) {
             schema.FieldSettings = schema.FieldSettings.filter(s => {
@@ -89,6 +98,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * 
      * @param fieldSetting The FieldSetting to get the control for.
      * @param setupControl Callback method that returns a Control Type based on the provided FieldSetting
+     * @returns the Mapper instance (can be used fluently)
      */
     public SetupFieldSettingDefault<TFieldSettingType extends FieldSettings.FieldSetting>(
         fieldSetting: { new (...args: any[]): TFieldSettingType },
@@ -129,12 +139,20 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
     }
 
 
+    /**
+     * 
+     * @param contentType The type of the content (e.g. ContentTypes.Task)
+     * @param fieldName The name of the field (must be one of the ContentType's fields), e.g. 'DisplayName'
+     * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
+     * @returns The assigned Control constructor or the default Field control
+     */
     public GetControlForContentField<TContentType extends Content, TField extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
-        fieldName: TField
+        fieldName: TField,
+        actionName: ActionName
     ): {new(...args: any[]): TControlBaseType} {
 
-        const fieldSetting = this.GetTypeSchema(contentType).FieldSettings.filter(s => s.Name === fieldName)[0];
+        const fieldSetting = this.GetTypeSchema(contentType, actionName).FieldSettings.filter(s => s.Name === fieldName)[0];
 
         if (this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any]) {
             return this.contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any](fieldSetting);
@@ -145,24 +163,41 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
     }
 
     private fieldSettingBoundClientSettingFactories: ((setting: FieldSettings.FieldSetting) => TClientControlSettings)[] = []
+    
+    /**
+     * Sets up a Factory method to create library-specific settings from FieldSettings per type
+     * @param fieldSettingType The type of the FieldSetting (e.g. FieldSettings.ShortTextFieldSetting)
+     * @param factoryMethod The factory method that constructs or transforms the Settings object
+     */
     public SetClientControlFactory<TFieldSetting extends FieldSettings.FieldSetting>(fieldSettingType: {new(...args: any[]): TFieldSetting}, factoryMethod: (setting: TFieldSetting) => TClientControlSettings){
         this.fieldSettingBoundClientSettingFactories[fieldSettingType.name as any] = factoryMethod;
         return this;
     }
 
+    /**
+     * Creates a ClientSetting from a specified FieldSetting based on the assigned Factory method
+     * @param fieldSetting The FieldSetting object that should be used for creating the new Setting entry
+     * @returns the created or transformed Client Setting
+     */
     public CreateClientSetting<TFieldSetting extends FieldSettings.FieldSetting>(fieldSetting: TFieldSetting){
         const factoryMethod = this.fieldSettingBoundClientSettingFactories[fieldSetting.constructor.name as any] || this.clientControlSettingsFactory;
         return factoryMethod(fieldSetting);
     }
 
+    /**
+     * Gets the full ControlSchema object for a specific ContentType
+     * @param contentType The type of the Content (e.g. ContentTypes.Task)
+     * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
+     * @returns the fully created ControlSchema
+     */
     public GetFullSchemaForContentTye<TContentType extends Content, K extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
-        actionName?: ActionName): 
+        actionName: ActionName): 
         ControlSchema<TControlBaseType, TClientControlSettings> {
         const schema = this.GetTypeSchema(contentType, actionName);
         const mappings = schema.FieldSettings.map(f => {
             const clientSetting: TClientControlSettings = this.CreateClientSetting(f);
-            const control: {new(...args: any[]): TControlBaseType} = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K);
+            const control: {new(...args: any[]): TControlBaseType} = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K, actionName);
             return {
                 FieldSettings: f,
                 ClientSettings: clientSetting,
@@ -176,7 +211,13 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
         }
     }
 
-    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName?: ActionName){
+    /**
+     * Gets the full ControlSchema object for a specific Content
+     * @param contentType The type of the Content (e.g. ContentTypes.Task)
+     * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
+     * @returns the fully created ControlSchema
+     */    
+    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName: ActionName){
         return this.GetFullSchemaForContentTye(content.constructor as {new(...args: any[])}, actionName);
     }
 }

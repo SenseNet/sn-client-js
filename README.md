@@ -14,10 +14,10 @@
 This component lets you work with the [sensenet ECM](https://github.com/SenseNet) Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content 
 operations.
 
-This library connects to a SenseNet portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of
+This library connects to a sensenet ECM portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of
 having to construct ajax requests yourself.
 
-It also provides you the full SenseNet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
+It also provides you the full sensenet Content Type system hierarchy through Typescript classes with all the fields defined in the CTDs and the Content Type schemas with FieldSettings
 so that you can manage Content easy on client-side knowing the related fields and their settings.
 
 > Tested with the following Sense/Net Services version: 

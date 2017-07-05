@@ -5,6 +5,8 @@
 /**
  * Generic Class that represents a basic OData Response structure
  */
-export class ODataResponse<T>{
+import { IContentOptions } from '../Content';
+
+export class ODataResponse<T extends IContentOptions>{
     d: T;
 }

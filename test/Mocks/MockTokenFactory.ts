@@ -1,12 +1,6 @@
 import { Token, ITokenPayload } from '../../src/Authentication';
 
 export class MockTokenFactory {
-    private static getExpiredDate(): number {
-        let date = new Date()
-        date.setTime(date.getTime() - 1000);
-        return date.getTime() / 1000;
-    }
-
     private static getStillValidDate(){
         let date = new Date()
         date.setTime(date.getTime() + 3000000);

@@ -1,6 +1,6 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { JwtService, TokenStore, TokenPersist, LoginResponse, Token, LoginState } from '../src/Authentication';
+import { JwtService, TokenStore, TokenPersist, LoginResponse, LoginState } from '../src/Authentication';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 import { Observable, BehaviorSubject } from '@reactivex/rxjs';
 import { MockTokenFactory } from './Mocks/MockTokenFactory';
@@ -30,7 +30,7 @@ export class JwtServiceTests {
 
     @test
     public 'State change should update global header on HttpProvider to access token head & payload'() {
-        let headers = this.httpProvider.actualHeaders;
+        let headers = this.httpProvider.actualHeaders as any;
         let validToken = MockTokenFactory.CreateValid();
 
         expect(headers['X-Access-Data']).to.be.eq(undefined);
@@ -56,7 +56,7 @@ export class JwtServiceTests {
     }
 
     @test
-    public 'LoginResponse with invalid token sould be emit False'(done) {
+    public 'LoginResponse with invalid token sould be emit False'(done: MochaDone) {
         this.httpProvider.setResponse({
             access: 'invalidEncodedValue',
             refresh: 'invalidEncodedValue'
@@ -73,7 +73,7 @@ export class JwtServiceTests {
     }
 
     @test
-    public 'Error response from Http endpoint response sould be emit False'(done) {
+    public 'Error response from Http endpoint response sould be emit False'(done: MochaDone) {
         this.httpProvider.setError('Error happened :(');
         let obs = this.jwtService.Login('usr', 'pass');
         obs.subscribe(t => {
@@ -85,7 +85,7 @@ export class JwtServiceTests {
         });
     }
 
-    @test 'CheckForUpdate should resolve with false and state should be Authenticated, if the access token is valid'(done) {
+    @test 'CheckForUpdate should resolve with false and state should be Authenticated, if the access token is valid'(done: MochaDone) {
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         let store = t['TokenStore'] as TokenStore;
         store.SetToken('access', MockTokenFactory.CreateValid());
@@ -96,7 +96,7 @@ export class JwtServiceTests {
         })
     }
 
-    @test 'CheckForUpdate should resolve with false and state should be Unauthenticated, if refresh token has been expired'(done) {
+    @test 'CheckForUpdate should resolve with false and state should be Unauthenticated, if refresh token has been expired'(done: MochaDone) {
 
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         let store = t['TokenStore'] as TokenStore;
@@ -109,7 +109,7 @@ export class JwtServiceTests {
         })
     }
 
-    @test 'CheckForUpdate should resolve with true and state should be Authenticated, if refresh token is valid, but the access token has been expired and the request was valid'(done) {
+    @test 'CheckForUpdate should resolve with true and state should be Authenticated, if refresh token is valid, but the access token has been expired and the request was valid'(done: MochaDone) {
         let refreshToken = MockTokenFactory.CreateValid();
         this.httpProvider.setResponse({
             access: MockTokenFactory.CreateValid().toString(),
@@ -126,7 +126,7 @@ export class JwtServiceTests {
         })
     }
 
-    @test 'CheckForUpdate should resolve with false and state should be Unauthenticated, if refresh token is valid, but the access token has been expired and the request has failed'(done) {
+    @test 'CheckForUpdate should resolve with false and state should be Unauthenticated, if refresh token is valid, but the access token has been expired and the request has failed'(done: MochaDone) {
         let refreshToken = MockTokenFactory.CreateValid();
         this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
@@ -141,7 +141,7 @@ export class JwtServiceTests {
         });
     }
 
-    @test 'Login should resolve with true and set state to Authenticated, when request succeeded. '(done) {
+    @test 'Login should resolve with true and set state to Authenticated, when request succeeded. '(done: MochaDone) {
         let refreshToken = MockTokenFactory.CreateValid();
                 this.httpProvider.setResponse({
             access: MockTokenFactory.CreateValid().toString(),
@@ -156,8 +156,7 @@ export class JwtServiceTests {
         });
     }    
 
-    @test 'Login should resolve with false and set state to Unauthenticated, when request failed. '(done) {
-        let refreshToken = MockTokenFactory.CreateValid();
+    @test 'Login should resolve with false and set state to Unauthenticated, when request failed. '(done: MochaDone) {
         this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         t.Login('user', 'pass').first().subscribe(result => {
@@ -168,7 +167,7 @@ export class JwtServiceTests {
         });
     }
 
-    @test 'Logout should invalidate both Access and Refresh tokens' (done) {
+    @test 'Logout should invalidate both Access and Refresh tokens' (done: MochaDone) {
         this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         let store = t['TokenStore'] as TokenStore;
