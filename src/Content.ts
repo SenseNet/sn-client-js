@@ -465,8 +465,10 @@ export class Content {
         if (!this.Path) {
             throw new Error('No path specified');
         }
-        return this.repository.Content.Fetch( new ODataRequestOptions({
-            path: this.Path
+        
+        return this.repository.Content.Fetch(new ODataRequestOptions({
+            path: this.Path,
+            params: options
         }), Content).map(resp => {
             return resp.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
         });

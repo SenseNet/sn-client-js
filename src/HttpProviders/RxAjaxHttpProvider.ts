@@ -30,7 +30,7 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
 
         req.onload = () => {
             try {
-                sub.next(JSON.parse(req.responseText));
+                sub.next(req.responseText && JSON.parse(req.responseText) || null);
             } catch (error) {
                 sub.error(error);
             }
