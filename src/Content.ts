@@ -184,7 +184,14 @@ export class Content {
     */
     Delete(permanently?: boolean): Observable<any> {
         if (this.Id) {
-            return this.repository.Content.Delete(this.Id, permanently);
+            const fields = this.GetFields();
+            const observable = this.repository.Content.Delete(this.Id, permanently);
+            observable.subscribe(() => {
+                this.repository['onContentDeletedSubject'].next([fields, permanently || false]);
+            }, (err) => {
+                this.repository['onContentDeleteFailedSubject'].next([this, permanently || false, new Error(err)]);
+            })
+            return observable;
         }
         return Observable.of(undefined);
     }
@@ -225,24 +232,34 @@ export class Content {
         /** Fields Save logic */
         if (fields) {
             if (!this.Id) {
-                throw new Error('Content Id not present');
+                const err = new Error('Content Id not present');
+                this.repository['onContentModificationFailedSubject'].next([this, fields, err]);
+                throw err;
             }
 
             if (!this.IsSaved) {
-                throw new Error('The Content is not saved to the Repository, Save it before updating.')
+                const err = new Error('The Content is not saved to the Repository, Save it before updating.')
+                this.repository['onContentModificationFailedSubject'].next([this, fields, err]);
+                throw err;
             }
             if (override) {
                 return this.repository.Content.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
+                        this.repository['onContentModifiedSubject'].next([this, fields]);
                         return this;
+                    }, err => {
+                        this.repository['onContentModificationFailedSubject'].next([this, fields, new Error(err)]);
                     });
             }
             else {
                 return this.repository.Content.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
+                        this.repository['onContentModifiedSubject'].next([this, fields]);
                         return this;
+                    }, err => {
+                        this.repository['onContentModificationFailedSubject'].next([this, fields, new Error(err)]);
                     });
             }
         }
@@ -250,14 +267,18 @@ export class Content {
         if (!this.IsSaved) {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
-                throw new Error('Cannot create content without a valid Path specified');
+                const err = new Error('Cannot create content without a valid Path specified');
+                this.repository['onContentCreateFailedSubject'].next([this, err]);
+                throw err;
             }
-
 
             return this.repository.Content.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
                 this.UpdateLastSavedFields(resp);
                 this._isSaved = true;
+                this.repository['onContentCreatedSubject'].next(this);
                 return this;
+            }, (err) => {
+                this.repository['onContentCreateFailedSubject'].next([this, new Error(err)]);
             });
         } else {
             // Content saved
@@ -268,12 +289,15 @@ export class Content {
                 if (!this.Id) {
                     throw new Error('Content Id not present');
                 }
-
+                const changes = this.GetChanges();
                 // Patch content
-                return this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges())
+                return this.repository.Content.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
+                        this.repository['onContentModifiedSubject'].next([this, changes]);
                         return this;
+                    }, err => {
+                        this.repository['onContentModificationFailedSubject'].next([this, changes, new Error(err)]);
                     });
             }
         }
@@ -834,6 +858,7 @@ export class Content {
         repository: BaseRepository): T {
         let constructed = Content.Create(newContent, opt, repository);
         (constructed as any)['_isSaved'] = true;
+        repository['onContentLoadedSubject'].next(constructed);
         return constructed;
     }
 

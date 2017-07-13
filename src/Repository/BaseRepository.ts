@@ -5,13 +5,15 @@
  */
 /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable, Subject } from '@reactivex/rxjs';
 import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
 import { VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
 import { IAuthenticationService } from '../Authentication/';
+import { ICustomActionOptions } from '../ODataApi/CustomAction';
+import { IODataParams } from '../ODataApi/ODataParams';
 
 /**
  *
@@ -19,6 +21,59 @@ import { IAuthenticationService } from '../Authentication/';
 export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider, 
                             TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
                             TProviderBaseContentType extends Content = Content> {
+
+    private onContentCreatedSubject = new Subject<TProviderBaseContentType>();
+    private onContentCreateFailedSubject = new Subject<[TProviderBaseContentType, Error]>();
+    private onContentModifiedSubject = new Subject<[TProviderBaseContentType, Partial<TProviderBaseContentType['options']>]>();    
+    private onContentModificationFailedSubject = new Subject<[TProviderBaseContentType, Partial<TProviderBaseContentType['options']>, Error]>();
+    private onContentLoadedSubject = new Subject<TProviderBaseContentType>();
+    private onContentDeletedSubject = new Subject<[TProviderBaseContentType['options'], boolean]>();
+    private onContentDeleteFailedSubject = new Subject<[TProviderBaseContentType, boolean, Error]>();
+    private onCustomActionExecutedSubject
+        = new Subject<[ICustomActionOptions, IODataParams | undefined,  Object]>();
+
+    private onCustomActionFailedSubject
+        = new Subject<[ICustomActionOptions, IODataParams | undefined, {new(...args: any[]): Object}, Error]>();
+
+
+    /**
+     * Triggered after a succesful Content creation
+     */
+    public OnContentCreated = this.onContentCreatedSubject.asObservable();
+
+    /**
+     * Triggered after Content creation has been failed
+     */
+    public OnContentCreateFailed= this.onContentCreateFailedSubject.asObservable();
+
+    /**
+     * Triggered after modifying a Content
+     */
+    public OnContentModified = this.onContentModifiedSubject.asObservable();
+
+    /**
+     * Triggered when failed to modify a Content
+     */
+    public OnContentModificationFailedSubject = this.onContentModificationFailedSubject.asObservable();
+
+    /**
+     * Triggered when a Content is loaded from the Repository
+     */
+    public OnContentLoaded = this.onContentLoadedSubject.asObservable();
+
+    /**
+     * Triggered after deleting a Content
+     */
+    public OnContentDeleted = this.onContentDeletedSubject.asObservable();
+
+    /**
+     * Triggered after deleting a content has been failed
+     */
+    public OnContentDeleteFailed = this.onContentDeleteFailedSubject.asObservable();
+
+    public OnCustomActionExecuted = this.onCustomActionExecutedSubject.asObservable();
+
+    public OnCustomActionFailed = this.onCustomActionFailedSubject.asObservable();
 
     /**
      * Will be true if the Repository's host differs from the current host

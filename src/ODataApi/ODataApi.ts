@@ -30,7 +30,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * @param {BaseRepository} repository Reference to a Repository instance
      */
     constructor(
-        providerRef: { new (): THttpProvider },
+        providerRef: { new(): THttpProvider },
         private readonly repository: BaseRepository<THttpProvider>,
     ) {
         this.httpProvider = new providerRef();
@@ -52,7 +52,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      *      });
      * ```
      */
-    public Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new (...args: any[]): T }): Observable<ODataResponse<T['options']>> {
+    public Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new(...args: any[]): T }): Observable<ODataResponse<T['options']>> {
 
         return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET').share();
     }
@@ -76,7 +76,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      */
     public Fetch<T extends TBaseContentType = TBaseContentType>(
         options: ODataRequestOptions,
-        returnsType?: { new (...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
+        returnsType?: { new(...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
 
         return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET').share();
     }
@@ -104,7 +104,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
     public Post<T extends TBaseContentType>(
         path: string,
         contentBody: T['options'],
-        postedContentType: { new (...args: any[]): T }): Observable<T['options']> {
+        postedContentType: { new(...args: any[]): T }): Observable<T['options']> {
 
         (contentBody as any).__ContentType = contentBody.Type || postedContentType.name;
         return this.repository
@@ -141,9 +141,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Patch<T extends TBaseContentType>(id: number, contentType: { new (...args: any[]): T }, fields: T['options']): Observable<T['options']> {
+    public Patch<T extends TBaseContentType>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T['options']> {
 
-        let contentTypeWithResponse = ODataResponse as { new (...args: any[]): ODataResponse<T> };
+        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
@@ -167,8 +167,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Put<T extends TBaseContentType>(id: number, contentType: { new (...args: any[]): T }, fields: T['options']): Observable<T> {
-        let contentTypeWithResponse = ODataResponse as { new (...args: any[]): ODataResponse<T> };
+    public Put<T extends TBaseContentType>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T> {
+        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
@@ -182,9 +182,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
       * @param {new(...args): TReturnType} returns Th type that the action should return
       * @returns {Observable<TReturnType>} Returns an Rxjs observable whitch will be resolved with TReturnType that you can subscribe of in your code.
       */
-    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams, returns?: { new (...args: any[]): TReturnType }): Observable<TReturnType> {
+    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams, returns?: { new(...args: any[]): TReturnType }): Observable<TReturnType> {
         if (!returns) {
-            returns = Object as { new (...args: any[]): any };
+            returns = Object as { new(...args: any[]): any };
         }
         let action = new CustomAction(actionOptions);
         let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
@@ -192,10 +192,12 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         if (typeof action.id !== 'undefined') {
             path = ODataHelper.joinPaths(ODataHelper.getContentUrlbyId(action.id), action.name);
         }
-        else if (action.path){
+        else if (action.path) {
             path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
         } else {
-            throw Error('No Id or Path provided.')
+            const error = new Error('No Id or Path provided.')
+            this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns, error]);
+            throw error;
         }
         if (cacheParam.length > 0) {
             path = `${path}?${cacheParam}`
@@ -207,16 +209,34 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         }
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            return this.repository.Ajax(path, 'GET', returns);
+            const ajax = this.repository.Ajax(path, 'GET', returns).share();
+            ajax.subscribe(resp => {
+                this.repository['onCustomActionExecutedSubject'].next([actionOptions, options, resp]);
+            }, (err) => {
+                this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
+            });
+            return ajax;
         }
         else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                return this.repository.Ajax(path, 'POST', returns, {
+                const ajax = this.repository.Ajax(path, 'POST', returns, {
                     body: JSON.stringify(options.data)
+                }).share();
+                ajax.subscribe(resp => {
+                    this.repository['onCustomActionExecutedSubject'].next([actionOptions, options, resp]);
+                }, (err) => {
+                    this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
                 });
+                return ajax;
             }
             else {
-                return this.repository.Ajax(path, 'POST', returns);
+                const ajax = this.repository.Ajax(path, 'POST', returns).share();
+                ajax.subscribe(resp => {
+                    this.repository['onCustomActionExecutedSubject'].next([actionOptions, options, resp]);
+                }, (err) => {
+                    this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
+                });
+                return ajax;
             }
         }
     }

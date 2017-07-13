@@ -86,9 +86,9 @@ describe('ODataApi', () => {
         service.Content.CreateCustomAction({
             path: `localhost/OData.svc('Root')`,
             name: 'exampleAction'
-        }).first().subscribe(resp => {
+        }).subscribe(resp => {
             done();
             expect(http.lastUrl).to.contains('OData.svc/(');
-        });
+        }, done);
     });
 });
