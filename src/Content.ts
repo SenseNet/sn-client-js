@@ -241,33 +241,33 @@ export class Content {
         if (fields) {
             if (!this.Id) {
                 const err = new Error('Content Id not present');
-                this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
+                this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
                 throw err;
             }
 
             if (!this.IsSaved) {
                 const err = new Error('The Content is not saved to the Repository, Save it before updating.')
-                this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
+                this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
                 throw err;
             }
             if (override) {
                 return this.repository.Content.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository['onContentModifiedSubject'].next({content: this, originalFields: originalFields, change: fields});
+                        this.repository['onContentModifiedSubject'].next({ content: this, originalFields: originalFields, change: fields });
                         return this;
                     }, err => {
-                        this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
+                        this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
                     });
             }
             else {
                 return this.repository.Content.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository['onContentModifiedSubject'].next({content: this, originalFields: originalFields, change: fields});
+                        this.repository['onContentModifiedSubject'].next({ content: this, originalFields: originalFields, change: fields });
                         return this;
                     }, err => {
-                        this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
+                        this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
                     });
             }
         }
@@ -276,7 +276,7 @@ export class Content {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
                 const err = new Error('Cannot create content without a valid Path specified');
-                this.repository['onContentCreateFailedSubject'].next({content: this, error: err});
+                this.repository['onContentCreateFailedSubject'].next({ content: this, error: err });
                 throw err;
             }
 
@@ -286,7 +286,7 @@ export class Content {
                 this.repository['onContentCreatedSubject'].next(this);
                 return this;
             }, (err) => {
-                this.repository['onContentCreateFailedSubject'].next({content: this, error: err});
+                this.repository['onContentCreateFailedSubject'].next({ content: this, error: err });
             });
         } else {
             // Content saved
@@ -302,7 +302,7 @@ export class Content {
                 return this.repository.Content.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
-                        this.repository['onContentModifiedSubject'].next({content: this, change: changes, originalFields: originalFields});
+                        this.repository['onContentModifiedSubject'].next({ content: this, change: changes, originalFields: originalFields });
                         return this;
                     }, err => {
                         this.repository['onContentModificationFailedSubject'].next({ content: this, change: changes, error: err });
@@ -1515,6 +1515,59 @@ export class Content {
             }
         });
         return uploadCreation;
+    }
+
+
+    /**
+     * Returns the parent content's Path
+     * @throws if no Path is specified or the content is not saved yet.
+     */
+    public get ParentPath(): string {
+        if (!this.Path) {
+            throw Error('No Path provided for the Content');
+        }
+
+        if (!this.IsSaved) {
+            throw Error('Content has to be saved to retrieve the ParentPath');
+        }
+        const segments = this.Path.split('/');
+        segments.pop();
+        return segments.join('/');
+    }
+
+    /**
+     * Indicates if the current Content is the parent a specified Content
+     */
+    public IsParentOf(childContent: Content): boolean {
+        return this.repository === childContent.repository && this.IsSaved && childContent.ParentPath === this.Path;
+    }
+
+    /**
+     * Indicates if the current Content is a child a specified Content
+     */
+    public IsChildOf(parentContent: Content): boolean {
+        return this.repository === parentContent.repository && parentContent.IsSaved && this.ParentPath === parentContent.Path;
+    }
+
+    /**
+     * Indicates if the current Content is an ancestor of a specified Content
+     */
+
+    public IsAncestorOf(descendantContent: Content): boolean {
+        if (!descendantContent.Path || !this.Path) {
+            throw Error('No path provided')
+        }
+        return this.repository === descendantContent.repository && this.IsSaved && descendantContent.Path.indexOf(this.Path + '/') === 0;
+    }
+
+    /**
+     * Indicates if the current Content is a descendant of a specified Content
+     */
+    public IsDescendantOf(ancestorContent: Content): boolean {
+        if (!ancestorContent.Path || !this.Path) {
+            throw Error('No path provided')
+        }
+        return this.repository === ancestorContent.repository && ancestorContent.IsSaved && this.Path.indexOf(ancestorContent.Path + '/') === 0;
     }
 }
 
