@@ -18,22 +18,22 @@ import { IODataParams } from '../ODataApi/ODataParams';
 /**
  *
  */
-export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider, 
-                            TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
-                            TProviderBaseContentType extends Content = Content> {
+export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider,
+    TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
+    TProviderBaseContentType extends Content = Content> {
 
     private onContentCreatedSubject = new Subject<TProviderBaseContentType>();
-    private onContentCreateFailedSubject = new Subject<[TProviderBaseContentType, Error]>();
-    private onContentModifiedSubject = new Subject<[TProviderBaseContentType, Partial<TProviderBaseContentType['options']>]>();    
-    private onContentModificationFailedSubject = new Subject<[TProviderBaseContentType, Partial<TProviderBaseContentType['options']>, Error]>();
+    private onContentCreateFailedSubject = new Subject<{ content: TProviderBaseContentType, error: any }>();
+    private onContentModifiedSubject = new Subject<{ content: TProviderBaseContentType, originalFields: Partial<TProviderBaseContentType['options']>, change: Partial<TProviderBaseContentType['options']> }>();
+    private onContentModificationFailedSubject = new Subject<{ content: TProviderBaseContentType, change: Partial<TProviderBaseContentType['options']>, error: any }>();
     private onContentLoadedSubject = new Subject<TProviderBaseContentType>();
-    private onContentDeletedSubject = new Subject<[TProviderBaseContentType['options'], boolean]>();
-    private onContentDeleteFailedSubject = new Subject<[TProviderBaseContentType, boolean, Error]>();
+    private onContentDeletedSubject = new Subject<{ contentData: TProviderBaseContentType['options'], permanently: boolean }>();
+    private onContentDeleteFailedSubject = new Subject<{ content: TProviderBaseContentType, permanently: boolean, error: any }>();
     private onCustomActionExecutedSubject
-        = new Subject<[ICustomActionOptions, IODataParams | undefined,  Object]>();
+    = new Subject<[ICustomActionOptions, IODataParams | undefined, Object]>();
 
     private onCustomActionFailedSubject
-        = new Subject<[ICustomActionOptions, IODataParams | undefined, {new(...args: any[]): Object}, Error]>();
+    = new Subject<[ICustomActionOptions, IODataParams | undefined, { new(...args: any[]): Object }, Error]>();
 
 
     /**
@@ -44,7 +44,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Triggered after Content creation has been failed
      */
-    public OnContentCreateFailed= this.onContentCreateFailedSubject.asObservable();
+    public OnContentCreateFailed = this.onContentCreateFailedSubject.asObservable();
 
     /**
      * Triggered after modifying a Content
@@ -97,13 +97,13 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * @param {any} body The post body (optional)
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
-    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args: any[]): T }, body?: any): Observable<T> {
+    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new(...args: any[]): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
             .flatMap(state => {
-                if (!returnsType){
-                    returnsType = Object as {new(...args: any[]): any};
+                if (!returnsType) {
+                    returnsType = Object as { new(...args: any[]): any };
                 }
                 return this.httpProviderRef.Ajax<T>(returnsType,
                     {
@@ -116,17 +116,17 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
                     });
             });
     }
-    
+
     /**
      * Reference to the Http Provider used by the current repository
      */
     public readonly httpProviderRef: TProviderType;
-    
+
     /**
      * Reference to the OData API used by the current repository
      */
     public readonly Content: ODataApi.ODataApi<TProviderType, any>;
-    
+
     /**
      * Reference to the Authentication Service used by the current repository
      */
@@ -142,9 +142,9 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * @param httpProviderType The type of the Http Provider, should extend HttpProviders.BaseHttpProvider
      * @param authentication The type of the Authentication Service to be used.
      */
-    constructor(config: Partial<SnConfigModel>, 
-                private readonly httpProviderType: { new (): TProviderType }, 
-                authentication: { new (...args: any[]): TAuthenticationServiceType }) {
+    constructor(config: Partial<SnConfigModel>,
+        private readonly httpProviderType: { new(): TProviderType },
+        authentication: { new(...args: any[]): TAuthenticationServiceType }) {
 
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
@@ -153,7 +153,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
         this.Content = new ODataApi.ODataApi(this.httpProviderType, this);
     }
-    
+
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
      * subject in the SnAdmin article. You can read detailed description of the function result.
@@ -186,17 +186,17 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * });
      * ```
      */
-    public GetAllContentTypes(): Observable<ContentTypes.ContentType[]>{
+    public GetAllContentTypes(): Observable<ContentTypes.ContentType[]> {
         return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
-                name: 'GetAllContentTypes', 
-                path: '/Root', 
-                isAction: false
-            }, 
+            name: 'GetAllContentTypes',
+            path: '/Root',
+            isAction: false
+        },
             undefined,
             ODataApi.ODataCollectionResponse)
             .map(resp => {
                 return resp.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this));
-            }); ;
+            });
     }
 
     /**
@@ -219,10 +219,10 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * ```
     */
     public Load<TContentType extends TProviderBaseContentType>(
-            idOrPath: string | number,
-            options?: ODataApi.IODataParams,
-            version?: string,
-            returns?: { new (...args: any[]): TContentType }): Observable<TContentType> {
+        idOrPath: string | number,
+        options?: ODataApi.IODataParams,
+        version?: string,
+        returns?: { new(...args: any[]): TContentType }): Observable<TContentType> {
 
         let contentURL = typeof idOrPath === 'string' ?
             ODataHelper.getContentURLbyPath(idOrPath) :
@@ -234,7 +234,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
             path: contentURL,
             params: params
         })
-        const returnType = returns || Content as { new (...args: any[]): any};
+        const returnType = returns || Content as { new(...args: any[]): any };
 
         return this.Content.Get(odataRequestOptions, returnType)
             .share()

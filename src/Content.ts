@@ -187,9 +187,16 @@ export class Content {
             const fields = this.GetFields();
             const observable = this.repository.Content.Delete(this.Id, permanently);
             observable.subscribe(() => {
-                this.repository['onContentDeletedSubject'].next([fields, permanently || false]);
+                this.repository['onContentDeletedSubject'].next({
+                    contentData: fields,
+                    permanently: permanently || false
+                });
             }, (err) => {
-                this.repository['onContentDeleteFailedSubject'].next([this, permanently || false, new Error(err)]);
+                this.repository['onContentDeleteFailedSubject'].next({
+                    content: this,
+                    permanently: permanently || false,
+                    error: err
+                });
             })
             return observable;
         }
@@ -229,37 +236,38 @@ export class Content {
 
     private saveContentInternal(fields?: this['options'], override?: boolean): Observable<this> {
         const contentType = this.constructor as { new(...args: any[]): any };
+        const originalFields = this.GetFields();
         /** Fields Save logic */
         if (fields) {
             if (!this.Id) {
                 const err = new Error('Content Id not present');
-                this.repository['onContentModificationFailedSubject'].next([this, fields, err]);
+                this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
                 throw err;
             }
 
             if (!this.IsSaved) {
                 const err = new Error('The Content is not saved to the Repository, Save it before updating.')
-                this.repository['onContentModificationFailedSubject'].next([this, fields, err]);
+                this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
                 throw err;
             }
             if (override) {
                 return this.repository.Content.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository['onContentModifiedSubject'].next([this, fields]);
+                        this.repository['onContentModifiedSubject'].next({content: this, originalFields: originalFields, change: fields});
                         return this;
                     }, err => {
-                        this.repository['onContentModificationFailedSubject'].next([this, fields, new Error(err)]);
+                        this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
                     });
             }
             else {
                 return this.repository.Content.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository['onContentModifiedSubject'].next([this, fields]);
+                        this.repository['onContentModifiedSubject'].next({content: this, originalFields: originalFields, change: fields});
                         return this;
                     }, err => {
-                        this.repository['onContentModificationFailedSubject'].next([this, fields, new Error(err)]);
+                        this.repository['onContentModificationFailedSubject'].next({content: this, change: fields, error: err});
                     });
             }
         }
@@ -268,7 +276,7 @@ export class Content {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
                 const err = new Error('Cannot create content without a valid Path specified');
-                this.repository['onContentCreateFailedSubject'].next([this, err]);
+                this.repository['onContentCreateFailedSubject'].next({content: this, error: err});
                 throw err;
             }
 
@@ -278,7 +286,7 @@ export class Content {
                 this.repository['onContentCreatedSubject'].next(this);
                 return this;
             }, (err) => {
-                this.repository['onContentCreateFailedSubject'].next([this, new Error(err)]);
+                this.repository['onContentCreateFailedSubject'].next({content: this, error: err});
             });
         } else {
             // Content saved
@@ -294,10 +302,10 @@ export class Content {
                 return this.repository.Content.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
-                        this.repository['onContentModifiedSubject'].next([this, changes]);
+                        this.repository['onContentModifiedSubject'].next({content: this, change: changes, originalFields: originalFields});
                         return this;
                     }, err => {
-                        this.repository['onContentModificationFailedSubject'].next([this, changes, new Error(err)]);
+                        this.repository['onContentModificationFailedSubject'].next({ content: this, change: changes, error: err });
                     });
             }
         }
@@ -489,7 +497,7 @@ export class Content {
         if (!this.Path) {
             throw new Error('No path specified');
         }
-        
+
         return this.repository.Content.Fetch(new ODataRequestOptions({
             path: this.Path,
             params: options
@@ -517,7 +525,7 @@ export class Content {
      * ```
     */
     GetVersions(options?: ODataParams): Observable<this[]> {
-        return this.GetDeferredContent('Versions', options, this.constructor as {new()});
+        return this.GetDeferredContent('Versions', options, this.constructor as { new() });
     }
     /**
      * Returns the current Workspace.
@@ -826,7 +834,7 @@ export class Content {
      *```
      */
     GetSchema(): Schemas.Schema<this> {
-        const contentType = (ContentTypes as any)[this.Type] as {new(...args)};
+        const contentType = (ContentTypes as any)[this.Type] as { new(...args) };
         return Content.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
     }
 
