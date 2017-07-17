@@ -6,22 +6,25 @@
 /** */
 
 import { Observable, Subject } from '@reactivex/rxjs';
-import { HttpProviders, Authentication, ODataApi, ODataHelper } from '../SN';
 import { VersionInfo } from './';
-import { RequestMethodType } from '../HttpProviders';
+import { RequestMethodType, BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
 import { IAuthenticationService } from '../Authentication/';
 import { ICustomActionOptions } from '../ODataApi/CustomAction';
-import { IODataParams } from '../ODataApi/ODataParams';
+import { IODataParams, ODataParams } from '../ODataApi/ODataParams';
 import { ContentType } from '../ContentTypes';
 import { Content, IContentOptions } from '../Content';
+import { ODataApi } from '../ODataApi/ODataApi';
+import { ODataHelper, Authentication } from '../SN';
+import { ODataCollectionResponse } from '../ODataApi/ODataCollectionResponse';
 
 /**
  *
  */
-export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider,
+export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpProvider,
     TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService> {
+    private odataApi: ODataApi<TProviderType, Content>;
 
     private onContentCreatedSubject = new Subject<Content>();
     private onContentCreateFailedSubject = new Subject<{ content: Content, error: any }>();
@@ -126,7 +129,14 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Reference to the OData API used by the current repository
      */
-    public readonly Content: ODataApi.ODataApi<TProviderType, any>;
+    public get Content(): ODataApi<TProviderType, any>{
+        console.warn('The property repository.Content is deprecated and will be removed in the near future. Use repositoy.GetODataApi() instead.')
+        return this.odataApi;
+    };
+
+    public GetODataApi(): ODataApi<TProviderType, Content>{
+        return this.odataApi;
+    }
 
     /**
      * Reference to the Authentication Service used by the current repository
@@ -152,7 +162,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
 
         //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.Content = new ODataApi.ODataApi(this.httpProviderType, this);
+        this.odataApi = new ODataApi(this.httpProviderType, this);
     }
 
     /**
@@ -171,7 +181,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * ```
      */
     public GetVersionInfo() {
-        return this.Content.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
+        return this.odataApi.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -188,13 +198,13 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * ```
      */
     public GetAllContentTypes(): Observable<ContentType[]> {
-        return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentType>>({
+        return this.odataApi.CreateCustomAction<ODataCollectionResponse<ContentType>>({
             name: 'GetAllContentTypes',
             path: '/Root',
             isAction: false
         },
             undefined,
-            ODataApi.ODataCollectionResponse)
+            ODataCollectionResponse)
             .map(resp => {
                 return resp.d.results.map(c => this.HandleLoadedContent(ContentType, c));
             });
@@ -253,7 +263,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     */
     public Load<TContentType extends Content>(
         idOrPath: string | number,
-        options?: ODataApi.IODataParams,
+        options?: IODataParams,
         version?: string,
         returns?: { new(...args: any[]): TContentType }): Observable<TContentType> {
 
@@ -261,7 +271,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
 
-        let params = new ODataApi.ODataParams(options || {});
+        let params = new ODataParams(options || {});
 
         let odataRequestOptions = new ODataRequestOptions({
             path: contentURL,
@@ -269,7 +279,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
         })
         const returnType = returns || Content as { new(...args: any[]): any };
 
-        return this.Content.Get(odataRequestOptions, returnType)
+        return this.odataApi.Get(odataRequestOptions, returnType)
             .share()
             .map(r => {
                 return this.HandleLoadedContent(returnType, r.d);

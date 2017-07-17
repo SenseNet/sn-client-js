@@ -8,12 +8,14 @@
  */ /** */
 
 import { Observable } from '@reactivex/rxjs';
-import { CustomAction, IODataParams, ODataRequestOptions } from './ODataApi';
+import { CustomAction, IODataParams, ODataRequestOptions, ODataApi } from './ODataApi';
 import { ODataHelper } from './SN';
 import { Content } from './Content';
 import { BaseRepository } from './Repository/BaseRepository';
+import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
 
 export class Collection<T extends Content> {
+    odata: ODataApi<BaseHttpProvider, Content>;
     Path: string = '';
 
     /**
@@ -24,6 +26,7 @@ export class Collection<T extends Content> {
     constructor(private items: T[],
                 private repository: BaseRepository,
                 private readonly contentType: {new(...args: any[]): T} = Content.constructor as {new(...args: any[]): any}) {
+        this.odata = repository.GetODataApi();
     }
 
     /**
@@ -78,7 +81,7 @@ export class Collection<T extends Content> {
      * ```
      */
     public Add(content: T['options']): Observable<T> {
-        const newcontent = this.repository.Content.Post(this.Path, content, this.contentType)
+        const newcontent = this.odata.Post(this.Path, content, this.contentType)
             .map(resp => {
                 return this.repository.HandleLoadedContent(content.constructor as {new(...args)}, resp);
             });
@@ -141,7 +144,7 @@ export class Collection<T extends Content> {
                     this.items.slice(0, arg)
                         .concat(this.items.slice(arg + 1));
 
-                return this.repository.Content.Delete(content.Id, permanently ? permanently : false);
+                return this.odata.Delete(content.Id, permanently ? permanently : false);
             } else {
                 return Observable.of(undefined);
             }
@@ -151,7 +154,7 @@ export class Collection<T extends Content> {
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
-            return this.repository.Content.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
+            return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
         }
     }
     /**
@@ -184,7 +187,7 @@ export class Collection<T extends Content> {
         }
         o['path'] = path;
         let optionList = new ODataRequestOptions(o as ODataRequestOptions);
-        const children = this.repository.Content.Fetch<T>(optionList);
+        const children = this.odata.Fetch<T>(optionList);
         children
             .subscribe(
                     (items) => {
@@ -235,14 +238,14 @@ export class Collection<T extends Content> {
                 this.items.slice(0, arg)
                     .concat(this.items.slice(arg + 1));
             let action = new CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
-            return this.repository.Content.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
+            return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             this.items =
                 this.items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
-            return this.repository.Content.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
+            return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
     /**
@@ -284,12 +287,12 @@ export class Collection<T extends Content> {
     public Copy(arg: any, targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
             let action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
-            return this.repository.Content.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
+            return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
             let ids = arg.map(i => this.items[i].Id);
             let action = new CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
-            return this.repository.Content.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
+            return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
     }
     /**
@@ -314,7 +317,7 @@ export class Collection<T extends Content> {
         }
         o['path'] = ODataHelper.getContentURLbyPath(this.Path);
         let optionList = new ODataRequestOptions(o as ODataRequestOptions);
-        return this.repository.Content.Get<T>(optionList);
+        return this.odata.Get<T>(optionList);
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
@@ -344,7 +347,7 @@ export class Collection<T extends Content> {
         if (typeof fileText !== 'undefined') {
             data['FileText'] = fileText;
         }
-        let uploadCreation = this.repository.Content.Upload(this.Path, data, true);
+        let uploadCreation = this.odata.Upload(this.Path, data, true);
         uploadCreation.subscribe({
             next: (response) => {
                 const data = {
@@ -353,7 +356,7 @@ export class Collection<T extends Content> {
                     Overwrite: overwrite,
                     ChunkToken: response
                 };
-                return this.repository.Content.Upload(this.Path, data, false);
+                return this.odata.Upload(this.Path, data, false);
             }
         });
         return uploadCreation;
