@@ -254,24 +254,31 @@ export class Content {
                 throw err;
             }
             if (override) {
-                return this.odata.Put(this.Id, contentType, fields)
+                const request = this.odata.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
                         this.repository['onContentModifiedSubject'].next({ content: this, originalFields: originalFields, change: fields });
                         return this;
-                    }, err => {
-                        this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
-                    });
+                    }).share();
+                request.subscribe(() => { }, err => {
+                    this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
+                })
+                return request;
             }
             else {
-                return this.odata.Patch(this.Id, contentType, fields)
+                const request = this.odata.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
                         this.repository['onContentModifiedSubject'].next({ content: this, originalFields: originalFields, change: fields });
                         return this;
-                    }, err => {
-                        this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
-                    });
+                    }).share();
+
+                request.subscribe(() => { }, err => {
+                    this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
+
+                })
+                return request;
+
             }
         }
 
@@ -283,18 +290,23 @@ export class Content {
                 throw err;
             }
 
-            return this.odata.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
-                if (!this.Id) {
-                    throw Error('Error: No content Id in response!');
-                }
-                this.UpdateLastSavedFields(resp);
-                this.repository['_loadedContentReferenceCache'][this.Id] = this;
-                this._isSaved = true;
-                this.repository['onContentCreatedSubject'].next(this);
-                return this;
-            }, (err) => {
+            const request = this.odata.Post<this>(this.Path, this.GetFields(), contentType)
+                .map(resp => {
+                    if (!resp.Id) {
+                        throw Error('Error: No content Id in response!');
+                    }
+                    this.UpdateLastSavedFields(resp);
+                    this.repository['_loadedContentReferenceCache'][resp.Id] = this;
+                    this._isSaved = true;
+                    this.repository['onContentCreatedSubject'].next(this);
+                    return this;
+                }).share();
+
+            request.subscribe(() => { }, err => {
                 this.repository['onContentCreateFailedSubject'].next({ content: this, error: err });
             });
+            return request;
+
         } else {
             // Content saved
             if (!this.IsDirty) {
@@ -306,14 +318,17 @@ export class Content {
                 }
                 const changes = this.GetChanges();
                 // Patch content
-                return this.odata.Patch<this>(this.Id, contentType, changes)
+                const request = this.odata.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
                         this.repository['onContentModifiedSubject'].next({ content: this, change: changes, originalFields: originalFields });
                         return this;
-                    }, err => {
-                        this.repository['onContentModificationFailedSubject'].next({ content: this, change: changes, error: err });
-                    });
+                    }).share();
+                request.subscribe(() => { }, err => {
+                    this.repository['onContentModificationFailedSubject'].next({ content: this, change: changes, error: err });
+
+                })
+                return request;
             }
         }
     }
@@ -956,19 +971,19 @@ export class Content {
     * ```
      */
     HasPermission(permissions: ('See' | 'Preview' | 'PreviewWithoutWatermark' | 'PreviewWithoutRedaction' | 'Open' |
-                                'OpenMinor' | 'Save' | 'Publish' | 'ForceCheckin' | 'AddNew' |
-                                'Approve' | 'Delete' | 'RecallOldVersion' | 'DeleteOldVersion' | 'SeePermissions' |
-                                'SetPermissions' | 'RunApplication' | 'ManageListsAndWorkspaces' | 'TakeOwnership' |
-                                'Custom01' | 'Custom02' | 'Custom03' | 'Custom04' | 'Custom05' | 'Custom06' | 'Custom07' | 'Custom08' | 'Custom09' |
-                                'Custom10' | 'Custom11' | 'Custom12' | 'Custom13' | 'Custom14' | 'Custom15' | 'Custom16' | 'Custom17' |
-                                'Custom18' | 'Custom19' | 'Custom20' | 'Custom21' | 'Custom22' | 'Custom23' | 'Custom24' | 'Custom25' |
-                                'Custom26' | 'Custom27' | 'Custom28' | 'Custom29' | 'Custom30' | 'Custom31' | 'Custom32')[], identity?: ContentTypes.User | ContentTypes.Group ): Observable<boolean> {
+        'OpenMinor' | 'Save' | 'Publish' | 'ForceCheckin' | 'AddNew' |
+        'Approve' | 'Delete' | 'RecallOldVersion' | 'DeleteOldVersion' | 'SeePermissions' |
+        'SetPermissions' | 'RunApplication' | 'ManageListsAndWorkspaces' | 'TakeOwnership' |
+        'Custom01' | 'Custom02' | 'Custom03' | 'Custom04' | 'Custom05' | 'Custom06' | 'Custom07' | 'Custom08' | 'Custom09' |
+        'Custom10' | 'Custom11' | 'Custom12' | 'Custom13' | 'Custom14' | 'Custom15' | 'Custom16' | 'Custom17' |
+        'Custom18' | 'Custom19' | 'Custom20' | 'Custom21' | 'Custom22' | 'Custom23' | 'Custom24' | 'Custom25' |
+        'Custom26' | 'Custom27' | 'Custom28' | 'Custom29' | 'Custom30' | 'Custom31' | 'Custom32')[], identity?: ContentTypes.User | ContentTypes.Group): Observable<boolean> {
 
         let params = `permissions=${permissions.join(',')}`;
         if (identity && identity.Path) {
             params += `&identity=${identity.Path}`
         };
-        return this.repository.Ajax(`${this.GetFullPath()}/HasPermission?${params}`, 'GET', Boolean as {new()});
+        return this.repository.Ajax(`${this.GetFullPath()}/HasPermission?${params}`, 'GET', Boolean as { new() });
     }
     /**
      * Users who have TakeOwnership permission for the current content can modify the Owner of this content.
@@ -1584,13 +1599,13 @@ export class Content {
     /**
      * Returns the full Path for the current content
      */
-    GetFullPath(): string{
-        if (!this.IsSaved){
+    GetFullPath(): string {
+        if (!this.IsSaved) {
             throw new Error('Content has to be saved to get the full Path');
         }
-        if (this.Id){
+        if (this.Id) {
             return ODataHelper.getContentUrlbyId(this.Id);
-        } else if (this.Path){
+        } else if (this.Path) {
             return ODataHelper.getContentURLbyPath(this.Path);
         } else {
             throw new Error('Content Id or Path has to be provided to get the full Path');

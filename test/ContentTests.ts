@@ -245,6 +245,7 @@ describe('Content', () => {
         it('should send a POST request if triggering Save on an unsaved Content', (done) => {
             repo.httpProviderRef.setResponse({
                 d: {
+                    Id: 3,
                     DisplayName: 'new3',
                 }
             })
