@@ -643,8 +643,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.CheckPreviews()).to.be.instanceof(Observable);
         });
-    });
-    describe('#CheckPreviews()', () => {
+
         it('should return an Observable object', () => {
             expect(content.CheckPreviews(true)).to.be.instanceof(Observable);
         });
@@ -656,12 +655,12 @@ describe('Content', () => {
     });
     describe('#HasPermission()', () => {
         it('should return an Observable object', () => {
-            expect(content.HasPermission(['AddNew', 'Save'])).to.be.instanceof(Observable);
+            expect(contentSaved.HasPermission(['AddNew', 'Save'])).to.be.instanceof(Observable);
         });
-    });
-    describe('#HasPermission()', () => {
+
         it('should return an Observable object', () => {
-            expect(content.HasPermission(['AddNew', 'Save'], 'alba')).to.be.instanceof(Observable);
+            const usr = repo.HandleLoadedContent(ContentTypes.User, {Path: 'Root/Users/alba'});
+            expect(contentSaved.HasPermission(['AddNew', 'Save'], usr)).to.be.instanceof(Observable);
         });
     });
     describe('#TakeOwnership()', () => {

@@ -284,7 +284,7 @@ export class Content {
             }
 
             return this.odata.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
-                if (!this.Id){
+                if (!this.Id) {
                     throw Error('Error: No content Id in response!');
                 }
                 this.UpdateLastSavedFields(resp);
@@ -366,7 +366,7 @@ export class Content {
         let optionList = this.GetDeferredRequestOptions('Actions', new ODataParams({
             scenario: scenario
         }));
-        return this.odata.Get(optionList, Object as {new(...args)})
+        return this.odata.Get(optionList, Object as { new(...args) })
             .map(resp => {
                 return resp.d.Actions;
             });
@@ -864,10 +864,10 @@ export class Content {
     // Shortcut to repository.HandleLoadedContent()
     // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
     public static HandleLoadedContent: <T extends Content, O extends T['options']>(contentType: { new(...args: any[]): T }, opt: O,
-        repository: BaseRepository) => T 
-        = (contentType, contentOptions, repository) => {
-            console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
-            return repository.HandleLoadedContent(contentType, contentOptions);
+        repository: BaseRepository) => T
+    = (contentType, contentOptions, repository) => {
+        console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
+        return repository.HandleLoadedContent(contentType, contentOptions);
     }
 
     /**
@@ -955,9 +955,20 @@ export class Content {
     * });
     * ```
      */
-    HasPermission(permissions: string[], user?: string, ) {
-        return this.odata.CreateCustomAction({ name: 'HasPermission', id: this.Id, isAction: false, requiredParams: ['permissions'], params: ['user'] },
-            { data: { 'permissions': permissions, 'user': user ? user : '' } });
+    HasPermission(permissions: ('See' | 'Preview' | 'PreviewWithoutWatermark' | 'PreviewWithoutRedaction' | 'Open' |
+                                'OpenMinor' | 'Save' | 'Publish' | 'ForceCheckin' | 'AddNew' |
+                                'Approve' | 'Delete' | 'RecallOldVersion' | 'DeleteOldVersion' | 'SeePermissions' |
+                                'SetPermissions' | 'RunApplication' | 'ManageListsAndWorkspaces' | 'TakeOwnership' |
+                                'Custom01' | 'Custom02' | 'Custom03' | 'Custom04' | 'Custom05' | 'Custom06' | 'Custom07' | 'Custom08' | 'Custom09' |
+                                'Custom10' | 'Custom11' | 'Custom12' | 'Custom13' | 'Custom14' | 'Custom15' | 'Custom16' | 'Custom17' |
+                                'Custom18' | 'Custom19' | 'Custom20' | 'Custom21' | 'Custom22' | 'Custom23' | 'Custom24' | 'Custom25' |
+                                'Custom26' | 'Custom27' | 'Custom28' | 'Custom29' | 'Custom30' | 'Custom31' | 'Custom32')[], identity?: ContentTypes.User | ContentTypes.Group ): Observable<boolean> {
+
+        let params = `permissions=${permissions.join(',')}`;
+        if (identity && identity.Path) {
+            params += `&identity=${identity.Path}`
+        };
+        return this.repository.Ajax(`${this.GetFullPath()}/HasPermission?${params}`, 'GET', Boolean as {new()});
     }
     /**
      * Users who have TakeOwnership permission for the current content can modify the Owner of this content.
@@ -1568,6 +1579,22 @@ export class Content {
             throw Error('No path provided')
         }
         return this.repository === ancestorContent.repository && ancestorContent.IsSaved && this.Path.indexOf(ancestorContent.Path + '/') === 0;
+    }
+
+    /**
+     * Returns the full Path for the current content
+     */
+    GetFullPath(): string{
+        if (!this.IsSaved){
+            throw new Error('Content has to be saved to get the full Path');
+        }
+        if (this.Id){
+            return ODataHelper.getContentUrlbyId(this.Id);
+        } else if (this.Path){
+            return ODataHelper.getContentURLbyPath(this.Path);
+        } else {
+            throw new Error('Content Id or Path has to be provided to get the full Path');
+        }
     }
 }
 
