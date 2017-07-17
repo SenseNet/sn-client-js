@@ -58,7 +58,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Triggered when failed to modify a Content
      */
-    public OnContentModificationFailedSubject = this.onContentModificationFailedSubject.asObservable();
+    public OnContentModificationFailed = this.onContentModificationFailedSubject.asObservable();
 
     /**
      * Triggered when a Content is loaded from the Repository
