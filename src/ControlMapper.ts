@@ -190,7 +190,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns the fully created ControlSchema
      */
-    public GetFullSchemaForContentTye<TContentType extends Content, K extends keyof TContentType>(
+    public GetFullSchemaForContentType<TContentType extends Content, K extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
         actionName: ActionName): 
         ControlSchema<TControlBaseType, TClientControlSettings> {
@@ -218,6 +218,6 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns the fully created ControlSchema
      */    
     public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName: ActionName){
-        return this.GetFullSchemaForContentTye(content.constructor as {new(...args: any[])}, actionName);
+        return this.GetFullSchemaForContentType(content.constructor as {new(...args: any[])}, actionName);
     }
 }
