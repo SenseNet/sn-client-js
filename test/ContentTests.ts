@@ -26,7 +26,7 @@ describe('Content', () => {
             DisplayName: ''
         };
         content = Content.Create(ContentTypes.Task, options, repo);
-        contentSaved = Content.HandleLoadedContent(ContentTypes.Task, options, repo);
+        contentSaved = repo.HandleLoadedContent(ContentTypes.Task, options);
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
     });
 
@@ -185,7 +185,7 @@ describe('Content', () => {
 
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const savedContent = Content.HandleLoadedContent(ContentTypes.Task, { DisplayName: 'Original' }, repo);
+            const savedContent = repo.HandleLoadedContent(ContentTypes.Task, { DisplayName: 'Original' });
             savedContent.DisplayName = 'Modified';
             expect(() => {
                 const obs = savedContent.Save()
@@ -201,7 +201,7 @@ describe('Content', () => {
 
         it('should throw Error is server returns Error, and isOperationInProgress should be set to False', (done) => {
             repo.httpProviderRef.setError({ message: 'serverErrorMessage' });
-            let c = Content.HandleLoadedContent(ContentTypes.Task, { Id: 1 }, repo);
+            let c = repo.HandleLoadedContent(ContentTypes.Task, { Id: 1 });
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
                 done('Error should be thrown here');
@@ -217,7 +217,7 @@ describe('Content', () => {
                     DisplayName: 'new',
                 }
             });
-            let c = Content.HandleLoadedContent(ContentTypes.Task, { Id: 1 }, repo);
+            let c = repo.HandleLoadedContent(ContentTypes.Task, { Id: 1 });
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
                 const lastOptions = repo.httpProviderRef.lastOptions;
@@ -268,7 +268,7 @@ describe('Content', () => {
                     DisplayName: 'new3',
                 }
             })
-            let c = Content.HandleLoadedContent(ContentTypes.Task, { DisplayName: 'test' }, repo);
+            let c = repo.HandleLoadedContent(ContentTypes.Task, { DisplayName: 'test' });
             c.Save().subscribe(modifiedContent => {
                 expect(modifiedContent.DisplayName).to.be.eq('test');
                 done();
@@ -420,7 +420,7 @@ describe('Content', () => {
         });
 
         it('should throw error if no path provided', () => {
-            const contentWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            const contentWithoutPath = repo.HandleLoadedContent(ContentTypes.Task, {});
             expect(() => {contentWithoutPath.Children()}).to.throw();
         });
 
@@ -797,7 +797,7 @@ describe('Content', () => {
 
     describe('#ParentPath', () => {
         it('should throw Error if no Path is provided', () => {
-            const contentWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            const contentWithoutPath = repo.HandleLoadedContent(ContentTypes.Task, {});
             expect(() => { return contentWithoutPath.ParentPath; }).to.throw();
         });
         it('should throw Error if a Content is not saved', () => {
@@ -812,9 +812,9 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const rootContent = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' }, repo);
-        const childContent = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/Child' }, repo);
-        const notChildContent = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'NotRoot/Child' }, repo);
+        const rootContent = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' });
+        const childContent = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/Child' });
+        const notChildContent = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'NotRoot/Child' });
 
         it('should return true if content is a child', () => {
             expect(rootContent.IsParentOf(childContent)).to.be.eq(true);
@@ -826,7 +826,7 @@ describe('Content', () => {
             expect(content.IsParentOf(childContent)).to.be.eq(false);
         });
         it('should return false on repository mismatch', () => {
-            const otherChild = Content.HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'}, new MockRepository());
+            const otherChild = new MockRepository().HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'});
             expect(rootContent.IsParentOf(otherChild)).to.be.eq(false);
         });
     });
@@ -836,9 +836,9 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const rootContent = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' }, repo);
-        const childContent = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/Child' }, repo);
-        const notChildContent = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'NotRoot/Child' }, repo);
+        const rootContent = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' });
+        const childContent = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/Child' });
+        const notChildContent = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'NotRoot/Child' });
 
         it('should return true if content is a child', () => {
             expect(childContent.IsChildOf(rootContent)).to.be.eq(true);
@@ -852,7 +852,7 @@ describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = Content.HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'}, new MockRepository());
+            const otherChild = new MockRepository().HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'});
             expect(otherChild.IsChildOf(rootContent)).to.be.eq(false);
         });        
     });
@@ -862,9 +862,9 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const ancestor = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' }, repo);
-        const descendant = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/test/test2/Child' }, repo);
-        const notDescendant = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root2/Child' }, repo);
+        const ancestor = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' });
+        const descendant = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/test/test2/Child' });
+        const notDescendant = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root2/Child' });
 
         it('should return true if content is an ancestor', () => {
             expect(ancestor.IsAncestorOf(descendant)).to.be.eq(true);
@@ -878,15 +878,15 @@ describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = Content.HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'}, new MockRepository());
+            const otherChild = new MockRepository().HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'});
             expect(ancestor.IsAncestorOf(otherChild)).to.be.eq(false);
         });
         it('should throw an error if no ancestor path provided', () => {
-            const ancestorWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            const ancestorWithoutPath = repo.HandleLoadedContent(ContentTypes.Task, {});
             expect(() => { return ancestorWithoutPath.IsAncestorOf(descendant)}).to.throw();
         });
         it('should throw an error if no descendant path provided', () => {
-            const descendantWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            const descendantWithoutPath = repo.HandleLoadedContent(ContentTypes.Task, {});
             expect(() => { return ancestor.IsAncestorOf(descendantWithoutPath)}).to.throw();
         });
     });
@@ -896,9 +896,9 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const ancestor = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' }, repo);
-        const descendant = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/test/test2/Child' }, repo);
-        const notAncestor = Content.HandleLoadedContent(ContentTypes.Task, { Path: 'Root2' }, repo);
+        const ancestor = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root' });
+        const descendant = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root/test/test2/Child' });
+        const notAncestor = repo.HandleLoadedContent(ContentTypes.Task, { Path: 'Root2' });
 
         it('should return true if content is an ancestor', () => {
             expect(descendant.IsDescendantOf(ancestor)).to.be.eq(true);
@@ -912,15 +912,15 @@ describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = Content.HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'}, new MockRepository());
+            const otherChild = new MockRepository().HandleLoadedContent(ContentTypes.Task, {Path: 'Root/Child'});
             expect(ancestor.IsDescendantOf(otherChild)).to.be.eq(false);
         });
         it('should throw an error if no ancestor path provided', () => {
-            const ancestorWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            const ancestorWithoutPath = repo.HandleLoadedContent(ContentTypes.Task, {});
             expect(() => { return descendant.IsDescendantOf(ancestorWithoutPath)}).to.throw();
         });
         it('should throw an error if no descendant path provided', () => {
-            const descendantWithoutPath = Content.HandleLoadedContent(ContentTypes.Task, {}, repo);
+            const descendantWithoutPath = repo.HandleLoadedContent(ContentTypes.Task, {});
             expect(() => { return descendantWithoutPath.IsDescendantOf(ancestor)}).to.throw();
         });
     });

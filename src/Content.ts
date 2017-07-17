@@ -281,7 +281,11 @@ export class Content {
             }
 
             return this.repository.Content.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
+                if (!this.Id){
+                    throw Error('Error: No content Id in response!');
+                }
                 this.UpdateLastSavedFields(resp);
+                this.repository['_loadedContentReferenceCache'][this.Id] = this;
                 this._isSaved = true;
                 this.repository['onContentCreatedSubject'].next(this);
                 return this;
@@ -502,7 +506,7 @@ export class Content {
             path: this.Path,
             params: options
         }), Content).map(resp => {
-            return resp.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
+            return resp.d.results.map(c => this.repository.HandleLoadedContent(Content, c));
         });
     }
     /**
@@ -853,21 +857,14 @@ export class Content {
         return constructed;
     }
 
-    /**
-     * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
-     * @param type {string} The Content will be a copy of the given type.
-     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
-     * @returns {SenseNet.Content}
-     * ```ts
-     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
-     * ```
-     */
-    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
-        repository: BaseRepository): T {
-        let constructed = Content.Create(newContent, opt, repository);
-        (constructed as any)['_isSaved'] = true;
-        repository['onContentLoadedSubject'].next(constructed);
-        return constructed;
+
+    // Shortcut to repository.HandleLoadedContent()
+    // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
+    public static HandleLoadedContent: <T extends Content, O extends T['options']>(contentType: { new(...args: any[]): T }, opt: O,
+        repository: BaseRepository) => T 
+        = (contentType, contentOptions, repository) => {
+            console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
+            return repository.HandleLoadedContent(contentType, contentOptions);
     }
 
     /**

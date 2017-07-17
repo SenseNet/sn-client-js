@@ -80,7 +80,7 @@ export class Collection<T extends Content> {
     public Add(content: T['options']): Observable<T> {
         const newcontent = this.repository.Content.Post(this.Path, content, this.contentType)
             .map(resp => {
-                return Content.HandleLoadedContent(content.constructor as {new(...args)}, resp, this.repository);
+                return this.repository.HandleLoadedContent(content.constructor as {new(...args)}, resp);
             });
         newcontent
             .subscribe({
@@ -188,7 +188,7 @@ export class Collection<T extends Content> {
         children
             .subscribe(
                     (items) => {
-                        this.items = items.d.results.map(c => Content.HandleLoadedContent(this.contentType, c, this.repository));
+                        this.items = items.d.results.map(c => this.repository.HandleLoadedContent(this.contentType, c));
                     }
             );
         return children;

@@ -6,7 +6,7 @@
 /** */
 
 import { Observable, Subject } from '@reactivex/rxjs';
-import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
+import { HttpProviders, Authentication, ODataApi, ODataHelper } from '../SN';
 import { VersionInfo } from './';
 import { RequestMethodType } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
@@ -14,21 +14,22 @@ import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
 import { IAuthenticationService } from '../Authentication/';
 import { ICustomActionOptions } from '../ODataApi/CustomAction';
 import { IODataParams } from '../ODataApi/ODataParams';
+import { ContentType } from '../ContentTypes';
+import { Content, IContentOptions } from '../Content';
 
 /**
  *
  */
 export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider,
-    TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
-    TProviderBaseContentType extends Content = Content> {
+    TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService> {
 
-    private onContentCreatedSubject = new Subject<TProviderBaseContentType>();
-    private onContentCreateFailedSubject = new Subject<{ content: TProviderBaseContentType, error: any }>();
-    private onContentModifiedSubject = new Subject<{ content: TProviderBaseContentType, originalFields: Partial<TProviderBaseContentType['options']>, change: Partial<TProviderBaseContentType['options']> }>();
-    private onContentModificationFailedSubject = new Subject<{ content: TProviderBaseContentType, change: Partial<TProviderBaseContentType['options']>, error: any }>();
-    private onContentLoadedSubject = new Subject<TProviderBaseContentType>();
-    private onContentDeletedSubject = new Subject<{ contentData: TProviderBaseContentType['options'], permanently: boolean }>();
-    private onContentDeleteFailedSubject = new Subject<{ content: TProviderBaseContentType, permanently: boolean, error: any }>();
+    private onContentCreatedSubject = new Subject<Content>();
+    private onContentCreateFailedSubject = new Subject<{ content: Content, error: any }>();
+    private onContentModifiedSubject = new Subject<{ content: Content, originalFields: IContentOptions, change: IContentOptions }>();
+    private onContentModificationFailedSubject = new Subject<{ content: Content, change: IContentOptions, error: any }>();
+    private onContentLoadedSubject = new Subject<Content>();
+    private onContentDeletedSubject = new Subject<{ contentData: IContentOptions, permanently: boolean }>();
+    private onContentDeleteFailedSubject = new Subject<{ content: Content, permanently: boolean, error: any }>();
     private onCustomActionExecutedSubject
     = new Subject<[ICustomActionOptions, IODataParams | undefined, Object]>();
 
@@ -186,8 +187,8 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * });
      * ```
      */
-    public GetAllContentTypes(): Observable<ContentTypes.ContentType[]> {
-        return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
+    public GetAllContentTypes(): Observable<ContentType[]> {
+        return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentType>>({
             name: 'GetAllContentTypes',
             path: '/Root',
             isAction: false
@@ -195,8 +196,40 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
             undefined,
             ODataApi.ODataCollectionResponse)
             .map(resp => {
-                return resp.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this));
+                return resp.d.results.map(c => this.HandleLoadedContent(ContentType, c));
             });
+    }
+
+
+    private _loadedContentReferenceCache: Content[] = [];
+
+    /**
+     * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
+     * @param type {string} The Content will be a copy of the given type.
+     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
+     * @returns {SenseNet.Content}
+     * ```ts
+     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
+     * ```
+     */
+    public HandleLoadedContent<T extends Content, O extends T['options']>(contentType: { new(...args: any[]): T }, opt: O): T {
+        let instance: T;
+        
+        if (opt.Id){
+            if (this._loadedContentReferenceCache[opt.Id]){
+                instance = this._loadedContentReferenceCache[opt.Id] as T;
+                instance['UpdateLastSavedFields'](opt);
+            } else {
+                instance = Content.Create(contentType, opt, this);
+                this._loadedContentReferenceCache[opt.Id] = instance;
+            }
+
+        } else {
+            instance = Content.Create(contentType, opt, this);
+        }
+        instance['_isSaved'] = true;
+        this.onContentLoadedSubject.next(instance);
+        return instance;
     }
 
     /**
@@ -218,7 +251,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * })
      * ```
     */
-    public Load<TContentType extends TProviderBaseContentType>(
+    public Load<TContentType extends Content>(
         idOrPath: string | number,
         options?: ODataApi.IODataParams,
         version?: string,
@@ -239,7 +272,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
         return this.Content.Get(odataRequestOptions, returnType)
             .share()
             .map(r => {
-                return Content.HandleLoadedContent(returnType, r.d, this);
+                return this.HandleLoadedContent(returnType, r.d);
             });
     }
 }

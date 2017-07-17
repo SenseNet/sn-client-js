@@ -82,13 +82,14 @@ describe('ODataApi', () => {
 
     it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
         let http = service.httpProviderRef;
+        service.Authentication.stateSubject.next(LoginState.Authenticated);
         http.setResponse({success: true});
         service.Content.CreateCustomAction({
             path: `localhost/OData.svc('Root')`,
             name: 'exampleAction'
         }).subscribe(resp => {
-            done();
             expect(http.lastUrl).to.contains('OData.svc/(');
+            done();
         }, done);
     });
 });
