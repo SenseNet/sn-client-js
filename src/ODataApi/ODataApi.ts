@@ -109,8 +109,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         (contentBody as any).__ContentType = contentBody.Type || postedContentType.name;
         return this.repository
             .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', ODataResponse, JSON.stringify(contentBody))
-            .share()
-            .map(resp => resp.d);
+            .map(resp => resp.d)
+            .share();
     }
 
     /**
@@ -121,7 +121,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * @returns {Observable} Returns an observable that you can subscribe of in your code.
      */
     public Delete = (id: number, permanent?: boolean): Observable<any> =>
-        this.repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent })
+        this.repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent }).share();
 
 
     /**
