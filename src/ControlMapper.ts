@@ -128,7 +128,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      */
 
     public SetupFieldSettingForControl<TFieldSettingType extends FieldSettings.FieldSetting, TContentType extends Content, TField extends keyof TContentType>(
-        contentType: { new (...args: any[]): Content },
+        contentType: { new (...args: any[]): TContentType },
         fieldName: TField,
         setupControl: (fieldSetting: TFieldSettingType) => { new (...args: any[]): TControlBaseType },
         fieldSetting?: { new (...args: any[]): TFieldSettingType },
