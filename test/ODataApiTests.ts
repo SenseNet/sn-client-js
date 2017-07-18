@@ -90,8 +90,12 @@ describe('ODataApi', () => {
             path: `localhost/OData.svc('Root')`,
             name: 'exampleAction'
         }).subscribe(resp => {
+        });
+
+        setTimeout(() => {
             expect(http.lastUrl).to.contains('OData.svc/(');
             done();
-        }, done, done);
+        }, 10)
+
     });
 });
