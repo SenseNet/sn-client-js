@@ -112,10 +112,10 @@ export class Content {
     /**
      * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
      */
-    public GetFields(): this['options'] {
+    public GetFields(skipEmpties?: boolean): this['options'] {
         const fieldsToPost = {} as this['options'];
         this.GetSchema().FieldSettings.forEach(s => {
-            this[s.Name] !== undefined && (fieldsToPost[s.Name] = this[s.Name]);
+            ((!skipEmpties && this[s.Name] !== undefined) || (skipEmpties && this[s.Name])) && (fieldsToPost[s.Name] = this[s.Name]);
         });
         return fieldsToPost;
     }
@@ -290,7 +290,7 @@ export class Content {
                 throw err;
             }
 
-            const request = this.odata.Post<this>(this.Path, this.GetFields(), contentType)
+            const request = this.odata.Post<this>(this.Path, this.GetFields(true), contentType)
                 .map(resp => {
                     if (!resp.Id) {
                         throw Error('Error: No content Id in response!');
