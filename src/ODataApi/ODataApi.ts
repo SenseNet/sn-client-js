@@ -211,7 +211,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         if (typeof action.isAction === 'undefined' || !action.isAction) {
             const ajax = this.repository.Ajax(path, 'GET', returns).share();
             ajax.subscribe(resp => {
-                this.repository['onCustomActionExecutedSubject'].next([actionOptions, options, resp]);
+                this.repository['onCustomActionExecutedSubject'].next({
+                        ActionOptions: actionOptions,
+                        ODataParams: options,
+                        Result: resp
+                    });
             }, (err) => {
                 this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
             });
@@ -219,11 +223,13 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         }
         else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                const ajax = this.repository.Ajax(path, 'POST', returns, {
-                    body: JSON.stringify(options.data)
-                }).share();
+                const ajax = this.repository.Ajax(path, 'POST', returns, JSON.stringify(options.data)).share();
                 ajax.subscribe(resp => {
-                    this.repository['onCustomActionExecutedSubject'].next([actionOptions, options, resp]);
+                    this.repository['onCustomActionExecutedSubject'].next({
+                        ActionOptions: actionOptions,
+                        ODataParams: options,
+                        Result: resp
+                    });
                 }, (err) => {
                     this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
                 });
@@ -232,7 +238,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             else {
                 const ajax = this.repository.Ajax(path, 'POST', returns).share();
                 ajax.subscribe(resp => {
-                    this.repository['onCustomActionExecutedSubject'].next([actionOptions, options, resp]);
+                    this.repository['onCustomActionExecutedSubject'].next({
+                        ActionOptions: actionOptions,
+                        ODataParams: options,
+                        Result: resp
+                    });
                 }, (err) => {
                     this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
                 });

@@ -16,8 +16,9 @@ import { IODataParams, ODataParams } from '../ODataApi/ODataParams';
 import { ContentType } from '../ContentTypes';
 import { Content, IContentOptions } from '../Content';
 import { ODataApi } from '../ODataApi/ODataApi';
-import { ODataHelper, Authentication } from '../SN';
+import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ODataCollectionResponse } from '../ODataApi/ODataCollectionResponse';
+import { ContentSerializer } from '../ContentSerializer';
 
 /**
  *
@@ -34,7 +35,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     private onContentDeletedSubject = new Subject<{ contentData: IContentOptions, permanently: boolean }>();
     private onContentDeleteFailedSubject = new Subject<{ content: Content, permanently: boolean, error: any }>();
     private onCustomActionExecutedSubject
-    = new Subject<[ICustomActionOptions, IODataParams | undefined, Object]>();
+    = new Subject<{ActionOptions: ICustomActionOptions, ODataParams?:  IODataParams, Result: Object}>();
 
     private onCustomActionFailedSubject
     = new Subject<[ICustomActionOptions, IODataParams | undefined, { new(...args: any[]): Object }, Error]>();
@@ -285,4 +286,21 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 return this.HandleLoadedContent(returnType, r.d);
             });
     }
+
+    /**
+     * Parses a Content instance from a stringified SerializedContent<T> instance
+     * @param stringifiedContent The stringified SerializedContent<T>
+     * @throws Error if the Content belongs to another Repository (based it's Origin)
+     * @returns The loaded Content
+     */
+    public ParseContent<T extends Content = Content>(stringifiedContent: string): T {
+        const serializedContent = ContentSerializer.Parse<T>(stringifiedContent);
+        if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0){
+            throw new Error('Content belongs to a different Repository.');
+        }
+        const contentType = (serializedContent.Data.Type && ContentTypes[serializedContent.Data.Type] || Content) as {new(...args): T}
+        return this.HandleLoadedContent(contentType, serializedContent.Data)
+
+    }
+
 }

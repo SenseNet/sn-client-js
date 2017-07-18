@@ -3,6 +3,7 @@ import * as ComplexTypes from './ComplexTypes';
 import * as Repository from './Repository';
 import * as ContentTypes from './ContentTypes';
 export * from './Content';
+export * from './ContentSerializer';
 import * as FieldSettings from './FieldSettings';
 export * from './Retrier';
 import * as Schemas from './Schemas';

@@ -47,6 +47,7 @@ import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
+import { ContentSerializer } from './ContentSerializer';
 
 export class Content {
     private readonly odata: ODataApi<BaseHttpProvider, Content>;
@@ -1611,6 +1612,11 @@ export class Content {
             throw new Error('Content Id or Path has to be provided to get the full Path');
         }
     }
+
+    /**
+     * 
+     */
+    Stringify: () => string = () => ContentSerializer.Stringify(this);
 }
 
 /**
