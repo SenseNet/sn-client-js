@@ -7,7 +7,7 @@
 
 import { Observable, Subject } from '@reactivex/rxjs';
 import { VersionInfo } from './';
-import { RequestMethodType, BaseHttpProvider } from '../HttpProviders';
+import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
 import { IAuthenticationService } from '../Authentication/';
@@ -19,6 +19,10 @@ import { ODataApi } from '../ODataApi/ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ODataCollectionResponse } from '../ODataApi/ODataCollectionResponse';
 import { ContentSerializer } from '../ContentSerializer';
+
+
+
+
 
 /**
  *
@@ -122,12 +126,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Public endpoint for making Ajax calls to the Repository
      * @param {string} path The Path for the call
-     * @param {RequestMethodType} method The method type
+     * @param {'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'} method The method type
      * @param {{ new (...args): T }} returnsType The expected return type
      * @param {any} body The post body (optional)
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
-    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new(...args: any[]): T }, body?: any): Observable<T> {
+    public Ajax<T>(path: string, method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', returnsType?: { new(...args: any[]): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
