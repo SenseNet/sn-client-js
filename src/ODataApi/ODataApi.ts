@@ -196,7 +196,12 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
         } else {
             const error = new Error('No Id or Path provided.')
-            this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns, error]);
+            this.repository['onCustomActionFailedSubject'].next({
+                actionOptions: actionOptions,
+                ODataParams: options,
+                ResultType: returns,
+                Error: error
+            });
             throw error;
         }
         if (cacheParam.length > 0) {
@@ -212,12 +217,17 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             const ajax = this.repository.Ajax(path, 'GET', returns).share();
             ajax.subscribe(resp => {
                 this.repository['onCustomActionExecutedSubject'].next({
-                        ActionOptions: actionOptions,
-                        ODataParams: options,
-                        Result: resp
-                    });
+                    ActionOptions: actionOptions,
+                    ODataParams: options,
+                    Result: resp
+                });
             }, (err) => {
-                this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
+                this.repository['onCustomActionFailedSubject'].next({
+                    actionOptions: actionOptions,
+                    ODataParams: options,
+                    ResultType: returns as any,
+                    Error: err
+                });
             });
             return ajax;
         }
@@ -231,7 +241,12 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
                         Result: resp
                     });
                 }, (err) => {
-                    this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
+                    this.repository['onCustomActionFailedSubject'].next({
+                        actionOptions: actionOptions,
+                        ODataParams: options,
+                        ResultType: returns as any,
+                        Error: err                        
+                    });
                 });
                 return ajax;
             }
@@ -244,7 +259,12 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
                         Result: resp
                     });
                 }, (err) => {
-                    this.repository['onCustomActionFailedSubject'].next([actionOptions, options, returns as any, new Error(err)]);
+                    this.repository['onCustomActionFailedSubject'].next({
+                        actionOptions: actionOptions,
+                        ODataParams: options,
+                        ResultType: returns as any,
+                        Error: err                        
+                    });
                 });
                 return ajax;
             }

@@ -525,7 +525,7 @@ export class Content {
             path: this.Path,
             params: options
         }), Content).map(resp => {
-            return resp.d.results.map(c => this.repository.HandleLoadedContent(Content, c));
+            return resp.d.results.map(c => this.repository.HandleLoadedContent(c));
         });
     }
     /**
@@ -760,9 +760,39 @@ export class Content {
      * });
      * ```
     */
-    MoveTo(path: string) {
-        return this.odata.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
-            , { data: { 'targetPath': path ? path : '' } });
+    MoveTo(toPath: string) {
+
+        if (!this.Path) {
+            throw new Error('No Path provided for the content');
+        }
+
+        if (!this.Name) {
+            throw new Error('No Name provided for the content');
+        }        
+
+        const request = this.odata.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
+            , { data: { 'targetPath': toPath } });
+
+        const fromPath = this.Path;
+        const newPath = ODataHelper.joinPaths(toPath, this.Name);
+
+        request.subscribe(result => {
+            this.Path = newPath;
+            this.UpdateLastSavedFields({ Path: newPath });
+            this.repository['onContentMovedSubject'].next({
+                content: this,
+                fromPath,
+                toPath: toPath
+            })
+        }, err => {
+            this.repository['onContentMoveFailedSubject'].next({
+                content: this,
+                fromPath,
+                toPath: toPath,
+                err
+            });
+        });
+        return request;
     }
     /**
      * Copies one content to another container by a given path.
@@ -883,7 +913,7 @@ export class Content {
         repository: BaseRepository) => T
     = (contentType, contentOptions, repository) => {
         console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
-        return repository.HandleLoadedContent(contentType, contentOptions);
+        return repository.HandleLoadedContent(contentOptions, contentType);
     }
 
     /**

@@ -116,5 +116,28 @@ export class BaseHttpProviderTests {
         expect(snRepo.Config.RepositoryUrl).to.be.eq('https://demo.sensenet.com');
     }
 
+    @test 'HandleLoadedContent should respect content type from Options'() {
+        let snRepo = new SnRepository(new SnConfigModel({
+            RepositoryUrl: 'https://demo.sensenet.com'
+        }));
+        const task = snRepo.HandleLoadedContent({
+            Id: 1,
+            Type: 'Task'
+        })
+
+        const usr = snRepo.HandleLoadedContent({
+            Id: 2,
+            Name: 'User'
+        }, ContentTypes.User)
+
+        const content = snRepo.HandleLoadedContent({
+            Id: 3
+        })
+        expect(task).to.be.instanceof(ContentTypes.Task);
+
+        expect(usr).to.be.instanceof(ContentTypes.User);
+
+        expect(content).to.be.instanceof(Content);
+    }
 
 }
