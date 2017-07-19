@@ -783,13 +783,21 @@ export class Content {
     */
     MoveTo(toPath: string) {
 
+        if (!this.IsSaved){
+            throw new Error('Content not saved!')
+        }
+
         if (!this.Path) {
             throw new Error('No Path provided for the content');
         }
 
         if (!this.Name) {
             throw new Error('No Name provided for the content');
-        }        
+        }
+
+        if (toPath.indexOf(this.Path) === 0){
+            throw new Error('Content cannot be moved below itself')
+        }
 
         const request = this.odata.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
             , { data: { 'targetPath': toPath } });

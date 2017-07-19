@@ -1,4 +1,4 @@
-import { Schemas, Security, Enums, ContentTypes, Content } from '../src/SN';
+import { Schemas, Security, Enums, ContentTypes, Content, ODataHelper } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
 import { MockRepository } from './Mocks';
@@ -619,8 +619,61 @@ describe('Content', () => {
     });
     describe('#MoveTo()', () => {
         it('should return an Observable object', () => {
-            expect(content.MoveTo('/workspaces/document')).to.be.instanceof(Observable);
+            expect(contentSaved.MoveTo('/workspaces/document')).to.be.instanceof(Observable);
         });
+
+        it('should throw Error when the content isn\'t saved', () => {
+            expect(() => content.MoveTo('/workspaces/document')).to.throw('Content not saved!');
+        });
+
+        it('should throw Error if the Content hasn no Path set', () => {
+            contentSaved.Path = '';
+            expect(() => contentSaved.MoveTo('/workspaces/document')).to.throw('No Path provided for the content');
+        });
+        
+        it('should throw Error if the Content hasn no Name set', () => {
+            contentSaved.Name = '';
+            expect(() => contentSaved.MoveTo('/workspaces/document')).to.throw('No Name provided for the content');
+        });
+        it('should throw Error if the target Path is below the content Path', () => {
+            const targetPath = ODataHelper.joinPaths(contentSaved.Path || '', 'test', 'test2');
+            expect(() => contentSaved.MoveTo(targetPath)).to.throw('Content cannot be moved below itself');
+        });
+
+        it('should trigger OnContentMoved and update Pathes', (done) => {
+            const originalPath = contentSaved.Path;
+            const toPath = 'workspaces/document';
+            const newPath = ODataHelper.joinPaths(toPath, contentSaved.Name || '');
+
+            repo.httpProviderRef.setResponse({});
+            repo.Events.OnContentMoved.subscribe(move => {
+                expect(move.From).to.be.eq(originalPath);
+                expect(move.To).to.be.eq(toPath);
+
+                expect(move.Content.Path).to.be.eq(newPath);
+                expect(move.Content.SavedFields.Path).to.be.eq(newPath);
+                done();
+            }, err => done(err));
+            contentSaved.MoveTo(toPath);
+        });
+
+        it('should trigger OnContentMoved and update Pathes', (done) => {
+            const originalPath = contentSaved.Path;
+            const toPath = 'workspaces/document';
+
+            repo.httpProviderRef.setError({message: ':('});
+            repo.Events.OnContentMoveFailed.subscribe(move => {
+                expect(move.Error.message).to.be.eq(':(');
+                expect(move.From).to.be.eq(originalPath);
+                expect(move.To).to.be.eq(toPath);
+
+                expect(move.Content.Path).to.be.eq(originalPath);
+                expect(move.Content.SavedFields.Path).to.be.eq(originalPath);
+                done();
+            }, err => done(err));
+            contentSaved.MoveTo(toPath);
+        });        
+        
     });
     describe('#CopyTo()', () => {
         it('should return an Observable object', () => {
