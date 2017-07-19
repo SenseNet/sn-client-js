@@ -118,6 +118,24 @@ describe('Content', () => {
             expect(content.Delete(false)).to.be.instanceof(Observable);
         });
 
+        it('should trigger an OnContentDeleted event', (done) => {
+            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            repo.httpProviderRef.setResponse({});
+            repo.Events.OnContentDeleted.subscribe(d => {
+                done();
+            }, err => done(err))
+            expect(content.Delete(false)).to.be.instanceof(Observable);
+        });
+
+        it('error should trigger an OnContentDeleteFailed event', (done) => {
+            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            repo.httpProviderRef.setError({});
+            repo.Events.OnContentDeleteFailed.subscribe(d => {
+                done();
+            }, err => done(err))
+            expect(content.Delete(false)).to.be.instanceof(Observable);
+        });
+
         it('should return an Observable on not saved contents', () => {
             const unsavedContent = Content.Create(ContentTypes.Task, {}, repo);
             expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
@@ -294,6 +312,74 @@ describe('Content', () => {
             });
         });
 
+        it('should trigger fail if there is no Id field in the response', (done) => {
+            repo.httpProviderRef.setResponse({
+                d: {
+                    DisplayName: 'new3',
+                }
+            })
+            content.Save().subscribe(() => {
+                done('This shouldn\'t happened')
+            }, err => {
+                expect(err.message).to.be.eq('Error: No content Id in response!')
+                done();
+            });
+        });
+
+        it('should trigger an OnContentCreated event on success', (done) => {
+            repo.httpProviderRef.setResponse({
+                d: {
+                    Id: 3,
+                    DisplayName: 'new3',
+                }
+            })
+            repo.Events.OnContentCreated.subscribe(c => {
+                expect(c.Content.Id).to.be.eq(3);
+                done();
+            });
+            content.Save();
+        });
+
+        it('should trigger an OnContentCreateFailed event on failure', (done) => {
+            repo.httpProviderRef.setError({
+                message: ':('
+            })
+            repo.Events.OnContentCreateFailed.subscribe(c => {
+                expect(c.Error.message).to.be.eq(':(');
+                done();
+            });
+            content.Save();
+        });
+
+        it('should trigger an OnContentModified event on success after update', (done) => {
+            repo.httpProviderRef.setResponse({
+            d: {
+                    Id: 3,
+                    DisplayName: 'new3',
+                }
+            })
+
+            repo.Events.OnContentModified.subscribe(c => {
+                expect(c.Content.DisplayName).to.be.eq('new3');
+                done();
+            }, err => done(err));
+
+            contentSaved.DisplayName = 'old';
+            contentSaved.Save();
+        });
+
+        it('should trigger an OnContentModified event on success after update', (done) => {
+            repo.httpProviderRef.setError({message: ':('})
+
+            repo.Events.OnContentModificationFailed.subscribe(c => {
+                expect(c.Error.message).to.be.eq(':(');
+                done();
+            }, err => done(err));
+
+            contentSaved.DisplayName = 'old';
+            contentSaved.Save();
+        });        
+
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
@@ -422,7 +508,7 @@ describe('Content', () => {
 
         it('should throw error if no path provided', () => {
             const contentWithoutPath = repo.HandleLoadedContent({}, ContentTypes.Task);
-            expect(() => {contentWithoutPath.Children()}).to.throw();
+            expect(() => { contentWithoutPath.Children() }).to.throw();
         });
 
         it('should be resolved with a list of content', (done) => {
@@ -660,7 +746,7 @@ describe('Content', () => {
         });
 
         it('should return an Observable object', () => {
-            const usr = repo.HandleLoadedContent({Path: 'Root/Users/alba'}, ContentTypes.User);
+            const usr = repo.HandleLoadedContent({ Path: 'Root/Users/alba' }, ContentTypes.User);
             expect(contentSaved.HasPermission(['AddNew', 'Save'], usr)).to.be.instanceof(Observable);
         });
     });
@@ -826,11 +912,11 @@ describe('Content', () => {
             expect(content.IsParentOf(childContent)).to.be.eq(false);
         });
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({Path: 'Root/Child'});
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child' });
             expect(rootContent.IsParentOf(otherChild)).to.be.eq(false);
         });
     });
-    
+
 
     describe('#IsChildOf', () => {
 
@@ -852,9 +938,9 @@ describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({Path: 'Root/Child'});
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child' });
             expect(otherChild.IsChildOf(rootContent)).to.be.eq(false);
-        });        
+        });
     });
 
 
@@ -878,16 +964,16 @@ describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({Path: 'Root/Child'});
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child' });
             expect(ancestor.IsAncestorOf(otherChild)).to.be.eq(false);
         });
         it('should throw an error if no ancestor path provided', () => {
             const ancestorWithoutPath = repo.HandleLoadedContent({});
-            expect(() => { return ancestorWithoutPath.IsAncestorOf(descendant)}).to.throw();
+            expect(() => { return ancestorWithoutPath.IsAncestorOf(descendant) }).to.throw();
         });
         it('should throw an error if no descendant path provided', () => {
             const descendantWithoutPath = repo.HandleLoadedContent({});
-            expect(() => { return ancestor.IsAncestorOf(descendantWithoutPath)}).to.throw();
+            expect(() => { return ancestor.IsAncestorOf(descendantWithoutPath) }).to.throw();
         });
     });
 
@@ -896,7 +982,7 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const ancestor = repo.HandleLoadedContent( { Path: 'Root' });
+        const ancestor = repo.HandleLoadedContent({ Path: 'Root' });
         const descendant = repo.HandleLoadedContent({ Path: 'Root/test/test2/Child' });
         const notAncestor = repo.HandleLoadedContent({ Path: 'Root2' });
 
@@ -912,16 +998,16 @@ describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({Path: 'Root/Child'});
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child' });
             expect(ancestor.IsDescendantOf(otherChild)).to.be.eq(false);
         });
         it('should throw an error if no ancestor path provided', () => {
             const ancestorWithoutPath = repo.HandleLoadedContent({});
-            expect(() => { return descendant.IsDescendantOf(ancestorWithoutPath)}).to.throw();
+            expect(() => { return descendant.IsDescendantOf(ancestorWithoutPath) }).to.throw();
         });
         it('should throw an error if no descendant path provided', () => {
             const descendantWithoutPath = repo.HandleLoadedContent({});
-            expect(() => { return descendantWithoutPath.IsDescendantOf(ancestor)}).to.throw();
+            expect(() => { return descendantWithoutPath.IsDescendantOf(ancestor) }).to.throw();
         });
     });
 

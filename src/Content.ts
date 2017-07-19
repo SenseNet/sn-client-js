@@ -318,11 +318,12 @@ export class Content {
                     this.UpdateLastSavedFields(resp);
                     this.repository['_loadedContentReferenceCache'][resp.Id] = this;
                     this._isSaved = true;
-                    this.repository.Events.Trigger.ContentCreated({Content: this});
                     return this;
                 }).share();
 
-            request.subscribe(() => { }, err => {
+            request.subscribe((c) => {
+                this.repository.Events.Trigger.ContentCreated({Content: this});
+            }, err => {
                 this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
             });
             return request;
@@ -341,10 +342,11 @@ export class Content {
                 const request = this.odata.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
-                        this.repository.Events.Trigger.ContentModified({ Content: this, Changes: changes, OriginalFields: originalFields });
                         return this;
                     }).share();
-                request.subscribe(() => { }, err => {
+                request.subscribe(() => {
+                    this.repository.Events.Trigger.ContentModified({ Content: this, Changes: changes, OriginalFields: originalFields });
+                }, err => {
                     this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: changes, Error: err });
 
                 })
