@@ -196,8 +196,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
         } else {
             const error = new Error('No Id or Path provided.')
-            this.repository['onCustomActionFailedSubject'].next({
-                actionOptions: actionOptions,
+            this.repository.Events.Trigger.CustomActionFailed({
+                ActionOptions: actionOptions,
                 ODataParams: options,
                 ResultType: returns,
                 Error: error
@@ -216,14 +216,14 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
         if (typeof action.isAction === 'undefined' || !action.isAction) {
             const ajax = this.repository.Ajax(path, 'GET', returns).share();
             ajax.subscribe(resp => {
-                this.repository['onCustomActionExecutedSubject'].next({
+                this.repository.Events.Trigger.CustomActionExecuted({
                     ActionOptions: actionOptions,
                     ODataParams: options,
                     Result: resp
                 });
             }, (err) => {
-                this.repository['onCustomActionFailedSubject'].next({
-                    actionOptions: actionOptions,
+                this.repository.Events.Trigger.CustomActionFailed({
+                    ActionOptions: actionOptions,
                     ODataParams: options,
                     ResultType: returns as any,
                     Error: err
@@ -235,14 +235,14 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
                 const ajax = this.repository.Ajax(path, 'POST', returns, JSON.stringify(options.data)).share();
                 ajax.subscribe(resp => {
-                    this.repository['onCustomActionExecutedSubject'].next({
+                    this.repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
                         ODataParams: options,
                         Result: resp
                     });
                 }, (err) => {
-                    this.repository['onCustomActionFailedSubject'].next({
-                        actionOptions: actionOptions,
+                    this.repository.Events.Trigger.CustomActionFailed({
+                        ActionOptions: actionOptions,
                         ODataParams: options,
                         ResultType: returns as any,
                         Error: err                        
@@ -253,14 +253,14 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
             else {
                 const ajax = this.repository.Ajax(path, 'POST', returns).share();
                 ajax.subscribe(resp => {
-                    this.repository['onCustomActionExecutedSubject'].next({
+                    this.repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
                         ODataParams: options,
                         Result: resp
                     });
                 }, (err) => {
-                    this.repository['onCustomActionFailedSubject'].next({
-                        actionOptions: actionOptions,
+                    this.repository.Events.Trigger.CustomActionFailed({
+                        ActionOptions: actionOptions,
                         ODataParams: options,
                         ResultType: returns as any,
                         Error: err                        

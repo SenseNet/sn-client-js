@@ -5,24 +5,19 @@
  */
 /** */
 
-import { Observable, Subject } from '@reactivex/rxjs';
-import { VersionInfo } from './';
+import { Observable } from '@reactivex/rxjs';
+import { VersionInfo, RepositoryEventHub } from './';
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
-import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
+import { ODataRequestOptions } from '../ODataApi';
 import { IAuthenticationService } from '../Authentication/';
-import { ICustomActionOptions } from '../ODataApi/CustomAction';
-import { IODataParams, ODataParams } from '../ODataApi/ODataParams';
+import { IODataParams, ODataParams } from '../ODataApi';
 import { ContentType } from '../ContentTypes';
-import { Content, IContentOptions } from '../Content';
-import { ODataApi } from '../ODataApi/ODataApi';
+import { Content } from '../Content';
+import { ODataApi } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
-import { ODataCollectionResponse } from '../ODataApi/ODataCollectionResponse';
+import { ODataCollectionResponse } from '../ODataApi';
 import { ContentSerializer } from '../ContentSerializer';
-
-
-
-
 
 /**
  *
@@ -30,84 +25,7 @@ import { ContentSerializer } from '../ContentSerializer';
 export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpProvider,
     TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService> {
     private odataApi: ODataApi<TProviderType, Content>;
-
-    private onContentCreatedSubject = new Subject<Content>();
-    private onContentCreateFailedSubject = new Subject<{ content: Content, error: any }>();
-    private onContentModifiedSubject = new Subject<{ content: Content, originalFields: IContentOptions, change: IContentOptions }>();
-    private onContentModificationFailedSubject = new Subject<{ content: Content, change: IContentOptions, error: any }>();
-    private onContentLoadedSubject = new Subject<Content>();
-    private onContentDeletedSubject = new Subject<{ contentData: IContentOptions, permanently: boolean }>();
-    private onContentDeleteFailedSubject = new Subject<{ content: Content, permanently: boolean, error: any }>();
-    private onCustomActionExecutedSubject
-    = new Subject<{ActionOptions: ICustomActionOptions, ODataParams?:  IODataParams, Result: Object}>();
-
-    private onCustomActionFailedSubject
-    = new Subject<{actionOptions: ICustomActionOptions, ODataParams?: IODataParams, ResultType: { new(...args: any[]): Object }, Error: Error}>();
-
-    private onContentMovedSubject = new Subject<{fromPath: string, toPath: string, content: Content}>()
-
-    private onContentMoveFailedSubject = new Subject<{fromPath: string, toPath: string, content: Content, err: Error}>()
-
-
-
-    /**
-     * Triggered after a succesful Content creation
-     */
-    public OnContentCreated = this.onContentCreatedSubject.asObservable();
-
-    /**
-     * Triggered after Content creation has been failed
-     */
-    public OnContentCreateFailed = this.onContentCreateFailedSubject.asObservable();
-
-    /**
-     * Triggered after modifying a Content
-     */
-    public OnContentModified = this.onContentModifiedSubject.asObservable();
-
-    /**
-     * Triggered when failed to modify a Content
-     */
-    public OnContentModificationFailed = this.onContentModificationFailedSubject.asObservable();
-
-    /**
-     * Triggered when a Content is loaded from the Repository
-     */
-    public OnContentLoaded = this.onContentLoadedSubject.asObservable();
-
-    /**
-     * Triggered after deleting a Content
-     */
-    public OnContentDeleted = this.onContentDeletedSubject.asObservable();
-
-    /**
-     * Triggered after deleting a content has been failed
-     */
-    public OnContentDeleteFailed = this.onContentDeleteFailedSubject.asObservable();
-
-
-    /**
-     * Triggered after moving a content to another location
-     */
-    public OnContentMoved = this.onContentMovedSubject.asObservable();
-
-    /**
-     * Triggered after moving a content has been failed
-     */
-    public OnContentMoveFailed = this.onContentMoveFailedSubject.asObservable();
-
-    /**
-     * Triggered after a custom OData Action has been executed
-     */
-    public OnCustomActionExecuted = this.onCustomActionExecutedSubject.asObservable();
-
-    /**
-     * Triggered after a custom OData Action has been failed
-     */
-    public OnCustomActionFailed = this.onCustomActionFailedSubject.asObservable();
-
-
-
+    public readonly Events: RepositoryEventHub = new RepositoryEventHub();
 
     /**
      * Will be true if the Repository's host differs from the current host
@@ -269,7 +187,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             instance = Content.Create(realContentType, opt, this);
         }
         instance['_isSaved'] = true;
-        this.onContentLoadedSubject.next(instance);
+        this.Events.Trigger.ContentLoaded({ Content: instance});
         return instance;
     }
 

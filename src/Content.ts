@@ -82,6 +82,14 @@ export class Content {
         return this._isSaved;
     }
 
+
+    /**
+     * Returns the assigned Repository instance
+     */
+    public GetRepository(): BaseRepository{
+        return this.repository;
+    }
+
     private _lastSavedFields: this['options'] = {};
     protected UpdateLastSavedFields(newFields: this['options']) {
         this._lastSavedFields = newFields;
@@ -191,15 +199,15 @@ export class Content {
             const fields = this.GetFields();
             const observable = this.odata.Delete(this.Id, permanently);
             observable.subscribe(() => {
-                this.repository['onContentDeletedSubject'].next({
-                    contentData: fields,
-                    permanently: permanently || false
+                this.repository.Events.Trigger.ContentDeleted({
+                    ContentData: fields,
+                    Permanently: permanently || false
                 });
             }, (err) => {
-                this.repository['onContentDeleteFailedSubject'].next({
-                    content: this,
-                    permanently: permanently || false,
-                    error: err
+                this.repository.Events.Trigger.ContentDeleteFailed({
+                    Content: this,
+                    Permanently: permanently || false,
+                    Error: err
                 });
             })
             return observable;
@@ -245,24 +253,36 @@ export class Content {
         if (fields) {
             if (!this.Id) {
                 const err = new Error('Content Id not present');
-                this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
+                this.repository.Events.Trigger.ContentModificationFailed({ 
+                    Content: this,
+                    Fields: fields,
+                    Error: err                    
+                });
                 throw err;
             }
 
             if (!this.IsSaved) {
                 const err = new Error('The Content is not saved to the Repository, Save it before updating.')
-                this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
+                this.repository.Events.Trigger.ContentModificationFailed({
+                    Content: this,
+                    Fields: fields,
+                    Error: err
+                });
                 throw err;
             }
             if (override) {
                 const request = this.odata.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository['onContentModifiedSubject'].next({ content: this, originalFields: originalFields, change: fields });
+                        this.repository.Events.Trigger.ContentModified({ 
+                            Content: this,
+                            OriginalFields: originalFields,
+                            Changes: fields
+                        });
                         return this;
                     }).share();
                 request.subscribe(() => { }, err => {
-                    this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: fields, Error: err });
                 })
                 return request;
             }
@@ -270,13 +290,12 @@ export class Content {
                 const request = this.odata.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository['onContentModifiedSubject'].next({ content: this, originalFields: originalFields, change: fields });
+                        this.repository.Events.Trigger.ContentModified({ Content: this, OriginalFields: originalFields, Changes: fields });
                         return this;
                     }).share();
 
                 request.subscribe(() => { }, err => {
-                    this.repository['onContentModificationFailedSubject'].next({ content: this, change: fields, error: err });
-
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: fields, Error: err });
                 })
                 return request;
 
@@ -287,7 +306,7 @@ export class Content {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
                 const err = new Error('Cannot create content without a valid Path specified');
-                this.repository['onContentCreateFailedSubject'].next({ content: this, error: err });
+                this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
                 throw err;
             }
 
@@ -299,12 +318,12 @@ export class Content {
                     this.UpdateLastSavedFields(resp);
                     this.repository['_loadedContentReferenceCache'][resp.Id] = this;
                     this._isSaved = true;
-                    this.repository['onContentCreatedSubject'].next(this);
+                    this.repository.Events.Trigger.ContentCreated({Content: this});
                     return this;
                 }).share();
 
             request.subscribe(() => { }, err => {
-                this.repository['onContentCreateFailedSubject'].next({ content: this, error: err });
+                this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
             });
             return request;
 
@@ -322,11 +341,11 @@ export class Content {
                 const request = this.odata.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
-                        this.repository['onContentModifiedSubject'].next({ content: this, change: changes, originalFields: originalFields });
+                        this.repository.Events.Trigger.ContentModified({ Content: this, Changes: changes, OriginalFields: originalFields });
                         return this;
                     }).share();
                 request.subscribe(() => { }, err => {
-                    this.repository['onContentModificationFailedSubject'].next({ content: this, change: changes, error: err });
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: changes, Error: err });
 
                 })
                 return request;
@@ -779,17 +798,17 @@ export class Content {
         request.subscribe(result => {
             this.Path = newPath;
             this.UpdateLastSavedFields({ Path: newPath });
-            this.repository['onContentMovedSubject'].next({
-                content: this,
-                fromPath,
-                toPath: toPath
+            this.repository.Events.Trigger.ContentMoved({
+                Content: this,
+                From: fromPath,
+                To: toPath
             })
         }, err => {
-            this.repository['onContentMoveFailedSubject'].next({
-                content: this,
-                fromPath,
-                toPath: toPath,
-                err
+            this.repository.Events.Trigger.ContentMoveFailed({
+                Content: this,
+                From: fromPath,
+                To: toPath,
+                Error: err
             });
         });
         return request;
