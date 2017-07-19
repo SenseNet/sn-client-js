@@ -106,7 +106,7 @@ export module EventModels {
         /**
          * The Action result
          */
-        Result: Object
+        Result: any
     }
 
     export class CustomActionFailed {

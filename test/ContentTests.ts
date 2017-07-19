@@ -657,7 +657,7 @@ describe('Content', () => {
             contentSaved.MoveTo(toPath);
         });
 
-        it('should trigger OnContentMoved and update Pathes', (done) => {
+        it('should trigger OnContentMoveFailed and keep Pathes', (done) => {
             const originalPath = contentSaved.Path;
             const toPath = 'workspaces/document';
 
