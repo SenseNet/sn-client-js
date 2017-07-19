@@ -94,7 +94,7 @@
     "typedoc-default-themes": "^0.5.0",
     "typedoc-md-theme": "^1.0.1",
     "typedoc-plugin-external-module-name": "^1.0.9",
-    "typescript": "2.4.1",
+    "typescript": "2.4.2",
     "universalify": "^0.1.0"
   },
   "czConfig": {
