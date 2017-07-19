@@ -93,12 +93,11 @@ export class TokenStore {
                 case TokenStoreType.ExpirationCookie:
                 case TokenStoreType.SessionCookie:
                     return this.getTokenFromCookie(storeKey, this.documentRef as Document);
-                    default:
-                    return Token.CreateEmpty();
             }
         } catch (err) {
-            return Token.CreateEmpty();
+            // 
         }
+        return Token.CreateEmpty();
     }
 
     /**
