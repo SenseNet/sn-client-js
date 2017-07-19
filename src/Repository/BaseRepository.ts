@@ -236,12 +236,18 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     }
 
     /**
+     * Shortcut to Content.Create
+     */
+    CreateContent: <T extends Content, K extends T['options']>(options: K, contentType: {new(...args: any[]): T}) => T = 
+        (options, contentType) => Content.Create(contentType, options, this);
+
+    /**
      * Parses a Content instance from a stringified SerializedContent<T> instance
      * @param stringifiedContent The stringified SerializedContent<T>
      * @throws Error if the Content belongs to another Repository (based it's Origin)
      * @returns The loaded Content
      */
-    public ParseContent<T extends Content = Content>(stringifiedContent: string): T {
+    public ParseContent < T extends Content = Content > (stringifiedContent: string): T {
         const serializedContent = ContentSerializer.Parse<T>(stringifiedContent);
         if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0){
             throw new Error('Content belongs to a different Repository.');
