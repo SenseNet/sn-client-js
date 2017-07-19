@@ -5,10 +5,6 @@ import { ODataHelper } from './SN';
 export class SerializedContent<T extends Content>{
     Data: T['options'];
     Origin: string;
-
-    toString(){
-        return JSON.stringify(this);
-    }
 }
 
 export class ContentSerializer {
@@ -27,8 +23,6 @@ export class ContentSerializer {
         return JSON.stringify(this.Serialize(content));
     }
     public static Parse<T extends Content = Content>(contentString: string): SerializedContent<T>{
-        const parsed = JSON.parse(contentString) as SerializedContent<T>;
-        Object.assign(parsed, SerializedContent.prototype);
-        return parsed;
+        return JSON.parse(contentString) as SerializedContent<T>;
     }
 }

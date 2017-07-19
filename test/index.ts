@@ -3,6 +3,7 @@ import * as JwtServiceTests from './JwtServiceTests';
 import * as CollectionTests from './CollectionTests';
 import * as ContentTests from './ContentTests';
 import * as ContentTypeTests from './ContentTypeTests';
+import * as ContentSerializerTests from './ContentSerializerTests';
 import * as ControlMapperTests from './ControlMapperTests';
 import * as FieldSettingsTest from './FieldSettingsTest';
 import * as ComplexTypesTests from './ComplexTypesTests';
@@ -21,6 +22,7 @@ export {
     CollectionTests,
     ContentTests,
     ContentTypeTests,
+    ContentSerializerTests,
     ControlMapperTests,
     FieldSettingsTest,
     ComplexTypesTests,
