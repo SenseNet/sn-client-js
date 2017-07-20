@@ -17,6 +17,7 @@
 import { Content, IContentOptions } from './Content';
 import { Enums, ComplexTypes } from './SN';
 import { BaseRepository } from './Repository';
+import { ContentReferenceField, ContentListReferenceField} from './ContentReferences';
 
 
     /**
@@ -41,9 +42,9 @@ import { BaseRepository } from './Repository';
         Description?: string;
         Icon?: string;
         Binary?: ComplexTypes.DeferredObject;
-        CreatedBy?: ComplexTypes.DeferredObject;
+        CreatedBy?: ContentReferenceField;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
+        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         EnableLifespan?: boolean;
 
@@ -78,9 +79,9 @@ import { BaseRepository } from './Repository';
         Description?: string;
         Icon?: string;
         Binary?: ComplexTypes.DeferredObject;
-        CreatedBy?: ComplexTypes.DeferredObject;
+        CreatedBy?: ContentReferenceField;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
+        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         EnableLifespan?: boolean;
     }
@@ -94,7 +95,7 @@ import { BaseRepository } from './Repository';
         Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: ComplexTypes.DeferredObject;
+        Owner?: ContentReferenceField;
         VersionId?: number;
         Icon?: string;
         Name?: string;
@@ -116,18 +117,18 @@ import { BaseRepository } from './Repository';
         EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: ComplexTypes.DeferredObject;
+        CreatedBy?: ContentReferenceField;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
+        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: ComplexTypes.DeferredObject;
+        CheckedOutTo?: ContentReferenceField;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: ComplexTypes.DeferredObject;
+        BrowseApplication?: ContentReferenceField;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -137,10 +138,10 @@ import { BaseRepository } from './Repository';
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: ComplexTypes.DeferredObject;
+        Versions?: ContentListReferenceField;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: ComplexTypes.DeferredObject;
+        Workspace?: ContentReferenceField;
         BrowseUrl?: string;
 
         /**
@@ -161,7 +162,7 @@ import { BaseRepository } from './Repository';
         Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: ComplexTypes.DeferredObject;
+        Owner?: ContentReferenceField;
         VersionId?: number;
         Icon?: string;
         Name?: string;
@@ -183,18 +184,18 @@ import { BaseRepository } from './Repository';
         EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: ComplexTypes.DeferredObject;
+        CreatedBy?: ContentReferenceField;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
+        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: ComplexTypes.DeferredObject;
+        CheckedOutTo?: ContentReferenceField;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: ComplexTypes.DeferredObject;
+        BrowseApplication?: ContentReferenceField;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -204,10 +205,10 @@ import { BaseRepository } from './Repository';
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: ComplexTypes.DeferredObject;
+        Versions?: ContentListReferenceField;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: ComplexTypes.DeferredObject;
+        Workspace?: ContentReferenceField;
         BrowseUrl?: string;
     }
 
@@ -217,7 +218,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link GenericContent}
      */
     export class ContentLink extends GenericContent {
-        Link?: ComplexTypes.DeferredObject;
+        Link?: ContentReferenceField;
 
         /**
          * @constructs ContentLink
@@ -234,7 +235,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IGenericContentOptions}
      */
     export interface IContentLinkOptions extends IGenericContentOptions {
-        Link?: ComplexTypes.DeferredObject;
+        Link?: ContentReferenceField;
     }
 
     /**
@@ -589,18 +590,18 @@ import { BaseRepository } from './Repository';
     export class ContentList extends Folder {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: ComplexTypes.DeferredObject;
-        FieldSettingContents?: ComplexTypes.DeferredObject;
-        AvailableContentTypeFields?: ComplexTypes.DeferredObject;
+        AvailableViews?: ContentListReferenceField;
+        FieldSettingContents?: ContentListReferenceField;
+        AvailableContentTypeFields?: ContentListReferenceField;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: ComplexTypes.DeferredObject;
+        IncomingEmailWorkflow?: ContentReferenceField;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: ComplexTypes.DeferredObject;
+        OwnerWhenVisitor?: ContentReferenceField;
 
         /**
          * @constructs ContentList
@@ -619,18 +620,18 @@ import { BaseRepository } from './Repository';
     export interface IContentListOptions extends IFolderOptions {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: ComplexTypes.DeferredObject;
-        FieldSettingContents?: ComplexTypes.DeferredObject;
-        AvailableContentTypeFields?: ComplexTypes.DeferredObject;
+        AvailableViews?: ContentListReferenceField;
+        FieldSettingContents?: ContentListReferenceField;
+        AvailableContentTypeFields?: ContentListReferenceField;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: ComplexTypes.DeferredObject;
+        IncomingEmailWorkflow?: ContentReferenceField;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: ComplexTypes.DeferredObject;
+        OwnerWhenVisitor?: ContentReferenceField;
     }
 
     /**
@@ -809,7 +810,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link Library}
      */
     export class ImageLibrary extends Library {
-        CoverImage?: ComplexTypes.DeferredObject;
+        CoverImage?: ContentReferenceField;
 
         /**
          * @constructs ImageLibrary
@@ -826,7 +827,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link ILibraryOptions}
      */
     export interface IImageLibraryOptions extends ILibraryOptions {
-        CoverImage?: ComplexTypes.DeferredObject;
+        CoverImage?: ContentReferenceField;
     }
 
     /**
@@ -1173,7 +1174,7 @@ import { BaseRepository } from './Repository';
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: ComplexTypes.DeferredObject;
+        DeletedContent?: ContentReferenceField;
 
         /**
          * @constructs TrashBag
@@ -1194,7 +1195,7 @@ import { BaseRepository } from './Repository';
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: ComplexTypes.DeferredObject;
+        DeletedContent?: ContentReferenceField;
     }
 
     /**
@@ -1203,10 +1204,10 @@ import { BaseRepository } from './Repository';
      * @extends {@link Folder}
      */
     export class Workspace extends Folder {
-        Manager?: ComplexTypes.DeferredObject;
+        Manager?: ContentReferenceField;
         Deadline?: string;
         IsActive?: boolean;
-        WorkspaceSkin?: ComplexTypes.DeferredObject;
+        WorkspaceSkin?: ContentReferenceField;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
@@ -1226,10 +1227,10 @@ import { BaseRepository } from './Repository';
      * @extends {@link IFolderOptions}
      */
     export interface IWorkspaceOptions extends IFolderOptions {
-        Manager?: ComplexTypes.DeferredObject;
+        Manager?: ContentReferenceField;
         Deadline?: string;
         IsActive?: boolean;
-        WorkspaceSkin?: ComplexTypes.DeferredObject;
+        WorkspaceSkin?: ContentReferenceField;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
@@ -1245,9 +1246,9 @@ import { BaseRepository } from './Repository';
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: ComplexTypes.DeferredObject;
-        LoginPage?: ComplexTypes.DeferredObject;
-        SiteSkin?: ComplexTypes.DeferredObject;
+        StartPage?: ContentReferenceField;
+        LoginPage?: ContentReferenceField;
+        SiteSkin?: ContentReferenceField;
         DenyCrossSiteAccess?: boolean;
 
         /**
@@ -1269,9 +1270,9 @@ import { BaseRepository } from './Repository';
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: ComplexTypes.DeferredObject;
-        LoginPage?: ComplexTypes.DeferredObject;
-        SiteSkin?: ComplexTypes.DeferredObject;
+        StartPage?: ContentReferenceField;
+        LoginPage?: ContentReferenceField;
+        SiteSkin?: ContentReferenceField;
         DenyCrossSiteAccess?: boolean;
     }
 
@@ -1311,7 +1312,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link Workspace}
      */
     export class UserProfile extends Workspace {
-        User?: ComplexTypes.DeferredObject;
+        User?: ContentReferenceField;
 
         /**
          * @constructs UserProfile
@@ -1328,7 +1329,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IWorkspaceOptions}
      */
     export interface IUserProfileOptions extends IWorkspaceOptions {
-        User?: ComplexTypes.DeferredObject;
+        User?: ContentReferenceField;
     }
 
     /**
@@ -1337,7 +1338,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link GenericContent}
      */
     export class Group extends GenericContent {
-        Members?: ComplexTypes.DeferredObject;
+        Members?: ContentListReferenceField;
         SyncGuid?: string;
         LastSync?: string;
 
@@ -1356,7 +1357,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IGenericContentOptions}
      */
     export interface IGroupOptions extends IGenericContentOptions {
-        Members?: ComplexTypes.DeferredObject;
+        Members?: ContentListReferenceField;
         SyncGuid?: string;
         LastSync?: string;
     }
@@ -1419,7 +1420,7 @@ import { BaseRepository } from './Repository';
     export class Memo extends ListItem {
         Date?: string;
         MemoType?: Enums.MemoType;
-        SeeAlso?: ComplexTypes.DeferredObject;
+        SeeAlso?: ContentListReferenceField;
 
         /**
          * @constructs Memo
@@ -1438,7 +1439,7 @@ import { BaseRepository } from './Repository';
     export interface IMemoOptions extends IListItemOptions {
         Date?: string;
         MemoType?: Enums.MemoType;
-        SeeAlso?: ComplexTypes.DeferredObject;
+        SeeAlso?: ContentListReferenceField;
     }
 
     /**
@@ -1449,7 +1450,7 @@ import { BaseRepository } from './Repository';
     export class Task extends ListItem {
         StartDate?: string;
         DueDate?: string;
-        AssignedTo?: ComplexTypes.DeferredObject;
+        AssignedTo?: ContentListReferenceField;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
@@ -1474,7 +1475,7 @@ import { BaseRepository } from './Repository';
     export interface ITaskOptions extends IListItemOptions {
         StartDate?: string;
         DueDate?: string;
-        AssignedTo?: ComplexTypes.DeferredObject;
+        AssignedTo?: ContentListReferenceField;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
@@ -1523,14 +1524,14 @@ import { BaseRepository } from './Repository';
         Domain?: string;
         Email?: string;
         FullName?: string;
-        ImageRef?: ComplexTypes.DeferredObject;
+        ImageRef?: ContentReferenceField;
         ImageData?: ComplexTypes.DeferredObject;
         Avatar?: ComplexTypes.DeferredObject;
         Password?: string;
         SyncGuid?: string;
         LastSync?: string;
         Captcha?: string;
-        Manager?: ComplexTypes.DeferredObject;
+        Manager?: ContentReferenceField;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1542,7 +1543,7 @@ import { BaseRepository } from './Repository';
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: ComplexTypes.DeferredObject;
+        FollowedWorkspaces?: ContentListReferenceField;
         ProfilePath?: string;
 
         /**
@@ -1566,14 +1567,14 @@ import { BaseRepository } from './Repository';
         Domain?: string;
         Email?: string;
         FullName?: string;
-        ImageRef?: ComplexTypes.DeferredObject;
+        ImageRef?: ContentReferenceField;
         ImageData?: ComplexTypes.DeferredObject;
         Avatar?: ComplexTypes.DeferredObject;
         Password?: string;
         SyncGuid?: string;
         LastSync?: string;
         Captcha?: string;
-        Manager?: ComplexTypes.DeferredObject;
+        Manager?: ContentReferenceField;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1585,7 +1586,7 @@ import { BaseRepository } from './Repository';
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: ComplexTypes.DeferredObject;
+        FollowedWorkspaces?: ContentListReferenceField;
         ProfilePath?: string;
     }
 

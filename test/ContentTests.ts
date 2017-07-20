@@ -907,10 +907,11 @@ describe('Content', () => {
             const schema = content.GetSchema();
             expect(schema.Icon).to.eq('FormItem');
         });
-        it('should throw if no Schema found', () => {
+        it('should return GenericContent Schema if no Schema found', () => {
             class ContentWithoutSchema extends Content { };
             const contentInstance = Content.Create(ContentWithoutSchema, {}, repo);
-            expect(() => { contentInstance.GetSchema(); }).to.throw()
+            const genericSchema = Content.GetSchema(ContentTypes.GenericContent);
+            expect(contentInstance.GetSchema()).to.be.eq(genericSchema)
         });
 
 

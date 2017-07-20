@@ -41,13 +41,27 @@
  * related to async data streams.
  */ /** */
 
-import { Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
+import { Schemas, Security, Enums, ODataHelper, ContentTypes, FieldSettings } from './SN';
 import { ODataRequestOptions, ODataParams, ODataApi } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
 import { ContentSerializer } from './ContentSerializer';
+import { DeferredObject } from './ComplexTypes';
+import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
+
+export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
+    return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri;
+}
+
+export const isContentOptions = (object: any): object is IContentOptions => {
+    return object && object.Id && object.Path && object.Type;
+}
+
+export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
+    return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) != null;
+}
 
 export class Content {
     private readonly odata: ODataApi<BaseHttpProvider, Content>;
@@ -95,6 +109,7 @@ export class Content {
         this._lastSavedFields = newFields;
         this._isSaved = true;
         Object.assign(this, newFields);
+        this.updateReferenceFields();
     }
 
     /**
@@ -124,7 +139,9 @@ export class Content {
     public GetFields(skipEmpties?: boolean): this['options'] {
         const fieldsToPost = {} as this['options'];
         this.GetSchema().FieldSettings.forEach(s => {
-            ((!skipEmpties && this[s.Name] !== undefined) || (skipEmpties && this[s.Name])) && (fieldsToPost[s.Name] = this[s.Name]);
+            const value = this[s.Name] && this[s.Name].getValue ? this[s.Name].getValue() : this[s.Name];
+
+            ((!skipEmpties && value !== undefined) || (skipEmpties && value)) && (fieldsToPost[s.Name] = value);
         });
         return fieldsToPost;
     }
@@ -165,8 +182,21 @@ export class Content {
     Index?: number;
     CreationDate?: string;
     ModificationDate?: string;
-    Versions?: ComplexTypes.DeferredObject;
-    Workspace?: ComplexTypes.DeferredObject;
+    Versions?: ContentListReferenceField;
+    Workspace?: ContentReferenceField;
+
+    private referenceFieldCache: (ContentListReferenceField|ContentReferenceField)[] = []
+    private updateReferenceFields(){
+        const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
+        referenceSettings.forEach(f => {
+            if (!this.referenceFieldCache[f.Name]){
+                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
+            } else {
+                this.referenceFieldCache[f.Name].update(this[f.Name]);
+            }
+            this[f.Name] = this.referenceFieldCache[f.Name];
+        });
+    }
 
     /**
      * @constructs Content
@@ -176,6 +206,7 @@ export class Content {
     constructor(public readonly options: IContentOptions, private repository: BaseRepository) {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
+        this.updateReferenceFields();
         this.odata = repository.GetODataApi();
     }
 
@@ -895,7 +926,7 @@ export class Content {
         }
         const schema = Schemas.SchemaStore.find(s => s.ContentType === currentType) as Schemas.Schema<TType>;
         if (!schema) {
-            throw new Error(`No Schema for Content Type '${currentType.name}'`)
+            return Content.GetSchema(ContentTypes.GenericContent) as Schemas.Schema<TType>;
         }
         const parent = Object.getPrototypeOf(currentType);
         const parentSchema = parent && Schemas.SchemaStore.find(s => s.ContentType === parent);
@@ -1696,6 +1727,6 @@ export interface IContentOptions {
     ModificationDate?: string;
     IsFolder?: boolean;
     Path?: string;
-    Versions?: ComplexTypes.DeferredObject;
-    Workspace?: ComplexTypes.DeferredObject;
+    Versions?: ContentListReferenceField;
+    Workspace?: ContentReferenceField;
 }
