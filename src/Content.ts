@@ -63,6 +63,15 @@ export const isContentOptionList = (objectList: any[]): objectList is IContentOp
     return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) != null;
 }
 
+export const isReferenceField = (field: any): field is ContentReferenceField => {
+    return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function';
+}
+
+export const isReferenceListField = (field: any): field is ContentListReferenceField => {
+    return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function';
+}
+
+
 export class Content {
     private readonly odata: ODataApi<BaseHttpProvider, Content>;
 
@@ -126,8 +135,15 @@ export class Content {
         const changedFields: this['options'] = {};
 
         for (let field in this.GetFields()) {
-            if (this[field] !== this._lastSavedFields[field]) {
-                changedFields[field] = this[field];
+            const currentField = this[field];
+            if (currentField !== this._lastSavedFields[field]) {
+                if (isReferenceField(currentField)) {
+                    changedFields[field] = currentField.getValue();
+                } else if (isReferenceListField(currentField)) {
+                    changedFields[field] = currentField.getValue();
+                } else {
+                    changedFields[field] = this[field]
+                }
             }
         }
         return changedFields;
