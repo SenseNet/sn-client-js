@@ -115,8 +115,8 @@ export class Content {
     /**
      * Returns a list about the fields with their values, as they are saved into the Repository
      */
-    public get SavedFields() {
-        return !this.IsSaved ? {} : JSON.parse(JSON.stringify(this._lastSavedFields));
+    public get SavedFields(): this['options'] {
+        return !this.IsSaved ? {} : Object.assign({}, this._lastSavedFields);
     }
 
     /**
@@ -413,6 +413,37 @@ export class Content {
             this._isOperationInProgress = false;
         });
         return saveObservable;
+    }
+
+
+    Reload(actionName?: 'edit' | 'view'): Observable<this>{
+        if (!this.IsSaved){
+            throw new Error('Content has to be saved to reload')
+        }
+        if (!this.Id){
+            throw new Error('Content Id not provided')
+        }
+
+        let selectFields: string | string[] = 'all';
+        let expandFields;
+        if (actionName){
+            const fieldSettings = this.GetSchema().FieldSettings.filter(f => {
+                return actionName === 'edit' && f.VisibleEdit
+                       || actionName === 'view' && f.VisibleBrowse
+            });
+            selectFields = fieldSettings.map(f => f.Name);
+            expandFields = fieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting)
+                .map(f => f.Name);
+        }
+        
+        return this.repository.Load(this.Id, {
+            select: selectFields,
+            expand: expandFields
+        })
+    }
+
+    ReloadFields(fields: (keyof this)[]){
+
     }
 
     /**
