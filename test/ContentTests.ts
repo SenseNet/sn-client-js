@@ -952,13 +952,18 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const rootContent = repo.HandleLoadedContent({ Path: 'Root' });
+        const rootContent = repo.HandleLoadedContent({ Path: 'Root', Id: 3 });
         const childContent = repo.HandleLoadedContent({ Path: 'Root/Child' });
+        const childContentById = repo.HandleLoadedContent({ ParentId: 3 });
         const notChildContent = repo.HandleLoadedContent({ Path: 'NotRoot/Child' });
 
         it('should return true if content is a child', () => {
             expect(rootContent.IsParentOf(childContent)).to.be.eq(true);
         });
+        it('should return true if content is a child by ParentId', () => {
+            expect(rootContent.IsParentOf(childContentById)).to.be.eq(true);
+        });
+        
         it('should return false if content is not a child', () => {
             expect(rootContent.IsParentOf(notChildContent)).to.be.eq(false);
         });
@@ -976,13 +981,19 @@ describe('Content', () => {
 
         const repo = new MockRepository();
 
-        const rootContent = repo.HandleLoadedContent({ Path: 'Root' });
+        const rootContent = repo.HandleLoadedContent({ Path: 'Root', Id: 3 });
         const childContent = repo.HandleLoadedContent({ Path: 'Root/Child' });
+        const childContentById = repo.HandleLoadedContent({ ParentId: 3 });
         const notChildContent = repo.HandleLoadedContent({ Path: 'NotRoot/Child' });
 
         it('should return true if content is a child', () => {
             expect(childContent.IsChildOf(rootContent)).to.be.eq(true);
         });
+
+        it('should return true if content is a child based on its ParentId', () => {
+            expect(childContentById.IsChildOf(rootContent)).to.be.eq(true);
+        });
+
         it('should return false if content is not a child', () => {
             expect(notChildContent.IsChildOf(rootContent)).to.be.eq(false);
         });

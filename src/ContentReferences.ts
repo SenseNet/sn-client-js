@@ -12,7 +12,13 @@ export class ContentReferenceField {
         if (this.contentReference) {
             return Observable.of(this.contentReference);
         }
-        return this.repository.Load(this.referenceUrl);
+        const request = this.repository.GetODataApi().Get(new ODataRequestOptions({path: this.referenceUrl}))
+            .map(r => this.repository.HandleLoadedContent(r.d)).share();
+        request.subscribe(c => {
+            this.contentReference = c;
+        });
+
+        return request;
     }
 
     public getValue(){
@@ -21,7 +27,8 @@ export class ContentReferenceField {
 
     public update(fieldData: DeferredObject | IContentOptions){
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri;
+            //todo:trim odata.svc
+            this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', '');
         } else if (isContentOptions(fieldData)) {
             this.contentReference = this.repository.HandleLoadedContent(fieldData);
         }
@@ -44,11 +51,16 @@ export class ContentListReferenceField {
             return Observable.of(this.contentReferences);
         }
         //
-        return this.repository.GetODataApi().Fetch(new ODataRequestOptions({
+        const request = this.repository.GetODataApi().Fetch(new ODataRequestOptions({
             path: this.referenceUrl,
         }), Content).map(resp => {
             return resp.d.results.map(c => this.repository.HandleLoadedContent(c));
+        }).share();
+        request.subscribe(c => {
+            this.contentReferences = c
         });
+
+        return request;
     }
 
     public getValue(){
@@ -57,7 +69,8 @@ export class ContentListReferenceField {
 
     public update(fieldData: DeferredObject | IContentOptions[]){
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri;
+            //todo:trim odata.svc
+            this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', ''); ;
         } else if (isContentOptionList(fieldData)) {
             this.contentReferences = fieldData.map(f => this.repository.HandleLoadedContent(f));
         }

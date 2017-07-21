@@ -182,6 +182,7 @@ export class Content {
     Index?: number;
     CreationDate?: string;
     ModificationDate?: string;
+    ParentId?: number;
     Versions?: ContentListReferenceField;
     Workspace?: ContentReferenceField;
 
@@ -1687,14 +1688,18 @@ export class Content {
      * Indicates if the current Content is the parent a specified Content
      */
     public IsParentOf(childContent: Content): boolean {
-        return this.repository === childContent.repository && this.IsSaved && childContent.ParentPath === this.Path;
+        return this.repository === childContent.repository && this.IsSaved && 
+            (this.Id && childContent.ParentId === this.Id 
+                || childContent.ParentPath === this.Path);
     }
 
     /**
      * Indicates if the current Content is a child a specified Content
      */
     public IsChildOf(parentContent: Content): boolean {
-        return this.repository === parentContent.repository && parentContent.IsSaved && this.ParentPath === parentContent.Path;
+        return this.repository === parentContent.repository && parentContent.IsSaved && 
+            (parentContent.Id && this.ParentId === parentContent.Id
+                || this.ParentPath === parentContent.Path);
     }
 
     /**
@@ -1756,6 +1761,7 @@ export interface IContentOptions {
     Index?: number;
     CreationDate?: string;
     ModificationDate?: string;
+    ParentId?: number;
     IsFolder?: boolean;
     Path?: string;
     Versions?: ContentListReferenceField;
