@@ -207,6 +207,62 @@ describe('Content', () => {
         });
     });
 
+
+    describe('#GetChanges', () => {
+        it('should return empty if the content is untouched', () => {
+            expect(Object.keys(contentSaved.GetChanges()).length).to.be.eq(0);
+        });
+
+        it('should return a simple value if a simple property has changed', () => {
+            contentSaved.Name = 'Changed';
+            const changes = contentSaved.GetChanges();
+            expect(Object.keys(changes).length).to.be.eq(1);
+            expect(changes.Name).to.be.eq('Changed');
+        });
+
+        it('should return an updated Path if a reference has been changed', (done) => {
+
+            const options = contentSaved.GetFields();
+            (options.Workspace as any) = {
+                Id: 123,
+                DisplayName: 'aaa',
+                Name: 'bbb',
+                Path: 'Root/Workspace',
+                Type: 'Workspace'
+            }
+            repo.httpProviderRef.setResponse({ d: options });
+            contentSaved.ReloadFields('Workspace').subscribe(w => {
+                contentSaved.Workspace && contentSaved.Workspace.update({
+                    Id: 92635,
+                    Path: 'Root/MyWorkspace',
+                    Type: 'Workspace',
+                    Name: 'ExampleWorkspace'
+                });
+                const changes = contentSaved.GetChanges();
+                expect(Object.keys(changes).length).to.be.eq(1);
+                expect(changes.Workspace && changes.Workspace).to.be.eq('Root/MyWorkspace');
+
+                done();
+            }, err => done)
+        });
+
+        it('should return an updated Path list if a reference list has been changed', (done) => {
+            const options = contentSaved.GetFields();
+            options.Type = 'Task';
+            (options.Versions as any) = [];
+
+            repo.httpProviderRef.setResponse({ d: options });
+            contentSaved.ReloadFields('Versions').subscribe(w => {
+                contentSaved.Versions && contentSaved.Versions.update([options]);
+                const changes = contentSaved.GetChanges();
+                expect(Object.keys(changes).length).to.be.eq(1);
+                expect(changes.Versions && changes.Versions[0]).to.be.eq(options.Path);
+
+                done();
+            }, err => done)
+        });        
+    });
+
     describe('#IsValid', () => {
         it('should return false if there are missing fields', () => {
             const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
@@ -811,7 +867,7 @@ describe('Content', () => {
 
     describe('#HandleLoadedContent()', () => {
         it('should return a ContentType object', () => {
-            expect(Content.HandleLoadedContent(ContentTypes.Task, {Id: 1, Path: 'a/b'}, repo)).to.be.instanceof(ContentTypes.Task);
+            expect(Content.HandleLoadedContent(ContentTypes.Task, { Id: 1, Path: 'a/b' }, repo)).to.be.instanceof(ContentTypes.Task);
         });
     });
 
@@ -829,7 +885,7 @@ describe('Content', () => {
         });
     });
 
-    describe('()', () => {
+    describe('#Reload()', () => {
         it('should return an Observable object', () => {
             expect(contentSaved.Reload('view')).to.be.instanceof(Observable);
         });
@@ -844,7 +900,7 @@ describe('Content', () => {
         });
     });
 
-    describe('Fields()', () => {
+    describe('#ReloadFields()', () => {
         it('should return an Observable object', () => {
             expect(contentSaved.ReloadFields('Name')).to.be.instanceof(Observable);
         });
@@ -863,13 +919,13 @@ describe('Content', () => {
             const options = contentSaved.GetFields();
 
             (options.Workspace as any) = {
-                    Id: 123,
-                    DisplayName: 'aaa',
-                    Name: 'bbb',
-                    Path: 'Root/Workspace',
-                    Type: 'Workspace'
+                Id: 123,
+                DisplayName: 'aaa',
+                Name: 'bbb',
+                Path: 'Root/Workspace',
+                Type: 'Workspace'
             }
-            repo.httpProviderRef.setResponse({d: options})
+            repo.httpProviderRef.setResponse({ d: options })
             contentSaved.ReloadFields('Workspace').subscribe(c => {
                 expect(contentSaved.Workspace).to.be.instanceof(ContentReferenceField);
                 contentSaved.Workspace && contentSaved.Workspace.GetContent().subscribe(c => {

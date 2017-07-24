@@ -33,7 +33,6 @@ export class ContentReferenceField {
 
     public update(fieldData: DeferredObject | IContentOptions) {
         if (isDeferred(fieldData)) {
-            //todo:trim odata.svc
             this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', '');
         } else if (isContentOptions(fieldData)) {
             this.contentReference = this.repository.HandleLoadedContent(fieldData);

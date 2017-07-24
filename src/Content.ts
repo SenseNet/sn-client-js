@@ -935,7 +935,7 @@ export class Content {
     */
     CopyTo(path: string) {
         return this.odata.CreateCustomAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] },
-            { data: { 'targetPath': path ? path : '' } });
+            { data: { 'targetPath': path } });
     }
     /**
      * Adds the given content types to the Allowed content Type list.
