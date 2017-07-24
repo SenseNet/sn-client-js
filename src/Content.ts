@@ -52,23 +52,23 @@ import { DeferredObject } from './ComplexTypes';
 import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
 
 export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
-    return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri;
+    return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
 }
 
 export const isContentOptions = (object: any): object is IContentOptions => {
-    return object && object.Id && object.Path && object.Type;
+    return object && object.Id && object.Path && object.Type && object.Type.length > 0 || false;
 }
 
 export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
-    return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) != null;
+    return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
 }
 
 export const isReferenceField = (field: any): field is ContentReferenceField => {
-    return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function';
+    return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function' || false;
 }
 
 export const isReferenceListField = (field: any): field is ContentListReferenceField => {
-    return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function';
+    return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function' || false;
 }
 
 

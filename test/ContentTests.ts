@@ -3,6 +3,7 @@ import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
 import { MockRepository } from './Mocks';
 import { LoginState } from '../src/Authentication/LoginState';
+import { isDeferred, isContentOptions, isContentOptionList, isReferenceField, isReferenceListField } from '../src/Content';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
@@ -28,6 +29,108 @@ describe('Content', () => {
         content = Content.Create(ContentTypes.Task, options, repo);
         contentSaved = repo.HandleLoadedContent(options, ContentTypes.Task);
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
+    });
+
+    describe('#TypeGuards', () => {
+
+        describe('#isDeferred', () => {
+            it('should return true if an object has __deferred and _deferred.uri', () => {
+                const isDeferredValue = isDeferred({ __deferred: {uri: 'a/b'} });
+                expect(isDeferredValue).to.be.eq(true);
+            });
+            it('should return false if an object has __deferred but does not have _deferred.uri', () => {
+                const isDeferredValue = isDeferred({ __deferred: {otherProp: 'a/b'} });
+                expect(isDeferredValue).to.be.eq(false);
+            });
+            it('should return false if an object does not have __deferred property', () => {
+                const isDeferredValue = isDeferred({ innerProp: {otherProp: 'a/b'} });
+                expect(isDeferredValue).to.be.eq(false);
+            });
+        });
+
+        describe('#isContentOptions ', () => {
+            it('should return true if an object Id, Path and Type', () => {
+                const isContentOptionsValue = isContentOptions({ Id: 1, Path: 'a/b', Type: 'Task' });
+                expect(isContentOptionsValue).to.be.eq(true);
+            });
+            it('should return false if an object does not have a Type', () => {
+                const isContentOptionsValue = isContentOptions({ Id: 1, Path: 'a/b' });
+                expect(isContentOptionsValue).to.be.eq(false);
+            });            
+            it('should return false if an object does not have a Path', () => {
+                const isContentOptionsValue = isContentOptions({ Id: 1, Type: 'Task' });
+                expect(isContentOptionsValue).to.be.eq(false);
+            });
+            it('should return false if an object does not have an Id', () => {
+                const isContentOptionsValue = isContentOptions({ Path: 'a/b', Type: 'Task' });
+                expect(isContentOptionsValue).to.be.eq(false);
+            });
+        });
+
+        describe('#isContentOptionList  ', () => {
+            it('should return true if a list contains only values that have an object Id, Path and Type', () => {
+                const isContentOptionListValue = isContentOptionList([
+                    { Id: 1, Path: 'a/b', Type: 'Task' },
+                    { Id: 2, Path: 'a/b/c', Type: 'Task' },
+                    { Id: 3, Path: 'a/b/c/d', Type: 'Task' }
+                ]);
+                expect(isContentOptionListValue).to.be.eq(true);
+            });
+            it('should return false if an object does not have a length', () => {
+                const isContentOptionListValue = isContentOptionList(1 as any);
+                expect(isContentOptionListValue).to.be.eq(false);
+            });            
+            it('should return false if an object is not array-like', () => {
+                const isContentOptionListValue = isContentOptionList({ Path: 'a/b', Type: 'Task' } as any);
+                expect(isContentOptionListValue).to.be.eq(false);
+            });
+        });
+
+        
+        describe('#isReferenceField', () => {
+            it('should return true if a field contains a getValue function and a GetContent function', () => {
+                const isReferenceFieldValue = isReferenceField({
+                    getValue: () => {},
+                    GetContent: () => {}
+                });
+                expect(isReferenceFieldValue).to.be.eq(true);
+            });
+            it('should return false if an object does not have a getValue function', () => {
+                const isReferenceFieldValue = isReferenceField({
+                    GetContent: () => {}
+                });
+                expect(isReferenceFieldValue).to.be.eq(false);
+            });            
+            it('should return false if an object does not have a GetContent function', () => {
+                const isReferenceFieldValue = isReferenceField({
+                    getValue: () => {},
+                });
+                expect(isReferenceFieldValue).to.be.eq(false);
+            });
+        });
+        
+        describe('#isReferenceListField', () => {
+            it('should return true if a field contains a getValue function and a GetContents function', () => {
+                const isReferenceListFieldValue = isReferenceListField({
+                    getValue: () => {},
+                    GetContents: () => {}
+                });
+                expect(isReferenceListFieldValue).to.be.eq(true);
+            });
+            it('should return false if an object does not have a getValue function', () => {
+                const isReferenceListFieldValue = isReferenceListField({
+                    GetContents: () => {}
+                });
+                expect(isReferenceListFieldValue).to.be.eq(false);
+            });            
+            it('should return false if an object does not have a GetContent function', () => {
+                const isReferenceListFieldValue = isReferenceListField({
+                    getValue: () => {},
+                });
+                expect(isReferenceListFieldValue).to.be.eq(false);
+            });
+        });            
+
     });
 
     describe('#Create()', () => {
@@ -353,7 +456,7 @@ describe('Content', () => {
 
         it('should trigger an OnContentModified event on success after update', (done) => {
             repo.httpProviderRef.setResponse({
-            d: {
+                d: {
                     Id: 3,
                     DisplayName: 'new3',
                 }
@@ -369,7 +472,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentModified event on success after update', (done) => {
-            repo.httpProviderRef.setError({message: ':('})
+            repo.httpProviderRef.setError({ message: ':(' })
 
             repo.Events.OnContentModificationFailed.subscribe(c => {
                 expect(c.Error.message).to.be.eq(':(');
@@ -378,7 +481,7 @@ describe('Content', () => {
 
             contentSaved.DisplayName = 'old';
             contentSaved.Save();
-        });        
+        });
 
     });
     describe('#Actions()', () => {
@@ -630,7 +733,7 @@ describe('Content', () => {
             contentSaved.Path = '';
             expect(() => contentSaved.MoveTo('/workspaces/document')).to.throw('No Path provided for the content');
         });
-        
+
         it('should throw Error if the Content hasn no Name set', () => {
             contentSaved.Name = '';
             expect(() => contentSaved.MoveTo('/workspaces/document')).to.throw('No Name provided for the content');
@@ -661,7 +764,7 @@ describe('Content', () => {
             const originalPath = contentSaved.Path;
             const toPath = 'workspaces/document';
 
-            repo.httpProviderRef.setError({message: ':('});
+            repo.httpProviderRef.setError({ message: ':(' });
             repo.Events.OnContentMoveFailed.subscribe(move => {
                 expect(move.Error.message).to.be.eq(':(');
                 expect(move.From).to.be.eq(originalPath);
@@ -672,8 +775,8 @@ describe('Content', () => {
                 done();
             }, err => done(err));
             contentSaved.MoveTo(toPath);
-        });        
-        
+        });
+
     });
     describe('#CopyTo()', () => {
         it('should return an Observable object', () => {
@@ -963,7 +1066,7 @@ describe('Content', () => {
         it('should return true if content is a child by ParentId', () => {
             expect(rootContent.IsParentOf(childContentById)).to.be.eq(true);
         });
-        
+
         it('should return false if content is not a child', () => {
             expect(rootContent.IsParentOf(notChildContent)).to.be.eq(false);
         });
