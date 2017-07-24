@@ -4,6 +4,7 @@ import { Observable } from '@reactivex/rxjs';
 import { MockRepository } from './Mocks';
 import { LoginState } from '../src/Authentication/LoginState';
 import { isDeferred, isContentOptions, isContentOptionList, isReferenceField, isReferenceListField } from '../src/Content';
+import { ContentReferenceField } from '../src/ContentReferences';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
@@ -35,15 +36,15 @@ describe('Content', () => {
 
         describe('#isDeferred', () => {
             it('should return true if an object has __deferred and _deferred.uri', () => {
-                const isDeferredValue = isDeferred({ __deferred: {uri: 'a/b'} });
+                const isDeferredValue = isDeferred({ __deferred: { uri: 'a/b' } });
                 expect(isDeferredValue).to.be.eq(true);
             });
             it('should return false if an object has __deferred but does not have _deferred.uri', () => {
-                const isDeferredValue = isDeferred({ __deferred: {otherProp: 'a/b'} });
+                const isDeferredValue = isDeferred({ __deferred: { otherProp: 'a/b' } });
                 expect(isDeferredValue).to.be.eq(false);
             });
             it('should return false if an object does not have __deferred property', () => {
-                const isDeferredValue = isDeferred({ innerProp: {otherProp: 'a/b'} });
+                const isDeferredValue = isDeferred({ innerProp: { otherProp: 'a/b' } });
                 expect(isDeferredValue).to.be.eq(false);
             });
         });
@@ -56,7 +57,7 @@ describe('Content', () => {
             it('should return false if an object does not have a Type', () => {
                 const isContentOptionsValue = isContentOptions({ Id: 1, Path: 'a/b' });
                 expect(isContentOptionsValue).to.be.eq(false);
-            });            
+            });
             it('should return false if an object does not have a Path', () => {
                 const isContentOptionsValue = isContentOptions({ Id: 1, Type: 'Task' });
                 expect(isContentOptionsValue).to.be.eq(false);
@@ -79,57 +80,57 @@ describe('Content', () => {
             it('should return false if an object does not have a length', () => {
                 const isContentOptionListValue = isContentOptionList(1 as any);
                 expect(isContentOptionListValue).to.be.eq(false);
-            });            
+            });
             it('should return false if an object is not array-like', () => {
                 const isContentOptionListValue = isContentOptionList({ Path: 'a/b', Type: 'Task' } as any);
                 expect(isContentOptionListValue).to.be.eq(false);
             });
         });
 
-        
+
         describe('#isReferenceField', () => {
             it('should return true if a field contains a getValue function and a GetContent function', () => {
                 const isReferenceFieldValue = isReferenceField({
-                    getValue: () => {},
-                    GetContent: () => {}
+                    getValue: () => { },
+                    GetContent: () => { }
                 });
                 expect(isReferenceFieldValue).to.be.eq(true);
             });
             it('should return false if an object does not have a getValue function', () => {
                 const isReferenceFieldValue = isReferenceField({
-                    GetContent: () => {}
+                    GetContent: () => { }
                 });
                 expect(isReferenceFieldValue).to.be.eq(false);
-            });            
+            });
             it('should return false if an object does not have a GetContent function', () => {
                 const isReferenceFieldValue = isReferenceField({
-                    getValue: () => {},
+                    getValue: () => { },
                 });
                 expect(isReferenceFieldValue).to.be.eq(false);
             });
         });
-        
+
         describe('#isReferenceListField', () => {
             it('should return true if a field contains a getValue function and a GetContents function', () => {
                 const isReferenceListFieldValue = isReferenceListField({
-                    getValue: () => {},
-                    GetContents: () => {}
+                    getValue: () => { },
+                    GetContents: () => { }
                 });
                 expect(isReferenceListFieldValue).to.be.eq(true);
             });
             it('should return false if an object does not have a getValue function', () => {
                 const isReferenceListFieldValue = isReferenceListField({
-                    GetContents: () => {}
-                });
-                expect(isReferenceListFieldValue).to.be.eq(false);
-            });            
-            it('should return false if an object does not have a GetContent function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    getValue: () => {},
+                    GetContents: () => { }
                 });
                 expect(isReferenceListFieldValue).to.be.eq(false);
             });
-        });            
+            it('should return false if an object does not have a GetContent function', () => {
+                const isReferenceListFieldValue = isReferenceListField({
+                    getValue: () => { },
+                });
+                expect(isReferenceListFieldValue).to.be.eq(false);
+            });
+        });
 
     });
 
@@ -471,7 +472,7 @@ describe('Content', () => {
             contentSaved.Save();
         });
 
-        it('should trigger an OnContentModified event on success after update', (done) => {
+        it('should trigger an OnContentModificationFailed event on failed after update', (done) => {
             repo.httpProviderRef.setError({ message: ':(' })
 
             repo.Events.OnContentModificationFailed.subscribe(c => {
@@ -481,6 +482,20 @@ describe('Content', () => {
 
             contentSaved.DisplayName = 'old';
             contentSaved.Save();
+        });
+
+
+        it('should trigger an OnContentModificationFailed event on failed after update, when using Override', (done) => {
+            repo.httpProviderRef.setError({ message: ':(' })
+
+            repo.Events.OnContentModificationFailed.subscribe(c => {
+                expect(c.Error.message).to.be.eq(':(');
+                done();
+            }, err => done(err));
+
+            contentSaved.Save({
+                DisplayName: 'other'
+            }, true);
         });
 
     });
@@ -793,21 +808,80 @@ describe('Content', () => {
             expect(content.RemoveAllowedChildTypes(['Folder'])).to.be.instanceof(Observable);
         });
     });
+
+    describe('#HandleLoadedContent()', () => {
+        it('should return a ContentType object', () => {
+            expect(Content.HandleLoadedContent(ContentTypes.Task, {Id: 1, Path: 'a/b'}, repo)).to.be.instanceof(ContentTypes.Task);
+        });
+    });
+
     describe('#Load()', () => {
         it('should return an Observable object', () => {
             expect(repo.Load('/workspace/project')).to.be.instanceof(Observable);
         });
-    });
-    describe('#Load()', () => {
+
         it('should return an Observable object', () => {
             expect(repo.Load(111)).to.be.instanceof(Observable);
         });
-    });
-    describe('#Load()', () => {
+
         it('should return an Observable object', () => {
             expect(repo.Load(111, { select: 'DisplayName' })).to.be.instanceof(Observable);
         });
     });
+
+    describe('()', () => {
+        it('should return an Observable object', () => {
+            expect(contentSaved.Reload('view')).to.be.instanceof(Observable);
+        });
+
+        it('should throw Error when called on a non-saved Content', () => {
+            expect(() => { content.Reload('view') }).to.throw('Content has to be saved to reload')
+        });
+
+        it('should throw Error when no Id provided', () => {
+            const invalidContent = repo.HandleLoadedContent({ Path: 'a/b' }, ContentTypes.Task);
+            expect(() => { invalidContent.Reload('view') }).to.throw('Content Id not provided')
+        });
+    });
+
+    describe('Fields()', () => {
+        it('should return an Observable object', () => {
+            expect(contentSaved.ReloadFields('Name')).to.be.instanceof(Observable);
+        });
+
+        it('should throw Error when called on a non-saved Content', () => {
+            expect(() => { content.ReloadFields('Name') }).to.throw('Content has to be saved to reload')
+        });
+
+        it('should throw Error when no Id provided', () => {
+            const invalidContent = repo.HandleLoadedContent({ Path: 'a/b' }, ContentTypes.Task);
+            expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id not provided')
+        });
+
+        it('should throw Error when no Id provided', (done) => {
+            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            const options = contentSaved.GetFields();
+
+            (options.Workspace as any) = {
+                    Id: 123,
+                    DisplayName: 'aaa',
+                    Name: 'bbb',
+                    Path: 'Root/Workspace',
+                    Type: 'Workspace'
+            }
+            repo.httpProviderRef.setResponse({d: options})
+            contentSaved.ReloadFields('Workspace').subscribe(c => {
+                expect(contentSaved.Workspace).to.be.instanceof(ContentReferenceField);
+                contentSaved.Workspace && contentSaved.Workspace.GetContent().subscribe(c => {
+                    expect(c.DisplayName).to.be.eq('aaa')
+                    done();
+                }, done)
+            }, done)
+        });
+
+    });
+
+
     describe('#SetPermissions()', () => {
         it('should return an Observable object', () => {
             expect(typeof content.SetPermissions([
@@ -815,8 +889,7 @@ describe('Content', () => {
                 { identity: '/Root/IMS/BuiltIn/Portal/Visitor', Custom01: Security.PermissionValues.allow, Custom14: Security.PermissionValues.deny },
             ])).to.eq('object');
         });
-    });
-    describe('#SetPermissions()', () => {
+
         it('should return an Observable object', () => {
             content.Path = '/workspace/project';
             expect(content.SetPermissions(Security.Inheritance.break)).to.be.instanceof(Observable);
@@ -826,8 +899,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.GetPermission('/Root/IMS/BuiltIn/Portal/Visitor')).to.be.instanceof(Observable);
         });
-    });
-    describe('#GetPermission()', () => {
+
         it('should return an Observable object', () => {
             expect(content.GetPermission()).to.be.instanceof(Observable);
         });
@@ -836,8 +908,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.GetQueries(false)).to.be.instanceof(Observable);
         });
-    });
-    describe('#GetQueries()', () => {
+
         it('should return an Observable object', () => {
             expect(content.GetQueries()).to.be.instanceof(Observable);
         });
@@ -851,8 +922,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.TakeLockOver(123)).to.be.instanceof(Observable);
         });
-    });
-    describe('#TakeLockOver()', () => {
+
         it('should return an Observable object', () => {
             expect(content.TakeLockOver()).to.be.instanceof(Observable);
         });
@@ -861,13 +931,11 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.RebuildIndex(false, 1)).to.be.instanceof(Observable);
         });
-    });
-    describe('#RebuildIndex()', () => {
+
         it('should return an Observable object', () => {
             expect(content.RebuildIndex()).to.be.instanceof(Observable);
         });
-    });
-    describe('#RebuildIndex()', () => {
+
         it('should return an Observable object', () => {
             expect(content.RebuildIndex(true)).to.be.instanceof(Observable);
         });
@@ -876,8 +944,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.RefreshIndexSubtree()).to.be.instanceof(Observable);
         });
-    });
-    describe('#RebuildIndexSubtree()', () => {
+
         it('should return an Observable object', () => {
             expect(content.RebuildIndexSubtree()).to.be.instanceof(Observable);
         });
@@ -910,8 +977,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.TakeOwnership('/Root/IMS/BuiltIn/Portal/Admin')).to.be.instanceof(Observable);
         });
-    });
-    describe('#TakeOwnership()', () => {
+
         it('should return an Observable object', () => {
             expect(content.TakeOwnership()).to.be.instanceof(Observable);
         });
@@ -920,8 +986,7 @@ describe('Content', () => {
         it('should return an Observable object', () => {
             expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', Enums.QueryType.Public)).to.be.instanceof(Observable);
         });
-    });
-    describe('#SaveQuery()', () => {
+
         it('should return an Observable object', () => {
             expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', Enums.QueryType.Public)).to.be.instanceof(Observable);
         });

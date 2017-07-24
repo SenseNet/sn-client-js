@@ -206,12 +206,14 @@ export class Content {
     private updateReferenceFields(){
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
         referenceSettings.forEach(f => {
-            if (!this.referenceFieldCache[f.Name]){
-                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
-            } else {
-                this.referenceFieldCache[f.Name].update(this[f.Name]);
+            if (this[f.Name]){
+                if (!this.referenceFieldCache[f.Name]){
+                    this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
+                } else {
+                    this.referenceFieldCache[f.Name].update(this[f.Name]);
+                }
+                this[f.Name] = this.referenceFieldCache[f.Name];
             }
-            this[f.Name] = this.referenceFieldCache[f.Name];
         });
     }
 
@@ -456,11 +458,25 @@ export class Content {
         return this.repository.Load(this.Id, {
             select: selectFields,
             expand: expandFields
-        })
+        });
     }
 
-    ReloadFields(fields: (keyof this)[]){
+    ReloadFields(...fields: (keyof this)[]){
 
+        if (!this.IsSaved){
+            throw new Error('Content has to be saved to reload')
+        }
+        if (!this.Id){
+            throw new Error('Content Id not provided')
+        }
+
+        const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
+                .map(f => f.Name);
+        return this.repository.Load(this.Id, {
+            select: fields,
+            expand: toExpand
+        });
+        
     }
 
     /**
