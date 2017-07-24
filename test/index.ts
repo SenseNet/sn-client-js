@@ -3,6 +3,9 @@ import * as JwtServiceTests from './JwtServiceTests';
 import * as CollectionTests from './CollectionTests';
 import * as ContentTests from './ContentTests';
 import * as ContentTypeTests from './ContentTypeTests';
+import * as ContentReferenceFieldTests from './ContentReferenceFieldTests';
+import * as ContentListReferenceFieldTests from './ContentListReferenceFieldTests';
+
 import * as ContentSerializerTests from './ContentSerializerTests';
 import * as ControlMapperTests from './ControlMapperTests';
 import * as FieldSettingsTest from './FieldSettingsTest';
@@ -22,6 +25,8 @@ export {
     CollectionTests,
     ContentTests,
     ContentTypeTests,
+    ContentReferenceFieldTests,
+    ContentListReferenceFieldTests,
     ContentSerializerTests,
     ControlMapperTests,
     FieldSettingsTest,

@@ -37,6 +37,8 @@ export class ContentReferenceField {
             this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', '');
         } else if (isContentOptions(fieldData)) {
             this.contentReference = this.repository.HandleLoadedContent(fieldData);
+        } else {
+            throw new Error('Failed to update reference, fieldData is not Deferred object or IContentOptions')
         }
     }
 
@@ -84,6 +86,8 @@ export class ContentListReferenceField {
             this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', ''); ;
         } else if (isContentOptionList(fieldData)) {
             this.contentReferences = fieldData.map(f => this.repository.HandleLoadedContent(f));
+        } else {
+            throw new Error('Failed to update reference list, fieldData is not Deferred object or ContentOptionList')
         }
     }
 
