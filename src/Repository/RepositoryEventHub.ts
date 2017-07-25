@@ -176,6 +176,9 @@ export class RepositoryEventHub {
     private readonly onContentMovedSubject = new Subject<EventModels.ContentMoved>()
     private readonly onContentMoveFailedSubject = new Subject<EventModels.ContentMoveFailed>()
 
+    /**
+     * Method group for triggering Repository events
+     */
     public Trigger = {
         ContentCreated: (ev) => this.onContentCreatedSubject.next(ev),
         ContentCreateFailed: (ev) => this.onContentCreateFailedSubject.next(ev),
@@ -198,7 +201,7 @@ export class RepositoryEventHub {
     /**
     * Triggered after a succesful Content creation
     */
-    public OnContentCreated: Observable<any > = this.onContentCreatedSubject.asObservable();
+    public OnContentCreated: Observable<EventModels.Created> = this.onContentCreatedSubject.asObservable();
 
     /**
      * Triggered after Content creation has been failed

@@ -296,7 +296,7 @@ describe('Content', () => {
             expect(content.Delete(false)).to.be.instanceof(Observable);
         });
 
-        it('should return an Observable on not saved contents', () => {
+        it('should return an Observable on not saved content', () => {
             const unsavedContent = Content.Create(ContentTypes.Task, {}, repo);
             expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
         });
@@ -893,8 +893,8 @@ describe('Content', () => {
         });
 
         it('should throw Error when no Id provided', () => {
-            const invalidContent = repo.HandleLoadedContent({ Path: 'a/b' }, ContentTypes.Task);
-            expect(() => { invalidContent.Reload('view') }).to.throw('Content Id not provided')
+            const invalidContent = repo.HandleLoadedContent({ Name: 'test' }, ContentTypes.Task);
+            expect(() => { invalidContent.Reload('view') }).to.throw('Content Id or Path has to be provided')
         });
     });
 
@@ -908,8 +908,8 @@ describe('Content', () => {
         });
 
         it('should throw Error when no Id provided', () => {
-            const invalidContent = repo.HandleLoadedContent({ Path: 'a/b' }, ContentTypes.Task);
-            expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id not provided')
+            const invalidContent = repo.HandleLoadedContent({ Name: 'Test' }, ContentTypes.Task);
+            expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id or Path has to be provided')
         });
 
         it('should throw Error when no Id provided', (done) => {

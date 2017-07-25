@@ -451,12 +451,18 @@ export class Content<T extends IContentOptions = IContentOptions> {
     }
 
 
+    /**
+     * Reloads every field and reference of the content, based on the specified View from the Schema
+     * @throws if the Content is not saved yet or no Id or Path is provided
+     * @param {'edit' | 'view'} actionName
+     * @returns {Observable<this>} An observable whitch will be updated with the Content
+     */
     Reload(actionName?: 'edit' | 'view'): Observable<this>{
         if (!this.IsSaved){
             throw new Error('Content has to be saved to reload')
         }
-        if (!this.Id){
-            throw new Error('Content Id not provided')
+        if (!this.Id && !this.Path){
+            throw new Error('Content Id or Path has to be provided')
         }
 
         let selectFields: string | string[] = 'all';
@@ -471,28 +477,33 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 .map(f => f.Name);
         }
         
-        return this.repository.Load(this.Id, {
+        return this.repository.Load(this.Id || this.Path as any, {
             select: selectFields,
             expand: expandFields
         });
     }
 
-    ReloadFields(...fields: (keyof this)[]){
+    /**
+     * Reloads the specified fields and references of the content
+     * @param {(keyof this)[]} fields List of the fields to be loaded
+     * @throws if the Content is not saved yet or no Id or Path is provided
+     * @returns {Observable<this>} An observable whitch will be updated with the Content
+     */
+    ReloadFields(...fields: (keyof this)[]): Observable<this>{
 
         if (!this.IsSaved){
             throw new Error('Content has to be saved to reload')
         }
-        if (!this.Id){
-            throw new Error('Content Id not provided')
+        if (!this.Id && !this.Path){
+            throw new Error('Content Id or Path has to be provided')
         }
 
         const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
                 .map(f => f.Name);
-        return this.repository.Load(this.Id, {
+        return this.repository.Load(this.Id || this.Path as any, {
             select: fields,
             expand: toExpand
         });
-        
     }
 
     /**
@@ -518,7 +529,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             }
         }), Object as { new(...args) })
             .map(resp => {
-                return resp.d.Actions;
+                return resp.d.Actions as ActionModel[];
             });
     }
     /**
@@ -634,7 +645,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     /**
      * Method that returns the children of a content.
      *
-     * Calls the method [FetchContent]{@link ODataApi.FetchContent} with the contents id and the given OData options.
+     * Calls the method [FetchContent]{@link ODataApi.FetchContent} with the content id and the given OData options.
      * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -665,7 +676,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     /**
      * Returns the list of versions.
      *
-     * Calls the method [GetContent]{@link ODataApi.GetContent} with the contents id and the given OData options.
+     * Calls the method [GetContent]{@link ODataApi.GetContent} with the content id and the given OData options.
      * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -681,13 +692,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetVersions(options?: ODataParams): Observable<Content[]> {
+    GetVersions(options?: ODataParams): Observable<this[]> {
         return this.Versions.GetContent(options);
     }
     /**
      * Returns the current Workspace.
      *
-     * Calls the method [GetContent]{@link ODataApi.GetContent} with the contents id and the given OData options.
+     * Calls the method [GetContent]{@link ODataApi.GetContent} with the content id and the given OData options.
      * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -1707,7 +1718,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     }
 
     /**
-     * Indicates if the current Content is a child a specified Content
+     * Indicates if the current Content is a child of a specified Content
      */
     public IsChildOf(parentContent: Content): boolean {
         return this.repository === parentContent.repository && parentContent.IsSaved && 
@@ -1718,7 +1729,6 @@ export class Content<T extends IContentOptions = IContentOptions> {
     /**
      * Indicates if the current Content is an ancestor of a specified Content
      */
-
     public IsAncestorOf(descendantContent: Content): boolean {
         if (!descendantContent.Path || !this.Path) {
             throw Error('No path provided')
@@ -1738,6 +1748,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     /**
      * Returns the full Path for the current content
+     * @throws if the Content is not saved yet, or hasn't got an Id or Path defined
      */
     GetFullPath(): string {
         if (!this.IsSaved) {
@@ -1753,14 +1764,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
     }
 
     /**
-     * 
+     * Creates a stringified value from the current Content
+     * @returns {string} The stringified value
      */
     Stringify: () => string = () => ContentSerializer.Stringify(this);
 }
 
 /**
 * Interface for classes that represent a Content.
-*
 * @interface IContentOptions
 */
 
