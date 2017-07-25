@@ -1053,7 +1053,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<TContent extends Content, O extends TContent['options']>(newContent: { new(...args: any[]): TContent }, opt: O,
+    public static Create<TContent extends Content, O extends TContent['options']>(opt: O, newContent: { new(...args: any[]): TContent },
         repository: BaseRepository): TContent {
         let constructed = new newContent(opt, repository);
         return constructed;

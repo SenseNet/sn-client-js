@@ -14,15 +14,15 @@ describe('Collection', () => {
 
   beforeEach(() => {
     children = [
-      Content.Create(Content, {
+      Content.Create({
         Id: 1,
         Name: 'test1',
         Path: '/'
-      }, Repo),
-      Content.Create(Content, {
+      }, Content, Repo),
+      Content.Create({
         Id: 2,
         Name: 'test2'
-      }, Repo)];
+      }, Content, Repo)];
 
 
     collection = new Collection(children, Repo, Content);
@@ -58,7 +58,7 @@ describe('Collection', () => {
   });
   describe('#Add()', () => {
     it('should return an observable', () => {
-      let content = Content.Create(ContentTypes.Task, { DueDate: '2017-06-27T11:11:11Z', Name: '' }, Repo);
+      let content = Content.Create({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, ContentTypes.Task, Repo);
       expect(collection.Add(content.options)).to.be.instanceof(Observable);
     });
   });

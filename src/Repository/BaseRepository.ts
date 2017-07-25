@@ -179,12 +179,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 instance = this._loadedContentReferenceCache[opt.Id] as T;
                 instance['UpdateLastSavedFields'](opt);
             } else {
-                instance = Content.Create(realContentType, opt, this);
+                instance = Content.Create(opt, realContentType, this);
                 this._loadedContentReferenceCache[opt.Id] = instance;
             }
 
         } else {
-            instance = Content.Create(realContentType, opt, this);
+            instance = Content.Create(opt, realContentType, this);
         }
         instance['_isSaved'] = true;
         this.Events.Trigger.ContentLoaded({ Content: instance});
@@ -239,7 +239,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * Shortcut to Content.Create
      */
     CreateContent: <T extends Content, K extends T['options']>(options: K, contentType: {new(...args: any[]): T}) => T = 
-        (options, contentType) => Content.Create(contentType, options, this);
+        (options, contentType) => Content.Create(options, contentType, this);
 
     /**
      * Parses a Content instance from a stringified SerializedContent<T> instance

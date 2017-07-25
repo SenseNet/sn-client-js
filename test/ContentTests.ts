@@ -27,9 +27,15 @@ describe('Content', () => {
             Name: CONTENT_NAME,
             DisplayName: ''
         };
-        content = Content.Create(ContentTypes.Task, options, repo);
+        content = Content.Create(options, ContentTypes.Task, repo);
         contentSaved = repo.HandleLoadedContent(options, ContentTypes.Task);
+
+        contentSaved.CreatedBy.GetContent().subscribe(createdBy => {
+            console.log('Task is created by', createdBy);
+        })
+
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.Load('Root/MyWorkspace/MyTaskList/MyTask1').subscribe(loadedTask => {})
     });
 
     describe('#TypeGuards', () => {
@@ -148,7 +154,7 @@ describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            let newContent = Content.Create(Content, {}, repo);
+            let newContent = Content.Create({}, Content, repo);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
@@ -265,7 +271,7 @@ describe('Content', () => {
 
     describe('#IsValid', () => {
         it('should return false if there are missing fields', () => {
-            const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
+            const emptyContent = Content.Create({}, ContentTypes.Task, repo);
             expect(emptyContent.IsValid).to.be.eq(false);
         });
         it('should return true all complusory fields are filled', () => {
@@ -297,7 +303,7 @@ describe('Content', () => {
         });
 
         it('should return an Observable on not saved content', () => {
-            const unsavedContent = Content.Create(ContentTypes.Task, {}, repo);
+            const unsavedContent = Content.Create({}, ContentTypes.Task, repo);
             expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
         });
     });
@@ -322,12 +328,12 @@ describe('Content', () => {
         });
 
         it('should throw an error if no ID provided', () => {
-            const newContent = Content.Create(ContentTypes.Task, {}, repo);
+            const newContent = Content.Create({}, ContentTypes.Task, repo);
             expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
         });
 
         it('should throw an error if trying to rename an unsaved content with Id', () => {
-            const newContent = Content.Create(ContentTypes.Task, { Id: 3 }, repo);
+            const newContent = Content.Create({ Id: 3 }, ContentTypes.Task, repo);
             expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
         });
     });
@@ -349,7 +355,7 @@ describe('Content', () => {
         });
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
+            const emptyContent = Content.Create({}, ContentTypes.Task, repo);
             expect(() => {
                 const obs = emptyContent.Save({ DisplayName: 'new' })
                 obs.subscribe(() => {
@@ -437,7 +443,7 @@ describe('Content', () => {
 
 
         it('should throw error when triggering Save on an unsaved Content without path', () => {
-            let c = Content.Create(ContentTypes.Task, {}, repo);
+            let c = Content.Create({}, ContentTypes.Task, repo);
             expect(() => { c.Save() }).to.throw();
         });
 
@@ -1131,7 +1137,7 @@ describe('Content', () => {
         });
         it('should return GenericContent Schema if no Schema found', () => {
             class ContentWithoutSchema extends Content { };
-            const contentInstance = Content.Create(ContentWithoutSchema, {}, repo);
+            const contentInstance = Content.Create({}, ContentWithoutSchema, repo);
             const genericSchema = Content.GetSchema(ContentTypes.GenericContent);
             expect(contentInstance.GetSchema()).to.be.eq(genericSchema)
         });
