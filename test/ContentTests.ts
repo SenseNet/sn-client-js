@@ -562,7 +562,7 @@ describe('Content', () => {
         });
 
         it('should throw an error if no Path specified', () => {
-            contentSaved.Path = undefined;
+            (contentSaved.Path) = undefined;
             expect(() => {contentSaved.Upload('Root/Example', 'example.txt'); }).to.throw('No Path provided!')
         });
 
@@ -570,7 +570,7 @@ describe('Content', () => {
 
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(content.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.Actions()).to.be.instanceof(Observable);
         });
 
         it('should retrieve an Action list', (done) => {
@@ -584,22 +584,22 @@ describe('Content', () => {
                     ]
                 }
             });
-            content.Actions().subscribe(actions => {
+            contentSaved.Actions().subscribe(actions => {
                 expect(actions[0].Name).to.be.eq('Action1');
                 done();
             }, done);
-            expect(content.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.Actions()).to.be.instanceof(Observable);
         });
 
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(content.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.Actions()).to.be.instanceof(Observable);
         });
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(content.Actions('ListItem')).to.be.instanceof(Observable);
+            expect(contentSaved.Actions('ListItem')).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedChildTypes()', () => {
@@ -612,36 +612,21 @@ describe('Content', () => {
                     ]
                 }
             });
-            content.GetAllowedChildTypes().subscribe(resp => {
+            contentSaved.GetAllowedChildTypes().subscribe(resp => {
                 expect(resp[0].Name).to.be.eq('MyCustomType1');
                 done();
             })
         });
-
         it('should return an Observable object', () => {
             expect(content.GetAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
         });
-
-        it('should throw an Error if no Id specified', () => {
-            const c = Content.Create(ContentTypes.Task, { DisplayName: 'a' }, repo);
-            expect(() => { c.GetAllowedChildTypes({ select: ['Name'] }) }).to.throw();
-        });
-
-
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
-
         it('should return an Observable object', () => {
-            expect(content.GetEffectiveAllowedChildTypes()).to.be.instanceof(Observable);
+            expect(contentSaved.GetEffectiveAllowedChildTypes()).to.be.instanceof(Observable);
         });
-
         it('should return an Observable object', () => {
-            expect(content.GetEffectiveAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
-        });
-
-        it('should throw an error if not Id provided', () => {
-            const emptyContent = Content.Create(ContentTypes.Task, {}, repo);
-            expect(() => { emptyContent.GetEffectiveAllowedChildTypes({ select: ['Name'] }) }).to.throw();
+            expect(contentSaved.GetEffectiveAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#GetOwner()', () => {

@@ -11,8 +11,8 @@ const expect = Chai.expect;
 
 @suite('ContentReferenceField')
 export class ContentReferenceFieldTests {
-    private unloadedRef: ContentReferenceField;
-    private loadedRef: ContentReferenceField;
+    private unloadedRef: ContentReferenceField<ContentTypes.Task>;
+    private loadedRef: ContentReferenceField<ContentTypes.Task>;
 
     private repo: MockRepository;
     before() {
@@ -86,12 +86,5 @@ export class ContentReferenceFieldTests {
             expect(c).to.eq(this.loadedRef['contentReference']);
             done();
         }, err => done)
-    }
-
-    @test
-    public 'Update should fail if IContentOptions has no Id/Path/Type'(){
-        expect(() => {
-            this.unloadedRef.update({ Name: 'aaa'});
-        }).to.throw('Failed to update reference, fieldData is not Deferred object or IContentOptions');
     }
 }

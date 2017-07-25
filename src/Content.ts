@@ -41,7 +41,7 @@
  * related to async data streams.
  */ /** */
 
-import { Schemas, Security, Enums, ODataHelper, ContentTypes, FieldSettings } from './SN';
+import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
 import { ODataRequestOptions, ODataParams, ODataApi } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
@@ -50,6 +50,7 @@ import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
 import { ContentSerializer } from './ContentSerializer';
 import { DeferredObject } from './ComplexTypes';
 import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
+import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
 
 export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
     return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
@@ -63,16 +64,16 @@ export const isContentOptionList = (objectList: any[]): objectList is IContentOp
     return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
 }
 
-export const isReferenceField = (field: any): field is ContentReferenceField => {
+export const isReferenceField = (field: any): field is ContentReferenceField<Content> => {
     return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function' || false;
 }
 
-export const isReferenceListField = (field: any): field is ContentListReferenceField => {
+export const isReferenceListField = (field: any): field is ContentListReferenceField<Content> => {
     return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function' || false;
 }
 
+export class Content<T extends IContentOptions = IContentOptions> {
 
-export class Content {
     private readonly odata: ODataApi<BaseHttpProvider, Content>;
 
     /**
@@ -113,8 +114,8 @@ export class Content {
         return this.repository;
     }
 
-    private _lastSavedFields: this['options'] = {};
-    protected UpdateLastSavedFields(newFields: this['options']) {
+    private _lastSavedFields: T = {} as T;
+    protected UpdateLastSavedFields(newFields: T) {
         this._lastSavedFields = newFields;
         this._isSaved = true;
         Object.assign(this, newFields);
@@ -124,25 +125,25 @@ export class Content {
     /**
      * Returns a list about the fields with their values, as they are saved into the Repository
      */
-    public get SavedFields(): this['options'] {
-        return !this.IsSaved ? {} : Object.assign({}, this._lastSavedFields);
+    public get SavedFields(): T {
+        return !this.IsSaved ? {} as T : Object.assign({}, this._lastSavedFields);
     }
 
     /**
      * Returns a list about the changed fields and their new values
      */
-    public GetChanges(): this['options'] {
-        const changedFields: this['options'] = {};
+    public GetChanges(): T {
+        const changedFields: T = {} as T;
 
         for (let field in this.GetFields()) {
-            const currentField = this[field];
+            const currentField = (this as any)[field];
             if (currentField !== this._lastSavedFields[field]) {
                 if (isReferenceField(currentField)) {
                     changedFields[field] = currentField.getValue();
                 } else if (isReferenceListField(currentField)) {
                     changedFields[field] = currentField.getValue();
                 } else {
-                    changedFields[field] = this[field]
+                    changedFields[field] = (this as any)[field]
                 }
             }
         }
@@ -152,8 +153,8 @@ export class Content {
     /**
      * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
      */
-    public GetFields(skipEmpties?: boolean): this['options'] {
-        const fieldsToPost = {} as this['options'];
+    public GetFields(skipEmpties?: boolean): T {
+        const fieldsToPost = {} as T;
         this.GetSchema().FieldSettings.forEach(s => {
             const value = this[s.Name] && this[s.Name].getValue ? this[s.Name].getValue() : this[s.Name];
 
@@ -199,21 +200,36 @@ export class Content {
     CreationDate?: string;
     ModificationDate?: string;
     ParentId?: number;
-    Versions?: ContentListReferenceField;
-    Workspace?: ContentReferenceField;
+    Versions: ContentListReferenceField<this>;
+    Workspace: ContentReferenceField<Workspace>;
+    Owner: ContentReferenceField<User>;
+    CreatedBy: ContentReferenceField<User>;
+    ModifiedBy: ContentReferenceField<User>;
+    CheckedOutTo: ContentReferenceField<User>;
 
-    private referenceFieldCache: (ContentListReferenceField|ContentReferenceField)[] = []
+    EffectiveAllowedChildTypes: ContentListReferenceField<ContentType>;
+    AllowedChildTypes: ContentListReferenceField<ContentType>;
+
+    private referenceFieldCache: (ContentListReferenceField<Content>|ContentReferenceField<Content>)[] = []
     private updateReferenceFields(){
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
+        referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, {Name: 'AllowedChildTypes', AllowMultiple: true}]);
         referenceSettings.forEach(f => {
-            if (this[f.Name]){
-                if (!this.referenceFieldCache[f.Name]){
-                    this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
-                } else {
-                    this.referenceFieldCache[f.Name].update(this[f.Name]);
-                }
-                this[f.Name] = this.referenceFieldCache[f.Name];
+            if (this.IsSaved && !this[f.Name]){
+                const generatedDeferred: DeferredObject = {
+                    __deferred: {
+                        uri: ODataHelper.joinPaths(this.GetFullPath(), f.Name)
+                    }
+                };
+                (this[f.Name] as any) = generatedDeferred;
             }
+
+            if (!this.referenceFieldCache[f.Name]){
+                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
+            } else {
+                this.referenceFieldCache[f.Name].update(this[f.Name]);
+            }
+            this[f.Name] = this.referenceFieldCache[f.Name];
         });
     }
 
@@ -222,7 +238,7 @@ export class Content {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(public readonly options: IContentOptions, private repository: BaseRepository) {
+    constructor(public readonly options: T, private repository: BaseRepository) {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
         this.updateReferenceFields();
@@ -286,7 +302,7 @@ export class Content {
             throw new Error('Content is not saved. You can rename only saved content!')
         }
 
-        let fields: this['options'] = {};
+        let fields: T = {} as T;
         if (newDisplayName) {
             fields.DisplayName = newDisplayName;
         }
@@ -296,7 +312,7 @@ export class Content {
         return this.Save(fields);
     }
 
-    private saveContentInternal(fields?: this['options'], override?: boolean): Observable<this> {
+    private saveContentInternal(fields?: T, override?: boolean): Observable<this> {
         const contentType = this.constructor as { new(...args: any[]): any };
         const originalFields = this.GetFields();
         /** Fields Save logic */
@@ -422,7 +438,7 @@ export class Content {
      * });
      * ```
      */
-    Save(fields?: this['options'], override?: boolean): Observable<this> {
+    Save(fields?: T, override?: boolean): Observable<this> {
 
         this._isOperationInProgress = true;
         const saveObservable = this.saveContentInternal(fields, override).share();
@@ -495,10 +511,12 @@ export class Content {
      * ```
      */
     Actions(scenario?: string): Observable<ActionModel[]> {
-        let optionList = this.GetDeferredRequestOptions('Actions', new ODataParams({
-            scenario: scenario
-        }));
-        return this.odata.Get(optionList, Object as { new(...args) })
+        return this.odata.Get(new ODataRequestOptions({
+            path: ODataHelper.joinPaths(this.GetFullPath(), 'Actions'),
+            params: {
+                scenario: scenario
+            }
+        }), Object as { new(...args) })
             .map(resp => {
                 return resp.d.Actions;
             });
@@ -518,8 +536,8 @@ export class Content {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
-        return this.GetDeferredCollection('AllowedChildTypes', options, ContentTypes.ContentType);
+    GetAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+        return this.AllowedChildTypes.GetContents(options);
     }
     /**
      * Method that returns effective allowed child type list of a content.
@@ -536,8 +554,8 @@ export class Content {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
-        return this.GetDeferredCollection('EffectiveAllowedChildTypes', options, ContentTypes.ContentType);
+    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+        return this.EffectiveAllowedChildTypes.GetContents(options);
     }
     /**
      * Method that returns owner of a content.
@@ -554,8 +572,8 @@ export class Content {
      * });
      * ```
      */
-    GetOwner(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('Owner', options, ContentTypes.User);
+    GetOwner(options?: ODataParams): Observable<User> {
+        return this.Owner.GetContent(options);
     }
 
 
@@ -574,8 +592,8 @@ export class Content {
      * });
      * ```
      */
-    Creator(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('CreatedBy', options, ContentTypes.User);
+    Creator(options?: ODataParams): Observable<User> {
+        return this.CreatedBy.GetContent(options);
     }
     /**
      * Method that returns last modifier of a content.
@@ -592,8 +610,8 @@ export class Content {
      * });
      * ```
      */
-    Modifier(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('ModifiedBy', options, ContentTypes.User);
+    Modifier(options?: ODataParams): Observable<User> {
+        return this.ModifiedBy.GetContent(options);
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -610,8 +628,8 @@ export class Content {
      * });
      * ```
      */
-    CheckedOutBy(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('CheckedOutTo', options, ContentTypes.User);
+    CheckedOutBy(options?: ODataParams): Observable<User> {
+        return this.CheckedOutTo.GetContent(options);
     }
     /**
      * Method that returns the children of a content.
@@ -663,8 +681,8 @@ export class Content {
      * });
      * ```
     */
-    GetVersions(options?: ODataParams): Observable<this[]> {
-        return this.GetDeferredContent('Versions', options, this.constructor as { new() });
+    GetVersions(options?: ODataParams): Observable<Content[]> {
+        return this.Versions.GetContents(options);
     }
     /**
      * Returns the current Workspace.
@@ -685,8 +703,8 @@ export class Content {
      * });
      * ```
     */
-    GetWorkspace(options?: ODataParams): Observable<Content> {
-        return this.GetDeferredContent('Workspace', options, Content);
+    GetWorkspace(options?: ODataParams): Observable<Workspace> {
+        return this.Workspace.GetContent(options);
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -902,7 +920,7 @@ export class Content {
 
         request.subscribe(result => {
             this.Path = newPath;
-            this.UpdateLastSavedFields({ Path: newPath });
+            this.UpdateLastSavedFields({ Path: newPath } as T);
             this.repository.Events.Trigger.ContentMoved({
                 Content: this,
                 From: fromPath,
@@ -990,7 +1008,7 @@ export class Content {
         }
         const schema = Schemas.SchemaStore.find(s => s.ContentType === currentType) as Schemas.Schema<TType>;
         if (!schema) {
-            return Content.GetSchema(ContentTypes.GenericContent) as Schemas.Schema<TType>;
+            return Content.GetSchema<TType>(GenericContent as any) as Schemas.Schema<TType>;
         }
         const parent = Object.getPrototypeOf(currentType);
         const parentSchema = parent && Schemas.SchemaStore.find(s => s.ContentType === parent);
@@ -1024,8 +1042,8 @@ export class Content {
      * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
-        repository: BaseRepository): T {
+    public static Create<TContent extends Content, O extends TContent['options']>(newContent: { new(...args: any[]): TContent }, opt: O,
+        repository: BaseRepository): TContent {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
@@ -1033,8 +1051,8 @@ export class Content {
 
     // Shortcut to repository.HandleLoadedContent()
     // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
-    public static HandleLoadedContent: <T extends Content, O extends T['options']>(contentType: { new(...args: any[]): T }, opt: O,
-        repository: BaseRepository) => T
+    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O,
+        repository: BaseRepository) => TContent
     = (contentType, contentOptions, repository) => {
         console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
         return repository.HandleLoadedContent(contentOptions, contentType);
@@ -1132,7 +1150,7 @@ export class Content {
         'Custom01' | 'Custom02' | 'Custom03' | 'Custom04' | 'Custom05' | 'Custom06' | 'Custom07' | 'Custom08' | 'Custom09' |
         'Custom10' | 'Custom11' | 'Custom12' | 'Custom13' | 'Custom14' | 'Custom15' | 'Custom16' | 'Custom17' |
         'Custom18' | 'Custom19' | 'Custom20' | 'Custom21' | 'Custom22' | 'Custom23' | 'Custom24' | 'Custom25' |
-        'Custom26' | 'Custom27' | 'Custom28' | 'Custom29' | 'Custom30' | 'Custom31' | 'Custom32')[], identity?: ContentTypes.User | ContentTypes.Group): Observable<boolean> {
+        'Custom26' | 'Custom27' | 'Custom28' | 'Custom29' | 'Custom30' | 'Custom31' | 'Custom32')[], identity?: User | Group): Observable<boolean> {
 
         let params = `permissions=${permissions.join(',')}`;
         if (identity && identity.Path) {
@@ -1615,41 +1633,6 @@ export class Content {
             { data: { 'contentIds': contentIds } });
     }
 
-    public GetDeferredContent<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
-        fieldName: K,
-        options?: ODataParams,
-        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType> {
-
-        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
-        return this.odata.Get(requestOptions).map(resp => Content.Create(contentType, resp.d, this.repository));
-    }
-
-    public GetDeferredCollection<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
-        fieldName: K,
-        options?: ODataParams,
-        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType[]> {
-        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
-        return this.odata.Fetch(requestOptions).map(resp =>
-            resp.d.results.map(c => Content.Create(contentType, c, this.repository)));
-    }
-
-    protected GetDeferredRequestOptions(fieldName: string, options?: ODataParams) {
-        let contentURL;
-        if (this.Id) {
-            contentURL = ODataHelper.getContentUrlbyId(this.Id);
-        }
-        else if (this.Path) {
-            contentURL = ODataHelper.getContentURLbyPath(this.Path);
-        } else {
-            throw Error('No Id or Path provided');
-        }
-        return new ODataRequestOptions({
-            path: ODataHelper.joinPaths(contentURL, fieldName),
-            params: options
-        });
-    }
-
-
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
      * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the
@@ -1794,6 +1777,6 @@ export interface IContentOptions {
     ParentId?: number;
     IsFolder?: boolean;
     Path?: string;
-    Versions?: ContentListReferenceField;
-    Workspace?: ContentReferenceField;
+    Versions?: ContentListReferenceField<Content>;
+    Workspace?: ContentReferenceField<Workspace>;
 }

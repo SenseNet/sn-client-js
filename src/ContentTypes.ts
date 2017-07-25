@@ -16,7 +16,6 @@
  *//** */
 import { Content, IContentOptions } from './Content';
 import { Enums, ComplexTypes } from './SN';
-import { BaseRepository } from './Repository';
 import { ContentReferenceField, ContentListReferenceField} from './ContentReferences';
 
 
@@ -25,7 +24,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ContentType
      * @extends {@link Content}
      */
-    export class ContentType extends Content {
+    export class ContentType<TOptionsType extends IContentTypeOptions = IContentTypeOptions> extends Content<TOptionsType> {
         Id?: number;
         ParentId?: number;
         VersionId?: number;
@@ -41,20 +40,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         DisplayName?: string;
         Description?: string;
         Icon?: string;
-        Binary?: ComplexTypes.DeferredObject;
-        CreatedBy?: ContentReferenceField;
+        Binary?: ComplexTypes.MediaResourceObject;
         CreationDate?: string;
-        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         EnableLifespan?: boolean;
-
-        /**
-         * @constructs ContentType
-         * @param options {object} An object implementing {@link IContentTypeOptions} interface
-         */
-        constructor(public readonly options: IContentTypeOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -78,10 +67,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         DisplayName?: string;
         Description?: string;
         Icon?: string;
-        Binary?: ComplexTypes.DeferredObject;
-        CreatedBy?: ContentReferenceField;
+        Binary?: ComplexTypes.MediaResourceObject;
         CreationDate?: string;
-        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         EnableLifespan?: boolean;
     }
@@ -91,11 +78,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class GenericContent
      * @extends {@link Content}
      */
-    export class GenericContent extends Content {
+    export class GenericContent<TOptionsType extends IGenericContentOptions = IGenericContentOptions> extends Content<TOptionsType> {
         Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: ContentReferenceField;
         VersionId?: number;
         Icon?: string;
         Name?: string;
@@ -113,22 +99,17 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         EnableLifespan?: boolean;
         ValidFrom?: string;
         ValidTill?: string;
-        AllowedChildTypes?: string;
-        EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: ContentReferenceField;
         CreationDate?: string;
-        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: ContentReferenceField;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: ContentReferenceField;
+        BrowseApplication: ContentReferenceField<Content>;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -138,19 +119,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: ContentListReferenceField;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: ContentReferenceField;
+        Workspace: ContentReferenceField<Workspace>;
         BrowseUrl?: string;
-
-        /**
-         * @constructs GenericContent
-         * @param options {object} An object implementing {@link IGenericContentOptions} interface
-         */
-        constructor(public readonly options: IGenericContentOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -162,7 +134,6 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: ContentReferenceField;
         VersionId?: number;
         Icon?: string;
         Name?: string;
@@ -180,22 +151,17 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         EnableLifespan?: boolean;
         ValidFrom?: string;
         ValidTill?: string;
-        AllowedChildTypes?: string;
-        EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: ContentReferenceField;
         CreationDate?: string;
-        ModifiedBy?: ContentReferenceField;
         ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: ContentReferenceField;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: ContentReferenceField;
+        BrowseApplication?: ContentReferenceField<Content>;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -205,10 +171,9 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: ContentListReferenceField;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: ContentReferenceField;
+        Workspace?: ContentReferenceField<Workspace>;
         BrowseUrl?: string;
     }
 
@@ -217,16 +182,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ContentLink
      * @extends {@link GenericContent}
      */
-    export class ContentLink extends GenericContent {
-        Link?: ContentReferenceField;
-
-        /**
-         * @constructs ContentLink
-         * @param options {object} An object implementing {@link IContentLinkOptions} interface
-         */
-        constructor(public readonly options: IContentLinkOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ContentLink<TOptionsType extends IContentLinkOptions = IContentLinkOptions> extends GenericContent<TOptionsType> {
+        Link: ContentReferenceField<Content>;
 
     }
     /**
@@ -235,7 +192,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @extends {@link IGenericContentOptions}
      */
     export interface IContentLinkOptions extends IGenericContentOptions {
-        Link?: ContentReferenceField;
+        Link?: ContentReferenceField<Content>;
     }
 
     /**
@@ -243,8 +200,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class File
      * @extends {@link GenericContent}
      */
-    export class File extends GenericContent {
-        Binary?: ComplexTypes.DeferredObject;
+    export class File<TOptionsType extends IFileOptions = IFileOptions> extends GenericContent<TOptionsType> {
+        Binary?: ComplexTypes.MediaResourceObject;
         Size?: number;
         FullSize?: number;
         PageCount?: number;
@@ -253,14 +210,6 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         PageAttributes?: string;
         Watermark?: string;
 
-        /**
-         * @constructs File
-         * @param options {object} An object implementing {@link IFileOptions} interface
-         */
-        constructor(public readonly options: IFileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
-
     }
     /**
      * Interface for classes that represent a File.
@@ -268,7 +217,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @extends {@link IGenericContentOptions}
      */
     export interface IFileOptions extends IGenericContentOptions {
-        Binary?: ComplexTypes.DeferredObject;
+        Binary?: ComplexTypes.MediaResourceObject;
         Size?: number;
         FullSize?: number;
         PageCount?: number;
@@ -283,15 +232,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class DynamicJsonContent
      * @extends {@link File}
      */
-    export class DynamicJsonContent extends File {
-
-        /**
-         * @constructs DynamicJsonContent
-         * @param options {object} An object implementing {@link IDynamicJsonContentOptions} interface
-         */
-        constructor(public readonly options: IDynamicJsonContentOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class DynamicJsonContent<TOptionsType extends IDynamicJsonContentOptions = IDynamicJsonContentOptions> extends File<TOptionsType> {
 
     }
     /**
@@ -307,15 +248,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ExecutableFile
      * @extends {@link File}
      */
-    export class ExecutableFile extends File {
-
-        /**
-         * @constructs ExecutableFile
-         * @param options {object} An object implementing {@link IExecutableFileOptions} interface
-         */
-        constructor(public readonly options: IExecutableFileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ExecutableFile<TOptionsType extends IExecutableFileOptions = IExecutableFileOptions> extends File<TOptionsType> {
 
     }
     /**
@@ -331,16 +264,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class HtmlTemplate
      * @extends {@link File}
      */
-    export class HtmlTemplate extends File {
+    export class HtmlTemplate<TOptionsType extends IHtmlTemplateOptions = IHtmlTemplateOptions> extends File<TOptionsType> {
         TemplateText?: string;
-
-        /**
-         * @constructs HtmlTemplate
-         * @param options {object} An object implementing {@link IHtmlTemplateOptions} interface
-         */
-        constructor(public readonly options: IHtmlTemplateOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -357,19 +282,11 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Image
      * @extends {@link File}
      */
-    export class Image extends File {
+    export class Image<TOptionsType extends IImageOptions = IImageOptions> extends File<TOptionsType> {
         Keywords?: string;
         DateTaken?: string;
         Width?: number;
         Height?: number;
-
-        /**
-         * @constructs Image
-         * @param options {object} An object implementing {@link IImageOptions} interface
-         */
-        constructor(public readonly options: IImageOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -389,15 +306,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class PreviewImage
      * @extends {@link Image}
      */
-    export class PreviewImage extends Image {
-
-        /**
-         * @constructs PreviewImage
-         * @param options {object} An object implementing {@link IPreviewImageOptions} interface
-         */
-        constructor(public readonly options: IPreviewImageOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class PreviewImage<TOptionsType extends IPreviewImageOptions = IPreviewImageOptions> extends Image<TOptionsType> {
 
     }
     /**
@@ -413,16 +322,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Settings
      * @extends {@link File}
      */
-    export class Settings extends File {
+    export class Settings<TOptionsType extends ISettingsOptions = ISettingsOptions> extends File<TOptionsType> {
         GlobalOnly?: boolean;
-
-        /**
-         * @constructs Settings
-         * @param options {object} An object implementing {@link ISettingsOptions} interface
-         */
-        constructor(public readonly options: ISettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -439,16 +340,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class IndexingSettings
      * @extends {@link Settings}
      */
-    export class IndexingSettings extends Settings {
+    export class IndexingSettings<TOptionsType extends IIndexingSettingsOptions = IIndexingSettingsOptions> extends Settings<TOptionsType> {
         TextExtractorInstances?: string;
-
-        /**
-         * @constructs IndexingSettings
-         * @param options {object} An object implementing {@link IIndexingSettingsOptions} interface
-         */
-        constructor(public readonly options: IIndexingSettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -465,15 +358,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class LoggingSettings
      * @extends {@link Settings}
      */
-    export class LoggingSettings extends Settings {
-
-        /**
-         * @constructs LoggingSettings
-         * @param options {object} An object implementing {@link ILoggingSettingsOptions} interface
-         */
-        constructor(public readonly options: ILoggingSettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class LoggingSettings<TOptionsType extends ILoggingSettingsOptions = ILoggingSettingsOptions> extends Settings<TOptionsType> {
 
     }
     /**
@@ -489,15 +374,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class PortalSettings
      * @extends {@link Settings}
      */
-    export class PortalSettings extends Settings {
-
-        /**
-         * @constructs PortalSettings
-         * @param options {object} An object implementing {@link IPortalSettingsOptions} interface
-         */
-        constructor(public readonly options: IPortalSettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class PortalSettings<TOptionsType extends IPortalSettingsOptions = IPortalSettingsOptions> extends Settings<TOptionsType> {
 
     }
     /**
@@ -513,15 +390,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class SystemFile
      * @extends {@link File}
      */
-    export class SystemFile extends File {
-
-        /**
-         * @constructs SystemFile
-         * @param options {object} An object implementing {@link ISystemFileOptions} interface
-         */
-        constructor(public readonly options: ISystemFileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class SystemFile<TOptionsType extends ISystemFileOptions = ISystemFileOptions> extends File<TOptionsType> {
 
     }
     /**
@@ -537,16 +406,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Resource
      * @extends {@link SystemFile}
      */
-    export class Resource extends SystemFile {
+    export class Resource<TOptionsType extends IResourceOptions = IResourceOptions> extends SystemFile<TOptionsType> {
         Downloads?: number;
-
-        /**
-         * @constructs Resource
-         * @param options {object} An object implementing {@link IResourceOptions} interface
-         */
-        constructor(public readonly options: IResourceOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -563,15 +424,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Folder
      * @extends {@link GenericContent}
      */
-    export class Folder extends GenericContent {
-
-        /**
-         * @constructs Folder
-         * @param options {object} An object implementing {@link IFolderOptions} interface
-         */
-        constructor(public readonly options: IFolderOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Folder<TOptionsType extends IFolderOptions = IFolderOptions> extends GenericContent<TOptionsType> {
 
     }
     /**
@@ -587,29 +440,21 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ContentList
      * @extends {@link Folder}
      */
-    export class ContentList extends Folder {
+    export class ContentList<TOptionsType extends IContentListOptions = IContentListOptions> extends Folder<TOptionsType> {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: ContentListReferenceField;
-        FieldSettingContents?: ContentListReferenceField;
-        AvailableContentTypeFields?: ContentListReferenceField;
+        AvailableViews: ContentListReferenceField<Content>;
+        FieldSettingContents: ContentListReferenceField<Content>;
+        AvailableContentTypeFields: ContentListReferenceField<Content>;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: ContentReferenceField;
+        IncomingEmailWorkflow: ContentReferenceField<Content>;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: ContentReferenceField;
-
-        /**
-         * @constructs ContentList
-         * @param options {object} An object implementing {@link IContentListOptions} interface
-         */
-        constructor(public readonly options: IContentListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+        OwnerWhenVisitor: ContentReferenceField<User>;
 
     }
     /**
@@ -620,18 +465,18 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
     export interface IContentListOptions extends IFolderOptions {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: ContentListReferenceField;
-        FieldSettingContents?: ContentListReferenceField;
-        AvailableContentTypeFields?: ContentListReferenceField;
+        AvailableViews?: ContentListReferenceField<Content>;
+        FieldSettingContents?: ContentListReferenceField<Content>;
+        AvailableContentTypeFields?: ContentListReferenceField<Content>;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: ContentReferenceField;
+        IncomingEmailWorkflow?: ContentReferenceField<Content>;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: ContentReferenceField;
+        OwnerWhenVisitor?: ContentReferenceField<User>;
     }
 
     /**
@@ -639,16 +484,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Aspect
      * @extends {@link ContentList}
      */
-    export class Aspect extends ContentList {
+    export class Aspect<TOptionsType extends IAspectOptions = IAspectOptions> extends ContentList<TOptionsType> {
         AspectDefinition?: string;
-
-        /**
-         * @constructs Aspect
-         * @param options {object} An object implementing {@link IAspectOptions} interface
-         */
-        constructor(public readonly options: IAspectOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -665,15 +502,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ItemList
      * @extends {@link ContentList}
      */
-    export class ItemList extends ContentList {
-
-        /**
-         * @constructs ItemList
-         * @param options {object} An object implementing {@link IItemListOptions} interface
-         */
-        constructor(public readonly options: IItemListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ItemList<TOptionsType extends IItemListOptions = IItemListOptions> extends ContentList<TOptionsType> {
 
     }
     /**
@@ -689,15 +518,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class CustomList
      * @extends {@link ItemList}
      */
-    export class CustomList extends ItemList {
-
-        /**
-         * @constructs CustomList
-         * @param options {object} An object implementing {@link ICustomListOptions} interface
-         */
-        constructor(public readonly options: ICustomListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class CustomList<TOptionsType extends ICustomListOptions = ICustomListOptions> extends ItemList<TOptionsType> {
 
     }
     /**
@@ -713,15 +534,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class MemoList
      * @extends {@link ItemList}
      */
-    export class MemoList extends ItemList {
-
-        /**
-         * @constructs MemoList
-         * @param options {object} An object implementing {@link IMemoListOptions} interface
-         */
-        constructor(public readonly options: IMemoListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class MemoList<TOptionsType extends IMemoListOptions = IMemoListOptions> extends ItemList<TOptionsType> {
 
     }
     /**
@@ -737,15 +550,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class TaskList
      * @extends {@link ItemList}
      */
-    export class TaskList extends ItemList {
-
-        /**
-         * @constructs TaskList
-         * @param options {object} An object implementing {@link ITaskListOptions} interface
-         */
-        constructor(public readonly options: ITaskListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class TaskList<TOptionsType extends ITaskListOptions = ITaskListOptions> extends ItemList<TOptionsType> {
 
     }
     /**
@@ -761,15 +566,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Library
      * @extends {@link ContentList}
      */
-    export class Library extends ContentList {
-
-        /**
-         * @constructs Library
-         * @param options {object} An object implementing {@link ILibraryOptions} interface
-         */
-        constructor(public readonly options: ILibraryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Library<TOptionsType extends ILibraryOptions = ILibraryOptions> extends ContentList<TOptionsType> {
 
     }
     /**
@@ -785,15 +582,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class DocumentLibrary
      * @extends {@link Library}
      */
-    export class DocumentLibrary extends Library {
-
-        /**
-         * @constructs DocumentLibrary
-         * @param options {object} An object implementing {@link IDocumentLibraryOptions} interface
-         */
-        constructor(public readonly options: IDocumentLibraryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class DocumentLibrary<TOptionsType extends IDocumentLibraryOptions = IDocumentLibraryOptions> extends Library<TOptionsType> {
 
     }
     /**
@@ -809,16 +598,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ImageLibrary
      * @extends {@link Library}
      */
-    export class ImageLibrary extends Library {
-        CoverImage?: ContentReferenceField;
-
-        /**
-         * @constructs ImageLibrary
-         * @param options {object} An object implementing {@link IImageLibraryOptions} interface
-         */
-        constructor(public readonly options: IImageLibraryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ImageLibrary<TOptionsType extends IImageLibraryOptions = IImageLibraryOptions> extends Library<TOptionsType> {
+        CoverImage: ContentReferenceField<Image>;
 
     }
     /**
@@ -827,7 +608,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @extends {@link ILibraryOptions}
      */
     export interface IImageLibraryOptions extends ILibraryOptions {
-        CoverImage?: ContentReferenceField;
+        CoverImage?: ContentReferenceField<Image>;
     }
 
     /**
@@ -835,16 +616,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Device
      * @extends {@link Folder}
      */
-    export class Device extends Folder {
+    export class Device<TOptionsType extends IDeviceOptions = IDeviceOptions> extends Folder<TOptionsType> {
         UserAgentPattern?: string;
-
-        /**
-         * @constructs Device
-         * @param options {object} An object implementing {@link IDeviceOptions} interface
-         */
-        constructor(public readonly options: IDeviceOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -861,17 +634,9 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Domain
      * @extends {@link Folder}
      */
-    export class Domain extends Folder {
+    export class Domain<TOptionsType extends IDomainOptions = IDomainOptions> extends Folder<TOptionsType> {
         SyncGuid?: string;
         LastSync?: string;
-
-        /**
-         * @constructs Domain
-         * @param options {object} An object implementing {@link IDomainOptions} interface
-         */
-        constructor(public readonly options: IDomainOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -889,15 +654,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Domains
      * @extends {@link Folder}
      */
-    export class Domains extends Folder {
-
-        /**
-         * @constructs Domains
-         * @param options {object} An object implementing {@link IDomainsOptions} interface
-         */
-        constructor(public readonly options: IDomainsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Domains<TOptionsType extends IDomainsOptions = IDomainsOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -913,18 +670,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Email
      * @extends {@link Folder}
      */
-    export class Email extends Folder {
+    export class Email<TOptionsType extends IEmailOptions = IEmailOptions> extends Folder<TOptionsType> {
         From?: string;
         Body?: string;
         Sent?: string;
-
-        /**
-         * @constructs Email
-         * @param options {object} An object implementing {@link IEmailOptions} interface
-         */
-        constructor(public readonly options: IEmailOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -943,17 +692,9 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class OrganizationalUnit
      * @extends {@link Folder}
      */
-    export class OrganizationalUnit extends Folder {
+    export class OrganizationalUnit<TOptionsType extends IOrganizationalUnitOptions = IOrganizationalUnitOptions> extends Folder<TOptionsType> {
         SyncGuid?: string;
         LastSync?: string;
-
-        /**
-         * @constructs OrganizationalUnit
-         * @param options {object} An object implementing {@link IOrganizationalUnitOptions} interface
-         */
-        constructor(public readonly options: IOrganizationalUnitOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -971,15 +712,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class PortalRoot
      * @extends {@link Folder}
      */
-    export class PortalRoot extends Folder {
-
-        /**
-         * @constructs PortalRoot
-         * @param options {object} An object implementing {@link IPortalRootOptions} interface
-         */
-        constructor(public readonly options: IPortalRootOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class PortalRoot<TOptionsType extends IPortalRootOptions = IPortalRootOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -995,15 +728,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ProfileDomain
      * @extends {@link Folder}
      */
-    export class ProfileDomain extends Folder {
-
-        /**
-         * @constructs ProfileDomain
-         * @param options {object} An object implementing {@link IProfileDomainOptions} interface
-         */
-        constructor(public readonly options: IProfileDomainOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ProfileDomain<TOptionsType extends IProfileDomainOptions = IProfileDomainOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1019,15 +744,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Profiles
      * @extends {@link Folder}
      */
-    export class Profiles extends Folder {
-
-        /**
-         * @constructs Profiles
-         * @param options {object} An object implementing {@link IProfilesOptions} interface
-         */
-        constructor(public readonly options: IProfilesOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Profiles<TOptionsType extends IProfilesOptions = IProfilesOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1043,15 +760,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class RuntimeContentContainer
      * @extends {@link Folder}
      */
-    export class RuntimeContentContainer extends Folder {
-
-        /**
-         * @constructs RuntimeContentContainer
-         * @param options {object} An object implementing {@link IRuntimeContentContainerOptions} interface
-         */
-        constructor(public readonly options: IRuntimeContentContainerOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class RuntimeContentContainer<TOptionsType extends IRuntimeContentContainerOptions = IRuntimeContentContainerOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1067,15 +776,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Sites
      * @extends {@link Folder}
      */
-    export class Sites extends Folder {
-
-        /**
-         * @constructs Sites
-         * @param options {object} An object implementing {@link ISitesOptions} interface
-         */
-        constructor(public readonly options: ISitesOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Sites<TOptionsType extends ISitesOptions = ISitesOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1091,18 +792,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class SmartFolder
      * @extends {@link Folder}
      */
-    export class SmartFolder extends Folder {
+    export class SmartFolder<TOptionsType extends ISmartFolderOptions = ISmartFolderOptions> extends Folder<TOptionsType> {
         Query?: string;
         EnableAutofilters?: Enums.EnableAutofilters;
         EnableLifespanFilter?: Enums.EnableLifespanFilter;
-
-        /**
-         * @constructs SmartFolder
-         * @param options {object} An object implementing {@link ISmartFolderOptions} interface
-         */
-        constructor(public readonly options: ISmartFolderOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1121,15 +814,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class SystemFolder
      * @extends {@link Folder}
      */
-    export class SystemFolder extends Folder {
-
-        /**
-         * @constructs SystemFolder
-         * @param options {object} An object implementing {@link ISystemFolderOptions} interface
-         */
-        constructor(public readonly options: ISystemFolderOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class SystemFolder<TOptionsType extends ISystemFolderOptions = ISystemFolderOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1145,15 +830,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Resources
      * @extends {@link SystemFolder}
      */
-    export class Resources extends SystemFolder {
-
-        /**
-         * @constructs Resources
-         * @param options {object} An object implementing {@link IResourcesOptions} interface
-         */
-        constructor(public readonly options: IResourcesOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Resources<TOptionsType extends IResourcesOptions = IResourcesOptions> extends SystemFolder<TOptionsType> {
 
     }
     /**
@@ -1169,20 +846,12 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class TrashBag
      * @extends {@link Folder}
      */
-    export class TrashBag extends Folder {
+    export class TrashBag<TOptionsType extends ITrashBagOptions = ITrashBagOptions> extends Folder<TOptionsType> {
         KeepUntil?: string;
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: ContentReferenceField;
-
-        /**
-         * @constructs TrashBag
-         * @param options {object} An object implementing {@link ITrashBagOptions} interface
-         */
-        constructor(public readonly options: ITrashBagOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+        DeletedContent: ContentReferenceField<Content>;
 
     }
     /**
@@ -1195,7 +864,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: ContentReferenceField;
+        DeletedContent?: ContentReferenceField<Content>;
     }
 
     /**
@@ -1203,22 +872,14 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Workspace
      * @extends {@link Folder}
      */
-    export class Workspace extends Folder {
-        Manager?: ContentReferenceField;
+    export class Workspace<TOptionsType extends IWorkspaceOptions = IWorkspaceOptions> extends Folder<TOptionsType> {
+        Manager: ContentReferenceField<User>;
         Deadline?: string;
         IsActive?: boolean;
-        WorkspaceSkin?: ContentReferenceField;
+        WorkspaceSkin: ContentReferenceField<Content>;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
-
-        /**
-         * @constructs Workspace
-         * @param options {object} An object implementing {@link IWorkspaceOptions} interface
-         */
-        constructor(public readonly options: IWorkspaceOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1227,10 +888,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @extends {@link IFolderOptions}
      */
     export interface IWorkspaceOptions extends IFolderOptions {
-        Manager?: ContentReferenceField;
+        Manager?: ContentReferenceField<User>;
         Deadline?: string;
         IsActive?: boolean;
-        WorkspaceSkin?: ContentReferenceField;
+        WorkspaceSkin?: ContentReferenceField<Content>;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
@@ -1241,23 +902,15 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Site
      * @extends {@link Workspace}
      */
-    export class Site extends Workspace {
+    export class Site<TOptionsType extends ISiteOptions = ISiteOptions> extends Workspace<TOptionsType> {
         Language?: Enums.Language;
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: ContentReferenceField;
-        LoginPage?: ContentReferenceField;
-        SiteSkin?: ContentReferenceField;
+        StartPage: ContentReferenceField<Content>;
+        LoginPage: ContentReferenceField<Content>;
+        SiteSkin: ContentReferenceField<Content>;
         DenyCrossSiteAccess?: boolean;
-
-        /**
-         * @constructs Site
-         * @param options {object} An object implementing {@link ISiteOptions} interface
-         */
-        constructor(public readonly options: ISiteOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1270,9 +923,9 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: ContentReferenceField;
-        LoginPage?: ContentReferenceField;
-        SiteSkin?: ContentReferenceField;
+        StartPage?: ContentReferenceField<Content>;
+        LoginPage?: ContentReferenceField<Content>;
+        SiteSkin?: ContentReferenceField<Content>;
         DenyCrossSiteAccess?: boolean;
     }
 
@@ -1281,18 +934,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class TrashBin
      * @extends {@link Workspace}
      */
-    export class TrashBin extends Workspace {
+    export class TrashBin<TOptionsType extends ITrashBinOptions = ITrashBinOptions> extends Workspace<TOptionsType> {
         MinRetentionTime?: number;
         SizeQuota?: number;
         BagCapacity?: number;
-
-        /**
-         * @constructs TrashBin
-         * @param options {object} An object implementing {@link ITrashBinOptions} interface
-         */
-        constructor(public readonly options: ITrashBinOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1311,16 +956,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class UserProfile
      * @extends {@link Workspace}
      */
-    export class UserProfile extends Workspace {
-        User?: ContentReferenceField;
-
-        /**
-         * @constructs UserProfile
-         * @param options {object} An object implementing {@link IUserProfileOptions} interface
-         */
-        constructor(public readonly options: IUserProfileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class UserProfile<TOptionsType extends IUserProfileOptions = IUserProfileOptions> extends Workspace<TOptionsType> {
+        User: ContentReferenceField<User>;
 
     }
     /**
@@ -1329,7 +966,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @extends {@link IWorkspaceOptions}
      */
     export interface IUserProfileOptions extends IWorkspaceOptions {
-        User?: ContentReferenceField;
+        User?: ContentReferenceField<User>;
     }
 
     /**
@@ -1337,18 +974,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Group
      * @extends {@link GenericContent}
      */
-    export class Group extends GenericContent {
-        Members?: ContentListReferenceField;
+    export class Group<TOptionsType extends IGroupOptions = IGroupOptions> extends GenericContent<TOptionsType> {
+        Members: ContentListReferenceField<User | Group>;
         SyncGuid?: string;
         LastSync?: string;
-
-        /**
-         * @constructs Group
-         * @param options {object} An object implementing {@link IGroupOptions} interface
-         */
-        constructor(public readonly options: IGroupOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1357,7 +986,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @extends {@link IGenericContentOptions}
      */
     export interface IGroupOptions extends IGenericContentOptions {
-        Members?: ContentListReferenceField;
+        Members?: ContentListReferenceField<User | Group>;
         SyncGuid?: string;
         LastSync?: string;
     }
@@ -1367,15 +996,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class ListItem
      * @extends {@link GenericContent}
      */
-    export class ListItem extends GenericContent {
-
-        /**
-         * @constructs ListItem
-         * @param options {object} An object implementing {@link IListItemOptions} interface
-         */
-        constructor(public readonly options: IListItemOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ListItem<TOptionsType extends IListItemOptions = IListItemOptions> extends GenericContent<TOptionsType> {
 
     }
     /**
@@ -1391,16 +1012,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class CustomListItem
      * @extends {@link ListItem}
      */
-    export class CustomListItem extends ListItem {
+    export class CustomListItem<TOptionsType extends ICustomListItemOptions = ICustomListItemOptions> extends ListItem<TOptionsType> {
         WorkflowsRunning?: boolean;
-
-        /**
-         * @constructs CustomListItem
-         * @param options {object} An object implementing {@link ICustomListItemOptions} interface
-         */
-        constructor(public readonly options: ICustomListItemOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1417,18 +1030,10 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Memo
      * @extends {@link ListItem}
      */
-    export class Memo extends ListItem {
+    export class Memo<TOptionsType extends IMemoOptions = IMemoOptions> extends ListItem<TOptionsType> {
         Date?: string;
         MemoType?: Enums.MemoType;
-        SeeAlso?: ContentListReferenceField;
-
-        /**
-         * @constructs Memo
-         * @param options {object} An object implementing {@link IMemoOptions} interface
-         */
-        constructor(public readonly options: IMemoOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+        SeeAlso: ContentListReferenceField<Content>;
 
     }
     /**
@@ -1439,7 +1044,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
     export interface IMemoOptions extends IListItemOptions {
         Date?: string;
         MemoType?: Enums.MemoType;
-        SeeAlso?: ContentListReferenceField;
+        SeeAlso?: ContentListReferenceField<Content>;
     }
 
     /**
@@ -1447,24 +1052,16 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Task
      * @extends {@link ListItem}
      */
-    export class Task extends ListItem {
+    export class Task<TOptionsType extends ITaskOptions = ITaskOptions> extends ListItem<TOptionsType> {
         StartDate?: string;
         DueDate?: string;
-        AssignedTo?: ContentListReferenceField;
+        AssignedTo: ContentListReferenceField<User>;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
         RemainingDays?: number;
         DueText?: string;
         DueCssClass?: string;
-
-        /**
-         * @constructs Task
-         * @param options {object} An object implementing {@link ITaskOptions} interface
-         */
-        constructor(public readonly options: ITaskOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1475,7 +1072,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
     export interface ITaskOptions extends IListItemOptions {
         StartDate?: string;
         DueDate?: string;
-        AssignedTo?: ContentListReferenceField;
+        AssignedTo?: ContentListReferenceField<User>;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
@@ -1489,17 +1086,9 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class Query
      * @extends {@link GenericContent}
      */
-    export class Query extends GenericContent {
+    export class Query<TOptionsType extends IQueryOptions = IQueryOptions> extends GenericContent<TOptionsType> {
         Query?: string;
         QueryType?: Enums.QueryType;
-
-        /**
-         * @constructs Query
-         * @param options {object} An object implementing {@link IQueryOptions} interface
-         */
-        constructor(public readonly options: IQueryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1517,21 +1106,21 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
      * @class User
      * @extends {@link GenericContent}
      */
-    export class User extends GenericContent {
+    export class User<TOptionsType extends IUserOptions = IUserOptions> extends GenericContent<TOptionsType> {
         LoginName?: string;
         JobTitle?: string;
         Enabled?: boolean;
         Domain?: string;
         Email?: string;
         FullName?: string;
-        ImageRef?: ContentReferenceField;
-        ImageData?: ComplexTypes.DeferredObject;
-        Avatar?: ComplexTypes.DeferredObject;
+        ImageRef: ContentReferenceField<Content>;
+        ImageData?: ComplexTypes.MediaResourceObject;
+        Avatar?: ComplexTypes.MediaResourceObject;
         Password?: string;
         SyncGuid?: string;
         LastSync?: string;
         Captcha?: string;
-        Manager?: ContentReferenceField;
+        Manager: ContentReferenceField<User>;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1543,16 +1132,8 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: ContentListReferenceField;
+        FollowedWorkspaces: ContentListReferenceField<Workspace>;
         ProfilePath?: string;
-
-        /**
-         * @constructs User
-         * @param options {object} An object implementing {@link IUserOptions} interface
-         */
-        constructor(public readonly options: IUserOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1567,14 +1148,14 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         Domain?: string;
         Email?: string;
         FullName?: string;
-        ImageRef?: ContentReferenceField;
-        ImageData?: ComplexTypes.DeferredObject;
-        Avatar?: ComplexTypes.DeferredObject;
+        ImageRef?: ContentReferenceField<Content>;
+        ImageData?: ComplexTypes.MediaResourceObject;
+        Avatar?: ComplexTypes.MediaResourceObject;
         Password?: string;
         SyncGuid?: string;
         LastSync?: string;
         Captcha?: string;
-        Manager?: ContentReferenceField;
+        Manager?: ContentReferenceField<User>;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1586,7 +1167,7 @@ import { ContentReferenceField, ContentListReferenceField} from './ContentRefere
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: ContentListReferenceField;
+        FollowedWorkspaces?: ContentListReferenceField<Workspace>;
         ProfilePath?: string;
     }
 
