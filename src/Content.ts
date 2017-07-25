@@ -537,7 +537,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      */
     GetAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
-        return this.AllowedChildTypes.GetContents(options);
+        return this.AllowedChildTypes.GetContent(options);
     }
     /**
      * Method that returns effective allowed child type list of a content.
@@ -555,7 +555,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      */
     GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
-        return this.EffectiveAllowedChildTypes.GetContents(options);
+        return this.EffectiveAllowedChildTypes.GetContent(options);
     }
     /**
      * Method that returns owner of a content.
@@ -682,7 +682,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
     */
     GetVersions(options?: ODataParams): Observable<Content[]> {
-        return this.Versions.GetContents(options);
+        return this.Versions.GetContent(options);
     }
     /**
      * Returns the current Workspace.

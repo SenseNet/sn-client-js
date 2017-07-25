@@ -58,7 +58,7 @@ export class ContentListReferenceFieldTests {
                 }]
             }
         })
-        this.unloadedRef.GetContents().subscribe(c => {
+        this.unloadedRef.GetContent().subscribe(c => {
             expect(this.unloadedRef['contentReferences']).to.be.eq(c);
             done();
         }, err => done);
@@ -66,7 +66,7 @@ export class ContentListReferenceFieldTests {
 
     @test
     public 'Getting loaded referenced Content should NOT trigger an OData call'(done: MochaDone) {
-        this.loadedRef.GetContents().subscribe(c => {
+        this.loadedRef.GetContent().subscribe(c => {
             expect(this.loadedRef['contentReferences']).to.be.eq(c);
             done();
         }, err => done);
@@ -84,8 +84,8 @@ export class ContentListReferenceFieldTests {
 
     @test
     public 'SetContent should set the reference content'(done: MochaDone) {
-        this.unloadedRef.SetContents(this.loadedRef['contentReferences']);
-        this.unloadedRef.GetContents().subscribe(c => {
+        this.unloadedRef.SetContent(this.loadedRef['contentReferences']);
+        this.unloadedRef.GetContent().subscribe(c => {
             expect(c).to.eq(this.loadedRef['contentReferences']);
             done();
         }, err => done)
