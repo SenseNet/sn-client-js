@@ -1050,7 +1050,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @param options {SenseNet.IContentOptions} Optional list of fields and values.
      * @returns {SenseNet.Content}
      * ```ts
-     * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
+     * var content = SenseNet.Content.Create({ DisplayName: 'My folder' }, ContentTypes.Folder); // content is an instance of the ContentTypes.Folder with the DisplayName 'My folder'
      * ```
      */
     public static Create<TContent extends Content, O extends TContent['options']>(opt: O, newContent: { new(...args: any[]): TContent },

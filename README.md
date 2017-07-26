@@ -63,9 +63,9 @@ let myTask = repository.CreateContent({
 	},
 	ContentTypes.Task);
 ```
-The content is not posted to the Reposiory yet, but you can work with it's values (e.g. it can be *bound* to a Create content form) like this:
+The content is not posted to the Reposiory yet, but you can *bind* it to a Create content form and update it's values like this:
 ```ts
-myTask.DueDate = "2017-09-12T12:00:00Z"
+myTask.DueDate = "2017-09-12T12:00:00Z";
 ```
 You can always check if a specified content has been saved or not with the  ```content.IsSaved ``` property.
 
@@ -73,7 +73,7 @@ If you've finished with the editing, you can Save it the following way:
 ```ts
 myTask.Save().subscribe(task=>{
 	console.log('Task saved', task);
-}, error => console.error)
+}, error => console.error);
 ```
 Once the Task has been saved, you can continue working *on the same object reference*, update fields and call ```myTask.Save()``` again, the content will be **updated** in the sensenet ECM Repository.
 
@@ -85,7 +85,7 @@ myTask.Save({DisplayName: 'Updated Task Displayname'}).subscribe(task=>{
 ```
 
 ### Load, Reload
-You can easily load a content instance from the repository by the following way:
+You can load a content instance from the repository by the following way:
 
 ```ts
 //by Path
@@ -106,20 +106,19 @@ repository.Load(myTaskId, {
 }).subscribe(loadedTask => {
 	console.log('Task loaded', loadedTask);
 }, error => console.error);
-
-
 ```
+> If you *load* or *reload* the same content from the same repository, you will get the same *object reference*
 
 If you use Schema definition and you need to *reload* a content for a specified action (can be 'view' or 'edit' for now) you can do that with:
 ```ts
 myTask.Reload('view').subscribe(reloadedTask=>{
-	console.log('Task loaded', reloadedTask);
+	console.log('Task reloaded', reloadedTask);
 }, error => console.error)
 ```
-If you want to reload only specific *fields* or *references*, you can do that with:
+If you want to reload only specific *fields* or *references*, you can do that in the following way:
 ```ts
 myTask.ReloadFields('Owner', 'Name', 'ModifiedBy').subscribe(reloadedTask=>{
-	console.log('Task loaded', reloadedTask);
+	console.log('Fields loaded', reloadedTask);
 }, error => console.error)
 ```
 
@@ -150,6 +149,7 @@ There are several methods to track the state of content instances
  - **content.IsValid** - Indicates if all complusory fields has been filled
  - **content.SavedFields** - Returns an object with the last saved fields
  - **content.GetChanges()** - Returns an object with the changed fields and their new values
+ > If the *content* is partially loaded, only their *loaded* fields or references will be tracked.
 
 ### Hierarchical content comparison
 As sensenet ECM stores content in a tree-based repository, there are some methods for hierarchical comparison between content. These methods are:
@@ -172,6 +172,47 @@ There are some Event *Observables* on the **Repository** level which you can sub
  - OnCustomActionExecuted
  - OnCustomActionFailed
 
+
+### Get the Schema of the given ContentType
+
+```ts
+let schema = Content.GetSchema(ContentTypes.GenericContent);
+```
+
+### Read Collection data
+ 
+```ts
+
+import { Collection } from 'sn-client-js';
+
+let collection = new Collection([], repository, ContentTypes.Task);
+
+let fetchContent = collection.Read('/NewsDemo/External', { select: 'all' }); //gets the list of  the external Articles with their Id, Type and DisplayName fields.
+   fetchContent
+   	.map(response => response.d.results)
+    .subscribe({
+    	next: response => {
+     		//do something with the response
+     	},
+     	error: error => console.error('something wrong occurred: ' + error),
+     	complete: () => console.log('done'),
+	});
+```
+
+### Delete a Content from a Collection
+ 
+```ts
+let deleteContent = myCollection.Remove(3);
+	deleteContent
+	.subscribe({
+		next: response => {
+			//do something after delete
+		},
+		error: error => console.error('something wrong occurred: ' + error),
+		complete: () => console.log('done'),
+	});
+```
+
 ## Building sn-client-js from source
  1. Clone the repository: ```git clone https://github.com/SenseNet/sn-client-js.git```
  2. Go to the sn-client-js directory: ```cd sn-client-js ```
@@ -187,91 +228,7 @@ npm run build
 
 To execute all unit tests and generate the coverage report, run: ```npm run test```
 
-### Examples
-
-##### Creating a Folder with the name 'Hello world'
- 
-```ts
-repository.CreateContent({
-	Name: 'Hello world',
-	Path: 'Root/ParentPath'
-}, ContentTypes.Folder)
-.subscribe(newFolder=>{
-		console.log('New folder created: ', newFolder)
-	}, err=> {
-		console.error('Error happened during creating a Folder:', err)
-	});
-```
-
-or
-
-```ts
-let folder = new ContentTypes.Folder({
-	Name: 'Hello world'
-}, repository);
-
-repository.Content.Post('Root/Path', folder, ContentTypes.Folder)
-.subscribe(newFolder=>{
-		console.log('New folder created: ', newFolder)
-	}, err=> {
-		console.error('Error happened during creating a Folder:', err)
-	});
-
-```
-
-##### Load a Content by its id
- 
-```ts
-repository.Load(1234,{expand: 'Avatar'}, 'A.1', ContentTypes.User)
-.subscribe( user=> {
-		console.log('User:', user);
-	}, err=>{
-		console.error('Error happened during loading an user:', err)
-	});
-```
-
-##### Get the Schema of the given ContentType
- 
-```ts
-let schema = SN.Content.GetSchema('GenericContent');
-```
-
-##### Read Collection data
- 
-```ts
-let collection = new SN.Collection([], repository.Content);
-var options = new SN.ODataApi.ODataParams({ 
-	select: ["DisplayName", "Lead"], 
-	orderby: 'DisplayName', 
-	metadata: 'no' });
-
-let fetchContent = collection.Read('/NewsDemo/External', options); //gets the list of  the external Articles with their Id, Type and DisplayName fields.
-   fetchContent
-   	.map(response => response.d.results)
-    .subscribe({
-    	next: response => {
-     		//do something with the response
-     	},
-     	error: error => console.error('something wrong occurred: ' + error),
-     	complete: () => console.log('done'),
-	});
-```
-
-##### Delete a Content from a Collection
- 
-```ts
-let deleteContent = myCollection.Remove(3);
-	deleteContent
-	.subscribe({
-		next: response => {
-			//do something after delete
-		},
-		error: error => console.error('something wrong occurred: ' + error),
-		complete: () => console.log('done'),
-	});
-```
-
-### Related documents
+## Related documents
 * [sn-client-js API reference](http://www.sensenet.com/documentation/sn-client-js/index.html)
 * [sn-redux API reference](http://www.sensenet.com/documentation/sn-redux/index.html)
 * [Todo App with React, Redux and Sense/Net ECM](https://github.com/SenseNet/sn-react-redux-todo-app)

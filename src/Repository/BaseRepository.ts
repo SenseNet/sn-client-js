@@ -198,7 +198,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
      * @returns {Observable<T>} Returns an RxJS observable that you can subscribe of in your code.
      * ```ts
-     * var content = SenseNet.Content.Load(1234, 'A.1', { expand: 'Avatar' });
+     * var content = SenseNet.Content.Load(1234, { expand: 'Avatar' }, 'A.1', ContentTypes.User);
      * content
      *     .map(response => response.d)
      *     .subscribe({
