@@ -212,21 +212,21 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     */
     public Load<TContentType extends Content>(
         idOrPath: string | number,
-        options?: IODataParams,
-        version?: string,
-        returns?: { new(...args: any[]): TContentType }): Observable<TContentType> {
+        odataOptions?: IODataParams,
+        returnsType?: { new(...args: any[]): TContentType },
+        version?: string): Observable<TContentType> {
 
         let contentURL = typeof idOrPath === 'string' ?
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
 
-        let params = new ODataParams(options || {});
+        let params = new ODataParams(odataOptions || {});
 
         let odataRequestOptions = new ODataRequestOptions({
             path: contentURL,
             params: params
         })
-        const returnType = returns || Content as { new(...args: any[]): any };
+        const returnType = returnsType || Content as { new(...args: any[]): any };
 
         return this.odataApi.Get(odataRequestOptions, returnType)
             .share()

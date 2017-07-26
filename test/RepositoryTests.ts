@@ -94,7 +94,7 @@ export class BaseHttpProviderTests {
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
         (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
-        this.repo.Load(1, {}, '', User).first().subscribe(response => {
+        this.repo.Load(1, {}, User).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
             expect(response).to.be.instanceof(User);
             done();

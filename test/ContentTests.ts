@@ -29,13 +29,8 @@ describe('Content', () => {
         };
         content = Content.Create(options, ContentTypes.Task, repo);
         contentSaved = repo.HandleLoadedContent(options, ContentTypes.Task);
-
-        contentSaved.CreatedBy.GetContent().subscribe(createdBy => {
-            console.log('Task is created by', createdBy);
-        })
-
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-        repo.Load('Root/MyWorkspace/MyTaskList/MyTask1').subscribe(loadedTask => {})
+
     });
 
     describe('#TypeGuards', () => {
