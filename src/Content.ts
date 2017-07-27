@@ -41,13 +41,40 @@
  * related to async data streams.
  */ /** */
 
-import { Schemas, Security, Enums, ODataHelper, ComplexTypes, ContentTypes } from './SN';
-import { ODataRequestOptions, ODataParams } from './ODataApi';
+import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
+import { ODataRequestOptions, ODataParams, ODataApi } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
+import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
+import { ContentSerializer } from './ContentSerializer';
+import { DeferredObject } from './ComplexTypes';
+import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
+import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
 
-export class Content {
+export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
+    return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
+}
+
+export const isContentOptions = (object: any): object is IContentOptions => {
+    return object && object.Id && object.Path && object.Type && object.Type.length > 0 || false;
+}
+
+export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
+    return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
+}
+
+export const isReferenceField = (field: any): field is ContentReferenceField<Content> => {
+    return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function' || false;
+}
+
+export const isReferenceListField = (field: any): field is ContentListReferenceField<Content> => {
+    return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function' || false;
+}
+
+export class Content<T extends IContentOptions = IContentOptions> {
+
+    private readonly odata: ODataApi<BaseHttpProvider, Content>;
 
     /**
      * An unique identifier for a content
@@ -79,29 +106,45 @@ export class Content {
         return this._isSaved;
     }
 
-    private _lastSavedFields: this['options'] = {};
-    protected UpdateLastSavedFields(newFields: this['options']) {
+
+    /**
+     * Returns the assigned Repository instance
+     */
+    public GetRepository(): BaseRepository{
+        return this.repository;
+    }
+
+    private _lastSavedFields: T = {} as T;
+    protected UpdateLastSavedFields(newFields: T) {
         this._lastSavedFields = newFields;
         this._isSaved = true;
         Object.assign(this, newFields);
+        this.updateReferenceFields();
     }
 
     /**
      * Returns a list about the fields with their values, as they are saved into the Repository
      */
-    public get SavedFields() {
-        return !this.IsSaved ? {} : JSON.parse(JSON.stringify(this._lastSavedFields));
+    public get SavedFields(): T {
+        return !this.IsSaved ? {} as T : Object.assign({}, this._lastSavedFields);
     }
 
     /**
      * Returns a list about the changed fields and their new values
      */
-    public GetChanges(): this['options'] {
-        const changedFields: this['options'] = {};
+    public GetChanges(): T {
+        const changedFields: T = {} as T;
 
         for (let field in this.GetFields()) {
-            if (this[field] !== this._lastSavedFields[field]) {
-                changedFields[field] = this[field];
+            const currentField = (this as any)[field];
+            if (currentField !== this._lastSavedFields[field]) {
+                if (isReferenceField(currentField)) {
+                    changedFields[field] = currentField.getValue();
+                } else if (isReferenceListField(currentField)) {
+                    changedFields[field] = currentField.getValue();
+                } else {
+                    changedFields[field] = (this as any)[field]
+                }
             }
         }
         return changedFields;
@@ -110,10 +153,12 @@ export class Content {
     /**
      * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
      */
-    public GetFields(): this['options'] {
-        const fieldsToPost = {} as this['options'];
+    public GetFields(skipEmpties?: boolean): T {
+        const fieldsToPost = {} as T;
         this.GetSchema().FieldSettings.forEach(s => {
-            this[s.Name] !== undefined && (fieldsToPost[s.Name] = this[s.Name]);
+            const value = this[s.Name] && this[s.Name].getValue ? this[s.Name].getValue() : this[s.Name];
+
+            ((!skipEmpties && value !== undefined) || (skipEmpties && value)) && (fieldsToPost[s.Name] = value);
         });
         return fieldsToPost;
     }
@@ -154,17 +199,50 @@ export class Content {
     Index?: number;
     CreationDate?: string;
     ModificationDate?: string;
-    Versions?: ComplexTypes.DeferredObject;
-    Workspace?: ComplexTypes.DeferredObject;
+    ParentId?: number;
+    Versions: ContentListReferenceField<this>;
+    Workspace: ContentReferenceField<Workspace>;
+    Owner: ContentReferenceField<User>;
+    CreatedBy: ContentReferenceField<User>;
+    ModifiedBy: ContentReferenceField<User>;
+    CheckedOutTo: ContentReferenceField<User>;
+
+    EffectiveAllowedChildTypes: ContentListReferenceField<ContentType>;
+    AllowedChildTypes: ContentListReferenceField<ContentType>;
+
+    private referenceFieldCache: (ContentListReferenceField<Content>|ContentReferenceField<Content>)[] = []
+    private updateReferenceFields(){
+        const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
+        referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, {Name: 'AllowedChildTypes', AllowMultiple: true}]);
+        referenceSettings.forEach(f => {
+            if (this.IsSaved && !this[f.Name]){
+                const generatedDeferred: DeferredObject = {
+                    __deferred: {
+                        uri: ODataHelper.joinPaths(this.GetFullPath(), f.Name)
+                    }
+                };
+                (this[f.Name] as any) = generatedDeferred;
+            }
+
+            if (!this.referenceFieldCache[f.Name]){
+                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
+            } else {
+                this.referenceFieldCache[f.Name].update(this[f.Name]);
+            }
+            this[f.Name] = this.referenceFieldCache[f.Name];
+        });
+    }
 
     /**
      * @constructs Content
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(public readonly options: IContentOptions, private repository: BaseRepository) {
+    constructor(public readonly options: T, private repository: BaseRepository) {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
+        this.updateReferenceFields();
+        this.odata = repository.GetODataApi();
     }
 
     /**
@@ -184,7 +262,21 @@ export class Content {
     */
     Delete(permanently?: boolean): Observable<any> {
         if (this.Id) {
-            return this.repository.Content.Delete(this.Id, permanently);
+            const fields = this.GetFields();
+            const observable = this.odata.Delete(this.Id, permanently);
+            observable.subscribe(() => {
+                this.repository.Events.Trigger.ContentDeleted({
+                    ContentData: fields,
+                    Permanently: permanently || false
+                });
+            }, (err) => {
+                this.repository.Events.Trigger.ContentDeleteFailed({
+                    Content: this,
+                    Permanently: permanently || false,
+                    Error: err
+                });
+            })
+            return observable;
         }
         return Observable.of(undefined);
     }
@@ -210,7 +302,7 @@ export class Content {
             throw new Error('Content is not saved. You can rename only saved content!')
         }
 
-        let fields: this['options'] = {};
+        let fields: T = {} as T;
         if (newDisplayName) {
             fields.DisplayName = newDisplayName;
         }
@@ -220,45 +312,88 @@ export class Content {
         return this.Save(fields);
     }
 
-    private saveContentInternal(fields?: this['options'], override?: boolean): Observable<this> {
+    private saveContentInternal(fields?: T, override?: boolean): Observable<this> {
         const contentType = this.constructor as { new(...args: any[]): any };
+        const originalFields = this.GetFields();
         /** Fields Save logic */
         if (fields) {
             if (!this.Id) {
-                throw new Error('Content Id not present');
+                const err = new Error('Content Id not present');
+                this.repository.Events.Trigger.ContentModificationFailed({ 
+                    Content: this,
+                    Fields: fields,
+                    Error: err                    
+                });
+                throw err;
             }
 
             if (!this.IsSaved) {
-                throw new Error('The Content is not saved to the Repository, Save it before updating.')
+                const err = new Error('The Content is not saved to the Repository, Save it before updating.')
+                this.repository.Events.Trigger.ContentModificationFailed({
+                    Content: this,
+                    Fields: fields,
+                    Error: err
+                });
+                throw err;
             }
             if (override) {
-                return this.repository.Content.Put(this.Id, contentType, fields)
+                const request = this.odata.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
+                        this.repository.Events.Trigger.ContentModified({ 
+                            Content: this,
+                            OriginalFields: originalFields,
+                            Changes: fields
+                        });
                         return this;
-                    });
+                    }).share();
+                request.subscribe(() => { }, err => {
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: fields, Error: err });
+                })
+                return request;
             }
             else {
-                return this.repository.Content.Patch(this.Id, contentType, fields)
+                const request = this.odata.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
+                        this.repository.Events.Trigger.ContentModified({ Content: this, OriginalFields: originalFields, Changes: fields });
                         return this;
-                    });
+                    }).share();
+
+                request.subscribe(() => { }, err => {
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: fields, Error: err });
+                })
+                return request;
+
             }
         }
 
         if (!this.IsSaved) {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
-                throw new Error('Cannot create content without a valid Path specified');
+                const err = new Error('Cannot create content without a valid Path specified');
+                this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
+                throw err;
             }
 
+            const request = this.odata.Post<this>(this.Path, this.GetFields(true), contentType)
+                .map(resp => {
+                    if (!resp.Id) {
+                        throw Error('Error: No content Id in response!');
+                    }
+                    this.UpdateLastSavedFields(resp);
+                    this.repository['_loadedContentReferenceCache'][resp.Id] = this;
+                    this._isSaved = true;
+                    return this;
+                }).share();
 
-            return this.repository.Content.Post<this>(this.Path, this.GetFields(), contentType).share().map(resp => {
-                this.UpdateLastSavedFields(resp);
-                this._isSaved = true;
-                return this;
+            request.subscribe((c) => {
+                this.repository.Events.Trigger.ContentCreated({Content: this});
+            }, err => {
+                this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
             });
+            return request;
+
         } else {
             // Content saved
             if (!this.IsDirty) {
@@ -268,13 +403,20 @@ export class Content {
                 if (!this.Id) {
                     throw new Error('Content Id not present');
                 }
-
+                const changes = this.GetChanges();
                 // Patch content
-                return this.repository.Content.Patch<this>(this.Id, contentType, this.GetChanges())
+                const request = this.odata.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
                         return this;
-                    });
+                    }).share();
+                request.subscribe(() => {
+                    this.repository.Events.Trigger.ContentModified({ Content: this, Changes: changes, OriginalFields: originalFields });
+                }, err => {
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: changes, Error: err });
+
+                })
+                return request;
             }
         }
     }
@@ -296,7 +438,7 @@ export class Content {
      * });
      * ```
      */
-    Save(fields?: this['options'], override?: boolean): Observable<this> {
+    Save(fields?: T, override?: boolean): Observable<this> {
 
         this._isOperationInProgress = true;
         const saveObservable = this.saveContentInternal(fields, override).share();
@@ -306,6 +448,62 @@ export class Content {
             this._isOperationInProgress = false;
         });
         return saveObservable;
+    }
+
+
+    /**
+     * Reloads every field and reference of the content, based on the specified View from the Schema
+     * @throws if the Content is not saved yet or no Id or Path is provided
+     * @param {'edit' | 'view'} actionName
+     * @returns {Observable<this>} An observable whitch will be updated with the Content
+     */
+    Reload(actionName?: 'edit' | 'view'): Observable<this>{
+        if (!this.IsSaved){
+            throw new Error('Content has to be saved to reload')
+        }
+        if (!this.Id && !this.Path){
+            throw new Error('Content Id or Path has to be provided')
+        }
+
+        let selectFields: string | string[] = 'all';
+        let expandFields;
+        if (actionName){
+            const fieldSettings = this.GetSchema().FieldSettings.filter(f => {
+                return actionName === 'edit' && f.VisibleEdit
+                       || actionName === 'view' && f.VisibleBrowse
+            });
+            selectFields = fieldSettings.map(f => f.Name);
+            expandFields = fieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting)
+                .map(f => f.Name);
+        }
+        
+        return this.repository.Load(this.Id || this.Path as any, {
+            select: selectFields,
+            expand: expandFields
+        });
+    }
+
+    /**
+     * Reloads the specified fields and references of the content
+     * @param {(keyof this)[]} fields List of the fields to be loaded
+     * @throws if the Content is not saved yet or no Id or Path is provided
+     * @returns {Observable<this>} An observable whitch will be updated with the Content
+     */
+    ReloadFields(...fields: (keyof this)[]): Observable<this>{
+
+        if (!this.IsSaved){
+            throw new Error('Content has to be saved to reload')
+        }
+        if (!this.Id && !this.Path){
+            throw new Error('Content Id or Path has to be provided')
+        }
+
+        const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
+                .map(f => f.Name);
+        return this.repository.Load(this.Id || this.Path as any, {
+            select: fields,
+            expand: toExpand
+        });
     }
 
     /**
@@ -324,12 +522,14 @@ export class Content {
      * ```
      */
     Actions(scenario?: string): Observable<ActionModel[]> {
-        let optionList = this.GetDeferredRequestOptions('Actions', new ODataParams({
-            scenario: scenario
-        }));
-        return this.repository.Content.Get(optionList)
+        return this.odata.Get(new ODataRequestOptions({
+            path: ODataHelper.joinPaths(this.GetFullPath(), 'Actions'),
+            params: {
+                scenario: scenario
+            }
+        }), Object as { new(...args) })
             .map(resp => {
-                return resp.d.Actions;
+                return resp.d.Actions as ActionModel[];
             });
     }
     /**
@@ -347,8 +547,8 @@ export class Content {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
-        return this.GetDeferredCollection('AllowedChildTypes', options, ContentTypes.ContentType);
+    GetAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+        return this.AllowedChildTypes.GetContent(options);
     }
     /**
      * Method that returns effective allowed child type list of a content.
@@ -365,8 +565,8 @@ export class Content {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentTypes.ContentType[]> {
-        return this.GetDeferredCollection('EffectiveAllowedChildTypes', options, ContentTypes.ContentType);
+    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+        return this.EffectiveAllowedChildTypes.GetContent(options);
     }
     /**
      * Method that returns owner of a content.
@@ -383,8 +583,8 @@ export class Content {
      * });
      * ```
      */
-    GetOwner(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('Owner', options, ContentTypes.User);
+    GetOwner(options?: ODataParams): Observable<User> {
+        return this.Owner.GetContent(options);
     }
 
 
@@ -403,8 +603,8 @@ export class Content {
      * });
      * ```
      */
-    Creator(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('CreatedBy', options, ContentTypes.User);
+    Creator(options?: ODataParams): Observable<User> {
+        return this.CreatedBy.GetContent(options);
     }
     /**
      * Method that returns last modifier of a content.
@@ -421,8 +621,8 @@ export class Content {
      * });
      * ```
      */
-    Modifier(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('ModifiedBy', options, ContentTypes.User);
+    Modifier(options?: ODataParams): Observable<User> {
+        return this.ModifiedBy.GetContent(options);
     }
     /**
      * Method that returns the user who checked-out the content.
@@ -439,13 +639,13 @@ export class Content {
      * });
      * ```
      */
-    CheckedOutBy(options?: ODataParams): Observable<ContentTypes.User> {
-        return this.GetDeferredContent('CheckedOutTo', options, ContentTypes.User);
+    CheckedOutBy(options?: ODataParams): Observable<User> {
+        return this.CheckedOutTo.GetContent(options);
     }
     /**
      * Method that returns the children of a content.
      *
-     * Calls the method [FetchContent]{@link ODataApi.FetchContent} with the contents id and the given OData options.
+     * Calls the method [FetchContent]{@link ODataApi.FetchContent} with the content id and the given OData options.
      * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -465,18 +665,18 @@ export class Content {
         if (!this.Path) {
             throw new Error('No path specified');
         }
-        
-        return this.repository.Content.Fetch(new ODataRequestOptions({
+
+        return this.odata.Fetch(new ODataRequestOptions({
             path: this.Path,
             params: options
         }), Content).map(resp => {
-            return resp.d.results.map(c => Content.HandleLoadedContent(Content, c, this.repository));
+            return resp.d.results.map(c => this.repository.HandleLoadedContent(c));
         });
     }
     /**
      * Returns the list of versions.
      *
-     * Calls the method [GetContent]{@link ODataApi.GetContent} with the contents id and the given OData options.
+     * Calls the method [GetContent]{@link ODataApi.GetContent} with the content id and the given OData options.
      * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -493,12 +693,12 @@ export class Content {
      * ```
     */
     GetVersions(options?: ODataParams): Observable<this[]> {
-        return this.GetDeferredContent('Versions', options, this.constructor as {new()});
+        return this.Versions.GetContent(options);
     }
     /**
      * Returns the current Workspace.
      *
-     * Calls the method [GetContent]{@link ODataApi.GetContent} with the contents id and the given OData options.
+     * Calls the method [GetContent]{@link ODataApi.GetContent} with the content id and the given OData options.
      * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @params options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
@@ -514,8 +714,8 @@ export class Content {
      * });
      * ```
     */
-    GetWorkspace(options?: ODataParams): Observable<Content> {
-        return this.GetDeferredContent('Workspace', options, Content);
+    GetWorkspace(options?: ODataParams): Observable<Workspace> {
+        return this.Workspace.GetContent(options);
     }
     /**
      * Checkouts a content item in the Content Repository.
@@ -532,7 +732,7 @@ export class Content {
      * ```
     */
     Checkout() {
-        return this.repository.Content.CreateCustomAction({ name: 'CheckOut', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'CheckOut', id: this.Id, isAction: true });
     }
     /**
      * Checkins a content item in the Content Repository.
@@ -554,7 +754,7 @@ export class Content {
         (typeof checkInComments !== 'undefined') ?
             action = { name: 'CheckIn', id: this.Id, isAction: true, params: ['checkInComments'] } :
             action = { name: 'CheckIn', id: this.Id, isAction: true };
-        return this.repository.Content.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
+        return this.odata.CreateCustomAction(action, { data: { 'checkInComments': checkInComments ? checkInComments : '' } });
     }
     /**
      * Performs an undo check out operation on a content item in the Content Repository.
@@ -571,7 +771,7 @@ export class Content {
      * ```
     */
     UndoCheckout() {
-        return this.repository.Content.CreateCustomAction({ name: 'UndoCheckOut', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'UndoCheckOut', id: this.Id, isAction: true });
     }
     /**
      * Performs a force undo check out operation on a content item in the Content Repository.
@@ -588,7 +788,7 @@ export class Content {
      * ```
     */
     ForceUndoCheckout() {
-        return this.repository.Content.CreateCustomAction({ name: 'ForceUndoCheckout', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'ForceUndoCheckout', id: this.Id, isAction: true });
     }
     /**
      * Performs an approve operation on a content, the equivalent of calling Approve() on the Content instance in .NET. Also checks whether the content handler of the subject content
@@ -606,7 +806,7 @@ export class Content {
      * ```
     */
     Approve() {
-        return this.repository.Content.CreateCustomAction({ name: 'Approve', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'Approve', id: this.Id, isAction: true });
     }
     /**
      * Performs a reject operation on a content, the equivalent of calling Reject() on the Content instance in .NET. Also checks whether the content handler
@@ -625,7 +825,7 @@ export class Content {
      * ```
     */
     Reject(rejectReason?: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'Reject', id: this.Id, isAction: true, params: ['rejectReason'] },
+        return this.odata.CreateCustomAction({ name: 'Reject', id: this.Id, isAction: true, params: ['rejectReason'] },
             { data: { 'rejectReason': rejectReason ? rejectReason : '' } });
     }
     /**
@@ -644,7 +844,7 @@ export class Content {
      * ```
     */
     Publish(rejectReason?: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true });
     }
     /**
      * Restores an old version of the content. Also checks whether the content handler of the subject content inherits GenericContent (otherwise it does not support this operation).
@@ -663,7 +863,7 @@ export class Content {
      * ```
     */
     RestoreVersion(version: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true, requiredParams: ['version'] }, { data: { 'version': version ? version : '' } });
+        return this.odata.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true, requiredParams: ['version'] }, { data: { 'version': version ? version : '' } });
     }
     /**
      * Restores a deleted content from the Trash. You can call this action only on a TrashBag content that contains the deleted content itself.
@@ -682,7 +882,7 @@ export class Content {
      * ```
     */
     Restore(destination?: string, newname?: boolean) {
-        return this.repository.Content.CreateCustomAction(
+        return this.odata.CreateCustomAction(
             { name: 'Restore', id: this.Id, isAction: true, params: ['destination', 'newname'] }, {
                 data: {
                     'destination': destination ? destination : '',
@@ -705,9 +905,47 @@ export class Content {
      * });
      * ```
     */
-    MoveTo(path: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
-            , { data: { 'targetPath': path ? path : '' } });
+    MoveTo(toPath: string) {
+
+        if (!this.IsSaved){
+            throw new Error('Content not saved!')
+        }
+
+        if (!this.Path) {
+            throw new Error('No Path provided for the content');
+        }
+
+        if (!this.Name) {
+            throw new Error('No Name provided for the content');
+        }
+
+        if (toPath.indexOf(this.Path) === 0){
+            throw new Error('Content cannot be moved below itself')
+        }
+
+        const request = this.odata.CreateCustomAction({ name: 'MoveTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] }
+            , { data: { 'targetPath': toPath } });
+
+        const fromPath = this.Path;
+        const newPath = ODataHelper.joinPaths(toPath, this.Name);
+
+        request.subscribe(result => {
+            this.Path = newPath;
+            this.UpdateLastSavedFields({ Path: newPath } as T);
+            this.repository.Events.Trigger.ContentMoved({
+                Content: this,
+                From: fromPath,
+                To: toPath
+            })
+        }, err => {
+            this.repository.Events.Trigger.ContentMoveFailed({
+                Content: this,
+                From: fromPath,
+                To: toPath,
+                Error: err
+            });
+        });
+        return request;
     }
     /**
      * Copies one content to another container by a given path.
@@ -725,8 +963,8 @@ export class Content {
      * ```
     */
     CopyTo(path: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] },
-            { data: { 'targetPath': path ? path : '' } });
+        return this.odata.CreateCustomAction({ name: 'CopyTo', id: this.Id, isAction: true, requiredParams: ['targetPath'] },
+            { data: { 'targetPath': path } });
     }
     /**
      * Adds the given content types to the Allowed content Type list.
@@ -744,7 +982,7 @@ export class Content {
      * ```
     */
     AddAllowedChildTypes(contentTypes: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'AddAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] }, { data: { 'contentTypes': contentTypes } });
+        return this.odata.CreateCustomAction({ name: 'AddAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] }, { data: { 'contentTypes': contentTypes } });
     }
     /**
      * Removes the given content types from the Allowed content Type list. If the list after removing and the list on the matching CTD are the same, the local list will be removed.
@@ -762,7 +1000,7 @@ export class Content {
      * ```
     */
     RemoveAllowedChildTypes(contentTypes: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'RemoveAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] },
+        return this.odata.CreateCustomAction({ name: 'RemoveAllowedChildTypes', id: this.Id, isAction: true, requiredParams: ['contentTypes'] },
             { data: { 'contentTypes': contentTypes } });
     }
 
@@ -781,7 +1019,7 @@ export class Content {
         }
         const schema = Schemas.SchemaStore.find(s => s.ContentType === currentType) as Schemas.Schema<TType>;
         if (!schema) {
-            throw new Error(`No Schema for Content Type '${currentType.name}'`)
+            return Content.GetSchema<TType>(GenericContent as any) as Schemas.Schema<TType>;
         }
         const parent = Object.getPrototypeOf(currentType);
         const parentSchema = parent && Schemas.SchemaStore.find(s => s.ContentType === parent);
@@ -802,7 +1040,7 @@ export class Content {
      *```
      */
     GetSchema(): Schemas.Schema<this> {
-        const contentType = (ContentTypes as any)[this.Type] as {new(...args)};
+        const contentType = (ContentTypes as any)[this.Type] as { new(...args) };
         return Content.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
     }
 
@@ -812,29 +1050,23 @@ export class Content {
      * @param options {SenseNet.IContentOptions} Optional list of fields and values.
      * @returns {SenseNet.Content}
      * ```ts
-     * var content = SenseNet.Content.Create('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
+     * var content = SenseNet.Content.Create({ DisplayName: 'My folder' }, ContentTypes.Folder); // content is an instance of the ContentTypes.Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
-        repository: BaseRepository): T {
+    public static Create<TContent extends Content, O extends TContent['options']>(opt: O, newContent: { new(...args: any[]): TContent },
+        repository: BaseRepository): TContent {
         let constructed = new newContent(opt, repository);
         return constructed;
     }
 
-    /**
-     * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
-     * @param type {string} The Content will be a copy of the given type.
-     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
-     * @returns {SenseNet.Content}
-     * ```ts
-     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
-     * ```
-     */
-    public static HandleLoadedContent<T extends Content, O extends T['options']>(newContent: { new(...args: any[]): T }, opt: O,
-        repository: BaseRepository): T {
-        let constructed = Content.Create(newContent, opt, repository);
-        (constructed as any)['_isSaved'] = true;
-        return constructed;
+
+    // Shortcut to repository.HandleLoadedContent()
+    // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
+    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O,
+        repository: BaseRepository) => TContent
+    = (contentType, contentOptions, repository) => {
+        console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
+        return repository.HandleLoadedContent(contentOptions, contentType);
     }
 
     /**
@@ -875,11 +1107,11 @@ export class Content {
    */
     SetPermissions(arg: Security.Inheritance | Security.PermissionRequestBody[]) {
         if (arg instanceof Array) {
-            return this.repository.Content.CreateCustomAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] },
+            return this.odata.CreateCustomAction({ name: 'SetPermissions', id: this.Id, isAction: true, requiredParams: ['entryList'] },
                 { data: { 'entryList': arg } });
         }
         else {
-            return this.repository.Content.CreateCustomAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] },
+            return this.odata.CreateCustomAction({ name: 'SetPermissions', path: this.Path, isAction: true, requiredParams: ['inheritance'] },
                 { data: { 'inheritance': arg } });
         }
     };
@@ -901,7 +1133,7 @@ export class Content {
     * ```
      */
     GetPermission(identity?: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] },
+        return this.odata.CreateCustomAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] },
             { data: { 'identity': identity ? identity : '' } });
     }
     /**
@@ -922,9 +1154,20 @@ export class Content {
     * });
     * ```
      */
-    HasPermission(permissions: string[], user?: string, ) {
-        return this.repository.Content.CreateCustomAction({ name: 'HasPermission', id: this.Id, isAction: false, requiredParams: ['permissions'], params: ['user'] },
-            { data: { 'permissions': permissions, 'user': user ? user : '' } });
+    HasPermission(permissions: ('See' | 'Preview' | 'PreviewWithoutWatermark' | 'PreviewWithoutRedaction' | 'Open' |
+        'OpenMinor' | 'Save' | 'Publish' | 'ForceCheckin' | 'AddNew' |
+        'Approve' | 'Delete' | 'RecallOldVersion' | 'DeleteOldVersion' | 'SeePermissions' |
+        'SetPermissions' | 'RunApplication' | 'ManageListsAndWorkspaces' | 'TakeOwnership' |
+        'Custom01' | 'Custom02' | 'Custom03' | 'Custom04' | 'Custom05' | 'Custom06' | 'Custom07' | 'Custom08' | 'Custom09' |
+        'Custom10' | 'Custom11' | 'Custom12' | 'Custom13' | 'Custom14' | 'Custom15' | 'Custom16' | 'Custom17' |
+        'Custom18' | 'Custom19' | 'Custom20' | 'Custom21' | 'Custom22' | 'Custom23' | 'Custom24' | 'Custom25' |
+        'Custom26' | 'Custom27' | 'Custom28' | 'Custom29' | 'Custom30' | 'Custom31' | 'Custom32')[], identity?: User | Group): Observable<boolean> {
+
+        let params = `permissions=${permissions.join(',')}`;
+        if (identity && identity.Path) {
+            params += `&identity=${identity.Path}`
+        };
+        return this.repository.Ajax(`${this.GetFullPath()}/HasPermission?${params}`, 'GET', Boolean as { new() });
     }
     /**
      * Users who have TakeOwnership permission for the current content can modify the Owner of this content.
@@ -943,7 +1186,7 @@ export class Content {
     * ```
      */
     TakeOwnership(userOrGroup?: string) {
-        return this.repository.Content.CreateCustomAction({ name: 'TakeOwnership', id: this.Id, isAction: true, params: ['userOrGroup'] },
+        return this.odata.CreateCustomAction({ name: 'TakeOwnership', id: this.Id, isAction: true, params: ['userOrGroup'] },
             { data: { 'userOrGroup': userOrGroup ? userOrGroup : '' } });
     }
     /**
@@ -969,7 +1212,7 @@ export class Content {
     * ```
      */
     SaveQuery(query: string, displayName: string, queryType: Enums.QueryType) {
-        return this.repository.Content.CreateCustomAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] },
+        return this.odata.CreateCustomAction({ name: 'SaveQuery', id: this.Id, isAction: true, requiredParams: ['query', 'displayName', 'queryType'] },
             { data: { 'query': query, 'displayName': displayName ? displayName : '', queryType: queryType } });
     }
     /**
@@ -990,7 +1233,7 @@ export class Content {
     * ```
      */
     GetQueries(onlyPublic: boolean = true) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetQueries', id: this.Id, isAction: false, noCache: true, requiredParams: ['onlyPublic'] },
+        return this.odata.CreateCustomAction({ name: 'GetQueries', id: this.Id, isAction: false, noCache: true, requiredParams: ['onlyPublic'] },
             { data: { 'onlyPublic': onlyPublic } });
     }
     /**
@@ -1008,7 +1251,7 @@ export class Content {
     * ```
      */
     Finalize() {
-        return this.repository.Content.CreateCustomAction({ name: 'FinalizeContent', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'FinalizeContent', id: this.Id, isAction: true });
     }
     /**
     * Lets administrators take over the lock of a checked out document from another user. A new locker user can be provided using the 'user' parameter (user path or id as string).
@@ -1027,7 +1270,7 @@ export class Content {
     * ```
      */
     TakeLockOver(userId?: number) {
-        return this.repository.Content.CreateCustomAction({ name: 'TakeLockOver', id: this.Id, isAction: true, params: ['user'] },
+        return this.odata.CreateCustomAction({ name: 'TakeLockOver', id: this.Id, isAction: true, params: ['user'] },
             { data: { 'user': userId ? userId : '' } });
     }
     /**
@@ -1047,7 +1290,7 @@ export class Content {
     * ```
      */
     RebuildIndex(recursive?: boolean, rebuildLevel?: number) {
-        return this.repository.Content.CreateCustomAction({ name: 'RebuildIndex', id: this.Id, isAction: true, params: ['recursive', 'rebuildLevel'] }, { data: { 'recursive': recursive ? recursive : false, 'rebuildLevel': rebuildLevel ? rebuildLevel : 0 } });
+        return this.odata.CreateCustomAction({ name: 'RebuildIndex', id: this.Id, isAction: true, params: ['recursive', 'rebuildLevel'] }, { data: { 'recursive': recursive ? recursive : false, 'rebuildLevel': rebuildLevel ? rebuildLevel : 0 } });
     }
     /**
      * Performs a full reindex operation on the content and the whole subtree.
@@ -1064,7 +1307,7 @@ export class Content {
     * ```
      */
     RebuildIndexSubtree() {
-        return this.repository.Content.CreateCustomAction({ name: 'RebuildIndexSubtree', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'RebuildIndexSubtree', id: this.Id, isAction: true });
     }
     /**
      * Refreshes the index document of the content and the whole subtree using the already existing index data stored in the database.
@@ -1081,7 +1324,7 @@ export class Content {
     * ```
      */
     RefreshIndexSubtree() {
-        return this.repository.Content.CreateCustomAction({ name: 'RefreshIndexSubtree', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'RefreshIndexSubtree', id: this.Id, isAction: true });
     }
     /**
      * Returns the number of currently existing preview images. If necessary, it can make sure that all preview images are generated and available for a document.
@@ -1099,7 +1342,7 @@ export class Content {
     * ```
      */
     CheckPreviews(generateMissing?: boolean) {
-        return this.repository.Content.CreateCustomAction({ name: 'CheckPreviews', id: this.Id, isAction: true, params: ['generateMissing'] },
+        return this.odata.CreateCustomAction({ name: 'CheckPreviews', id: this.Id, isAction: true, params: ['generateMissing'] },
             { data: { 'generateMissing': generateMissing ? generateMissing : false } });
     }
     /**
@@ -1118,7 +1361,7 @@ export class Content {
     * ```
      */
     RegeneratePreviews() {
-        return this.repository.Content.CreateCustomAction({ name: 'RegeneratePreviews', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'RegeneratePreviews', id: this.Id, isAction: true });
     }
     /**
      * Returns the number of pages in a document. If there is no information about page count on the content, it starts a preview generation task to determine the page count.
@@ -1135,7 +1378,7 @@ export class Content {
     * ```
      */
     GetPageCount() {
-        return this.repository.Content.CreateCustomAction({ name: 'GetPageCount', id: this.Id, isAction: true });
+        return this.odata.CreateCustomAction({ name: 'GetPageCount', id: this.Id, isAction: true });
     }
     /**
      * Gets information about a preview image generated for a specific page in a document. It returns with the path and the dimensions (width/height) of the image. If the image does not exist yet,
@@ -1155,7 +1398,7 @@ export class Content {
     * ```
      */
     PreviewAvailable(page: number) {
-        return this.repository.Content.CreateCustomAction({ name: 'PreviewAvailable', id: this.Id, isAction: false, requiredParams: ['page'] },
+        return this.odata.CreateCustomAction({ name: 'PreviewAvailable', id: this.Id, isAction: false, requiredParams: ['page'] },
             { data: { 'page': page } });
     }
     /**
@@ -1173,7 +1416,7 @@ export class Content {
     * ```
      */
     GetPreviewImagesForOData() {
-        return this.repository.Content.CreateCustomAction({ name: 'GetPreviewImagesForOData', id: this.Id, isAction: false });
+        return this.odata.CreateCustomAction({ name: 'GetPreviewImagesForOData', id: this.Id, isAction: false });
     }
     /**
      * Returns the list of existing preview images (only the first consecutive batch) as objects with a few information (image path, dimensions). It does not generate any new images.
@@ -1190,7 +1433,7 @@ export class Content {
     * ```
      */
     GetExistingPreviewImagesForOData() {
-        return this.repository.Content.CreateCustomAction({ name: 'GetExistingPreviewImagesForOData', id: this.Id, isAction: false });
+        return this.odata.CreateCustomAction({ name: 'GetExistingPreviewImagesForOData', id: this.Id, isAction: false });
     }
     /**
      * Returns the list of the AllowedChildTypes which are set on the current Content.
@@ -1207,7 +1450,7 @@ export class Content {
     * ```
      */
     GetAllowedChildTypesFromCTD() {
-        return this.repository.Content.CreateCustomAction({ name: 'GetAllowedChildTypesFromCTD', id: this.Id, isAction: false });
+        return this.odata.CreateCustomAction({ name: 'GetAllowedChildTypesFromCTD', id: this.Id, isAction: false });
     }
     /**
      * Identity list that contains every users/groups/organizational units that have any permission setting (according to permission level) in the subtree of the context content.
@@ -1226,7 +1469,7 @@ export class Content {
     * ```
      */
     GetRelatedIdentities(level: Security.PermissionLevel, kind: Security.IdentityKind) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] },
+        return this.odata.CreateCustomAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] },
             { data: { 'level': level, 'kind': kind } });
     }
     /**
@@ -1249,7 +1492,7 @@ export class Content {
     * ```
      */
     GetRelatedPermissions(level: Security.PermissionLevel, explicitOnly: boolean, member: string, includedTypes?: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] },
+        return this.odata.CreateCustomAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] },
             { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'includedTypes': includedTypes } });
     }
     /**
@@ -1272,7 +1515,7 @@ export class Content {
     * ```
      */
     GetRelatedItems(level: Security.PermissionLevel, explicitOnly: boolean, member: string, permissions: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedItems', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'permissions'] },
+        return this.odata.CreateCustomAction({ name: 'GetRelatedItems', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'permissions'] },
             { data: { 'level': level, 'explicitOnly': explicitOnly, 'member': member, 'permissions': permissions } });
     }
     /**
@@ -1295,7 +1538,7 @@ export class Content {
     * ```
      */
     GetRelatedIdentitiesByPermissions(level: Security.PermissionLevel, kind: Security.IdentityKind, permissions: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] },
+        return this.odata.CreateCustomAction({ name: 'GetRelatedIdentitiesByPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'kind', 'permissions'] },
             { data: { 'level': level, 'kind': kind, 'permissions': permissions } });
     }
     /**
@@ -1318,7 +1561,7 @@ export class Content {
     * ```
      */
     GetRelatedItemsOneLevel(level: Security.PermissionLevel, member: string, permissions: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] },
+        return this.odata.CreateCustomAction({ name: 'GetRelatedItemsOneLevel', id: this.Id, isAction: true, requiredParams: ['level', 'member', 'permissions'] },
             { data: { 'level': level, 'member': member, 'permissions': permissions } });
     }
     /**
@@ -1339,7 +1582,7 @@ export class Content {
     * ```
      */
     GetAllowedUsers(permissions: string[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] },
+        return this.odata.CreateCustomAction({ name: 'GetAllowedUsers', id: this.Id, isAction: true, requiredParams: ['permissions'] },
             { data: { 'permissions': permissions } });
     }
     /**
@@ -1359,7 +1602,7 @@ export class Content {
     * ```
      */
     GetParentGroups(directOnly: boolean) {
-        return this.repository.Content.CreateCustomAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] },
+        return this.odata.CreateCustomAction({ name: 'GetParentGroups', id: this.Id, isAction: true, requiredParams: ['directOnly'] },
             { data: { 'directOnly': directOnly } });
     }
     /**
@@ -1378,7 +1621,7 @@ export class Content {
     * ```
      */
     AddMembers(contentIds: number[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
+        return this.odata.CreateCustomAction({ name: 'AddMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
             { data: { 'contentIds': contentIds } });
     }
     /**
@@ -1397,44 +1640,9 @@ export class Content {
     * ```
      */
     RemoveMembers(contentIds: number[]) {
-        return this.repository.Content.CreateCustomAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
+        return this.odata.CreateCustomAction({ name: 'RemoveMembers', id: this.Id, isAction: true, requiredParams: ['contentIds'] },
             { data: { 'contentIds': contentIds } });
     }
-
-    public GetDeferredContent<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
-        fieldName: K,
-        options?: ODataParams,
-        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType> {
-
-        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
-        return this.repository.Content.Get(requestOptions).map(resp => Content.Create(contentType, resp.d, this.repository));
-    }
-
-    public GetDeferredCollection<TReferenceType extends Content, TBaseType extends ContentTypes.GenericContent, K extends keyof TBaseType>(
-        fieldName: K,
-        options?: ODataParams,
-        contentType: { new(...args: any[]): TReferenceType } = Content as { new(...args) }): Observable<TReferenceType[]> {
-        const requestOptions = this.GetDeferredRequestOptions(fieldName, options);
-        return this.repository.Content.Fetch(requestOptions).map(resp =>
-            resp.d.results.map(c => Content.Create(contentType, c, this.repository)));
-    }
-
-    protected GetDeferredRequestOptions(fieldName: string, options?: ODataParams) {
-        let contentURL;
-        if (this.Id) {
-            contentURL = ODataHelper.getContentUrlbyId(this.Id);
-        }
-        else if (this.Path) {
-            contentURL = ODataHelper.getContentURLbyPath(this.Path);
-        } else {
-            throw Error('No Id or Path provided');
-        }
-        return new ODataRequestOptions({
-            path: ODataHelper.joinPaths(contentURL, fieldName),
-            params: options
-        });
-    }
-
 
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
@@ -1451,43 +1659,119 @@ export class Content {
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
-    public Upload(contentType: string, fileName: string, overwrite?: boolean, useChunk?: boolean, propertyName?: string, fileText?: string) {
+    public Upload(contentType: string = 'File', fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName: string= 'Binary', fileText?: string) {
         if (!this.Path) {
             throw Error('No Path provided!');
         }
 
-        const o = overwrite ? overwrite : true;
         const data: any = {
             ContentType: contentType,
             FileName: fileName,
-            Overwrite: o,
-            UseChunk: useChunk ? useChunk : false
+            Overwrite: overwrite,
+            UseChunk: useChunk,
+            propertyName: propertyName,
         };
-        if (typeof propertyName !== 'undefined') {
-            data['PropertyName'] = propertyName;
-        }
+
         if (typeof fileText !== 'undefined') {
             data['FileText'] = fileText;
         }
-        let uploadCreation = this.repository.Content.Upload(this.Path, data, true);
+        let uploadCreation = this.odata.Upload(this.Path, data, true);
         uploadCreation.subscribe({
             next: (response) => {
                 const data = {
                     ContentType: contentType,
                     FileName: fileName,
-                    Overwrite: o,
+                    Overwrite: overwrite,
                     ChunkToken: response
                 };
-                return this.repository.Content.Upload(this.Path as any, data, false);
+                return this.odata.Upload(this.Path as any, data, false);
             }
         });
         return uploadCreation;
     }
+
+
+    /**
+     * Returns the parent content's Path
+     * @throws if no Path is specified or the content is not saved yet.
+     */
+    public get ParentPath(): string {
+        if (!this.Path) {
+            throw Error('No Path provided for the Content');
+        }
+
+        if (!this.IsSaved) {
+            throw Error('Content has to be saved to retrieve the ParentPath');
+        }
+        const segments = this.Path.split('/');
+        segments.pop();
+        return segments.join('/');
+    }
+
+    /**
+     * Indicates if the current Content is the parent a specified Content
+     */
+    public IsParentOf(childContent: Content): boolean {
+        return this.repository === childContent.repository && this.IsSaved && 
+            (this.Id && childContent.ParentId === this.Id 
+                || childContent.ParentPath === this.Path);
+    }
+
+    /**
+     * Indicates if the current Content is a child of a specified Content
+     */
+    public IsChildOf(parentContent: Content): boolean {
+        return this.repository === parentContent.repository && parentContent.IsSaved && 
+            (parentContent.Id && this.ParentId === parentContent.Id
+                || this.ParentPath === parentContent.Path);
+    }
+
+    /**
+     * Indicates if the current Content is an ancestor of a specified Content
+     */
+    public IsAncestorOf(descendantContent: Content): boolean {
+        if (!descendantContent.Path || !this.Path) {
+            throw Error('No path provided')
+        }
+        return this.repository === descendantContent.repository && this.IsSaved && descendantContent.Path.indexOf(this.Path + '/') === 0;
+    }
+
+    /**
+     * Indicates if the current Content is a descendant of a specified Content
+     */
+    public IsDescendantOf(ancestorContent: Content): boolean {
+        if (!ancestorContent.Path || !this.Path) {
+            throw Error('No path provided')
+        }
+        return this.repository === ancestorContent.repository && ancestorContent.IsSaved && this.Path.indexOf(ancestorContent.Path + '/') === 0;
+    }
+
+    /**
+     * Returns the full Path for the current content
+     * @throws if the Content is not saved yet, or hasn't got an Id or Path defined
+     */
+    GetFullPath(): string {
+        if (!this.IsSaved) {
+            throw new Error('Content has to be saved to get the full Path');
+        }
+        if (this.Id) {
+            return ODataHelper.getContentUrlbyId(this.Id);
+        } else if (this.Path) {
+            return ODataHelper.getContentURLbyPath(this.Path);
+        } else {
+            throw new Error('Content Id or Path has to be provided to get the full Path');
+        }
+    }
+
+    /**
+     * Creates a stringified value from the current Content
+     * @returns {string} The stringified value
+     */
+    Stringify: () => string = () => ContentSerializer.Stringify(this);
 }
 
 /**
 * Interface for classes that represent a Content.
-*
 * @interface IContentOptions
 */
 
@@ -1501,8 +1785,9 @@ export interface IContentOptions {
     Index?: number;
     CreationDate?: string;
     ModificationDate?: string;
+    ParentId?: number;
     IsFolder?: boolean;
     Path?: string;
-    Versions?: ComplexTypes.DeferredObject;
-    Workspace?: ComplexTypes.DeferredObject;
+    Versions?: ContentListReferenceField<Content>;
+    Workspace?: ContentReferenceField<Workspace>;
 }

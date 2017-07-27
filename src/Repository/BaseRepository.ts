@@ -6,19 +6,26 @@
 /** */
 
 import { Observable } from '@reactivex/rxjs';
-import { HttpProviders, Content, Authentication, ODataApi, ODataHelper, ContentTypes } from '../SN';
-import { VersionInfo } from './';
-import { RequestMethodType } from '../HttpProviders';
+import { VersionInfo, RepositoryEventHub } from './';
+import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
-import { ODataRequestOptions } from '../ODataApi/ODataRequestOptions';
+import { ODataRequestOptions } from '../ODataApi';
 import { IAuthenticationService } from '../Authentication/';
+import { IODataParams, ODataParams } from '../ODataApi';
+import { ContentType } from '../ContentTypes';
+import { Content } from '../Content';
+import { ODataApi } from '../ODataApi';
+import { ODataHelper, Authentication, ContentTypes } from '../SN';
+import { ODataCollectionResponse } from '../ODataApi';
+import { ContentSerializer } from '../ContentSerializer';
 
 /**
  *
  */
-export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider = HttpProviders.BaseHttpProvider, 
-                            TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService,
-                            TProviderBaseContentType extends Content = Content> {
+export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpProvider,
+    TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService> {
+    private odataApi: ODataApi<TProviderType, Content>;
+    public readonly Events: RepositoryEventHub = new RepositoryEventHub();
 
     /**
      * Will be true if the Repository's host differs from the current host
@@ -37,18 +44,18 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
     /**
      * Public endpoint for making Ajax calls to the Repository
      * @param {string} path The Path for the call
-     * @param {RequestMethodType} method The method type
+     * @param {'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'} method The method type
      * @param {{ new (...args): T }} returnsType The expected return type
      * @param {any} body The post body (optional)
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
-    public Ajax<T>(path: string, method: RequestMethodType, returnsType?: { new (...args: any[]): T }, body?: any): Observable<T> {
+    public Ajax<T>(path: string, method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', returnsType?: { new(...args: any[]): T }, body?: any): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
             .flatMap(state => {
-                if (!returnsType){
-                    returnsType = Object as {new(...args: any[]): any};
+                if (!returnsType) {
+                    returnsType = Object as { new(...args: any[]): any };
                 }
                 return this.httpProviderRef.Ajax<T>(returnsType,
                     {
@@ -61,17 +68,24 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
                     });
             });
     }
-    
+
     /**
      * Reference to the Http Provider used by the current repository
      */
     public readonly httpProviderRef: TProviderType;
-    
+
     /**
      * Reference to the OData API used by the current repository
      */
-    public readonly Content: ODataApi.ODataApi<TProviderType, any>;
-    
+    public get Content(): ODataApi<TProviderType, any>{
+        console.warn('The property repository.Content is deprecated and will be removed in the near future. Use repositoy.GetODataApi() instead.')
+        return this.odataApi;
+    };
+
+    public GetODataApi(): ODataApi<TProviderType, Content>{
+        return this.odataApi;
+    }
+
     /**
      * Reference to the Authentication Service used by the current repository
      */
@@ -87,18 +101,18 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * @param httpProviderType The type of the Http Provider, should extend HttpProviders.BaseHttpProvider
      * @param authentication The type of the Authentication Service to be used.
      */
-    constructor(config: Partial<SnConfigModel>, 
-                private readonly httpProviderType: { new (): TProviderType }, 
-                authentication: { new (...args: any[]): TAuthenticationServiceType }) {
+    constructor(config: Partial<SnConfigModel>,
+        private readonly httpProviderType: { new(): TProviderType },
+        authentication: { new(...args: any[]): TAuthenticationServiceType }) {
 
         this.httpProviderRef = new httpProviderType();
         this.Config = new SnConfigModel(config);
 
         //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.Content = new ODataApi.ODataApi(this.httpProviderType, this);
+        this.odataApi = new ODataApi(this.httpProviderType, this);
     }
-    
+
     /**
      * Gets the complete version information about the core product and the installed applications. This function is accessible only for administrators by default. You can learn more about the
      * subject in the SnAdmin article. You can read detailed description of the function result.
@@ -115,7 +129,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * ```
      */
     public GetVersionInfo() {
-        return this.Content.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
+        return this.odataApi.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -131,17 +145,50 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * });
      * ```
      */
-    public GetAllContentTypes(): Observable<ContentTypes.ContentType[]>{
-        return this.Content.CreateCustomAction<ODataApi.ODataCollectionResponse<ContentTypes.ContentType>>({
-                name: 'GetAllContentTypes', 
-                path: '/Root', 
-                isAction: false
-            }, 
+    public GetAllContentTypes(): Observable<ContentType[]> {
+        return this.odataApi.CreateCustomAction<ODataCollectionResponse<ContentType>>({
+            name: 'GetAllContentTypes',
+            path: '/Root',
+            isAction: false
+        },
             undefined,
-            ODataApi.ODataCollectionResponse)
+            ODataCollectionResponse)
             .map(resp => {
-                return resp.d.results.map(c => Content.HandleLoadedContent(ContentTypes.ContentType, c, this));
-            }); ;
+                return resp.d.results.map(c => this.HandleLoadedContent(c, ContentType));
+            });
+    }
+
+
+    private _loadedContentReferenceCache: Content[] = [];
+
+    /**
+     * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
+     * @param type {string} The Content will be a copy of the given type.
+     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
+     * @returns {SenseNet.Content}
+     * ```ts
+     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
+     * ```
+     */
+    public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O, contentType?: { new(...args: any[]): T }): T {
+        let instance: T;
+        const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Content) as {new(...args: any[]): T};
+
+        if (opt.Id){
+            if (this._loadedContentReferenceCache[opt.Id]){
+                instance = this._loadedContentReferenceCache[opt.Id] as T;
+                instance['UpdateLastSavedFields'](opt);
+            } else {
+                instance = Content.Create(opt, realContentType, this);
+                this._loadedContentReferenceCache[opt.Id] = instance;
+            }
+
+        } else {
+            instance = Content.Create(opt, realContentType, this);
+        }
+        instance['_isSaved'] = true;
+        this.Events.Trigger.ContentLoaded({ Content: instance});
+        return instance;
     }
 
     /**
@@ -151,7 +198,7 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * @param options {Object} JSON object with the possible ODATA parameters like select, expand, etc.
      * @returns {Observable<T>} Returns an RxJS observable that you can subscribe of in your code.
      * ```ts
-     * var content = SenseNet.Content.Load(1234, 'A.1', { expand: 'Avatar' });
+     * var content = SenseNet.Content.Load(1234, { expand: 'Avatar' }, 'A.1', ContentTypes.User);
      * content
      *     .map(response => response.d)
      *     .subscribe({
@@ -163,28 +210,50 @@ export class BaseRepository<TProviderType extends HttpProviders.BaseHttpProvider
      * })
      * ```
     */
-    public Load<TContentType extends TProviderBaseContentType>(
-            idOrPath: string | number,
-            options?: ODataApi.IODataParams,
-            version?: string,
-            returns?: { new (...args: any[]): TContentType }): Observable<TContentType> {
+    public Load<TContentType extends Content>(
+        idOrPath: string | number,
+        odataOptions?: IODataParams,
+        returnsType?: { new(...args: any[]): TContentType },
+        version?: string): Observable<TContentType> {
 
         let contentURL = typeof idOrPath === 'string' ?
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
 
-        let params = new ODataApi.ODataParams(options || {});
+        let params = new ODataParams(odataOptions || {});
 
         let odataRequestOptions = new ODataRequestOptions({
             path: contentURL,
             params: params
         })
-        const returnType = returns || Content as { new (...args: any[]): any};
+        const returnType = returnsType || Content as { new(...args: any[]): any };
 
-        return this.Content.Get(odataRequestOptions, returnType)
+        return this.odataApi.Get(odataRequestOptions, returnType)
             .share()
             .map(r => {
-                return Content.HandleLoadedContent(returnType, r.d, this);
+                return this.HandleLoadedContent(r.d, returnType);
             });
     }
+
+    /**
+     * Shortcut to Content.Create
+     */
+    CreateContent: <T extends Content, K extends T['options']>(options: K, contentType: {new(...args: any[]): T}) => T = 
+        (options, contentType) => Content.Create(options, contentType, this);
+
+    /**
+     * Parses a Content instance from a stringified SerializedContent<T> instance
+     * @param stringifiedContent The stringified SerializedContent<T>
+     * @throws Error if the Content belongs to another Repository (based it's Origin)
+     * @returns The loaded Content
+     */
+    public ParseContent < T extends Content = Content > (stringifiedContent: string): T {
+        const serializedContent = ContentSerializer.Parse<T>(stringifiedContent);
+        if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0){
+            throw new Error('Content belongs to a different Repository.');
+        }
+        return this.HandleLoadedContent(serializedContent.Data)
+
+    }
+
 }

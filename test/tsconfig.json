@@ -12,6 +12,7 @@
             "mocha",
             "chai"
         ],
-        "strict": true
+        "strict": true,
+        "noUnusedLocals": true
     }
 }

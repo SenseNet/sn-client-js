@@ -16,7 +16,7 @@
  *//** */
 import { Content, IContentOptions } from './Content';
 import { Enums, ComplexTypes } from './SN';
-import { BaseRepository } from './Repository';
+import { ContentReferenceField, ContentListReferenceField} from './ContentReferences';
 
 
     /**
@@ -24,7 +24,7 @@ import { BaseRepository } from './Repository';
      * @class ContentType
      * @extends {@link Content}
      */
-    export class ContentType extends Content {
+    export class ContentType<TOptionsType extends IContentTypeOptions = IContentTypeOptions> extends Content<TOptionsType> {
         Id?: number;
         ParentId?: number;
         VersionId?: number;
@@ -40,20 +40,10 @@ import { BaseRepository } from './Repository';
         DisplayName?: string;
         Description?: string;
         Icon?: string;
-        Binary?: ComplexTypes.DeferredObject;
-        CreatedBy?: ComplexTypes.DeferredObject;
+        Binary?: ComplexTypes.MediaResourceObject;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: string;
         EnableLifespan?: boolean;
-
-        /**
-         * @constructs ContentType
-         * @param options {object} An object implementing {@link IContentTypeOptions} interface
-         */
-        constructor(public readonly options: IContentTypeOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -77,10 +67,8 @@ import { BaseRepository } from './Repository';
         DisplayName?: string;
         Description?: string;
         Icon?: string;
-        Binary?: ComplexTypes.DeferredObject;
-        CreatedBy?: ComplexTypes.DeferredObject;
+        Binary?: ComplexTypes.MediaResourceObject;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: string;
         EnableLifespan?: boolean;
     }
@@ -90,11 +78,10 @@ import { BaseRepository } from './Repository';
      * @class GenericContent
      * @extends {@link Content}
      */
-    export class GenericContent extends Content {
+    export class GenericContent<TOptionsType extends IGenericContentOptions = IGenericContentOptions> extends Content<TOptionsType> {
         Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: ComplexTypes.DeferredObject;
         VersionId?: number;
         Icon?: string;
         Name?: string;
@@ -112,22 +99,17 @@ import { BaseRepository } from './Repository';
         EnableLifespan?: boolean;
         ValidFrom?: string;
         ValidTill?: string;
-        AllowedChildTypes?: string;
-        EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: ComplexTypes.DeferredObject;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: ComplexTypes.DeferredObject;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: ComplexTypes.DeferredObject;
+        BrowseApplication: ContentReferenceField<Content>;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -137,19 +119,10 @@ import { BaseRepository } from './Repository';
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: ComplexTypes.DeferredObject;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: ComplexTypes.DeferredObject;
+        Workspace: ContentReferenceField<Workspace>;
         BrowseUrl?: string;
-
-        /**
-         * @constructs GenericContent
-         * @param options {object} An object implementing {@link IGenericContentOptions} interface
-         */
-        constructor(public readonly options: IGenericContentOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -161,7 +134,6 @@ import { BaseRepository } from './Repository';
         Id?: number;
         ParentId?: number;
         OwnerId?: number;
-        Owner?: ComplexTypes.DeferredObject;
         VersionId?: number;
         Icon?: string;
         Name?: string;
@@ -179,22 +151,17 @@ import { BaseRepository } from './Repository';
         EnableLifespan?: boolean;
         ValidFrom?: string;
         ValidTill?: string;
-        AllowedChildTypes?: string;
-        EffectiveAllowedChildTypes?: string;
         VersioningMode?: Enums.VersioningMode;
         InheritableVersioningMode?: Enums.InheritableVersioningMode;
-        CreatedBy?: ComplexTypes.DeferredObject;
         CreationDate?: string;
-        ModifiedBy?: ComplexTypes.DeferredObject;
         ModificationDate?: string;
         ApprovingMode?: Enums.ApprovingMode;
         InheritableApprovingMode?: Enums.InheritableApprovingMode;
         Locked?: boolean;
-        CheckedOutTo?: ComplexTypes.DeferredObject;
         TrashDisabled?: boolean;
         SavingState?: Enums.SavingState;
         ExtensionData?: string;
-        BrowseApplication?: ComplexTypes.DeferredObject;
+        BrowseApplication?: ContentReferenceField<Content>;
         Approvable?: boolean;
         IsTaggable?: boolean;
         Tags?: string;
@@ -204,10 +171,9 @@ import { BaseRepository } from './Repository';
         RateCount?: number;
         Rate?: string;
         Publishable?: boolean;
-        Versions?: ComplexTypes.DeferredObject;
         CheckInComments?: string;
         RejectReason?: string;
-        Workspace?: ComplexTypes.DeferredObject;
+        Workspace?: ContentReferenceField<Workspace>;
         BrowseUrl?: string;
     }
 
@@ -216,16 +182,8 @@ import { BaseRepository } from './Repository';
      * @class ContentLink
      * @extends {@link GenericContent}
      */
-    export class ContentLink extends GenericContent {
-        Link?: ComplexTypes.DeferredObject;
-
-        /**
-         * @constructs ContentLink
-         * @param options {object} An object implementing {@link IContentLinkOptions} interface
-         */
-        constructor(public readonly options: IContentLinkOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ContentLink<TOptionsType extends IContentLinkOptions = IContentLinkOptions> extends GenericContent<TOptionsType> {
+        Link: ContentReferenceField<Content>;
 
     }
     /**
@@ -234,7 +192,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IGenericContentOptions}
      */
     export interface IContentLinkOptions extends IGenericContentOptions {
-        Link?: ComplexTypes.DeferredObject;
+        Link?: ContentReferenceField<Content>;
     }
 
     /**
@@ -242,8 +200,8 @@ import { BaseRepository } from './Repository';
      * @class File
      * @extends {@link GenericContent}
      */
-    export class File extends GenericContent {
-        Binary?: ComplexTypes.DeferredObject;
+    export class File<TOptionsType extends IFileOptions = IFileOptions> extends GenericContent<TOptionsType> {
+        Binary?: ComplexTypes.MediaResourceObject;
         Size?: number;
         FullSize?: number;
         PageCount?: number;
@@ -252,14 +210,6 @@ import { BaseRepository } from './Repository';
         PageAttributes?: string;
         Watermark?: string;
 
-        /**
-         * @constructs File
-         * @param options {object} An object implementing {@link IFileOptions} interface
-         */
-        constructor(public readonly options: IFileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
-
     }
     /**
      * Interface for classes that represent a File.
@@ -267,7 +217,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IGenericContentOptions}
      */
     export interface IFileOptions extends IGenericContentOptions {
-        Binary?: ComplexTypes.DeferredObject;
+        Binary?: ComplexTypes.MediaResourceObject;
         Size?: number;
         FullSize?: number;
         PageCount?: number;
@@ -282,15 +232,7 @@ import { BaseRepository } from './Repository';
      * @class DynamicJsonContent
      * @extends {@link File}
      */
-    export class DynamicJsonContent extends File {
-
-        /**
-         * @constructs DynamicJsonContent
-         * @param options {object} An object implementing {@link IDynamicJsonContentOptions} interface
-         */
-        constructor(public readonly options: IDynamicJsonContentOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class DynamicJsonContent<TOptionsType extends IDynamicJsonContentOptions = IDynamicJsonContentOptions> extends File<TOptionsType> {
 
     }
     /**
@@ -306,15 +248,7 @@ import { BaseRepository } from './Repository';
      * @class ExecutableFile
      * @extends {@link File}
      */
-    export class ExecutableFile extends File {
-
-        /**
-         * @constructs ExecutableFile
-         * @param options {object} An object implementing {@link IExecutableFileOptions} interface
-         */
-        constructor(public readonly options: IExecutableFileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ExecutableFile<TOptionsType extends IExecutableFileOptions = IExecutableFileOptions> extends File<TOptionsType> {
 
     }
     /**
@@ -330,16 +264,8 @@ import { BaseRepository } from './Repository';
      * @class HtmlTemplate
      * @extends {@link File}
      */
-    export class HtmlTemplate extends File {
+    export class HtmlTemplate<TOptionsType extends IHtmlTemplateOptions = IHtmlTemplateOptions> extends File<TOptionsType> {
         TemplateText?: string;
-
-        /**
-         * @constructs HtmlTemplate
-         * @param options {object} An object implementing {@link IHtmlTemplateOptions} interface
-         */
-        constructor(public readonly options: IHtmlTemplateOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -356,19 +282,11 @@ import { BaseRepository } from './Repository';
      * @class Image
      * @extends {@link File}
      */
-    export class Image extends File {
+    export class Image<TOptionsType extends IImageOptions = IImageOptions> extends File<TOptionsType> {
         Keywords?: string;
         DateTaken?: string;
         Width?: number;
         Height?: number;
-
-        /**
-         * @constructs Image
-         * @param options {object} An object implementing {@link IImageOptions} interface
-         */
-        constructor(public readonly options: IImageOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -388,15 +306,7 @@ import { BaseRepository } from './Repository';
      * @class PreviewImage
      * @extends {@link Image}
      */
-    export class PreviewImage extends Image {
-
-        /**
-         * @constructs PreviewImage
-         * @param options {object} An object implementing {@link IPreviewImageOptions} interface
-         */
-        constructor(public readonly options: IPreviewImageOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class PreviewImage<TOptionsType extends IPreviewImageOptions = IPreviewImageOptions> extends Image<TOptionsType> {
 
     }
     /**
@@ -412,16 +322,8 @@ import { BaseRepository } from './Repository';
      * @class Settings
      * @extends {@link File}
      */
-    export class Settings extends File {
+    export class Settings<TOptionsType extends ISettingsOptions = ISettingsOptions> extends File<TOptionsType> {
         GlobalOnly?: boolean;
-
-        /**
-         * @constructs Settings
-         * @param options {object} An object implementing {@link ISettingsOptions} interface
-         */
-        constructor(public readonly options: ISettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -438,16 +340,8 @@ import { BaseRepository } from './Repository';
      * @class IndexingSettings
      * @extends {@link Settings}
      */
-    export class IndexingSettings extends Settings {
+    export class IndexingSettings<TOptionsType extends IIndexingSettingsOptions = IIndexingSettingsOptions> extends Settings<TOptionsType> {
         TextExtractorInstances?: string;
-
-        /**
-         * @constructs IndexingSettings
-         * @param options {object} An object implementing {@link IIndexingSettingsOptions} interface
-         */
-        constructor(public readonly options: IIndexingSettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -464,15 +358,7 @@ import { BaseRepository } from './Repository';
      * @class LoggingSettings
      * @extends {@link Settings}
      */
-    export class LoggingSettings extends Settings {
-
-        /**
-         * @constructs LoggingSettings
-         * @param options {object} An object implementing {@link ILoggingSettingsOptions} interface
-         */
-        constructor(public readonly options: ILoggingSettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class LoggingSettings<TOptionsType extends ILoggingSettingsOptions = ILoggingSettingsOptions> extends Settings<TOptionsType> {
 
     }
     /**
@@ -488,15 +374,7 @@ import { BaseRepository } from './Repository';
      * @class PortalSettings
      * @extends {@link Settings}
      */
-    export class PortalSettings extends Settings {
-
-        /**
-         * @constructs PortalSettings
-         * @param options {object} An object implementing {@link IPortalSettingsOptions} interface
-         */
-        constructor(public readonly options: IPortalSettingsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class PortalSettings<TOptionsType extends IPortalSettingsOptions = IPortalSettingsOptions> extends Settings<TOptionsType> {
 
     }
     /**
@@ -512,15 +390,7 @@ import { BaseRepository } from './Repository';
      * @class SystemFile
      * @extends {@link File}
      */
-    export class SystemFile extends File {
-
-        /**
-         * @constructs SystemFile
-         * @param options {object} An object implementing {@link ISystemFileOptions} interface
-         */
-        constructor(public readonly options: ISystemFileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class SystemFile<TOptionsType extends ISystemFileOptions = ISystemFileOptions> extends File<TOptionsType> {
 
     }
     /**
@@ -536,16 +406,8 @@ import { BaseRepository } from './Repository';
      * @class Resource
      * @extends {@link SystemFile}
      */
-    export class Resource extends SystemFile {
+    export class Resource<TOptionsType extends IResourceOptions = IResourceOptions> extends SystemFile<TOptionsType> {
         Downloads?: number;
-
-        /**
-         * @constructs Resource
-         * @param options {object} An object implementing {@link IResourceOptions} interface
-         */
-        constructor(public readonly options: IResourceOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -562,15 +424,7 @@ import { BaseRepository } from './Repository';
      * @class Folder
      * @extends {@link GenericContent}
      */
-    export class Folder extends GenericContent {
-
-        /**
-         * @constructs Folder
-         * @param options {object} An object implementing {@link IFolderOptions} interface
-         */
-        constructor(public readonly options: IFolderOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Folder<TOptionsType extends IFolderOptions = IFolderOptions> extends GenericContent<TOptionsType> {
 
     }
     /**
@@ -586,29 +440,21 @@ import { BaseRepository } from './Repository';
      * @class ContentList
      * @extends {@link Folder}
      */
-    export class ContentList extends Folder {
+    export class ContentList<TOptionsType extends IContentListOptions = IContentListOptions> extends Folder<TOptionsType> {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: ComplexTypes.DeferredObject;
-        FieldSettingContents?: ComplexTypes.DeferredObject;
-        AvailableContentTypeFields?: ComplexTypes.DeferredObject;
+        AvailableViews: ContentListReferenceField<Content>;
+        FieldSettingContents: ContentListReferenceField<Content>;
+        AvailableContentTypeFields: ContentListReferenceField<Content>;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: ComplexTypes.DeferredObject;
+        IncomingEmailWorkflow: ContentReferenceField<Content>;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: ComplexTypes.DeferredObject;
-
-        /**
-         * @constructs ContentList
-         * @param options {object} An object implementing {@link IContentListOptions} interface
-         */
-        constructor(public readonly options: IContentListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+        OwnerWhenVisitor: ContentReferenceField<User>;
 
     }
     /**
@@ -619,18 +465,18 @@ import { BaseRepository } from './Repository';
     export interface IContentListOptions extends IFolderOptions {
         ContentListDefinition?: string;
         DefaultView?: string;
-        AvailableViews?: ComplexTypes.DeferredObject;
-        FieldSettingContents?: ComplexTypes.DeferredObject;
-        AvailableContentTypeFields?: ComplexTypes.DeferredObject;
+        AvailableViews?: ContentListReferenceField<Content>;
+        FieldSettingContents?: ContentListReferenceField<Content>;
+        AvailableContentTypeFields?: ContentListReferenceField<Content>;
         ListEmail?: string;
         ExchangeSubscriptionId?: string;
         OverwriteFiles?: boolean;
         GroupAttachments?: Enums.GroupAttachments;
         SaveOriginalEmail?: boolean;
-        IncomingEmailWorkflow?: ComplexTypes.DeferredObject;
+        IncomingEmailWorkflow?: ContentReferenceField<Content>;
         OnlyFromLocalGroups?: boolean;
         InboxFolder?: string;
-        OwnerWhenVisitor?: ComplexTypes.DeferredObject;
+        OwnerWhenVisitor?: ContentReferenceField<User>;
     }
 
     /**
@@ -638,16 +484,8 @@ import { BaseRepository } from './Repository';
      * @class Aspect
      * @extends {@link ContentList}
      */
-    export class Aspect extends ContentList {
+    export class Aspect<TOptionsType extends IAspectOptions = IAspectOptions> extends ContentList<TOptionsType> {
         AspectDefinition?: string;
-
-        /**
-         * @constructs Aspect
-         * @param options {object} An object implementing {@link IAspectOptions} interface
-         */
-        constructor(public readonly options: IAspectOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -664,15 +502,7 @@ import { BaseRepository } from './Repository';
      * @class ItemList
      * @extends {@link ContentList}
      */
-    export class ItemList extends ContentList {
-
-        /**
-         * @constructs ItemList
-         * @param options {object} An object implementing {@link IItemListOptions} interface
-         */
-        constructor(public readonly options: IItemListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ItemList<TOptionsType extends IItemListOptions = IItemListOptions> extends ContentList<TOptionsType> {
 
     }
     /**
@@ -688,15 +518,7 @@ import { BaseRepository } from './Repository';
      * @class CustomList
      * @extends {@link ItemList}
      */
-    export class CustomList extends ItemList {
-
-        /**
-         * @constructs CustomList
-         * @param options {object} An object implementing {@link ICustomListOptions} interface
-         */
-        constructor(public readonly options: ICustomListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class CustomList<TOptionsType extends ICustomListOptions = ICustomListOptions> extends ItemList<TOptionsType> {
 
     }
     /**
@@ -712,15 +534,7 @@ import { BaseRepository } from './Repository';
      * @class MemoList
      * @extends {@link ItemList}
      */
-    export class MemoList extends ItemList {
-
-        /**
-         * @constructs MemoList
-         * @param options {object} An object implementing {@link IMemoListOptions} interface
-         */
-        constructor(public readonly options: IMemoListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class MemoList<TOptionsType extends IMemoListOptions = IMemoListOptions> extends ItemList<TOptionsType> {
 
     }
     /**
@@ -736,15 +550,7 @@ import { BaseRepository } from './Repository';
      * @class TaskList
      * @extends {@link ItemList}
      */
-    export class TaskList extends ItemList {
-
-        /**
-         * @constructs TaskList
-         * @param options {object} An object implementing {@link ITaskListOptions} interface
-         */
-        constructor(public readonly options: ITaskListOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class TaskList<TOptionsType extends ITaskListOptions = ITaskListOptions> extends ItemList<TOptionsType> {
 
     }
     /**
@@ -760,15 +566,7 @@ import { BaseRepository } from './Repository';
      * @class Library
      * @extends {@link ContentList}
      */
-    export class Library extends ContentList {
-
-        /**
-         * @constructs Library
-         * @param options {object} An object implementing {@link ILibraryOptions} interface
-         */
-        constructor(public readonly options: ILibraryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Library<TOptionsType extends ILibraryOptions = ILibraryOptions> extends ContentList<TOptionsType> {
 
     }
     /**
@@ -784,15 +582,7 @@ import { BaseRepository } from './Repository';
      * @class DocumentLibrary
      * @extends {@link Library}
      */
-    export class DocumentLibrary extends Library {
-
-        /**
-         * @constructs DocumentLibrary
-         * @param options {object} An object implementing {@link IDocumentLibraryOptions} interface
-         */
-        constructor(public readonly options: IDocumentLibraryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class DocumentLibrary<TOptionsType extends IDocumentLibraryOptions = IDocumentLibraryOptions> extends Library<TOptionsType> {
 
     }
     /**
@@ -808,16 +598,8 @@ import { BaseRepository } from './Repository';
      * @class ImageLibrary
      * @extends {@link Library}
      */
-    export class ImageLibrary extends Library {
-        CoverImage?: ComplexTypes.DeferredObject;
-
-        /**
-         * @constructs ImageLibrary
-         * @param options {object} An object implementing {@link IImageLibraryOptions} interface
-         */
-        constructor(public readonly options: IImageLibraryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ImageLibrary<TOptionsType extends IImageLibraryOptions = IImageLibraryOptions> extends Library<TOptionsType> {
+        CoverImage: ContentReferenceField<Image>;
 
     }
     /**
@@ -826,7 +608,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link ILibraryOptions}
      */
     export interface IImageLibraryOptions extends ILibraryOptions {
-        CoverImage?: ComplexTypes.DeferredObject;
+        CoverImage?: ContentReferenceField<Image>;
     }
 
     /**
@@ -834,16 +616,8 @@ import { BaseRepository } from './Repository';
      * @class Device
      * @extends {@link Folder}
      */
-    export class Device extends Folder {
+    export class Device<TOptionsType extends IDeviceOptions = IDeviceOptions> extends Folder<TOptionsType> {
         UserAgentPattern?: string;
-
-        /**
-         * @constructs Device
-         * @param options {object} An object implementing {@link IDeviceOptions} interface
-         */
-        constructor(public readonly options: IDeviceOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -860,17 +634,9 @@ import { BaseRepository } from './Repository';
      * @class Domain
      * @extends {@link Folder}
      */
-    export class Domain extends Folder {
+    export class Domain<TOptionsType extends IDomainOptions = IDomainOptions> extends Folder<TOptionsType> {
         SyncGuid?: string;
         LastSync?: string;
-
-        /**
-         * @constructs Domain
-         * @param options {object} An object implementing {@link IDomainOptions} interface
-         */
-        constructor(public readonly options: IDomainOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -888,15 +654,7 @@ import { BaseRepository } from './Repository';
      * @class Domains
      * @extends {@link Folder}
      */
-    export class Domains extends Folder {
-
-        /**
-         * @constructs Domains
-         * @param options {object} An object implementing {@link IDomainsOptions} interface
-         */
-        constructor(public readonly options: IDomainsOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Domains<TOptionsType extends IDomainsOptions = IDomainsOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -912,18 +670,10 @@ import { BaseRepository } from './Repository';
      * @class Email
      * @extends {@link Folder}
      */
-    export class Email extends Folder {
+    export class Email<TOptionsType extends IEmailOptions = IEmailOptions> extends Folder<TOptionsType> {
         From?: string;
         Body?: string;
         Sent?: string;
-
-        /**
-         * @constructs Email
-         * @param options {object} An object implementing {@link IEmailOptions} interface
-         */
-        constructor(public readonly options: IEmailOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -942,17 +692,9 @@ import { BaseRepository } from './Repository';
      * @class OrganizationalUnit
      * @extends {@link Folder}
      */
-    export class OrganizationalUnit extends Folder {
+    export class OrganizationalUnit<TOptionsType extends IOrganizationalUnitOptions = IOrganizationalUnitOptions> extends Folder<TOptionsType> {
         SyncGuid?: string;
         LastSync?: string;
-
-        /**
-         * @constructs OrganizationalUnit
-         * @param options {object} An object implementing {@link IOrganizationalUnitOptions} interface
-         */
-        constructor(public readonly options: IOrganizationalUnitOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -970,15 +712,7 @@ import { BaseRepository } from './Repository';
      * @class PortalRoot
      * @extends {@link Folder}
      */
-    export class PortalRoot extends Folder {
-
-        /**
-         * @constructs PortalRoot
-         * @param options {object} An object implementing {@link IPortalRootOptions} interface
-         */
-        constructor(public readonly options: IPortalRootOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class PortalRoot<TOptionsType extends IPortalRootOptions = IPortalRootOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -994,15 +728,7 @@ import { BaseRepository } from './Repository';
      * @class ProfileDomain
      * @extends {@link Folder}
      */
-    export class ProfileDomain extends Folder {
-
-        /**
-         * @constructs ProfileDomain
-         * @param options {object} An object implementing {@link IProfileDomainOptions} interface
-         */
-        constructor(public readonly options: IProfileDomainOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ProfileDomain<TOptionsType extends IProfileDomainOptions = IProfileDomainOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1018,15 +744,7 @@ import { BaseRepository } from './Repository';
      * @class Profiles
      * @extends {@link Folder}
      */
-    export class Profiles extends Folder {
-
-        /**
-         * @constructs Profiles
-         * @param options {object} An object implementing {@link IProfilesOptions} interface
-         */
-        constructor(public readonly options: IProfilesOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Profiles<TOptionsType extends IProfilesOptions = IProfilesOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1042,15 +760,7 @@ import { BaseRepository } from './Repository';
      * @class RuntimeContentContainer
      * @extends {@link Folder}
      */
-    export class RuntimeContentContainer extends Folder {
-
-        /**
-         * @constructs RuntimeContentContainer
-         * @param options {object} An object implementing {@link IRuntimeContentContainerOptions} interface
-         */
-        constructor(public readonly options: IRuntimeContentContainerOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class RuntimeContentContainer<TOptionsType extends IRuntimeContentContainerOptions = IRuntimeContentContainerOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1066,15 +776,7 @@ import { BaseRepository } from './Repository';
      * @class Sites
      * @extends {@link Folder}
      */
-    export class Sites extends Folder {
-
-        /**
-         * @constructs Sites
-         * @param options {object} An object implementing {@link ISitesOptions} interface
-         */
-        constructor(public readonly options: ISitesOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Sites<TOptionsType extends ISitesOptions = ISitesOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1090,18 +792,10 @@ import { BaseRepository } from './Repository';
      * @class SmartFolder
      * @extends {@link Folder}
      */
-    export class SmartFolder extends Folder {
+    export class SmartFolder<TOptionsType extends ISmartFolderOptions = ISmartFolderOptions> extends Folder<TOptionsType> {
         Query?: string;
         EnableAutofilters?: Enums.EnableAutofilters;
         EnableLifespanFilter?: Enums.EnableLifespanFilter;
-
-        /**
-         * @constructs SmartFolder
-         * @param options {object} An object implementing {@link ISmartFolderOptions} interface
-         */
-        constructor(public readonly options: ISmartFolderOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1120,15 +814,7 @@ import { BaseRepository } from './Repository';
      * @class SystemFolder
      * @extends {@link Folder}
      */
-    export class SystemFolder extends Folder {
-
-        /**
-         * @constructs SystemFolder
-         * @param options {object} An object implementing {@link ISystemFolderOptions} interface
-         */
-        constructor(public readonly options: ISystemFolderOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class SystemFolder<TOptionsType extends ISystemFolderOptions = ISystemFolderOptions> extends Folder<TOptionsType> {
 
     }
     /**
@@ -1144,15 +830,7 @@ import { BaseRepository } from './Repository';
      * @class Resources
      * @extends {@link SystemFolder}
      */
-    export class Resources extends SystemFolder {
-
-        /**
-         * @constructs Resources
-         * @param options {object} An object implementing {@link IResourcesOptions} interface
-         */
-        constructor(public readonly options: IResourcesOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class Resources<TOptionsType extends IResourcesOptions = IResourcesOptions> extends SystemFolder<TOptionsType> {
 
     }
     /**
@@ -1168,20 +846,12 @@ import { BaseRepository } from './Repository';
      * @class TrashBag
      * @extends {@link Folder}
      */
-    export class TrashBag extends Folder {
+    export class TrashBag<TOptionsType extends ITrashBagOptions = ITrashBagOptions> extends Folder<TOptionsType> {
         KeepUntil?: string;
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: ComplexTypes.DeferredObject;
-
-        /**
-         * @constructs TrashBag
-         * @param options {object} An object implementing {@link ITrashBagOptions} interface
-         */
-        constructor(public readonly options: ITrashBagOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+        DeletedContent: ContentReferenceField<Content>;
 
     }
     /**
@@ -1194,7 +864,7 @@ import { BaseRepository } from './Repository';
         OriginalPath?: string;
         WorkspaceRelativePath?: string;
         WorkspaceId?: number;
-        DeletedContent?: ComplexTypes.DeferredObject;
+        DeletedContent?: ContentReferenceField<Content>;
     }
 
     /**
@@ -1202,22 +872,14 @@ import { BaseRepository } from './Repository';
      * @class Workspace
      * @extends {@link Folder}
      */
-    export class Workspace extends Folder {
-        Manager?: ComplexTypes.DeferredObject;
+    export class Workspace<TOptionsType extends IWorkspaceOptions = IWorkspaceOptions> extends Folder<TOptionsType> {
+        Manager: ContentReferenceField<User>;
         Deadline?: string;
         IsActive?: boolean;
-        WorkspaceSkin?: ComplexTypes.DeferredObject;
+        WorkspaceSkin: ContentReferenceField<Content>;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
-
-        /**
-         * @constructs Workspace
-         * @param options {object} An object implementing {@link IWorkspaceOptions} interface
-         */
-        constructor(public readonly options: IWorkspaceOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1226,10 +888,10 @@ import { BaseRepository } from './Repository';
      * @extends {@link IFolderOptions}
      */
     export interface IWorkspaceOptions extends IFolderOptions {
-        Manager?: ComplexTypes.DeferredObject;
+        Manager?: ContentReferenceField<User>;
         Deadline?: string;
         IsActive?: boolean;
-        WorkspaceSkin?: ComplexTypes.DeferredObject;
+        WorkspaceSkin?: ContentReferenceField<Content>;
         IsCritical?: boolean;
         IsWallContainer?: boolean;
         IsFollowed?: boolean;
@@ -1240,23 +902,15 @@ import { BaseRepository } from './Repository';
      * @class Site
      * @extends {@link Workspace}
      */
-    export class Site extends Workspace {
+    export class Site<TOptionsType extends ISiteOptions = ISiteOptions> extends Workspace<TOptionsType> {
         Language?: Enums.Language;
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: ComplexTypes.DeferredObject;
-        LoginPage?: ComplexTypes.DeferredObject;
-        SiteSkin?: ComplexTypes.DeferredObject;
+        StartPage: ContentReferenceField<Content>;
+        LoginPage: ContentReferenceField<Content>;
+        SiteSkin: ContentReferenceField<Content>;
         DenyCrossSiteAccess?: boolean;
-
-        /**
-         * @constructs Site
-         * @param options {object} An object implementing {@link ISiteOptions} interface
-         */
-        constructor(public readonly options: ISiteOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1269,9 +923,9 @@ import { BaseRepository } from './Repository';
         EnableClientBasedCulture?: boolean;
         EnableUserBasedCulture?: boolean;
         UrlList?: string;
-        StartPage?: ComplexTypes.DeferredObject;
-        LoginPage?: ComplexTypes.DeferredObject;
-        SiteSkin?: ComplexTypes.DeferredObject;
+        StartPage?: ContentReferenceField<Content>;
+        LoginPage?: ContentReferenceField<Content>;
+        SiteSkin?: ContentReferenceField<Content>;
         DenyCrossSiteAccess?: boolean;
     }
 
@@ -1280,18 +934,10 @@ import { BaseRepository } from './Repository';
      * @class TrashBin
      * @extends {@link Workspace}
      */
-    export class TrashBin extends Workspace {
+    export class TrashBin<TOptionsType extends ITrashBinOptions = ITrashBinOptions> extends Workspace<TOptionsType> {
         MinRetentionTime?: number;
         SizeQuota?: number;
         BagCapacity?: number;
-
-        /**
-         * @constructs TrashBin
-         * @param options {object} An object implementing {@link ITrashBinOptions} interface
-         */
-        constructor(public readonly options: ITrashBinOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1310,16 +956,8 @@ import { BaseRepository } from './Repository';
      * @class UserProfile
      * @extends {@link Workspace}
      */
-    export class UserProfile extends Workspace {
-        User?: ComplexTypes.DeferredObject;
-
-        /**
-         * @constructs UserProfile
-         * @param options {object} An object implementing {@link IUserProfileOptions} interface
-         */
-        constructor(public readonly options: IUserProfileOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class UserProfile<TOptionsType extends IUserProfileOptions = IUserProfileOptions> extends Workspace<TOptionsType> {
+        User: ContentReferenceField<User>;
 
     }
     /**
@@ -1328,7 +966,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IWorkspaceOptions}
      */
     export interface IUserProfileOptions extends IWorkspaceOptions {
-        User?: ComplexTypes.DeferredObject;
+        User?: ContentReferenceField<User>;
     }
 
     /**
@@ -1336,18 +974,10 @@ import { BaseRepository } from './Repository';
      * @class Group
      * @extends {@link GenericContent}
      */
-    export class Group extends GenericContent {
-        Members?: ComplexTypes.DeferredObject;
+    export class Group<TOptionsType extends IGroupOptions = IGroupOptions> extends GenericContent<TOptionsType> {
+        Members: ContentListReferenceField<User | Group>;
         SyncGuid?: string;
         LastSync?: string;
-
-        /**
-         * @constructs Group
-         * @param options {object} An object implementing {@link IGroupOptions} interface
-         */
-        constructor(public readonly options: IGroupOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1356,7 +986,7 @@ import { BaseRepository } from './Repository';
      * @extends {@link IGenericContentOptions}
      */
     export interface IGroupOptions extends IGenericContentOptions {
-        Members?: ComplexTypes.DeferredObject;
+        Members?: ContentListReferenceField<User | Group>;
         SyncGuid?: string;
         LastSync?: string;
     }
@@ -1366,15 +996,7 @@ import { BaseRepository } from './Repository';
      * @class ListItem
      * @extends {@link GenericContent}
      */
-    export class ListItem extends GenericContent {
-
-        /**
-         * @constructs ListItem
-         * @param options {object} An object implementing {@link IListItemOptions} interface
-         */
-        constructor(public readonly options: IListItemOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+    export class ListItem<TOptionsType extends IListItemOptions = IListItemOptions> extends GenericContent<TOptionsType> {
 
     }
     /**
@@ -1390,16 +1012,8 @@ import { BaseRepository } from './Repository';
      * @class CustomListItem
      * @extends {@link ListItem}
      */
-    export class CustomListItem extends ListItem {
+    export class CustomListItem<TOptionsType extends ICustomListItemOptions = ICustomListItemOptions> extends ListItem<TOptionsType> {
         WorkflowsRunning?: boolean;
-
-        /**
-         * @constructs CustomListItem
-         * @param options {object} An object implementing {@link ICustomListItemOptions} interface
-         */
-        constructor(public readonly options: ICustomListItemOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1416,18 +1030,10 @@ import { BaseRepository } from './Repository';
      * @class Memo
      * @extends {@link ListItem}
      */
-    export class Memo extends ListItem {
+    export class Memo<TOptionsType extends IMemoOptions = IMemoOptions> extends ListItem<TOptionsType> {
         Date?: string;
         MemoType?: Enums.MemoType;
-        SeeAlso?: ComplexTypes.DeferredObject;
-
-        /**
-         * @constructs Memo
-         * @param options {object} An object implementing {@link IMemoOptions} interface
-         */
-        constructor(public readonly options: IMemoOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
+        SeeAlso: ContentListReferenceField<Content>;
 
     }
     /**
@@ -1438,7 +1044,7 @@ import { BaseRepository } from './Repository';
     export interface IMemoOptions extends IListItemOptions {
         Date?: string;
         MemoType?: Enums.MemoType;
-        SeeAlso?: ComplexTypes.DeferredObject;
+        SeeAlso?: ContentListReferenceField<Content>;
     }
 
     /**
@@ -1446,24 +1052,16 @@ import { BaseRepository } from './Repository';
      * @class Task
      * @extends {@link ListItem}
      */
-    export class Task extends ListItem {
+    export class Task<TOptionsType extends ITaskOptions = ITaskOptions> extends ListItem<TOptionsType> {
         StartDate?: string;
         DueDate?: string;
-        AssignedTo?: ComplexTypes.DeferredObject;
+        AssignedTo: ContentListReferenceField<User>;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
         RemainingDays?: number;
         DueText?: string;
         DueCssClass?: string;
-
-        /**
-         * @constructs Task
-         * @param options {object} An object implementing {@link ITaskOptions} interface
-         */
-        constructor(public readonly options: ITaskOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1474,7 +1072,7 @@ import { BaseRepository } from './Repository';
     export interface ITaskOptions extends IListItemOptions {
         StartDate?: string;
         DueDate?: string;
-        AssignedTo?: ComplexTypes.DeferredObject;
+        AssignedTo?: ContentListReferenceField<User>;
         Priority?: Enums.Priority;
         Status?: Enums.Status;
         TaskCompletion?: number;
@@ -1488,17 +1086,9 @@ import { BaseRepository } from './Repository';
      * @class Query
      * @extends {@link GenericContent}
      */
-    export class Query extends GenericContent {
+    export class Query<TOptionsType extends IQueryOptions = IQueryOptions> extends GenericContent<TOptionsType> {
         Query?: string;
         QueryType?: Enums.QueryType;
-
-        /**
-         * @constructs Query
-         * @param options {object} An object implementing {@link IQueryOptions} interface
-         */
-        constructor(public readonly options: IQueryOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1516,21 +1106,21 @@ import { BaseRepository } from './Repository';
      * @class User
      * @extends {@link GenericContent}
      */
-    export class User extends GenericContent {
+    export class User<TOptionsType extends IUserOptions = IUserOptions> extends GenericContent<TOptionsType> {
         LoginName?: string;
         JobTitle?: string;
         Enabled?: boolean;
         Domain?: string;
         Email?: string;
         FullName?: string;
-        ImageRef?: ComplexTypes.DeferredObject;
-        ImageData?: ComplexTypes.DeferredObject;
-        Avatar?: ComplexTypes.DeferredObject;
+        ImageRef: ContentReferenceField<Content>;
+        ImageData?: ComplexTypes.MediaResourceObject;
+        Avatar?: ComplexTypes.MediaResourceObject;
         Password?: string;
         SyncGuid?: string;
         LastSync?: string;
         Captcha?: string;
-        Manager?: ComplexTypes.DeferredObject;
+        Manager: ContentReferenceField<User>;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1542,16 +1132,8 @@ import { BaseRepository } from './Repository';
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: ComplexTypes.DeferredObject;
+        FollowedWorkspaces: ContentListReferenceField<Workspace>;
         ProfilePath?: string;
-
-        /**
-         * @constructs User
-         * @param options {object} An object implementing {@link IUserOptions} interface
-         */
-        constructor(public readonly options: IUserOptions, repository: BaseRepository) {
-            super(options, repository);
-        }
 
     }
     /**
@@ -1566,14 +1148,14 @@ import { BaseRepository } from './Repository';
         Domain?: string;
         Email?: string;
         FullName?: string;
-        ImageRef?: ComplexTypes.DeferredObject;
-        ImageData?: ComplexTypes.DeferredObject;
-        Avatar?: ComplexTypes.DeferredObject;
+        ImageRef?: ContentReferenceField<Content>;
+        ImageData?: ComplexTypes.MediaResourceObject;
+        Avatar?: ComplexTypes.MediaResourceObject;
         Password?: string;
         SyncGuid?: string;
         LastSync?: string;
         Captcha?: string;
-        Manager?: ComplexTypes.DeferredObject;
+        Manager?: ContentReferenceField<User>;
         Department?: string;
         Languages?: string;
         Phone?: string;
@@ -1585,7 +1167,7 @@ import { BaseRepository } from './Repository';
         FacebookURL?: string;
         LinkedInURL?: string;
         Language?: Enums.Language;
-        FollowedWorkspaces?: ComplexTypes.DeferredObject;
+        FollowedWorkspaces?: ContentListReferenceField<Workspace>;
         ProfilePath?: string;
     }
 

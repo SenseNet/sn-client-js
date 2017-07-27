@@ -141,7 +141,7 @@ export class ControlMapperTests {
     @test
     public 'GetAllMappingsForContentTye should be able to return all mappings'() {
         for (let key in ContentTypes) {
-            const fullMapping = this.mapper.GetFullSchemaForContentTye((ContentTypes as any)[key], 'new');
+            const fullMapping = this.mapper.GetFullSchemaForContentType((ContentTypes as any)[key], 'new');
             Chai.expect(fullMapping.FieldMappings.length).to.be.greaterThan(0);
             fullMapping.FieldMappings.forEach(m => {
                 Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
@@ -152,7 +152,7 @@ export class ControlMapperTests {
 
     @test
     public 'GetAllMappingsForContentTye filtered to View should be able to return all mappings'() {
-        const fullMapping = this.mapper.GetFullSchemaForContentTye(ContentTypes.Task, 'view').FieldMappings;
+        const fullMapping = this.mapper.GetFullSchemaForContentType(ContentTypes.Task, 'view').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
         fullMapping.forEach(m => {
             Chai.expect(m.ClientSettings.fieldSetting.VisibleBrowse).to.be.eq(FieldSettings.FieldVisibility.Show);
@@ -163,7 +163,7 @@ export class ControlMapperTests {
 
     @test
     public 'GetAllMappingsForContentTye filtered to Edit should be able to return all mappings'() {
-        const fullMapping = this.mapper.GetFullSchemaForContentTye(ContentTypes.Task, 'edit').FieldMappings;
+        const fullMapping = this.mapper.GetFullSchemaForContentType(ContentTypes.Task, 'edit').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
         fullMapping.forEach(m => {
             Chai.expect(m.ClientSettings.fieldSetting.VisibleEdit).to.be.eq(FieldSettings.FieldVisibility.Show);
@@ -175,7 +175,7 @@ export class ControlMapperTests {
 
     @test
     public 'GetAllMappingsForContentTye filtered to New should be able to return all mappings'() {
-        const fullMapping = this.mapper.GetFullSchemaForContentTye(ContentTypes.Task, 'new').FieldMappings;
+        const fullMapping = this.mapper.GetFullSchemaForContentType(ContentTypes.Task, 'new').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
         fullMapping.forEach(m => {
             Chai.expect(m.ClientSettings.fieldSetting.VisibleNew).to.be.eq(FieldSettings.FieldVisibility.Show);
@@ -186,7 +186,7 @@ export class ControlMapperTests {
 
     @test
     public 'GetFullSchemaForContent filtered to New should be able to return all mappings'() {
-        const fullMapping = this.mapper.GetFullSchemaForContent(Content.Create(ContentTypes.Task, {DueDate: '2017-06-27T11:11:11Z', Name: 'Task1'}, new Mocks.MockRepository()), 'new').FieldMappings;
+        const fullMapping = this.mapper.GetFullSchemaForContent(Content.Create({DueDate: '2017-06-27T11:11:11Z', Name: 'Task1'}, ContentTypes.Task, new Mocks.MockRepository()), 'new').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
         fullMapping.forEach(m => {
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);

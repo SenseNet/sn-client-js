@@ -1,13 +1,12 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { SnConfigModel } from '../src/Config';
-import { MockRepository } from './Mocks/MockRepository';
-import { MockAuthService } from './Mocks/MockAuthService';
-import { MockHttpProvider } from './Mocks/MockHttpProvider';
+import { MockRepository, MockAuthService, MockHttpProvider } from './Mocks';
 import { VersionInfo, SnRepository } from '../src/Repository';
-import { ContentTypes, Content } from '../src/SN';
+import { Content } from '../src/Content';
 import { LoginState } from '../src/Authentication';
-import { ODataCollectionResponse } from '../src/ODataApi/index';
+import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
+import { User, Task, ContentType } from '../src/ContentTypes';
 
 const expect = Chai.expect;
 
@@ -58,12 +57,12 @@ export class BaseHttpProviderTests {
                     }
                 ]
             }
-        } as ODataCollectionResponse<ContentTypes.ContentType>;
+        } as ODataCollectionResponse<ContentType>;
         this.repo.httpProviderRef.setResponse(cResponse);
         this.repo.GetAllContentTypes().first().subscribe(types => {
             expect(types.length).to.be.eq(1);
             expect(types[0].Name).to.be.eq('testContentType');
-            expect(types[0]).to.be.instanceof(ContentTypes.ContentType);
+            expect(types[0]).to.be.instanceof(ContentType);
             done();
         }, done)
     }
@@ -95,9 +94,9 @@ export class BaseHttpProviderTests {
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
         (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
-        this.repo.Load(1, {}, '', ContentTypes.User).first().subscribe(response => {
+        this.repo.Load(1, {}, User).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
-            expect(response).to.be.instanceof(ContentTypes.User);
+            expect(response).to.be.instanceof(User);
             done();
         }, err => {
             done(err);
@@ -116,5 +115,39 @@ export class BaseHttpProviderTests {
         expect(snRepo.Config.RepositoryUrl).to.be.eq('https://demo.sensenet.com');
     }
 
+    @test 'HandleLoadedContent should respect content type from Options'() {
+        let snRepo = new SnRepository(new SnConfigModel({
+            RepositoryUrl: 'https://demo.sensenet.com'
+        }));
+        const task = snRepo.HandleLoadedContent({
+            Id: 1,
+            Type: 'Task'
+        })
+
+        const usr = snRepo.HandleLoadedContent({
+            Id: 2,
+            Name: 'User'
+        }, User)
+
+        const content = snRepo.HandleLoadedContent({
+            Id: 3
+        })
+        expect(task).to.be.instanceof(Task);
+
+        expect(usr).to.be.instanceof(User);
+
+        expect(content).to.be.instanceof(Content);
+    }
+
+    @test 'Content should return an ODataApi instance'() {
+        let snRepo = new SnRepository();
+        expect(snRepo.Content).to.be.instanceOf(ODataApi);
+    }
+
+    @test 'Should be able to create content using repository.CreateContent() '() {
+        let snRepo = new SnRepository();
+        let exampleTask = snRepo.CreateContent({}, Task);
+        expect(exampleTask).to.be.instanceOf(Task);
+    }
 
 }
