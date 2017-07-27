@@ -16,14 +16,14 @@ export class TokenStore {
 
     /**
     * @param {strnig} baseUrl The Base URL to the related site
-    * @param {string} keyTemplate The template to use when generating keys in the local/session storage or for a cookie. ${siteName} and ${tokenName} will be replaced
+    * @param {string} keyTemplate The template to use when generating keys in the local/session storage or for a cookie. ${siteName} and ${tokenName} will be replaced. Example: 'sn-${siteName}-${tokenName}'
     * @param {TokenPersist} tokenPersist Setting that indicates if the token should be persisted per session (browser close) or per Token expiration (based on the token `exp` property)
     * @param {Partial<Document>} documentRef The Document reference (used by unit tests)
     * @param {Storage} localStorageRef The localStorage reference (used by unit tests)
     * @param {Storage} sessionStorageRef The sessionStorage reference (used by unit tests)
      */
     constructor(private readonly baseUrl: string,
-        private readonly keyTemplate: string = 'sn-${siteName}-${tokenName}',
+        private readonly keyTemplate: string,
         private readonly tokenPersist: TokenPersist,
         private documentRef = (typeof document === 'object') ? document : undefined,
         private localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
@@ -93,12 +93,11 @@ export class TokenStore {
                 case TokenStoreType.ExpirationCookie:
                 case TokenStoreType.SessionCookie:
                     return this.getTokenFromCookie(storeKey, this.documentRef as Document);
-                    default:
-                    return Token.CreateEmpty();
             }
         } catch (err) {
-            return Token.CreateEmpty();
+            // 
         }
+        return Token.CreateEmpty();
     }
 
     /**
