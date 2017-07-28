@@ -16,10 +16,11 @@ import * as Security from './Security';
 import * as HttpProviders from './HttpProviders';
 import * as Config from './Config';
 import * as Mocks from '../test/Mocks';
+import * as Query from './Query';
 export *  from './ControlMapper';
 
 export {
     Authentication, ComplexTypes, FieldSettings, Schemas, Enums,
     ContentTypes, Collection, ODataHelper, ODataApi,
-    Resources, Security, HttpProviders, Repository, Config, Mocks
+    Resources, Security, HttpProviders, Repository, Config, Mocks, Query
 };

@@ -115,7 +115,6 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Remove(index: number, permanently?: boolean): Observable<any>;
     /**
      * Method to remove an item from a local collection and from the Content Repository through OData REST API at the same time.
      *
@@ -135,8 +134,7 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Remove(items: number[], permanently?: boolean): Observable<any>;
-    public Remove(arg: any, permanently: boolean = false): Observable<any> {
+    public Remove(arg: number | number[], permanently: boolean = false): Observable<any> {
         if (typeof arg === 'number') {
             let content = this.items[arg];
                 if (content && content.Id){
@@ -181,7 +179,7 @@ export class Collection<T extends Content> {
      */
     public Read(path: string, options?: IODataParams): Observable<any> {
         this.Path = path;
-        let o = {};
+        let o: any = {};
         if (typeof options !== 'undefined') {
             o['params'] = options;
         }
@@ -213,7 +211,6 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Move(index: number, targetPath: string): Observable<any>;
     /**
      * Method to move multiple content to another container.
      * @param items {number[]} number array of content indexes.
@@ -231,8 +228,7 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Move(items: number[], targetPath: string): Observable<any>;
-    public Move(arg: any, targetPath: string): Observable<any> {
+    public Move(arg: number | number[], targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
             this.items =
                 this.items.slice(0, arg)
@@ -265,8 +261,8 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Copy(index: number, targetPath: string): Observable<any>;
-    /**
+    
+     /**
      * Method to copy multiple content to another container.
      * @param items {number[]} number array of content indexes.
      * @params targetPath {string} Path of the target container.
@@ -283,8 +279,7 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Copy(items: number[], targetPath: string): Observable<any>;
-    public Copy(arg: any, targetPath: string): Observable<any> {
+    public Copy(arg: number | number[], targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
             let action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
@@ -311,7 +306,7 @@ export class Collection<T extends Content> {
      * ```
      */
     public AllowedChildTypes(options?: Object): Observable<any> {
-        let o = {};
+        let o: any = {};
         if (options) {
             o['params'] = options;
         }
@@ -335,7 +330,7 @@ export class Collection<T extends Content> {
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
     public Upload(contentType: string, fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName?: string, fileText?: string): Observable<any> {
-        const data = {
+        const data: any = {
             ContentType: contentType,
             FileName: fileName,
             Overwrite: overwrite,
