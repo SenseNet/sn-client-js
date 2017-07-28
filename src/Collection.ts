@@ -24,8 +24,8 @@ export class Collection<T extends Content> {
     * @param { IODataApi<any, any> } service The service to use as API Endpoint
     */
     constructor(private items: T[],
-                private repository: BaseRepository,
-                private readonly contentType: {new(...args: any[]): T} = Content as {new(...args: any[]): any}) {
+        private repository: BaseRepository,
+        private readonly contentType: { new(...args: any[]): T } = Content as { new(...args: any[]): any }) {
         this.odata = repository.GetODataApi();
     }
 
@@ -137,7 +137,7 @@ export class Collection<T extends Content> {
     public Remove(arg: number | number[], permanently: boolean = false): Observable<any> {
         if (typeof arg === 'number') {
             let content = this.items[arg];
-                if (content && content.Id){
+            if (content && content.Id) {
                 this.items =
                     this.items.slice(0, arg)
                         .concat(this.items.slice(arg + 1));
@@ -185,12 +185,10 @@ export class Collection<T extends Content> {
         }
         o['path'] = path;
         let optionList = new ODataRequestOptions(o as ODataRequestOptions);
-        const children = this.odata.Fetch<T>(optionList);
-        children
-            .subscribe(
-                    (items) => {
-                        this.items = items.d.results.map(c => this.repository.HandleLoadedContent(c, this.contentType));
-                    }
+        const children = this.odata.Fetch<T>(optionList)
+            .map(items => {
+                return items.d.results.map(c => this.repository.HandleLoadedContent(c, this.contentType));
+            }
             );
         return children;
     }
@@ -261,24 +259,24 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    
-     /**
-     * Method to copy multiple content to another container.
-     * @param items {number[]} number array of content indexes.
-     * @params targetPath {string} Path of the target container.
-     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
-     * ```
-     * let copy = myCollection.Copy([3, 5], '/Root/MyContent/MyFolder');
-     * copy
-     *     .subscribe({
-     *        next: response => {
-     *            //do something after copy
-     *        },
-     *        error: error => console.error('something wrong occurred: ' + error),
-     *        complete: () => console.log('done'),
-     * });
-     * ```
-     */
+
+    /**
+    * Method to copy multiple content to another container.
+    * @param items {number[]} number array of content indexes.
+    * @params targetPath {string} Path of the target container.
+    * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
+    * ```
+    * let copy = myCollection.Copy([3, 5], '/Root/MyContent/MyFolder');
+    * copy
+    *     .subscribe({
+    *        next: response => {
+    *            //do something after copy
+    *        },
+    *        error: error => console.error('something wrong occurred: ' + error),
+    *        complete: () => console.log('done'),
+    * });
+    * ```
+    */
     public Copy(arg: number | number[], targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
             let action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
