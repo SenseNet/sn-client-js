@@ -25,7 +25,7 @@ export class Collection<T extends Content> {
     */
     constructor(private items: T[],
                 private repository: BaseRepository,
-                private readonly contentType: {new(...args: any[]): T} = Content.constructor as {new(...args: any[]): any}) {
+                private readonly contentType: {new(...args: any[]): T} = Content as {new(...args: any[]): any}) {
         this.odata = repository.GetODataApi();
     }
 
