@@ -18,6 +18,7 @@ import { ODataApi } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ODataCollectionResponse } from '../ODataApi';
 import { ContentSerializer } from '../ContentSerializer';
+import { Query, QuerySegment, QueryExpression } from '../Query';
 
 /**
  *
@@ -253,7 +254,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             throw new Error('Content belongs to a different Repository.');
         }
         return this.HandleLoadedContent(serializedContent.Data)
-
     }
+
+    public Query: <T extends Content>(rootPath: string, build: (build: QueryExpression<Content>) => QuerySegment<T>) => Query = 
+        (rootPath, build) => Query.Create(rootPath, build)
 
 }

@@ -60,6 +60,10 @@ export const isContentOptions = (object: any): object is IContentOptions => {
     return object && object.Id && object.Path && object.Type && object.Type.length > 0 || false;
 }
 
+export const isContent = (object: any): object is IContentOptions => {
+    return object && object.Id && object.Path && object.Type && object.Type.length > 0 && object.options && isContentOptions(object.options) || false;
+}
+
 export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
     return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
 }
