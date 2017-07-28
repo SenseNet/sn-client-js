@@ -18,7 +18,7 @@ export class QuerySegment<TReturns extends Content>{
 export class QueryExpression<TReturns extends Content> extends QuerySegment<TReturns> {
 
     private escapeValue(value: string): string{
-        return typeof value === 'string' ? value.replace(/([\!\*\+\&\|\(\)\[\]\{\}\^\~\?\:\"])/g, '\\$1') : value;
+        return typeof value === 'string' ? value.replace(/([\!\+\&\|\(\)\[\]\{\}\^\~\:\"])/g, '\\$1') : value;
     }
 
     InTree(path: string | Content){
