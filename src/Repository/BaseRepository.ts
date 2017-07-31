@@ -18,7 +18,7 @@ import { ODataApi } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ODataCollectionResponse } from '../ODataApi';
 import { ContentSerializer } from '../ContentSerializer';
-import { Query, QuerySegment, QueryExpression } from '../Query';
+import { Query, QuerySegment, QueryExpression, QueryResult } from '../Query';
 
 /**
  *
@@ -256,8 +256,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return this.HandleLoadedContent(serializedContent.Data)
     }
 
-    // ToDo: wire Path
-    public Query: <T extends Content>(rootPath: string, build: (build: QueryExpression<Content>) => QuerySegment<T>) => Query = 
-        (rootPath, build) => Query.Create(build)
+    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T> | string, params?: ODataParams) => Observable<QueryResult<T>> 
+        = (build, params) => Query.Exec(build, this, 'Root', params);
 
 }

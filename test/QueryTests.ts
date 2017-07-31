@@ -3,6 +3,7 @@ import { suite, test } from 'mocha-typescript';
 import { Query } from '../src/Query';
 import { ContentTypes } from '../src/SN';
 import { MockRepository } from './Mocks/index';
+import { LoginState } from '../src/Authentication/LoginState';
 
 const expect = Chai.expect;
 
@@ -15,12 +16,85 @@ export class QueryTests {
     }
 
     @test
-    public 'Can be from a repository'() {
+    public 'Can be from a repository'(done: MochaDone) {
         const repo = new MockRepository()
-        const query = repo.Query('Root/Sites', q => q);
-        expect(query).to.be.instanceof(Query);
+        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.httpProviderRef.setResponse({
+            d: {
+                __count: 1,
+                results: [{
+                    Id: 1,
+                    Name: 'Test',
+                    Type: 'Folder',
+                    Path: 'Root/Tasks'
+                }]
+            }
+        })
+        repo.RunQuery(q => q.TypeIs(ContentTypes.Folder)).subscribe(res => {
+            expect(res.Count).to.be.eq(1);
+            expect(res.Result[0]).to.be.instanceof(ContentTypes.Folder);
+            expect(res.Result[0].Type).to.be.eq('Folder');
+
+            const query: string = (repo.httpProviderRef.lastOptions.url as any)
+                .split('?')
+                .find(a => a.indexOf('query') >= 0)
+                .split('&')
+                .find(a => a.indexOf('query') >= 0)
+
+            expect(query).to.be.eq('query=+TypeIs:Folder');
+            done();
+        }, done);
     }
 
+    @test
+    public 'Should throw Error when try to run from a Content without Path'() {
+        const repo = new MockRepository()
+        
+        const content = repo.HandleLoadedContent({
+            Id: 3,
+            Type: 'Folder'
+        })
+
+        expect(() => content.RunQuery(q => q.TypeIs(ContentTypes.Folder))).to.throw('No Content path provided for querying');
+    }
+
+    @test
+    public 'Can be from a Content'(done: MochaDone) {
+        const repo = new MockRepository()
+        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.httpProviderRef.setResponse({
+            d: {
+                __count: 1,
+                results: [{
+                    Id: 1,
+                    Name: 'Test',
+                    Type: 'Folder',
+                    Path: 'Root/Folders'
+                }]
+            }
+        })
+
+        const content = repo.HandleLoadedContent({
+            Id: 3,
+            Path: 'Root/Content/Folders',
+            Type: 'Folder'
+        })
+
+        content.RunQuery(q => q.TypeIs(ContentTypes.Folder)).subscribe(res => {
+            expect(res.Count).to.be.eq(1);
+            expect(res.Result[0]).to.be.instanceof(ContentTypes.Folder);
+            expect(res.Result[0].Type).to.be.eq('Folder');
+
+            const query: string = (repo.httpProviderRef.lastOptions.url as any)
+                .split('?')
+                .find(a => a.indexOf('query') >= 0)
+                .split('&')
+                .find(a => a.indexOf('query') >= 0)
+
+            expect(query).to.be.eq('query=+TypeIs:Folder');
+            done();
+        }, done);
+    }
 
     @test
     public 'TypeIs syntax'() {
@@ -113,7 +187,7 @@ export class QueryTests {
     }
 
     @test
-    public 'inner Query'(){
+    public 'inner Query'() {
         const queryInstance = Query.Create(q => q.Equals('DisplayName', 'Test')
             .And
             .Query(inner =>
@@ -124,7 +198,7 @@ export class QueryTests {
     }
 
     @test
-    public 'NOT statement'(){
+    public 'NOT statement'() {
         const queryInstance = Query.Create(q => q.Equals('DisplayName', 'Test')
             .And
             .Not(inner =>
@@ -135,28 +209,28 @@ export class QueryTests {
     }
 
     @test
-    public 'OrderBy'(){
+    public 'OrderBy'() {
         const queryInstance = Query.Create(q => q.Sort('DisplayName'));
         expect(queryInstance.toString()).to.be.eq(".SORT:'DisplayName'");
     }
 
     @test
-    public 'OrderBy Reverse'(){
+    public 'OrderBy Reverse'() {
         const queryInstance = Query.Create(q => q.Sort('DisplayName', true));
         expect(queryInstance.toString()).to.be.eq(".REVERSESORT:'DisplayName'");
     }
 
 
     @test
-    public 'Top'(){
+    public 'Top'() {
         const queryInstance = Query.Create(q => q.Top(50));
         expect(queryInstance.toString()).to.be.eq('.TOP:50');
-    }        
+    }
 
     @test
-    public 'Skip'(){
+    public 'Skip'() {
         const queryInstance = Query.Create(q => q.Skip(10));
         expect(queryInstance.toString()).to.be.eq('.SKIP:10');
-    }        
+    }
 
 }

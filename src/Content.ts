@@ -51,6 +51,7 @@ import { ContentSerializer } from './ContentSerializer';
 import { DeferredObject } from './ComplexTypes';
 import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
 import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
+import { Query, QueryExpression, QuerySegment, QueryResult } from './Query';
 
 export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
     return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
@@ -161,7 +162,6 @@ export class Content<T extends IContentOptions = IContentOptions> {
         const fieldsToPost = {} as T;
         this.GetSchema().FieldSettings.forEach(s => {
             const value = this[s.Name] && this[s.Name].getValue ? this[s.Name].getValue() : this[s.Name];
-
             ((!skipEmpties && value !== undefined) || (skipEmpties && value)) && (fieldsToPost[s.Name] = value);
         });
         return fieldsToPost;
@@ -1772,6 +1772,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @returns {string} The stringified value
      */
     Stringify: () => string = () => ContentSerializer.Stringify(this);
+
+    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T> | string, params?: ODataParams) => Observable<QueryResult<T>> 
+        = (build, params) => {
+            if (!this.Path){
+                throw new Error('No Content path provided for querying')
+            }
+            return Query.Exec(build, this.repository, this.Path, params)
+        };
 }
 
 /**
