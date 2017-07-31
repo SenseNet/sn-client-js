@@ -1299,4 +1299,39 @@ describe('Content', () => {
         });
     });
 
+    describe('#GetFullPath', () => {
+        it('should throw if Content is not saved', () => {
+            expect(() => {
+                content.GetFullPath();
+            }).to.throw('Content has to be saved to get the full Path')
+        });
+
+        it('should throw if Content has no Id AND Path', () => {
+            const c = repo.HandleLoadedContent({
+                Name: 'Test'
+            })
+            expect(() => {
+                c.GetFullPath();
+            }).to.throw('Content Id or Path has to be provided to get the full Path')
+        });
+
+        it('should return by Id if possible', () => {
+            const c = repo.HandleLoadedContent({
+                Name: 'Test',
+                Id: 1,
+                Path: 'Root/Test'
+            })
+            expect(c.GetFullPath()).to.be.eq('/content(1)');
+        });
+
+        
+        it('should return by Path if Id is not available possible', () => {
+            const c = repo.HandleLoadedContent({
+                Name: 'Test',
+                Path: 'Root/Test'
+            })
+            expect(c.GetFullPath()).to.be.eq("Root('Test')");
+        });    
+    })
+
 });
