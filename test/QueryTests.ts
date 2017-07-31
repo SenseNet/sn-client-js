@@ -193,6 +193,18 @@ export class QueryTests {
     }
 
     @test
+    public 'AND syntax'(){
+        const queryInstance = Query.Create(q => q.Equals('Index', 1).And.Equals('DisplayName', 'Test'));
+        expect(queryInstance.toString()).to.be.eq("+Index:'1' AND +DisplayName:'Test'")
+    }
+
+    @test
+    public 'OR syntax'(){
+        const queryInstance = Query.Create(q => q.Equals('Index', 1).Or.Equals('DisplayName', 'Test'));
+        expect(queryInstance.toString()).to.be.eq("+Index:'1' OR +DisplayName:'Test'")
+    }
+
+    @test
     public 'inner Query'() {
         const queryInstance = Query.Create(q => q.Equals('DisplayName', 'Test')
             .And
