@@ -144,12 +144,19 @@ export class QueryTests {
     public 'OrderBy Reverse'(){
         const queryInstance = Query.Create(q => q.Sort('DisplayName', true));
         expect(queryInstance.toString()).to.be.eq(".REVERSESORT:'DisplayName'");
-    }    
+    }
+
+
+    @test
+    public 'Top'(){
+        const queryInstance = Query.Create(q => q.Top(50));
+        expect(queryInstance.toString()).to.be.eq('.TOP:50');
+    }        
+
+    @test
+    public 'Skip'(){
+        const queryInstance = Query.Create(q => q.Skip(10));
+        expect(queryInstance.toString()).to.be.eq('.SKIP:10');
+    }        
 
 }
-
-const q = Query.Create(q => q.TypeIs(ContentTypes.User)
-    .And
-    .Equals('DisplayName', 'a'))
-
-console.log(q);

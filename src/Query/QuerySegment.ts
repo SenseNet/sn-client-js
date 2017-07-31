@@ -13,6 +13,16 @@ export class QuerySegment<TReturns extends Content>{
         return this.Finialize();
     }
 
+    public Top(topCount: number){
+        this.stringValue = `.TOP:${topCount}`;
+        return this.Finialize();
+    }    
+
+    public Skip(topCount: number){
+        this.stringValue = `.SKIP:${topCount}`;
+        return this.Finialize();
+    }  
+
     public toString(){
         return this.stringValue;
     }
