@@ -10,17 +10,17 @@ export class QuerySegment<TReturns extends Content>{
 
     public Sort<K extends keyof TReturns['options']>(field: K, reverse: boolean = false){
         this.stringValue = `.${reverse ? 'REVERSESORT' : 'SORT'}:'${field}'`;
-        return this.Finialize();
+        return this.FinializeSegment();
     }
 
     public Top(topCount: number){
         this.stringValue = `.TOP:${topCount}`;
-        return this.Finialize();
+        return this.FinializeSegment();
     }    
 
     public Skip(topCount: number){
         this.stringValue = `.SKIP:${topCount}`;
-        return this.Finialize();
+        return this.FinializeSegment();
     }  
 
     public toString(){
@@ -31,7 +31,7 @@ export class QuerySegment<TReturns extends Content>{
 
     }
 
-    protected Finialize() {
+    protected FinializeSegment() {
         this.queryRef.addSegment(this);
         return new QuerySegment(this.queryRef);
     }
