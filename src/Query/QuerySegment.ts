@@ -2,7 +2,16 @@ import { Query } from '.';
 import { Content, isContent } from '../Content';
 
 export class QuerySegment<TReturns extends Content>{
+    protected escapeValue(value: string): string{
+        return typeof value === 'string' ? value.replace(/([\!\+\&\|\(\)\[\]\{\}\^\~\:\"])/g, '\\$1') : value;
+    }
+
     protected stringValue: string;
+
+    public Sort<K extends keyof TReturns['options']>(field: K, reverse: boolean = false){
+        this.stringValue = `.${reverse ? 'REVERSESORT' : 'SORT'}:'${field}'`;
+        return this.Finialize();
+    }
 
     public toString(){
         return this.stringValue;
@@ -12,14 +21,15 @@ export class QuerySegment<TReturns extends Content>{
 
     }
 
+    protected Finialize() {
+        this.queryRef.addSegment(this);
+        return new QuerySegment(this.queryRef);
+    }
+
 }
 
 // Equals, Not Equals, TypeIs, etc...
 export class QueryExpression<TReturns extends Content> extends QuerySegment<TReturns> {
-
-    private escapeValue(value: string): string{
-        return typeof value === 'string' ? value.replace(/([\!\+\&\|\(\)\[\]\{\}\^\~\:\"])/g, '\\$1') : value;
-    }
 
     InTree(path: string | Content){
         const pathValue = this.escapeValue(isContent(path) && path.Path ? path.Path : path.toString())
@@ -68,9 +78,21 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
     LessThan<K extends keyof TReturns['options']>(fieldName: K, maxValue: TReturns[K], maximumInclusive: boolean = false){
         this.stringValue = `+${fieldName}:<${maximumInclusive ? '=' : ''}'${this.escapeValue(maxValue)}'`;
         return this.Finialize();
-    }    
+    }
 
-    private Finialize<TReturnsExtended extends Content = TReturns>(): QueryOperators<TReturnsExtended> {
+    Query(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>){
+        const innerQuery = Query.Create(build);
+        this.stringValue = `(${innerQuery.toString()})`;
+        return this.Finialize();
+    }
+
+    Not(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>){
+        const innerQuery = Query.Create(build);
+        this.stringValue = `NOT(${innerQuery.toString()})`;
+        return this.Finialize();
+    }
+
+    protected Finialize<TReturnsExtended extends Content = TReturns>(): QueryOperators<TReturnsExtended> {
         this.queryRef.addSegment(this);
         return new QueryOperators<TReturnsExtended>(this.queryRef as any as Query<TReturnsExtended>);
     }
@@ -90,7 +112,7 @@ export class QueryOperators<TReturns extends Content> extends QuerySegment<TRetu
         return this.Finialize();
     }
 
-    private Finialize() {
+    protected Finialize() {
         this.queryRef.addSegment(this);
         return new QueryExpression(this.queryRef);
     }

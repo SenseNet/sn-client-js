@@ -10,7 +10,7 @@ export class Query<T extends Content = Content>{
     }
 
     public toString(): string{
-        return this.segments.map(s => s.toString()).join();
+        return this.segments.map(s => s.toString()).join('');
     }
 
     public Exec(): Observable<T[]>{
@@ -18,12 +18,12 @@ export class Query<T extends Content = Content>{
         return Observable.of([]);
     }
 
-    constructor(public readonly rootPath: string, build: (first: QueryExpression<T>) => void) {
+    constructor(build: (first: QueryExpression<T>) => void) {
         const firstExpression = new QueryExpression<T>(this);
         build(firstExpression);
     }
 
-    public static Create<T extends Content = Content>(rootPath: string, build: (first: QueryExpression<Content>) => QuerySegment<T>): Query<T> {
-        return new Query<T>(rootPath, build);
+    public static Create<T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>): Query<T> {
+        return new Query<T>(build);
     }
 }

@@ -256,7 +256,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return this.HandleLoadedContent(serializedContent.Data)
     }
 
+    // ToDo: wire Path
     public Query: <T extends Content>(rootPath: string, build: (build: QueryExpression<Content>) => QuerySegment<T>) => Query = 
-        (rootPath, build) => Query.Create(rootPath, build)
+        (rootPath, build) => Query.Create(build)
 
 }
