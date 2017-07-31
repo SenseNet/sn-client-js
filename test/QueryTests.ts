@@ -7,7 +7,7 @@ import { LoginState } from '../src/Authentication/LoginState';
 
 const expect = Chai.expect;
 
-@suite('ContentSerializer')
+@suite('Query tests')
 export class QueryTests {
     @test
     public 'Can be constructed'() {

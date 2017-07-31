@@ -53,26 +53,50 @@ import { ContentListReferenceField, ContentReferenceField } from './ContentRefer
 import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
 import { Query, QueryExpression, QuerySegment, QueryResult } from './Query';
 
+/**
+ * Typeguard that determines if the specified Object is a DeferredObject
+ * @param fieldObject The object that needs to be checked
+ */
 export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
     return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
 }
 
+/**
+ * Typeguard that determines if the specified Object is an IContentOptions instance
+ * @param object The object that needs to be checked
+ */
 export const isContentOptions = (object: any): object is IContentOptions => {
     return object && object.Id && object.Path && object.Type && object.Type.length > 0 || false;
 }
 
-export const isContent = (object: any): object is IContentOptions => {
+/**
+ * Typeguard that determines if the specified Object is a Content instance
+ * @param object The object that needs to be checked
+ */
+export const isContent = (object: any): object is Content => {
     return object && object.Id && object.Path && object.Type && object.Type.length > 0 && object.options && isContentOptions(object.options) || false;
 }
 
+/**
+ * Typeguard that determines if the specified Object is an IContentOptions array
+ * @param {any[]} objectList The object that needs to be checked
+ */
 export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
     return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
 }
 
+/**
+ * Typeguard that determines if the specified Object is a ReferenceField instance
+ * @param field The object that needs to be checked
+ */
 export const isReferenceField = (field: any): field is ContentReferenceField<Content> => {
     return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function' || false;
 }
 
+/**
+ * Typeguard that determines if the specified Object is a ReferenceListField instance
+ * @param field The object that needs to be checked
+ */
 export const isReferenceListField = (field: any): field is ContentListReferenceField<Content> => {
     return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function' || false;
 }
@@ -1773,6 +1797,18 @@ export class Content<T extends IContentOptions = IContentOptions> {
      */
     Stringify: () => string = () => ContentSerializer.Stringify(this);
 
+    /**
+     * Runs a content query on a Content instance.
+     * Usage: 
+     * ```ts
+     * content.RunQuery(q => q.TypeIs(ContentTypes.Folder)
+     *                        .Top(10)).subscribe(res => {
+     *      console.log('Folders count: ', res.Count);
+     *      console.log('Folders: ', res.Result);
+     * } 
+     * ```
+     * @returns {Observable<QueryResult<T>>} An observable with the Query result.
+     */
     RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => Observable<QueryResult<T>> 
         = (build, params) => {
             if (!this.Path){

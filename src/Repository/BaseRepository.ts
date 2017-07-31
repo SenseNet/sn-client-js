@@ -11,12 +11,10 @@ import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi';
 import { IAuthenticationService } from '../Authentication/';
-import { IODataParams, ODataParams } from '../ODataApi';
 import { ContentType } from '../ContentTypes';
 import { Content } from '../Content';
-import { ODataApi } from '../ODataApi';
+import { ODataApi, ODataCollectionResponse, IODataParams, ODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
-import { ODataCollectionResponse } from '../ODataApi';
 import { ContentSerializer } from '../ContentSerializer';
 import { Query, QuerySegment, QueryExpression, QueryResult } from '../Query';
 
@@ -256,6 +254,18 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return this.HandleLoadedContent(serializedContent.Data)
     }
 
+    /**
+     * Executes a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
+     * Usage:
+     * ```ts
+     * repository.RunQuery(q => q.TypeIs(ContentTypes.Folder)
+     *                        .Top(10)).subscribe(res => {
+     *      console.log('Folders count: ', res.Count);
+     *      console.log('Folders: ', res.Result);
+     * } 
+     * ```
+     * @returns {Observable<QueryResult<T>>} An observable with the Query result.
+     */
     RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => Observable<QueryResult<T> > 
         = (build, params) => Query.Exec(build, this, 'Root', params);
 
