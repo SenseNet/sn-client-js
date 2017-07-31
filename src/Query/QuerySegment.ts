@@ -33,14 +33,14 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
         return this.Finialize();
     }
 
-    Type<TNewType extends Content>(newTypeAssertion: { new(...args: any[]): TNewType }) {
+    Type<TNewType extends Content = Content>(newTypeAssertion: { new(...args: any[]): TNewType }) {
         this.stringValue = `+Type:${newTypeAssertion.name}`;
-        return this.Finialize<TReturns | TNewType>()
+        return this.Finialize<TNewType>()
     }
 
-    TypeIs<TNewType extends Content>(newTypeAssertion: { new(...args: any[]): TNewType }) {
+    TypeIs<TNewType extends Content = Content>(newTypeAssertion: { new(...args: any[]): TNewType }) {
         this.stringValue = `+TypeIs:${newTypeAssertion.name}`;
-        return this.Finialize<TReturns | TNewType>()
+        return this.Finialize<TNewType>()
     }
 
     Equals<K extends keyof TReturns['options']>(fieldName: K, value: TReturns[K]){
@@ -72,7 +72,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
 
     private Finialize<TReturnsExtended extends Content = TReturns>(): QueryOperators<TReturnsExtended> {
         this.queryRef.addSegment(this);
-        return (new QueryOperators(this.queryRef) as any) as QueryOperators<TReturnsExtended>;
+        return new QueryOperators<TReturnsExtended>(this.queryRef as any as Query<TReturnsExtended>);
     }
 }
 

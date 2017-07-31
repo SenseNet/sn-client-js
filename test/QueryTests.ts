@@ -24,13 +24,13 @@ export class QueryTests {
 
     @test
     public 'TypeIs syntax'(){
-        const queryInstance = Query.Create('root/a', q => q.TypeIs(ContentTypes.Task));
+        const queryInstance = Query.Create('root/a', q => q.TypeIs<ContentTypes.Task>(ContentTypes.Task));
         expect(queryInstance.toString()).to.be.eq('+TypeIs:Task');
     }
 
     @test
     public 'Type syntax'(){
-        const queryInstance = Query.Create('root/a', q => q.Type(ContentTypes.Task));
+        const queryInstance = Query.Create('root/a', q => q.Type<ContentTypes.Task>(ContentTypes.Task));
         expect(queryInstance.toString()).to.be.eq('+Type:Task');
     }
     
@@ -110,6 +110,12 @@ export class QueryTests {
     public 'LessThan Inclusive'(){
         const queryInstance = Query.Create('root/a', q => q.LessThan('Index', 10, true));
         expect(queryInstance.toString()).to.be.eq('+Index:<=\'10\'')
-    }  
+    }
 
 }
+
+const q = Query.Create('root/1', q => q.TypeIs(ContentTypes.User)
+                                       .And
+                                       .Equals('DisplayName', 'a'))
+
+console.log(q);

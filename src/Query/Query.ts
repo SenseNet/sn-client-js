@@ -5,7 +5,7 @@ import { Observable } from '@reactivex/rxjs';
 
 export class Query<T extends Content = Content>{
     private readonly segments: QuerySegment<T>[] = [];
-    public addSegment(newSegment: QuerySegment<T>) {
+    public addSegment(newSegment: QuerySegment<T> ) {
         this.segments.push(newSegment);
     }
 
