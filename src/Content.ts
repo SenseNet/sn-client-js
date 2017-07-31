@@ -1773,7 +1773,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      */
     Stringify: () => string = () => ContentSerializer.Stringify(this);
 
-    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T> | string, params?: ODataParams) => Observable<QueryResult<T>> 
+    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => Observable<QueryResult<T>> 
         = (build, params) => {
             if (!this.Path){
                 throw new Error('No Content path provided for querying')

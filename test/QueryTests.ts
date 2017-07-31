@@ -97,6 +97,12 @@ export class QueryTests {
     }
 
     @test
+    public 'Term syntax'() {
+        const queryInstance = Query.Create(q => q.Term('test term'));
+        expect(queryInstance.toString()).to.be.eq('test term')
+    }    
+
+    @test
     public 'TypeIs syntax'() {
         const queryInstance = Query.Create(q => q.TypeIs<ContentTypes.Task>(ContentTypes.Task));
         expect(queryInstance.toString()).to.be.eq('+TypeIs:Task');

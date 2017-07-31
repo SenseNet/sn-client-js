@@ -23,14 +23,13 @@ export class Query<T extends Content = Content>{
         return new Query<T>(build);
     }
 
-    public static Exec<TReturns extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<TReturns> | string, 
+    public static Exec<TReturns extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<TReturns>, 
             repository: BaseRepository, 
             path: string,
             params: ODataParams = {}
         ): Observable<QueryResult<TReturns>>{
 
-        const query: string = typeof build === 'function' ? Query.Create(build as any).toString() : build;
-        params.query = query.toString();
+        params.query = Query.Create(build).toString();
         return repository.GetODataApi().Fetch(new ODataRequestOptions({
             path,
             params

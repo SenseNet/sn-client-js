@@ -256,7 +256,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return this.HandleLoadedContent(serializedContent.Data)
     }
 
-    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T> | string, params?: ODataParams) => Observable<QueryResult<T>> 
+    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => Observable<QueryResult<T> > 
         = (build, params) => Query.Exec(build, this, 'Root', params);
 
 }

@@ -41,6 +41,11 @@ export class QuerySegment<TReturns extends Content>{
 // Equals, Not Equals, TypeIs, etc...
 export class QueryExpression<TReturns extends Content> extends QuerySegment<TReturns> {
 
+    Term(term: string){
+        this.stringValue = term;
+        return this.Finialize();
+    }
+    
     InTree(path: string | Content){
         const pathValue = this.escapeValue(isContent(path) && path.Path ? path.Path : path.toString())
         this.stringValue = `+InTree:"${pathValue}"`;
