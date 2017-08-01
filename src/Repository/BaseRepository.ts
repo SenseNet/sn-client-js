@@ -16,7 +16,7 @@ import { Content } from '../Content';
 import { ODataApi, ODataCollectionResponse, IODataParams, ODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ContentSerializer } from '../ContentSerializer';
-import { Query, QuerySegment, QueryExpression, QueryResult } from '../Query';
+import { QuerySegment, QueryExpression, FinializedQuery } from '../Query';
 
 /**
  *
@@ -266,7 +266,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => Observable<QueryResult<T> > 
-        = (build, params) => Query.Exec(build, this, 'Root', params);
+    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
+        = (build, params) => new FinializedQuery(build, this, 'Root', params);
 
 }

@@ -51,7 +51,7 @@ import { ContentSerializer } from './ContentSerializer';
 import { DeferredObject } from './ComplexTypes';
 import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
 import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
-import { Query, QueryExpression, QuerySegment, QueryResult } from './Query';
+import { QueryExpression, QuerySegment, FinializedQuery } from './Query';
 
 /**
  * Typeguard that determines if the specified Object is a DeferredObject
@@ -253,7 +253,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             }
 
             if (!this.referenceFieldCache[f.Name]){
-                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
+                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
             } else {
                 this.referenceFieldCache[f.Name].update(this[f.Name]);
             }
@@ -1798,23 +1798,25 @@ export class Content<T extends IContentOptions = IContentOptions> {
     Stringify: () => string = () => ContentSerializer.Stringify(this);
 
     /**
-     * Runs a content query on a Content instance.
+     * Creates a content query on a Content instance.
      * Usage: 
      * ```ts
-     * content.RunQuery(q => q.TypeIs(ContentTypes.Folder)
-     *                        .Top(10)).subscribe(res => {
+     * const query = content.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
+     *                        .Top(10))
+     * query.Exec().subscribe(res => {
      *      console.log('Folders count: ', res.Count);
      *      console.log('Folders: ', res.Result);
      * } 
+     * 
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    RunQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => Observable<QueryResult<T>> 
+    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
         = (build, params) => {
             if (!this.Path){
                 throw new Error('No Content path provided for querying')
             }
-            return Query.Exec(build, this.repository, this.Path, params)
+            return new FinializedQuery(build, this.repository, this.Path, params);
         };
 }
 

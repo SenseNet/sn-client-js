@@ -96,13 +96,13 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
     }
 
     Query(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>){
-        const innerQuery = Query.Create(build);
+        const innerQuery = new Query(build);
         this.stringValue = `(${innerQuery.toString()})`;
         return this.Finialize();
     }
 
     Not(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>){
-        const innerQuery = Query.Create(build);
+        const innerQuery = new Query(build);
         this.stringValue = `NOT(${innerQuery.toString()})`;
         return this.Finialize();
     }

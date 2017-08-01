@@ -6,6 +6,7 @@ import { MockRepository } from './Mocks/MockRepository';
 import { IContentOptions } from '../src/Content';
 import { ContentTypes } from '../src/SN';
 import { LoginState } from '../src/Authentication/LoginState';
+import { ReferenceFieldSetting } from '../src/FieldSettings';
 
 const expect = Chai.expect;
 
@@ -23,12 +24,12 @@ export class ContentReferenceFieldTests {
             Path: 'root/a/b',
             Name: 'Name',
             Type: 'Task'
-        } as IContentOptions, this.repo);
+        } as IContentOptions, new ReferenceFieldSetting({}), this.repo);
         this.unloadedRef = new ContentReferenceField({
             __deferred: {
                 uri: 'a/b/c'
             }
-        } as DeferredObject, this.repo);
+        } as DeferredObject, new ReferenceFieldSetting({}),  this.repo);
     }
 
     @test

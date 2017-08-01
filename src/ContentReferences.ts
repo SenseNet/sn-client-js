@@ -8,7 +8,10 @@ import { DeferredObject } from './ComplexTypes'
 import { BaseRepository } from './Repository/BaseRepository';
 import { Observable } from '@reactivex/rxjs';
 import { ODataRequestOptions } from './ODataApi/ODataRequestOptions';
-import { ODataParams } from './ODataApi/ODataParams';
+import { ODataParams, IODataParams } from './ODataApi/ODataParams';
+import { ReferenceFieldSetting } from './FieldSettings';
+import { FinializedQuery } from './Query';
+import { ContentTypes } from './SN';
 
 /**
  * Represents a Reference field on a Content object. Example:
@@ -72,7 +75,27 @@ export class ContentReferenceField<T extends Content> {
         }
     }
 
+    public get AllowedTypes(): ({new(...args: any[])})[]{
+        return this.FieldSetting && this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.map(type => ContentTypes[type] as {new(...args)}) || [Content];
+    }
+
+    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams = {} ): FinializedQuery {
+        return new FinializedQuery(q => {
+            return q.Term(term).And.Query(inner => {
+                this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.forEach((root, index, thisArray) => {
+                    
+                    (inner as any) = inner.InTree(root);
+                    if (index < thisArray.length)
+                        inner = (inner as any).Or;
+
+                })
+                return inner;
+            }).Top(top).Skip(skip);
+        }, this.repository, this.contentReference && this.contentReference.Path || '/Root', odataParams);
+    }
+
     constructor(fieldData: DeferredObject | T['options'],
+        public readonly FieldSetting: ReferenceFieldSetting,
         private readonly repository: BaseRepository) {
         this.update(fieldData);
     }
@@ -149,6 +172,7 @@ export class ContentListReferenceField<T extends Content> {
     }
 
     constructor(fieldData: DeferredObject |  T['options'][],
+        public readonly FieldSetting: ReferenceFieldSetting,   
         private readonly repository: BaseRepository) {
         this.update(fieldData);
     }

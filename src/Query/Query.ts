@@ -4,6 +4,14 @@ import { BaseRepository } from '../Repository/BaseRepository';
 import { ODataRequestOptions, ODataParams } from '../ODataApi';
 import { Observable } from '@reactivex/rxjs';
 
+/**
+ * Represents an instance of a Query expression.
+ * Usage example: 
+ * ```ts
+ * const query = new Query(q => q.TypeIs(ContentTypes.Task).And.Equals('DisplayName', 'Test'))
+ * console.log(query.toString());   // the content query expression
+ * ```
+ */
 export class Query<T extends Content = Content>{
     private readonly segments: QuerySegment<T>[] = [];
     
@@ -28,38 +36,49 @@ export class Query<T extends Content = Content>{
     }
 
     /**
-     * Factory method for creating Query instances
-     * @param {QueryExpression<Content>) => QuerySegment<T>} build The Build method
-     * @returns {Query<T>} The constructed Query instance
+     * Method that executes the Query and creates an OData request
+     * @param {BaseRepository} repository The Repository instance
+     * @param {string} path The Path for the query
+     * @param {ODataParams} odataParams Additional OData parameters (like $select, $expand, etc...)
+     * @returns {Observable<QueryResult<TReturns>>} An Observable that will publish the Query result
      */
-    public static Create<T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>): Query<T> {
-        return new Query<T>(build);
+    public Exec(repository: BaseRepository, path: string, odataParams: ODataParams = {}): Observable<QueryResult<T>>{
+        odataParams.query = this.toString();
+        return repository.GetODataApi().Fetch(new ODataRequestOptions({
+                path,
+                params: odataParams
+            }), Content)
+            .map(q => {
+                return {
+                    Result: q.d.results.map(c => repository.HandleLoadedContent<T, T['options']>(c)),
+                    Count: q.d.__count
+                }
+            });
+    }
+}
+
+/**
+ * Represents a finialized Query instance that has a Repository, path and OData Parameters set up
+ */
+export class FinializedQuery<T extends Content = Content> extends Query<T>{
+    constructor(build: (first: QueryExpression<Content>) => void, 
+                        private readonly repository: BaseRepository, 
+                        private readonly path: string, 
+                        private readonly odataParams: ODataParams = {}) {
+        super(build);
     }
 
     /**
-     * Method to create and execute a Query expression
-     * @param {(first: QueryExpression<Content>) => QuerySegment<TReturns>} build The Query builder method
-     * @param {BaseRepository} repository The Repository instance
-     * @param {string} path The Path for the query
-     * @param {ODataParams} params Additional OData parameters (like $select, $expand, etc...)
-     * @returns {Observable<QueryResult<TReturns>>} An Observable that will publish the Query result
+     * Executes the Query expression
+     * Usage:
+     * ```ts
+     * const query = new Query(q => q.TypeIs(ContentTypes.Task).And.Equals('DisplayName', 'Test'))
+     * query.Exec().subscribe(result=>{
+     *  console.log(result);
+     * })
+     * ```
      */
-    public static Exec<TReturns extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<TReturns>, 
-            repository: BaseRepository, 
-            path: string,
-            params: ODataParams = {}
-        ): Observable<QueryResult<TReturns>>{
-
-        params.query = Query.Create(build).toString();
-        return repository.GetODataApi().Fetch(new ODataRequestOptions({
-            path,
-            params
-        }), Content)
-        .map(q => {
-            return {
-                Result: q.d.results.map(c => repository.HandleLoadedContent<TReturns, TReturns['options']>(c)),
-                Count: q.d.__count
-            }
-        });
+    public Exec(): Observable<QueryResult<T>> {
+        return super.Exec(this.repository, this.path, this.odataParams);
     }
 }
