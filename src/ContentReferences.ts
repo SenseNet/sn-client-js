@@ -13,6 +13,42 @@ import { ReferenceFieldSetting } from './FieldSettings';
 import { FinializedQuery } from './Query';
 import { ContentTypes } from './SN';
 
+export abstract class ReferenceAbstract {
+    public readonly abstract FieldSetting: ReferenceFieldSetting;
+    public readonly abstract Repository: BaseRepository;
+
+    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams = {}): FinializedQuery {
+        return new FinializedQuery(q => {
+            let query = q.Term(`${term} `);
+            if (this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.length) {
+                query = query.And.Query(innerTree => {
+                    this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.forEach((root, index, thisArray) => {
+                        (innerTree as any) = innerTree.InTree(root);
+                        if (index < thisArray.length - 1)
+                            innerTree = (innerTree as any).Or;
+                    });
+                    return innerTree;
+                })
+            }
+
+            if (this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.length) {
+                query = query.And.Query(innerTypes => {
+                    this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.length && this.FieldSetting.AllowedTypes.forEach((type, index, thisArray) => {
+                        const contentType = ContentTypes[type] as { new(...arg) };
+                        (innerTypes as any) = innerTypes.Type(contentType);
+                        if (index < thisArray.length - 1)
+                            innerTypes = (innerTypes as any).Or;
+                    })
+                    return innerTypes;
+                })
+            }
+            return query.Top(top).Skip(skip);
+
+        }, this.Repository, '/Root', odataParams);
+    }
+
+}
+
 /**
  * Represents a Reference field on a Content object. Example:
  * ```ts
@@ -24,7 +60,7 @@ import { ContentTypes } from './SN';
  * ```
  * 
  */
-export class ContentReferenceField<T extends Content> {
+export class ContentReferenceField<T extends Content> extends ReferenceAbstract {
     private contentReference: T;
     private referenceUrl: string;
 
@@ -32,7 +68,7 @@ export class ContentReferenceField<T extends Content> {
      * Updates the reference value to another Content
      * @param {T} content The new Content value
      */
-    SetContent(content: T){
+    SetContent(content: T) {
         this.contentReference = content;
     }
 
@@ -45,9 +81,9 @@ export class ContentReferenceField<T extends Content> {
         if (this.contentReference !== undefined) {
             return Observable.of(this.contentReference);
         }
-        const request = this.repository.GetODataApi().Get(new ODataRequestOptions({path: this.referenceUrl, params: odataOptions}))
+        const request = this.Repository.GetODataApi().Get(new ODataRequestOptions({ path: this.referenceUrl, params: odataOptions }))
             .map(r => {
-                return r && r.d && this.repository.HandleLoadedContent<T, T['options']>(r.d);
+                return r && r.d && this.Repository.HandleLoadedContent<T, T['options']>(r.d);
             }).share();
         request.subscribe(c => {
             this.contentReference = c || null;
@@ -69,34 +105,16 @@ export class ContentReferenceField<T extends Content> {
      */
     public update(fieldData: DeferredObject | T['options']) {
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', '');
+            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken + '/', '');
         } else if (isContentOptions(fieldData)) {
-            this.contentReference = this.repository.HandleLoadedContent(fieldData);
+            this.contentReference = this.Repository.HandleLoadedContent(fieldData);
         }
-    }
-
-    public get AllowedTypes(): ({new(...args: any[])})[]{
-        return this.FieldSetting && this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.map(type => ContentTypes[type] as {new(...args)}) || [Content];
-    }
-
-    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams = {} ): FinializedQuery {
-        return new FinializedQuery(q => {
-            return q.Term(term).And.Query(inner => {
-                this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.forEach((root, index, thisArray) => {
-                    
-                    (inner as any) = inner.InTree(root);
-                    if (index < thisArray.length)
-                        inner = (inner as any).Or;
-
-                })
-                return inner;
-            }).Top(top).Skip(skip);
-        }, this.repository, this.contentReference && this.contentReference.Path || '/Root', odataParams);
     }
 
     constructor(fieldData: DeferredObject | T['options'],
         public readonly FieldSetting: ReferenceFieldSetting,
-        private readonly repository: BaseRepository) {
+        public readonly Repository: BaseRepository) {
+        super();
         this.update(fieldData);
     }
 }
@@ -112,7 +130,7 @@ export class ContentReferenceField<T extends Content> {
  * ```
  * 
  */
-export class ContentListReferenceField<T extends Content> {
+export class ContentListReferenceField<T extends Content> extends ReferenceAbstract {
     private contentReferences: T[];
 
     private referenceUrl: string;
@@ -121,10 +139,10 @@ export class ContentListReferenceField<T extends Content> {
      * Updates the reference list to another Content list
      * @param {T[]} content The new list of content
      */
-    SetContent(content: T[]){
+    SetContent(content: T[]) {
         this.contentReferences = content;
     }
-    
+
 
     /**
      * Gets the current referenced values. 
@@ -136,13 +154,13 @@ export class ContentListReferenceField<T extends Content> {
             return Observable.of(this.contentReferences);
         }
         //
-        const request = this.repository.GetODataApi().Fetch(new ODataRequestOptions({
+        const request = this.Repository.GetODataApi().Fetch(new ODataRequestOptions({
             path: this.referenceUrl,
             params: odataOptions
         }), Content).map(resp => {
-            return resp && resp.d && resp.d.results.map(c => this.repository.HandleLoadedContent<T, any>(c)) || [];
+            return resp && resp.d && resp.d.results.map(c => this.Repository.HandleLoadedContent<T, any>(c)) || [];
         }).share();
-        
+
         request.subscribe(c => {
             this.contentReferences = c
         });
@@ -165,15 +183,16 @@ export class ContentListReferenceField<T extends Content> {
      */
     public update(fieldData: DeferredObject | T['options'][]) {
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri.replace(this.repository.Config.ODataToken + '/', ''); ;
+            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken + '/', '');
         } else if (isContentOptionList(fieldData)) {
-            this.contentReferences = fieldData.map(f => this.repository.HandleLoadedContent(f));
+            this.contentReferences = fieldData.map(f => this.Repository.HandleLoadedContent(f));
         }
     }
 
-    constructor(fieldData: DeferredObject |  T['options'][],
-        public readonly FieldSetting: ReferenceFieldSetting,   
-        private readonly repository: BaseRepository) {
+    constructor(fieldData: DeferredObject | T['options'][],
+        public readonly FieldSetting: ReferenceFieldSetting,
+        public readonly Repository: BaseRepository) {
+        super();
         this.update(fieldData);
     }
 }
