@@ -35,7 +35,7 @@ export abstract class ReferenceAbstract {
      */
     public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams = {}): FinializedQuery {
         return new FinializedQuery(q => {
-            let query = q.Equals('_Text', term);
+            let query = q.Equals('_Text', `*${term}*`);
             if (this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.length) {
                 query = query.And.Query(innerTree => {
                     this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.forEach((root, index, thisArray) => {

@@ -99,7 +99,7 @@ export class ContentReferenceFieldTests {
     @test
     public 'Search query should contain the term and default parameters'(){
         const search = this.unloadedRef.Search('test-term');
-        expect(search.toString()).to.be.eq('_Text:\'test-term\' .TOP:10 .SKIP:0');
+        expect(search.toString()).to.be.eq('_Text:\'*test-term*\' .TOP:10 .SKIP:0');
     }
 
 
@@ -107,13 +107,13 @@ export class ContentReferenceFieldTests {
     public 'Search query should contain selection roots if available'(){
         this.unloadedRef.FieldSetting.SelectionRoots = ['Root/Example1', 'Root/Example2'];
         const search = this.unloadedRef.Search('test-term');
-        expect(search.toString()).to.be.eq('_Text:\'test-term\' AND (InTree:"Root/Example1" OR InTree:"Root/Example2") .TOP:10 .SKIP:0');
+        expect(search.toString()).to.be.eq('_Text:\'*test-term*\' AND (InTree:"Root/Example1" OR InTree:"Root/Example2") .TOP:10 .SKIP:0');
     }
 
     @test
     public 'Search query should contain allowed types if available'(){
         this.unloadedRef.FieldSetting.AllowedTypes = ['Task', 'Folder'];
         const search = this.unloadedRef.Search('test-term');
-        expect(search.toString()).to.be.eq('_Text:\'test-term\' AND (Type:Task OR Type:Folder) .TOP:10 .SKIP:0');
+        expect(search.toString()).to.be.eq('_Text:\'*test-term*\' AND (Type:Task OR Type:Folder) .TOP:10 .SKIP:0');
     }        
 }
