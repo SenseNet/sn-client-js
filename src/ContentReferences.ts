@@ -121,7 +121,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
      */
     public update(fieldData: DeferredObject | T['options']) {
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken + '/', '');
+            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isContentOptions(fieldData)) {
             this.contentReference = this.Repository.HandleLoadedContent(fieldData);
         }
@@ -199,7 +199,7 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      */
     public update(fieldData: DeferredObject | T['options'][]) {
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken + '/', '');
+            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isContentOptionList(fieldData)) {
             this.contentReferences = fieldData.map(f => this.Repository.HandleLoadedContent(f));
         }
