@@ -27,7 +27,7 @@ export class QuerySegment<TReturns extends Content>{
      * @param {boolean} reverse Sort in reverse order, false by default
      */
     public Sort<K extends keyof TReturns['options']>(field: K, reverse: boolean = false){
-        this.stringValue = `.${reverse ? 'REVERSESORT' : 'SORT'}:'${field}'`;
+        this.stringValue = ` .${reverse ? 'REVERSESORT' : 'SORT'}:'${field}'`;
         return this.FinializeSegment();
     }
 
@@ -36,7 +36,7 @@ export class QuerySegment<TReturns extends Content>{
      * @param {number} topCount The TOP item count
      */
     public Top(topCount: number){
-        this.stringValue = `.TOP:${topCount}`;
+        this.stringValue = ` .TOP:${topCount}`;
         return this.FinializeSegment();
     }    
 
@@ -46,7 +46,7 @@ export class QuerySegment<TReturns extends Content>{
      */
 
     public Skip(skipCount: number){
-        this.stringValue = `.SKIP:${skipCount}`;
+        this.stringValue = ` .SKIP:${skipCount}`;
         return this.FinializeSegment();
     }  
 
@@ -90,7 +90,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      */
     InTree(path: string | Content){
         const pathValue = this.escapeValue(isContent(path) && path.Path ? path.Path : path.toString())
-        this.stringValue = `+InTree:"${pathValue}"`;
+        this.stringValue = `InTree:"${pathValue}"`;
         return this.Finialize();
     }
 
@@ -101,7 +101,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      */
     InFolder(path: string | Content){
         const pathValue = this.escapeValue(isContent(path) && path.Path ? path.Path : path.toString())
-        this.stringValue = `+InFolder:"${pathValue}"`;
+        this.stringValue = `InFolder:"${pathValue}"`;
         return this.Finialize();
     }
 
@@ -112,7 +112,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      */
 
     Type<TNewType extends Content = Content>(newTypeAssertion: { new(...args: any[]): TNewType }) {
-        this.stringValue = `+Type:${newTypeAssertion.name}`;
+        this.stringValue = `Type:${newTypeAssertion.name}`;
         return this.Finialize<TNewType>()
     }
 
@@ -122,7 +122,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      * @returns { QueryOperator<TNewType> } The Next query operator (fluent)
      */   
     TypeIs<TNewType extends Content = Content>(newTypeAssertion: { new(...args: any[]): TNewType }) {
-        this.stringValue = `+TypeIs:${newTypeAssertion.name}`;
+        this.stringValue = `TypeIs:${newTypeAssertion.name}`;
         return this.Finialize<TNewType>()
     }
 
@@ -133,7 +133,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */    
     Equals<K extends keyof TReturns['options']>(fieldName: K | '_Text', value: TReturns[K]){
-        this.stringValue = `+${fieldName}:'${this.escapeValue(value)}'`;
+        this.stringValue = `${fieldName}:'${this.escapeValue(value)}'`;
         return this.Finialize();
     }
 
@@ -145,7 +145,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      */    
     
     NotEquals<K extends keyof TReturns['options']>(fieldName: K, value: TReturns[K]){
-        this.stringValue = `+NOT(${fieldName}:'${this.escapeValue(value)}')`;
+        this.stringValue = `NOT(${fieldName}:'${this.escapeValue(value)}')`;
         return this.Finialize();
     }    
 
@@ -158,7 +158,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      * @param { boolean } maximumInclusive Upper limit will be inclusive / exclusive
      */    
     Between<K extends keyof TReturns['options']>(fieldName: K, minValue: TReturns[K], maxValue: TReturns[K], minimumInclusive: boolean = false, maximumInclusive: boolean = false){
-        this.stringValue = `+${fieldName}:${minimumInclusive ? '[' : '{'}'${this.escapeValue(minValue)}' TO '${this.escapeValue(maxValue)}'${maximumInclusive ? ']' : '}'}`;
+        this.stringValue = `${fieldName}:${minimumInclusive ? '[' : '{'}'${this.escapeValue(minValue)}' TO '${this.escapeValue(maxValue)}'${maximumInclusive ? ']' : '}'}`;
         return this.Finialize();
     }
 
@@ -170,7 +170,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      * @param { boolean } minimumInclusive Lower limit will be inclusive / exclusive 
      */
     GreatherThan<K extends keyof TReturns['options']>(fieldName: K, minValue: TReturns[K], minimumInclusive: boolean = false){
-        this.stringValue = `+${fieldName}:>${minimumInclusive ? '=' : ''}'${this.escapeValue(minValue)}'`;
+        this.stringValue = `${fieldName}:>${minimumInclusive ? '=' : ''}'${this.escapeValue(minValue)}'`;
         return this.Finialize();
     }
     
@@ -182,7 +182,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      * @param { boolean } maximumInclusive Upper limit will be inclusive / exclusive 
      */
     LessThan<K extends keyof TReturns['options']>(fieldName: K, maxValue: TReturns[K], maximumInclusive: boolean = false){
-        this.stringValue = `+${fieldName}:<${maximumInclusive ? '=' : ''}'${this.escapeValue(maxValue)}'`;
+        this.stringValue = `${fieldName}:<${maximumInclusive ? '=' : ''}'${this.escapeValue(maxValue)}'`;
         return this.Finialize();
     }
 
