@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "2.1.0",
+  "version": "2.1.1-development.2",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "dist/src/SN.js",
   "files": [
@@ -22,9 +22,8 @@
     "semantic-release": "semantic-release pre && semantic-release post",
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
-    "typedoc:md": "gulp typedoc:md",
-    "typedoc:html": "gulp typedoc",
-    "publish:development": "npm t && npm run typedoc:html && npm publish --tag development"
+    "typedoc": "./node_modules/.bin/typedoc --tsconfig ./tsconfig.typedoc.json --out documentation --excludePrivate --theme default --readme readme.md",
+    "publish:development": "npm t && npm run typedoc && npm publish --tag development"
   },
   "repository": {
     "type": "git",
@@ -44,7 +43,10 @@
     "url": "https://github.com/SenseNet/sn-client-js/issues"
   },
   "nyc": {
-    "exclude": ["dist/test/**/*.*", "dist/src/**/I*.js"],
+    "exclude": [
+      "dist/test/**/*.*",
+      "dist/src/**/I*.js"
+    ],
     "include": "dist/src/**/*.*",
     "check-coverage": true,
     "cache": true,
@@ -72,10 +74,6 @@
     "cz-conventional-changelog": "2.0.0",
     "del": "3.0.0",
     "fs-then-native": "2.0.0",
-    "gulp": "3.9.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-run": "^1.7.1",
-    "gulp-typedoc": "2.0.2",
     "highlight.js": "^9.12.0",
     "istanbul": "^0.4.5",
     "jsdoc-to-markdown": "^3.0.0",
@@ -90,12 +88,11 @@
     "through2": "^2.0.3",
     "ts-json-properties": "^1.2.0",
     "tslint": "^5.4.3",
-    "typedoc": "^0.7.0",
+    "typedoc": "^0.8.0",
     "typedoc-default-themes": "^0.5.0",
     "typedoc-md-theme": "^1.0.1",
     "typedoc-plugin-external-module-name": "^1.0.9",
-    "typescript": "2.4.2",
-    "universalify": "^0.1.0"
+    "typescript": "2.4.2"
   },
   "czConfig": {
     "path": "node_modules/cz-conventional-changelog"

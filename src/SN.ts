@@ -1,3 +1,10 @@
+/**
+ * @module sn-client-js
+ * @preferred
+ * 
+ * @description The main entry module of the package
+ */ /** */
+
 import * as Authentication from './Authentication';
 import * as ComplexTypes from './ComplexTypes';
 import * as Repository from './Repository';

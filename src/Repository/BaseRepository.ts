@@ -1,7 +1,5 @@
 /**
  * @module Repository
- * @preferred
- * @description This module stores the Repository (entry-point to sense NET API) related classes, interfaces and functions.
  */
 /** */
 

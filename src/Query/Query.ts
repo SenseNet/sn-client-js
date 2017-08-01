@@ -1,8 +1,5 @@
 /**
  * @module Query
- * @preferred
- * 
- * @description Classes and Methods for creating, manipulating and executing content queries in sensenet ECM.
  * */ /** */
 
 import { Content } from '../Content';
