@@ -132,7 +132,7 @@ export class QueryExpression<TReturns extends Content> extends QuerySegment<TRet
      * @param { TReturns[K] } value The value that will be checked. You can use '?' and '*' wildcards
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */    
-    Equals<K extends keyof TReturns['options']>(fieldName: K, value: TReturns[K]){
+    Equals<K extends keyof TReturns['options']>(fieldName: K | '_Text', value: TReturns[K]){
         this.stringValue = `+${fieldName}:'${this.escapeValue(value)}'`;
         return this.Finialize();
     }

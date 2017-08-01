@@ -17,9 +17,25 @@ export abstract class ReferenceAbstract {
     public readonly abstract FieldSetting: ReferenceFieldSetting;
     public readonly abstract Repository: BaseRepository;
 
+
+    /**
+     * Executes a search query to lookup possible values to the reference field
+     * @param { string } term This term will be searched in the _Text field
+     * @param { number } top The Top value for paging
+     * @param { number } skip The Skip value for paging
+     * @param { IOdataParams } odataParams The additional OData params (like select, expand, etc...)
+     * @returns { FinializedQuery } The FinializedQuery instance that can be executed
+     * 
+     * Example: 
+     * ```ts
+     * reference.Search('Term').Exec().subscribe(hits=>{
+     *      console.log(hits);
+     * });
+     * ```
+     */
     public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams = {}): FinializedQuery {
         return new FinializedQuery(q => {
-            let query = q.Term(`${term} `);
+            let query = q.Equals('_Text', term);
             if (this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.length) {
                 query = query.And.Query(innerTree => {
                     this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.forEach((root, index, thisArray) => {
