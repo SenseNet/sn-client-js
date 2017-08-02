@@ -48,15 +48,17 @@ export abstract class ReferenceAbstract {
             }
 
             if (this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.length) {
-                query = query.And.Query(innerTypes => {
-                    this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.length && this.FieldSetting.AllowedTypes.forEach((type, index, thisArray) => {
-                        const contentType = ContentTypes[type] as { new(...arg) };
-                        (innerTypes as any) = innerTypes.Type(contentType);
-                        if (index < thisArray.length - 1)
-                            innerTypes = (innerTypes as any).Or;
+                const foundTypes = this.FieldSetting.AllowedTypes.map(type => ContentTypes[type] as {new(...args: any[])}).filter(a => a !== undefined);
+                if (foundTypes.length > 0){
+                    query = query.And.Query(innerTypes => {
+                        foundTypes.forEach((type, index, thisArray) => {
+                            (innerTypes as any) = innerTypes.Type(type);
+                            if (index < thisArray.length - 1)
+                                innerTypes = (innerTypes as any).Or;
+                        })
+                        return innerTypes;
                     })
-                    return innerTypes;
-                })
+                }
             }
             return query.Top(top).Skip(skip);
 
