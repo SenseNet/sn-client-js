@@ -11,6 +11,7 @@ import * as Repository from './Repository';
 import * as ContentTypes from './ContentTypes';
 export * from './Content';
 export * from './ContentSerializer';
+export * from './ContentReferences'
 import * as FieldSettings from './FieldSettings';
 export * from './Retrier';
 import * as Schemas from './Schemas';

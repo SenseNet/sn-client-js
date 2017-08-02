@@ -244,4 +244,27 @@ export class QueryTests {
         expect(queryInstance.toString()).to.be.eq(' .SKIP:10');
     }
 
+    @test
+    public 'Issue Example output'(){
+        const query = new Query(q =>
+            q.TypeIs<ContentTypes.Task>(ContentTypes.Task)   // adds '+TypeIs:Document' and Typescript type cast
+            .And
+            .Equals('DisplayName', 'Unicorn')	// adds +Title:Unicorn (TBD: fuzzy/Proximity)
+            .And
+            .Between('ModificationDate', '2017-01-01T00:00:00', '2017-02-01T00:00:00')
+            .Or
+            .Query(sub => sub //Grouping
+                .NotEquals('Approvable', true)
+                .And
+                .NotEquals('Description', '*alma*') //Contains with wildcards
+            )
+            .Sort('DisplayName')
+            .Top(5)			// adds .TOP:5
+            .Skip(10)		// adds .SKIP:10
+        );
+
+        expect(query.toString()).to.be
+            .eq("TypeIs:Task AND DisplayName:'Unicorn' AND ModificationDate:{'2017-01-01T00\\:00\\:00' TO '2017-02-01T00\\:00\\:00'} OR (NOT(Approvable:'true') AND NOT(Description:'*alma*')) .SORT:'DisplayName' .TOP:5 .SKIP:10")
+    }
+
 }
