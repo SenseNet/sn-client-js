@@ -85,21 +85,6 @@ export const isContentOptionList = (objectList: any[]): objectList is IContentOp
     return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
 }
 
-/**
- * Typeguard that determines if the specified Object is a ReferenceField instance
- * @param field The object that needs to be checked
- */
-export const isReferenceField = (field: any): field is ContentReferenceField<Content> => {
-    return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function' || false;
-}
-
-/**
- * Typeguard that determines if the specified Object is a ReferenceListField instance
- * @param field The object that needs to be checked
- */
-export const isReferenceListField = (field: any): field is ContentListReferenceField<Content> => {
-    return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function' || false;
-}
 
 export class Content<T extends IContentOptions = IContentOptions> {
 
@@ -145,7 +130,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     private _lastSavedFields: T = {} as T;
     protected UpdateLastSavedFields(newFields: T) {
-        this._lastSavedFields = newFields;
+        Object.assign(this._lastSavedFields, newFields);
         this._isSaved = true;
         Object.assign(this, newFields);
         this.updateReferenceFields();
@@ -167,10 +152,15 @@ export class Content<T extends IContentOptions = IContentOptions> {
         for (let field in this.GetFields()) {
             const currentField = (this as any)[field];
             if (currentField !== this._lastSavedFields[field]) {
-                if (isReferenceField(currentField)) {
-                    changedFields[field] = currentField.getValue();
-                } else if (isReferenceListField(currentField)) {
-                    changedFields[field] = currentField.getValue();
+                
+                if (currentField instanceof ContentReferenceField) {
+                    if (currentField.IsDirty){
+                        changedFields[field] = currentField.getValue();
+                    }
+                } else if (currentField instanceof ContentListReferenceField) {
+                    if (currentField.IsDirty){
+                        changedFields[field] = currentField.getValue();
+                    }
                 } else {
                     changedFields[field] = (this as any)[field]
                 }

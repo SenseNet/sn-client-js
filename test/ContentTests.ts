@@ -3,7 +3,7 @@ import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
 import { MockRepository } from './Mocks';
 import { LoginState } from '../src/Authentication/LoginState';
-import { isDeferred, isContentOptions, isContentOptionList, isReferenceField, isReferenceListField } from '../src/Content';
+import { isDeferred, isContentOptions, isContentOptionList } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';
 const expect = Chai.expect;
 
@@ -88,50 +88,7 @@ describe('Content', () => {
             });
         });
 
-
-        describe('#isReferenceField', () => {
-            it('should return true if a field contains a getValue function and a GetContent function', () => {
-                const isReferenceFieldValue = isReferenceField({
-                    getValue: () => { },
-                    GetContent: () => { }
-                });
-                expect(isReferenceFieldValue).to.be.eq(true);
-            });
-            it('should return false if an object does not have a getValue function', () => {
-                const isReferenceFieldValue = isReferenceField({
-                    GetContent: () => { }
-                });
-                expect(isReferenceFieldValue).to.be.eq(false);
-            });
-            it('should return false if an object does not have a GetContent function', () => {
-                const isReferenceFieldValue = isReferenceField({
-                    getValue: () => { },
-                });
-                expect(isReferenceFieldValue).to.be.eq(false);
-            });
-        });
-
-        describe('#isReferenceListField', () => {
-            it('should return true if a field contains a getValue function and a GetContents function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    getValue: () => { },
-                    GetContents: () => { }
-                });
-                expect(isReferenceListFieldValue).to.be.eq(true);
-            });
-            it('should return false if an object does not have a getValue function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    GetContents: () => { }
-                });
-                expect(isReferenceListFieldValue).to.be.eq(false);
-            });
-            it('should return false if an object does not have a GetContent function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    getValue: () => { },
-                });
-                expect(isReferenceListFieldValue).to.be.eq(false);
-            });
-        });
+        
 
     });
 
@@ -233,12 +190,12 @@ describe('Content', () => {
             }
             repo.httpProviderRef.setResponse({ d: options });
             contentSaved.ReloadFields('Workspace').subscribe(w => {
-                contentSaved.Workspace && contentSaved.Workspace.update({
+                contentSaved.Workspace && contentSaved.Workspace.SetContent(repo.HandleLoadedContent({
                     Id: 92635,
                     Path: 'Root/MyWorkspace',
                     Type: 'Workspace',
                     Name: 'ExampleWorkspace'
-                });
+                }, ContentTypes.Workspace));
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
                 expect(changes.Workspace && changes.Workspace).to.be.eq('Root/MyWorkspace');
@@ -254,7 +211,7 @@ describe('Content', () => {
 
             repo.httpProviderRef.setResponse({ d: options });
             contentSaved.ReloadFields('Versions').subscribe(w => {
-                contentSaved.Versions && contentSaved.Versions.update([options]);
+                contentSaved.Versions && contentSaved.Versions.SetContent([contentSaved]);
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
                 expect(changes.Versions && changes.Versions[0]).to.be.eq(options.Path);

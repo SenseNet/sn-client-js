@@ -17,6 +17,10 @@ export abstract class ReferenceAbstract {
     public readonly abstract FieldSetting: ReferenceFieldSetting;
     public readonly abstract Repository: BaseRepository;
 
+    protected isDirty: boolean = false;
+    public get IsDirty(): boolean{
+        return this.isDirty;
+    }
 
     /**
      * Executes a search query to lookup possible values to the reference field
@@ -88,6 +92,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
      */
     SetContent(content: T) {
         this.contentReference = content;
+        this.isDirty = true;
     }
 
     /**
@@ -127,6 +132,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
         } else if (isContentOptions(fieldData)) {
             this.contentReference = this.Repository.HandleLoadedContent(fieldData);
         }
+        this.isDirty = false;
     }
 
     constructor(fieldData: DeferredObject | T['options'],
@@ -159,6 +165,7 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      */
     SetContent(content: T[]) {
         this.contentReferences = content;
+        this.isDirty = true;
     }
 
 
@@ -205,6 +212,8 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
         } else if (isContentOptionList(fieldData)) {
             this.contentReferences = fieldData.map(f => this.Repository.HandleLoadedContent(f));
         }
+
+        this.isDirty = false;
     }
 
     constructor(fieldData: DeferredObject | T['options'][],
