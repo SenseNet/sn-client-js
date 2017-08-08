@@ -64,10 +64,10 @@
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",
-    "@types/chai": "4.0.1",
+    "@types/chai": "4.0.2",
     "@types/mocha": "2.2.41",
     "@types/node": "^8.0.0",
-    "chai": "4.1.0",
+    "chai": "4.1.1",
     "commitizen": "2.9.6",
     "mocha": "3.5.0",
     "mocha-typescript": "^1.0.23",
