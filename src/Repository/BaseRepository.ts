@@ -256,8 +256,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * Executes a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
      * Usage:
      * ```ts
-     * repository.RunQuery(q => q.TypeIs(ContentTypes.Folder)
-     *                        .Top(10)).subscribe(res => {
+     * const query = repository.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
+     *                        .Top(10))
+     * 
+     * query.Exec().subscribe(res => {
      *      console.log('Folders count: ', res.Count);
      *      console.log('Folders: ', res.Result);
      * } 
