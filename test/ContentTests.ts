@@ -3,7 +3,7 @@ import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
 import { MockRepository } from './Mocks';
 import { LoginState } from '../src/Authentication/LoginState';
-import { isDeferred, isContentOptions, isContentOptionList, isReferenceField, isReferenceListField } from '../src/Content';
+import { isDeferred, isContentOptions, isContentOptionList } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';
 const expect = Chai.expect;
 
@@ -88,50 +88,7 @@ describe('Content', () => {
             });
         });
 
-
-        describe('#isReferenceField', () => {
-            it('should return true if a field contains a getValue function and a GetContent function', () => {
-                const isReferenceFieldValue = isReferenceField({
-                    getValue: () => { },
-                    GetContent: () => { }
-                });
-                expect(isReferenceFieldValue).to.be.eq(true);
-            });
-            it('should return false if an object does not have a getValue function', () => {
-                const isReferenceFieldValue = isReferenceField({
-                    GetContent: () => { }
-                });
-                expect(isReferenceFieldValue).to.be.eq(false);
-            });
-            it('should return false if an object does not have a GetContent function', () => {
-                const isReferenceFieldValue = isReferenceField({
-                    getValue: () => { },
-                });
-                expect(isReferenceFieldValue).to.be.eq(false);
-            });
-        });
-
-        describe('#isReferenceListField', () => {
-            it('should return true if a field contains a getValue function and a GetContents function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    getValue: () => { },
-                    GetContents: () => { }
-                });
-                expect(isReferenceListFieldValue).to.be.eq(true);
-            });
-            it('should return false if an object does not have a getValue function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    GetContents: () => { }
-                });
-                expect(isReferenceListFieldValue).to.be.eq(false);
-            });
-            it('should return false if an object does not have a GetContent function', () => {
-                const isReferenceListFieldValue = isReferenceListField({
-                    getValue: () => { },
-                });
-                expect(isReferenceListFieldValue).to.be.eq(false);
-            });
-        });
+        
 
     });
 
@@ -233,12 +190,12 @@ describe('Content', () => {
             }
             repo.httpProviderRef.setResponse({ d: options });
             contentSaved.ReloadFields('Workspace').subscribe(w => {
-                contentSaved.Workspace && contentSaved.Workspace.update({
+                contentSaved.Workspace && contentSaved.Workspace.SetContent(repo.HandleLoadedContent({
                     Id: 92635,
                     Path: 'Root/MyWorkspace',
                     Type: 'Workspace',
                     Name: 'ExampleWorkspace'
-                });
+                }, ContentTypes.Workspace));
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
                 expect(changes.Workspace && changes.Workspace).to.be.eq('Root/MyWorkspace');
@@ -254,10 +211,10 @@ describe('Content', () => {
 
             repo.httpProviderRef.setResponse({ d: options });
             contentSaved.ReloadFields('Versions').subscribe(w => {
-                contentSaved.Versions && contentSaved.Versions.update([options]);
+                contentSaved.Versions && contentSaved.Versions.SetContent([contentSaved]);
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
-                expect(changes.Versions && changes.Versions[0]).to.be.eq(options.Path);
+                expect(changes.Versions && (changes.Versions as any)[0]).to.be.eq(options.Path);
 
                 done();
             }, err => done)
@@ -911,7 +868,7 @@ describe('Content', () => {
         it('should throw Error when no Id provided', () => {
             const invalidContent = repo.HandleLoadedContent({ Name: 'Test' }, ContentTypes.Task);
             expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id or Path has to be provided')
-        });
+        });      
 
         it('should throw Error when no Id provided', (done) => {
             repo.Authentication.stateSubject.next(LoginState.Authenticated);
@@ -1298,5 +1255,40 @@ describe('Content', () => {
             expect(() => { return descendantWithoutPath.IsDescendantOf(ancestor) }).to.throw();
         });
     });
+
+    describe('#GetFullPath', () => {
+        it('should throw if Content is not saved', () => {
+            expect(() => {
+                content.GetFullPath();
+            }).to.throw('Content has to be saved to get the full Path')
+        });
+
+        it('should throw if Content has no Id AND Path', () => {
+            const c = repo.HandleLoadedContent({
+                Name: 'Test'
+            })
+            expect(() => {
+                c.GetFullPath();
+            }).to.throw('Content Id or Path has to be provided to get the full Path')
+        });
+
+        it('should return by Id if possible', () => {
+            const c = repo.HandleLoadedContent({
+                Name: 'Test',
+                Id: 1,
+                Path: 'Root/Test'
+            })
+            expect(c.GetFullPath()).to.be.eq('/content(1)');
+        });
+
+        
+        it('should return by Path if Id is not available possible', () => {
+            const c = repo.HandleLoadedContent({
+                Name: 'Test',
+                Path: 'Root/Test'
+            })
+            expect(c.GetFullPath()).to.be.eq("Root('Test')");
+        });    
+    })
 
 });

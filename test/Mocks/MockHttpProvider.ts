@@ -1,7 +1,7 @@
 /**
- * @module HttpProviders
- *//** */
-
+ * @module Mocks
+ */ /** */
+ 
 import { Observable, ReplaySubject, AjaxRequest } from '@reactivex/rxjs';
 import { BaseHttpProvider } from '../../src/HttpProviders';
 

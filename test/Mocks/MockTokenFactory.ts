@@ -1,3 +1,7 @@
+/**
+ * @module Mocks
+ */ /** */
+ 
 import { Token, ITokenPayload } from '../../src/Authentication';
 
 export class MockTokenFactory {

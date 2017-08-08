@@ -1,7 +1,5 @@
 /**
  * @module Repository
- * @preferred
- * @description This module stores the Repository (entry-point to sense NET API) related classes, interfaces and functions.
  */
 /** */
 
@@ -11,13 +9,12 @@ import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi';
 import { IAuthenticationService } from '../Authentication/';
-import { IODataParams, ODataParams } from '../ODataApi';
 import { ContentType } from '../ContentTypes';
 import { Content } from '../Content';
-import { ODataApi } from '../ODataApi';
+import { ODataApi, ODataCollectionResponse, IODataParams, ODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
-import { ODataCollectionResponse } from '../ODataApi';
 import { ContentSerializer } from '../ContentSerializer';
+import { QuerySegment, QueryExpression, FinializedQuery } from '../Query';
 
 /**
  *
@@ -253,7 +250,23 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             throw new Error('Content belongs to a different Repository.');
         }
         return this.HandleLoadedContent(serializedContent.Data)
-
     }
+
+    /**
+     * Executes a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
+     * Usage:
+     * ```ts
+     * const query = repository.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
+     *                        .Top(10))
+     * 
+     * query.Exec().subscribe(res => {
+     *      console.log('Folders count: ', res.Count);
+     *      console.log('Folders: ', res.Result);
+     * } 
+     * ```
+     * @returns {Observable<QueryResult<T>>} An observable with the Query result.
+     */
+    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
+        = (build, params) => new FinializedQuery(build, this, 'Root', params);
 
 }

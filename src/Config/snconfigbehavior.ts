@@ -1,7 +1,5 @@
 /**
  * @module Config
- * @preferred
- * @description Library module for storing configuration related classes and interfaces.
  *//** */
 
 
