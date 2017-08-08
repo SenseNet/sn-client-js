@@ -4,28 +4,30 @@ import { Collection } from '../src/Collection';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
 import { ContentTypes } from '../src/SN';
+import { LoginState } from '../src/Authentication/LoginState';
 const expect = Chai.expect;
 
 describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
-  let Repo = new MockRepository();
+  let Repo: MockRepository;
 
   beforeEach(() => {
+    Repo = new MockRepository()
     children = [
-      Content.Create({
+      Repo.HandleLoadedContent({
         Id: 1,
         Name: 'test1',
         Path: '/'
-      }, Content, Repo),
-      Content.Create({
+      }, Content),
+      Repo.HandleLoadedContent({
         Id: 2,
         Name: 'test2'
-      }, Content, Repo)];
+      }, Content)];
 
 
-    collection = new Collection(children, Repo, Content);
+    collection = new Collection(children, Repo);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
   });
   describe('#Items()', () => {
@@ -61,6 +63,16 @@ describe('Collection', () => {
       let content = Content.Create({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, ContentTypes.Task, Repo);
       expect(collection.Add(content.options)).to.be.instanceof(Observable);
     });
+
+    it('Observable should be resolved', (done) => {
+      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, ContentTypes.Task);
+      Repo.Authentication.stateSubject.next(LoginState.Authenticated);
+      Repo.httpProviderRef.setResponse({ d: content.GetFields() });
+      collection.Add(content.options).subscribe(r => {
+        done()
+      }, done)
+    });    
+
   });
   describe('#Remove()', () => {
     it('should return an observable', () => {
@@ -129,5 +141,5 @@ describe('Collection', () => {
       collection['Path'] = '/workspaces/project';
       expect(collection.Read('Task')).to.be.instanceof(Observable);
     });
-  });  
+  });
 });
