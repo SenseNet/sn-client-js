@@ -173,6 +173,22 @@ There are some Event *Observables* on the **Repository** level which you can sub
  - OnCustomActionFailed
 
 
+### Content Queries
+You can run queries from a *repository instance* or from a *content instance*. There is a fluent API for creating type safe and valid *Content Queries*
+```ts
+const query = repository.CreateQuery(q => 
+	q.TypeIs(ContentTypes.Folder)
+		.And
+		.Equals('DisplayName', 'a*')
+		.Top(10));
+
+query.Exec()
+	.subscribe(res => {
+    	console.log('Folders count: ', res.Count);
+    	console.log('Folders: ', res.Result);
+} 
+```
+
 ### Get the Schema of the given ContentType
 
 ```ts

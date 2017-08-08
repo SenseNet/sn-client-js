@@ -1,7 +1,5 @@
 /**
  * @module Authentication
- * @preferred
- * @description This module that contains authentication-related classes, types and interfaces
  */ /** */
 
 import { LoginState, LoginResponse, RefreshResponse, Token, TokenStore, IAuthenticationService, TokenPersist } from './';

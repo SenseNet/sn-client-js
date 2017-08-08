@@ -1,8 +1,5 @@
 /**
  * @module ODataApi
- * @preferred
- * 
- * @description This module contains OData-related classes and functions.
  */ /** */
 
 import { BaseHttpProvider } from '../HttpProviders';

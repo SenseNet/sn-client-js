@@ -51,26 +51,40 @@ import { ContentSerializer } from './ContentSerializer';
 import { DeferredObject } from './ComplexTypes';
 import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
 import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
+import { QueryExpression, QuerySegment, FinializedQuery } from './Query';
 
+/**
+ * Typeguard that determines if the specified Object is a DeferredObject
+ * @param fieldObject The object that needs to be checked
+ */
 export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
     return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
 }
 
+/**
+ * Typeguard that determines if the specified Object is an IContentOptions instance
+ * @param object The object that needs to be checked
+ */
 export const isContentOptions = (object: any): object is IContentOptions => {
     return object && object.Id && object.Path && object.Type && object.Type.length > 0 || false;
 }
 
+/**
+ * Typeguard that determines if the specified Object is a Content instance
+ * @param object The object that needs to be checked
+ */
+export const isContent = (object: any): object is Content => {
+    return object && object.Id && object.Path && object.Type && object.Type.length > 0 && object.options && isContentOptions(object.options) || false;
+}
+
+/**
+ * Typeguard that determines if the specified Object is an IContentOptions array
+ * @param {any[]} objectList The object that needs to be checked
+ */
 export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
     return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
 }
 
-export const isReferenceField = (field: any): field is ContentReferenceField<Content> => {
-    return field && typeof field.getValue === 'function' && typeof field.GetContent === 'function' || false;
-}
-
-export const isReferenceListField = (field: any): field is ContentListReferenceField<Content> => {
-    return field && typeof field.getValue === 'function' && typeof field.GetContents === 'function' || false;
-}
 
 export class Content<T extends IContentOptions = IContentOptions> {
 
@@ -116,7 +130,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     private _lastSavedFields: T = {} as T;
     protected UpdateLastSavedFields(newFields: T) {
-        this._lastSavedFields = newFields;
+        Object.assign(this._lastSavedFields, newFields);
         this._isSaved = true;
         Object.assign(this, newFields);
         this.updateReferenceFields();
@@ -138,10 +152,15 @@ export class Content<T extends IContentOptions = IContentOptions> {
         for (let field in this.GetFields()) {
             const currentField = (this as any)[field];
             if (currentField !== this._lastSavedFields[field]) {
-                if (isReferenceField(currentField)) {
-                    changedFields[field] = currentField.getValue();
-                } else if (isReferenceListField(currentField)) {
-                    changedFields[field] = currentField.getValue();
+                
+                if (currentField instanceof ContentReferenceField) {
+                    if (currentField.IsDirty){
+                        changedFields[field] = currentField.getValue();
+                    }
+                } else if (currentField instanceof ContentListReferenceField) {
+                    if (currentField.IsDirty){
+                        changedFields[field] = currentField.getValue();
+                    }
                 } else {
                     changedFields[field] = (this as any)[field]
                 }
@@ -157,7 +176,6 @@ export class Content<T extends IContentOptions = IContentOptions> {
         const fieldsToPost = {} as T;
         this.GetSchema().FieldSettings.forEach(s => {
             const value = this[s.Name] && this[s.Name].getValue ? this[s.Name].getValue() : this[s.Name];
-
             ((!skipEmpties && value !== undefined) || (skipEmpties && value)) && (fieldsToPost[s.Name] = value);
         });
         return fieldsToPost;
@@ -215,19 +233,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
         referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, {Name: 'AllowedChildTypes', AllowMultiple: true}]);
         referenceSettings.forEach(f => {
-            if (this.IsSaved && !this[f.Name]){
-                const generatedDeferred: DeferredObject = {
-                    __deferred: {
-                        uri: ODataHelper.joinPaths(this.GetFullPath(), f.Name)
-                    }
-                };
-                (this[f.Name] as any) = generatedDeferred;
-            }
-
             if (!this.referenceFieldCache[f.Name]){
-                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], this.repository) : new ContentReferenceField(this[f.Name], this.repository);
+                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
             } else {
-                this.referenceFieldCache[f.Name].update(this[f.Name]);
+                this.referenceFieldCache[f.Name].handleLoaded(this[f.Name]);
             }
             this[f.Name] = this.referenceFieldCache[f.Name];
         });
@@ -1768,6 +1777,28 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @returns {string} The stringified value
      */
     Stringify: () => string = () => ContentSerializer.Stringify(this);
+
+    /**
+     * Creates a content query on a Content instance.
+     * Usage: 
+     * ```ts
+     * const query = content.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
+     *                        .Top(10))
+     * query.Exec().subscribe(res => {
+     *      console.log('Folders count: ', res.Count);
+     *      console.log('Folders: ', res.Result);
+     * } 
+     * 
+     * ```
+     * @returns {Observable<QueryResult<T>>} An observable with the Query result.
+     */
+    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
+        = (build, params) => {
+            if (!this.Path){
+                throw new Error('No Content path provided for querying')
+            }
+            return new FinializedQuery(build, this.repository, this.Path, params);
+        };
 }
 
 /**

@@ -5,7 +5,6 @@ import * as ContentTests from './ContentTests';
 import * as ContentTypeTests from './ContentTypeTests';
 import * as ContentReferenceFieldTests from './ContentReferenceFieldTests';
 import * as ContentListReferenceFieldTests from './ContentListReferenceFieldTests';
-
 import * as ContentSerializerTests from './ContentSerializerTests';
 import * as ControlMapperTests from './ControlMapperTests';
 import * as FieldSettingsTest from './FieldSettingsTest';
@@ -18,6 +17,7 @@ import * as SchemaTests from './SchemaTests';
 import * as SnConfigTests from './SnConfigTests';
 import * as TokenTests from './TokenTests';
 import * as TokenStoreTests from './TokenStoreTests';
+import * as Query from './QueryTests';
 
 export {
     HttpProviderTests,
@@ -38,5 +38,6 @@ export {
     SchemaTests,
     SnConfigTests,
     TokenTests,
-    TokenStoreTests
+    TokenStoreTests,
+    Query
 }

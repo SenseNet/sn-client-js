@@ -1,3 +1,6 @@
+/**
+ * @module Mocks
+ */ /** */
 import { IAuthenticationService, LoginState } from '../../src/Authentication';
 import { Observable, BehaviorSubject, ReplaySubject } from '@reactivex/rxjs';
 
