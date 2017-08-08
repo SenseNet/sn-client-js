@@ -233,15 +233,6 @@ export class Content<T extends IContentOptions = IContentOptions> {
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
         referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, {Name: 'AllowedChildTypes', AllowMultiple: true}]);
         referenceSettings.forEach(f => {
-            if (this.IsSaved && !this[f.Name]){
-                const generatedDeferred: DeferredObject = {
-                    __deferred: {
-                        uri: ODataHelper.joinPaths(this.GetFullPath(), f.Name)
-                    }
-                };
-                (this[f.Name] as any) = generatedDeferred;
-            }
-
             if (!this.referenceFieldCache[f.Name]){
                 this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
             } else {

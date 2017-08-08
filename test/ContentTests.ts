@@ -214,7 +214,7 @@ describe('Content', () => {
                 contentSaved.Versions && contentSaved.Versions.SetContent([contentSaved]);
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
-                expect(changes.Versions && changes.Versions[0]).to.be.eq(options.Path);
+                expect(changes.Versions && (changes.Versions as any)[0]).to.be.eq(options.Path);
 
                 done();
             }, err => done)
@@ -868,7 +868,7 @@ describe('Content', () => {
         it('should throw Error when no Id provided', () => {
             const invalidContent = repo.HandleLoadedContent({ Name: 'Test' }, ContentTypes.Task);
             expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id or Path has to be provided')
-        });
+        });      
 
         it('should throw Error when no Id provided', (done) => {
             repo.Authentication.stateSubject.next(LoginState.Authenticated);
