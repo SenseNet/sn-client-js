@@ -245,7 +245,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             if (!this.referenceFieldCache[f.Name]){
                 this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
             } else {
-                this.referenceFieldCache[f.Name].update(this[f.Name]);
+                this.referenceFieldCache[f.Name].handleLoaded(this[f.Name]);
             }
             this[f.Name] = this.referenceFieldCache[f.Name];
         });

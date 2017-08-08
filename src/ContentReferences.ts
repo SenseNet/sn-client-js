@@ -126,7 +126,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
      * Updates the reference URL in case of DeferredObject (not-expanded-fields) or populates the Content reference (for expanded fields) from an OData response's Field
      * @param {DeferredObject | T['options']} fieldData The DeferredObject or ContentOptions data that can be used 
      */
-    public update(fieldData: DeferredObject | T['options']) {
+    public handleLoaded(fieldData: DeferredObject | T['options']) {
         if (isDeferred(fieldData)) {
             this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isContentOptions(fieldData)) {
@@ -139,7 +139,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
         public readonly FieldSetting: ReferenceFieldSetting,
         public readonly Repository: BaseRepository) {
         super();
-        this.update(fieldData);
+        this.handleLoaded(fieldData);
     }
 }
 
@@ -206,7 +206,7 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      * Updates the reference URL in case of DeferredObject (not-expanded-fields) or populates the Content list references (for expanded fields) from an OData response's field
      * @param {DeferredObject | T['options'][]} fieldData The DeferredObject or ContentOptions data that can be used 
      */
-    public update(fieldData: DeferredObject | T['options'][]) {
+    public handleLoaded(fieldData: DeferredObject | T['options'][]) {
         if (isDeferred(fieldData)) {
             this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isContentOptionList(fieldData)) {
@@ -220,6 +220,6 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
         public readonly FieldSetting: ReferenceFieldSetting,
         public readonly Repository: BaseRepository) {
         super();
-        this.update(fieldData);
+        this.handleLoaded(fieldData);
     }
 }
