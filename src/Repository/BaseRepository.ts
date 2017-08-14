@@ -24,12 +24,6 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     private odataApi: ODataApi<TProviderType, Content>;
     public readonly Events: RepositoryEventHub = new RepositoryEventHub();
 
-    /**
-     * Will be true if the Repository's host differs from the current host
-     */
-    public get IsCrossDomain() {
-        return this.Config.RepositoryUrl !== SnConfigModel.DEFAULT_BASE_URL;
-    }
 
     /**
      * Returns the Repository's base OData Url (e.g.: https://demo.sensenet.com/odata.svc)
@@ -59,8 +53,6 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         url: ODataHelper.joinPaths(this.ODataBaseUrl, path),
                         method: method,
                         body: body,
-                        crossDomain: this.IsCrossDomain,
-                        withCredentials: this.IsCrossDomain,
                         responseType: 'json',
                     });
             });

@@ -10,8 +10,8 @@ import { User, Task, ContentType } from '../src/ContentTypes';
 
 const expect = Chai.expect;
 
-@suite('BaseHttpProvider')
-export class BaseHttpProviderTests {
+@suite('RepositoryTests')
+export class RepositoryTests {
 
     private repo: MockRepository;
 
@@ -27,11 +27,6 @@ export class BaseHttpProviderTests {
     @test
     public 'ODataBaseUrl should return a valid URL based on RepositoryUrl and ODataToken'() {
         expect(this.repo.ODataBaseUrl).to.be.eq('https://localhost/odata.svc');
-    }
-
-    @test 'isCrossDomain'() {
-        let calculated = this.repo.Config.RepositoryUrl !== SnConfigModel.DEFAULT_BASE_URL;
-        expect(this.repo.IsCrossDomain).to.be.eq(calculated);
     }
 
     @test 'GetVersionInfo should return a valid Version Info'() {
