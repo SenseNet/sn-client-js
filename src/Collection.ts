@@ -179,11 +179,10 @@ export class Collection<T extends Content> {
      */
     public Read(path: string, options?: IODataParams): Observable<any> {
         this.Path = path;
-        let o: any = {};
-        if (typeof options !== 'undefined') {
-            o['params'] = options;
-        }
-        o['path'] = path;
+        let o = {
+            params: options,
+            path: path
+        };
         let optionList = new ODataRequestOptions(o as ODataRequestOptions);
         const children = this.odata.Fetch<T>(optionList)
             .map(items => {
