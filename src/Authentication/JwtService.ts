@@ -11,12 +11,21 @@ import { ODataHelper } from '../SN';
  * This service class manages the JWT authentication, the session and the current login state.
  */
 export class JwtService implements IAuthenticationService {
+
+    private readonly visitorName: string = 'BuiltIn\\Visitor';
+
+    public get CurrentUser(): string {
+        if (this.TokenStore.AccessToken.IsValid() || this.TokenStore.RefreshToken.IsValid()){
+            return this.TokenStore.RefreshToken.Username;
+        }
+        return this.visitorName;
+    };
     /**
      * This subject indicates the current state of the service
      * @default LoginState.Pending
      */
     public get State(): Observable<LoginState>{
-        return this.stateSubject.asObservable();
+        return this.stateSubject.distinctUntilChanged();
     }
 
     /**
