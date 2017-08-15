@@ -7,6 +7,7 @@ import { Content } from '../src/Content';
 import { LoginState } from '../src/Authentication';
 import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
 import { User, Task, ContentType } from '../src/ContentTypes';
+import { Observable } from '@reactivex/rxjs';
 
 const expect = Chai.expect;
 
@@ -144,5 +145,80 @@ export class RepositoryTests {
         let exampleTask = snRepo.CreateContent({}, Task);
         expect(exampleTask).to.be.instanceOf(Task);
     }
+
+
+    @test 'GetCurrentUser() should return an Observable '() {
+        let repo = new MockRepository();
+        expect(repo.GetCurrentUser()).to.be.instanceof(Observable)
+    }
+
+    @test 'GetCurrentUser() should update with Visitor by default '(done: MochaDone) {
+        let repo = new MockRepository();
+        repo.GetCurrentUser().subscribe(u => {
+            expect(u.Name).to.be.eq('Visitor');
+            done();
+        }, done)
+    }
+
+    @test 'GetCurrentUser() should update with the new User on change '(done: MochaDone) {
+        let repo = new MockRepository();
+        repo.httpProviderRef.setResponse({
+            d: {
+                __count: 1,
+                results: [{
+                    Name: 'NewUser',
+                    Id: 1000,
+                    LoginName: 'NewUser',
+                    Type: 'User',
+                }]
+            }
+        })
+        repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
+        repo.Authentication.stateSubject.next(LoginState.Pending);
+        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
+                expect(u.Name).to.be.eq('NewUser');
+                done();
+        }, done)
+    }
+
+    @test 'GetCurrentUser() should not update if multiple users found  on change '(done: MochaDone) {
+        let repo = new MockRepository();
+        repo.httpProviderRef.setResponse({
+            d: {
+                __count: 2,
+                results: [{
+                    Name: 'NewUser',
+                    Id: 1000,
+                    LoginName: 'NewUser',
+                    Type: 'User',
+                }]
+            }
+        })
+        repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
+        repo.Authentication.stateSubject.next(LoginState.Pending);
+        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+
+        repo.Authentication.CurrentUser = 'BuiltIn\\NewUser2';
+        repo.Authentication.stateSubject.next(LoginState.Pending);
+        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+
+        repo.httpProviderRef.setResponse({
+            d: {
+                __count: 1,
+                results: [{
+                    Name: 'NewUser2',
+                    Id: 1000,
+                    LoginName: 'NewUser2',
+                    Type: 'User',
+                }]
+            }
+        })
+        
+        repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
+                expect(u.Name).to.be.eq('NewUser2');
+                done();
+        }, done)
+    }    
 
 }
