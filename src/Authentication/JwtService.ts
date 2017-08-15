@@ -16,7 +16,7 @@ export class JwtService implements IAuthenticationService {
 
     public get CurrentUser(): string {
         if (this.TokenStore.AccessToken.IsValid() || this.TokenStore.RefreshToken.IsValid()){
-            return this.TokenStore.RefreshToken.Username;
+            return this.TokenStore.AccessToken.Username || this.TokenStore.RefreshToken.Username;
         }
         return this.visitorName;
     };

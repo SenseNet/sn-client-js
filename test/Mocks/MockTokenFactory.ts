@@ -18,7 +18,7 @@ export class MockTokenFactory {
             exp: expiration,
             iat: 0,
             iss: '',
-            name: '',
+            name: 'BuiltIn\\Mock',
             nbf: notBefore,
             sub: ''
         } as ITokenPayload;
