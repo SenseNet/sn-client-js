@@ -299,6 +299,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                 if (usr.Count === 1) {
                                     this.currentUserSubject.next(usr.Result[0]);
                                     this._lastKnownUserName = this.Authentication.CurrentUser;
+                                } else {
+                                    this.currentUserSubject.error(`Error getting current user: found multiple users with login name '${userName}' in domain '${userDomain}'`)
                                 }
                             })
                     }

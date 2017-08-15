@@ -177,17 +177,31 @@ export class RepositoryTests {
         repo.Authentication.stateSubject.next(LoginState.Pending);
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
         repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
-                expect(u.Name).to.be.eq('NewUser');
-                done();
+            expect(u.Name).to.be.eq('NewUser');
+            done();
         }, done)
     }
 
     @test 'GetCurrentUser() should not update if multiple users found  on change '(done: MochaDone) {
         let repo = new MockRepository();
+
+        repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
+            done('Error should be thrown here.');
+        }, err => {
+            expect(err).to.be.eq("Error getting current user: found multiple users with login name 'NewUser' in domain 'BuiltIn'")
+            done()
+        })
+
         repo.httpProviderRef.setResponse({
             d: {
                 __count: 2,
                 results: [{
+                    Name: 'NewUser',
+                    Id: 1000,
+                    LoginName: 'NewUser',
+                    Type: 'User',
+                },
+                {
                     Name: 'NewUser',
                     Id: 1000,
                     LoginName: 'NewUser',
@@ -198,27 +212,6 @@ export class RepositoryTests {
         repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
         repo.Authentication.stateSubject.next(LoginState.Pending);
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-
-        repo.Authentication.CurrentUser = 'BuiltIn\\NewUser2';
-        repo.Authentication.stateSubject.next(LoginState.Pending);
-        repo.Authentication.stateSubject.next(LoginState.Authenticated);
-
-        repo.httpProviderRef.setResponse({
-            d: {
-                __count: 1,
-                results: [{
-                    Name: 'NewUser2',
-                    Id: 1000,
-                    LoginName: 'NewUser2',
-                    Type: 'User',
-                }]
-            }
-        })
-        
-        repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
-                expect(u.Name).to.be.eq('NewUser2');
-                done();
-        }, done)
-    }    
+    }
 
 }
