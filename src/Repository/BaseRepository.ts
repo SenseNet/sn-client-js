@@ -3,12 +3,12 @@
  */
 /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable, BehaviorSubject } from '@reactivex/rxjs';
 import { VersionInfo, RepositoryEventHub } from './';
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { ODataRequestOptions } from '../ODataApi';
-import { IAuthenticationService } from '../Authentication/';
+import { IAuthenticationService, LoginState } from '../Authentication/';
 import { ContentType } from '../ContentTypes';
 import { Content } from '../Content';
 import { ODataApi, ODataCollectionResponse, IODataParams, ODataParams } from '../ODataApi';
@@ -66,12 +66,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Reference to the OData API used by the current repository
      */
-    public get Content(): ODataApi<TProviderType, any>{
+    public get Content(): ODataApi<TProviderType, any> {
         console.warn('The property repository.Content is deprecated and will be removed in the near future. Use repositoy.GetODataApi() instead.')
         return this.odataApi;
     };
 
-    public GetODataApi(): ODataApi<TProviderType, Content>{
+    public GetODataApi(): ODataApi<TProviderType, Content> {
         return this.odataApi;
     }
 
@@ -100,6 +100,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         //warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
         this.odataApi = new ODataApi(this.httpProviderType, this);
+
+        this.initUserUpdate();
     }
 
     /**
@@ -161,10 +163,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      */
     public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O, contentType?: { new(...args: any[]): T }): T {
         let instance: T;
-        const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Content) as {new(...args: any[]): T};
+        const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Content) as { new(...args: any[]): T };
 
-        if (opt.Id){
-            if (this._loadedContentReferenceCache[opt.Id]){
+        if (opt.Id) {
+            if (this._loadedContentReferenceCache[opt.Id]) {
                 instance = this._loadedContentReferenceCache[opt.Id] as T;
                 instance['UpdateLastSavedFields'](opt);
             } else {
@@ -176,7 +178,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             instance = Content.Create(opt, realContentType, this);
         }
         instance['_isSaved'] = true;
-        this.Events.Trigger.ContentLoaded({ Content: instance});
+        this.Events.Trigger.ContentLoaded({ Content: instance });
         return instance;
     }
 
@@ -227,8 +229,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Shortcut to Content.Create
      */
-    CreateContent: <T extends Content, K extends T['options']>(options: K, contentType: {new(...args: any[]): T}) => T = 
-        (options, contentType) => Content.Create(options, contentType, this);
+    CreateContent: <T extends Content, K extends T['options']>(options: K, contentType: { new(...args: any[]): T }) => T =
+    (options, contentType) => Content.Create(options, contentType, this);
 
     /**
      * Parses a Content instance from a stringified SerializedContent<T> instance
@@ -236,9 +238,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @throws Error if the Content belongs to another Repository (based it's Origin)
      * @returns The loaded Content
      */
-    public ParseContent < T extends Content = Content > (stringifiedContent: string): T {
+    public ParseContent<T extends Content = Content>(stringifiedContent: string): T {
         const serializedContent = ContentSerializer.Parse<T>(stringifiedContent);
-        if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0){
+        if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0) {
             throw new Error('Content belongs to a different Repository.');
         }
         return this.HandleLoadedContent(serializedContent.Data)
@@ -258,7 +260,51 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
-        = (build, params) => new FinializedQuery(build, this, 'Root', params);
+    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T>
+    = (build, params) => new FinializedQuery(build, this, 'Root', params);
+
+
+    private readonly VisitorUser: ContentTypes.User = this.HandleLoadedContent({
+        Id: 6,
+        DisplayName: 'Visitor',
+        Domain: 'BuiltIn',
+        Name: 'Visitor',
+        Path: '/Root/IMS/BuiltIn/Portal/Visitor',
+        LoginName: 'Visitor'
+    })
+    private readonly currentUserSubject = new BehaviorSubject<ContentTypes.User>(this.VisitorUser);
+    public GetCurrentUser: () => Observable<ContentTypes.User> = () => this.currentUserSubject.distinctUntilChanged();
+
+    private _lastKnownUserName = 'BuiltIn\\Visitor';
+    private initUserUpdate() {
+        this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
+            .subscribe(state => {
+                if (state === LoginState.Unauthenticated) {
+                    this.currentUserSubject.next(this.VisitorUser);
+                    this._lastKnownUserName = 'BuiltIn\\Visitor';
+                } else {
+                    if (this._lastKnownUserName !== this.Authentication.CurrentUser) {
+                        const [userDomain, userName] = this.Authentication.CurrentUser.split('\\');
+                        this.CreateQuery(q => q.TypeIs(ContentTypes.User)
+                            .And
+                            .Equals('Domain', userDomain)
+                            .And
+                            .Equals('LoginName', userName)
+                            .Top(1),
+                            {
+                                select: 'all'
+                            }
+                        ).Exec()
+                            .subscribe(usr => {
+                                if (usr.Count === 1) {
+                                    this.currentUserSubject.next(usr.Result[0]);
+                                    this._lastKnownUserName = this.Authentication.CurrentUser;
+                                }
+                            })
+                    }
+
+                }
+            })
+    }
 
 }
