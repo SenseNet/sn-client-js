@@ -4,6 +4,7 @@
 
 import { SnConfigBehavior } from './snconfigbehavior';
 import { SnConfigField } from './snconfigfielddecorator';
+import { IContentOptions } from '../Content';
 
 /**
  * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. The values can be populated from sn.config.js.
@@ -66,6 +67,49 @@ export class SnConfigModel {
         Question: ''
     })
     public JwtTokenPersist: 'session' | 'expiration' = 'session';
+
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default values to select when triggering an OData Action',
+        Question: ''
+    })
+    public DefaultSelect: (keyof IContentOptions)[] | 'all' = ['DisplayName', 'Description', 'Icon']
+
+
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The values are required when triggering an OData Action and will be always included in Select statements',
+        Question: ''
+    })
+    public RequiredSelect: (keyof IContentOptions)[] = ['Id', 'Path', 'Name', 'Type']
+
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData metadata option',
+        Question: ''
+    })
+    public DefaultMetadata: 'full' | 'minimal' | 'no' = 'no';
+
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData inline count option',
+        Question: ''
+    })
+    public DefaultInlineCount: 'allpages' | 'none' = 'allpages'
+
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData references to expand',
+        Question: ''
+    })
+    public DefaultExpand: (keyof IContentOptions)[] | undefined = undefined;
+
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default .TOP query parameter and OData $top parameter for querying / fetching content',
+        Question: ''
+    })
+    public DefaultTop: number = 1000;
 
     /**
      *

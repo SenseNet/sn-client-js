@@ -42,7 +42,7 @@
  */ /** */
 
 import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
-import { ODataRequestOptions, ODataParams, ODataApi } from './ODataApi';
+import { ODataRequestOptions, IODataParams, ODataApi } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
@@ -556,7 +556,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+    GetAllowedChildTypes(options?: IODataParams): Observable<ContentType[]> {
         return this.AllowedChildTypes.GetContent(options);
     }
     /**
@@ -574,7 +574,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+    GetEffectiveAllowedChildTypes(options?: IODataParams): Observable<ContentType[]> {
         return this.EffectiveAllowedChildTypes.GetContent(options);
     }
     /**
@@ -592,7 +592,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetOwner(options?: ODataParams): Observable<User> {
+    GetOwner(options?: IODataParams): Observable<User> {
         return this.Owner.GetContent(options);
     }
 
@@ -612,7 +612,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Creator(options?: ODataParams): Observable<User> {
+    Creator(options?: IODataParams): Observable<User> {
         return this.CreatedBy.GetContent(options);
     }
     /**
@@ -630,7 +630,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Modifier(options?: ODataParams): Observable<User> {
+    Modifier(options?: IODataParams): Observable<User> {
         return this.ModifiedBy.GetContent(options);
     }
     /**
@@ -648,7 +648,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    CheckedOutBy(options?: ODataParams): Observable<User> {
+    CheckedOutBy(options?: IODataParams): Observable<User> {
         return this.CheckedOutTo.GetContent(options);
     }
     /**
@@ -670,7 +670,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Children(options?: ODataParams): Observable<Content[]> {
+    Children(options?: IODataParams): Observable<Content[]> {
         if (!this.Path) {
             throw new Error('No path specified');
         }
@@ -701,7 +701,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetVersions(options?: ODataParams): Observable<this[]> {
+    GetVersions(options?: IODataParams): Observable<this[]> {
         return this.Versions.GetContent(options);
     }
     /**
@@ -723,7 +723,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetWorkspace(options?: ODataParams): Observable<Workspace> {
+    GetWorkspace(options?: IODataParams): Observable<Workspace> {
         return this.Workspace.GetContent(options);
     }
     /**
@@ -1792,7 +1792,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
+    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams) => FinializedQuery<T> 
         = (build, params) => {
             if (!this.Path){
                 throw new Error('No Content path provided for querying')

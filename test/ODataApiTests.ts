@@ -1,6 +1,6 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
-import { ODataRequestOptions, CustomAction, ODataParams, ODataCollectionResponse, ODataApi } from '../src/ODataApi';
+import { ODataRequestOptions, CustomAction, ODataCollectionResponse, ODataApi } from '../src/ODataApi';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
 import { LoginState } from '../src/Authentication';
@@ -164,12 +164,5 @@ describe('ODataApi', () => {
             }, 10)
 
         });
-
-        it('creates a new copy of ODataParams', () => {
-            const params = new ODataParams({ select: 'DisplayName' });
-            expect(typeof params).to.be.eq('object');
-        });
-
     });
-
 });

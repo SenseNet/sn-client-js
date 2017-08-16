@@ -2,11 +2,11 @@
  * @module ODataApi
  */ /** */
  
-import { ODataParams } from './';
+import { IODataParams } from './';
 
 export class ODataRequestOptions {
     path: string;
-    params?: ODataParams;
+    params?: IODataParams;
     async: boolean;
     type: string;
     success?: Function;
@@ -20,7 +20,7 @@ export class ODataRequestOptions {
 
 export interface IODataRequestOptions {
     path: string;
-    params?: ODataParams;
+    params?: IODataParams;
     async?: boolean;
     type?: string;
     success?: Function;

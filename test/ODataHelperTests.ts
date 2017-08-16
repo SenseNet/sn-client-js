@@ -72,12 +72,7 @@ describe('#buildUrlParamString()', () => {
         expect(urlParamString).to.be.eq('');
     });
 });
-describe('#buildRequestBody', () => {
-    it('should return a stringified request body', () => {
-        const body = ODataHelper.buildRequestBody({ permanent: false, comment: 'aaa' });
-        expect(body).to.be.eq('models=[{"permanent":false,"comment":"aaa"}]');
-    });
-});
+
 
 describe('#joinPaths', () => {
     it('should join with slashes', () => {

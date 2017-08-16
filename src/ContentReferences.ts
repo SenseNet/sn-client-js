@@ -8,7 +8,7 @@ import { DeferredObject } from './ComplexTypes'
 import { BaseRepository } from './Repository/BaseRepository';
 import { Observable } from '@reactivex/rxjs';
 import { ODataRequestOptions } from './ODataApi/ODataRequestOptions';
-import { ODataParams, IODataParams } from './ODataApi/ODataParams';
+import { IODataParams } from './ODataApi/ODataParams';
 import { ReferenceFieldSetting } from './FieldSettings';
 import { FinializedQuery } from './Query';
 import { ContentTypes } from './SN';
@@ -100,7 +100,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
      * @param {ODataParams} odataOptions Additional options to select/expand/etc...
      * @returns {Observable<T>} An observable that will publish the referenced content
      */
-    GetContent(odataOptions?: ODataParams): Observable<T> {
+    GetContent(odataOptions?: IODataParams): Observable<T> {
         if (this.contentReference !== undefined) {
             return Observable.of(this.contentReference);
         }
@@ -174,7 +174,7 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      * @param {ODataParams} odataOptions Additional options to select/expand/etc...
      * @returns {Observable<T[]>} An observable that will publish the list of the referenced content
      */
-    GetContent(odataOptions?: ODataParams): Observable<T[]> {
+    GetContent(odataOptions?: IODataParams): Observable<T[]> {
         if (this.contentReferences) {
             return Observable.of(this.contentReferences);
         }

@@ -11,7 +11,7 @@ import { ODataRequestOptions } from '../ODataApi';
 import { IAuthenticationService, LoginState } from '../Authentication/';
 import { ContentType } from '../ContentTypes';
 import { Content } from '../Content';
-import { ODataApi, ODataCollectionResponse, IODataParams, ODataParams } from '../ODataApi';
+import { ODataApi, ODataCollectionResponse, IODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ContentSerializer } from '../ContentSerializer';
 import { QuerySegment, QueryExpression, FinializedQuery } from '../Query';
@@ -211,11 +211,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
 
-        let params = new ODataParams(odataOptions || {});
-
         let odataRequestOptions = new ODataRequestOptions({
             path: contentURL,
-            params: params
+            params: odataOptions
         })
         const returnType = returnsType || Content as { new(...args: any[]): any };
 
@@ -260,7 +258,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T>
+    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams) => FinializedQuery<T>
     = (build, params) => new FinializedQuery(build, this, 'Root', params);
 
 
