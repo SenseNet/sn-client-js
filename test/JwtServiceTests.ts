@@ -181,4 +181,23 @@ export class JwtServiceTests {
         });
     }
 
+    @test 'CurrentUser should return BuiltIn\\Visitor by default' () {
+        let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
+        expect(t.CurrentUser).to.be.eq('BuiltIn\\Visitor');
+    }
+
+    @test 'CurrentUser should return user from payload when access token is set and valid' () {
+        let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
+        let store = t['TokenStore'] as TokenStore;
+        store.SetToken('access', MockTokenFactory.CreateValid());
+        expect(t.CurrentUser).to.be.eq('BuiltIn\\Mock');
+    }
+
+    @test 'CurrentUser should return user from payload when refresh token is set and valid' () {
+        let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
+        let store = t['TokenStore'] as TokenStore;
+        store.SetToken('refresh', MockTokenFactory.CreateValid());
+        expect(t.CurrentUser).to.be.eq('BuiltIn\\Mock');
+    }
+
 }

@@ -39,4 +39,6 @@ export interface IAuthenticationService {
      */
     Logout(): Observable<boolean>;
 
+    CurrentUser: string;
+
 }

@@ -5,6 +5,7 @@ import { IAuthenticationService, LoginState } from '../../src/Authentication';
 import { Observable, BehaviorSubject, ReplaySubject } from '@reactivex/rxjs';
 
 export class MockAuthService implements IAuthenticationService {
+    CurrentUser: string = 'BuiltIn\\Visitor';
     public stateSubject: BehaviorSubject<LoginState>;
 
     constructor() {
