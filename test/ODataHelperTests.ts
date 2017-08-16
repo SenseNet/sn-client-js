@@ -1,5 +1,6 @@
 import { ODataHelper } from '../src/SN'
 import * as Chai from 'chai';
+import { MockRepository } from './Mocks/MockRepository';
 const expect = Chai.expect;
 
 describe('ODataHelper', () => {
@@ -39,36 +40,43 @@ describe('ODataHelper', () => {
     });
 });
 describe('#buildUrlParamString()', () => {
+
+    let repo: MockRepository;
+
+    beforeEach(() => {
+        repo = new MockRepository();
+    });
+
     it('should return an empty string, if the argument is undefined', () => {
-        const urlParamString = ODataHelper.buildUrlParamString();
+        const urlParamString = ODataHelper.buildUrlParamString(repo.Config);
         expect(urlParamString).to.be.eq('');
     });
     it("should return a string with only select Id and Type if there's no selected field", () => {
-        const urlParamString = ODataHelper.buildUrlParamString({ metadata: 'no' });
-        expect(urlParamString).to.be.eq('?metadata=no&$select=Id,Type');
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultSelect: ['Id', 'Type']}, { metadata: 'no' });
+        expect(urlParamString).to.be.eq('metadata=no&$select=Id,Type');
     });
     it('should return a string with the given field and Id and Type as selected', () => {
-        const urlParamString = ODataHelper.buildUrlParamString({ select: 'DisplayName' });
-        expect(urlParamString).to.be.eq('?$select=DisplayName,Id,Type&metadata=no');
+        const urlParamString = ODataHelper.buildUrlParamString({RequiredSelect: ['Id', 'Type'], DefaultMetadata: 'no'}, { select: 'DisplayName' });
+        expect(urlParamString).to.be.eq('$select=Id,Type,DisplayName&metadata=no');
     });
     it('should return a string with the given fields and Id and Type as selected', () => {
-        const urlParamString = ODataHelper.buildUrlParamString({ select: ['DisplayName', 'Path'] });
-        expect(urlParamString).to.be.eq('?$select=DisplayName,Path,Id,Type&metadata=no');
+        const urlParamString = ODataHelper.buildUrlParamString({RequiredSelect: ['Id', 'Type'], DefaultMetadata: 'no'}, { select: ['DisplayName', 'Path'] });
+        expect(urlParamString).to.be.eq('$select=Id,Type,DisplayName,Path&metadata=no');
     });
     it('should return a string with the given parameters', () => {
-        const urlParamString = ODataHelper.buildUrlParamString({ select: ['DisplayName', 'Path'], orderby: 'DisplayName' });
-        expect(urlParamString).to.be.eq('?$select=DisplayName,Path,Id,Type&$orderby=DisplayName&metadata=no');
+        const urlParamString = ODataHelper.buildUrlParamString({RequiredSelect: ['Id', 'Type'], DefaultMetadata: 'no'}, { select: ['DisplayName', 'Path'], orderby: 'DisplayName' });
+        expect(urlParamString).to.be.eq('$select=Id,Type,DisplayName,Path&$orderby=DisplayName&metadata=no');
     });
     it('should return a string with the given parameters', () => {
-        const urlParamString = ODataHelper.buildUrlParamString({ select: ['DisplayName', 'Path'], orderby: 'DisplayName', query: "isOf('Article')" });
-        expect(urlParamString).to.be.eq("?$select=DisplayName,Path,Id,Type&$orderby=DisplayName&query=isOf('Article')&metadata=no");
+        const urlParamString = ODataHelper.buildUrlParamString({RequiredSelect: ['Id', 'Type'], DefaultMetadata: 'no'}, { select: ['DisplayName', 'Path'], orderby: 'DisplayName', query: "isOf('Article')" });
+        expect(urlParamString).to.be.eq("$select=Id,Type,DisplayName,Path&$orderby=DisplayName&query=isOf('Article')&metadata=no");
     });
     it('should return a string without select param', () => {
-        const urlParamString = ODataHelper.buildUrlParamString({ select: 'all', orderby: 'DisplayName' });
-        expect(urlParamString).to.be.eq('?$orderby=DisplayName&metadata=no');
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: 'DisplayName' });
+        expect(urlParamString).to.be.eq('$orderby=DisplayName&metadata=no');
     });
     it('should return a string without any param', () => {
-        const urlParamString = ODataHelper.buildUrlParamString();
+        const urlParamString = ODataHelper.buildUrlParamString({RequiredSelect: ['Id', 'Type'], DefaultMetadata: 'no'});
         expect(urlParamString).to.be.eq('');
     });
 });

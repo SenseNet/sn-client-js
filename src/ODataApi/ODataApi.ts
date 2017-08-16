@@ -3,11 +3,11 @@
  */ /** */
 
 import { BaseHttpProvider } from '../HttpProviders';
-import { ODataRequestOptions, IODataParams, CustomAction, ODataResponse, ICustomActionOptions, ODataCollectionResponse } from './';
+import { IODataParams, CustomAction, ODataResponse, ICustomActionOptions, ODataCollectionResponse, IODataRequestOptions } from './';
 import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
-import { Content } from '../Content';
 import { BaseRepository } from '../Repository/BaseRepository';
+import { Content } from '../Content';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -15,7 +15,7 @@ import { BaseRepository } from '../Repository/BaseRepository';
  * Following methods return Rxjs Observables which are made from the ajax requests' promises. Action methods like Delete or Rename on Content calls this methods,
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
-export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType extends Content>{
+export class ODataApi<THttpProvider extends BaseHttpProvider>{
 
     /**
      * The HTTP provider instance for making AJAX calls.
@@ -49,9 +49,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      *      });
      * ```
      */
-    public Get<T extends TBaseContentType>(options: ODataRequestOptions, returns?: { new(...args: any[]): T }): Observable<ODataResponse<T['options']>> {
+    public Get<T extends Content>(options: IODataRequestOptions<T>, returns?: { new(...args: any[]): T }): Observable<ODataResponse<T['options']>> {
 
-        return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET').share();
+        return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -71,11 +71,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      *   });
      * ```
      */
-    public Fetch<T extends TBaseContentType = TBaseContentType>(
-        options: ODataRequestOptions,
+    public Fetch<T extends Content = Content>(
+        options: IODataRequestOptions<T>,
         returnsType?: { new(...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
 
-        return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(options.params)}`, 'GET').share();
+        return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -98,7 +98,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      *  });
      * ```
      */
-    public Post<T extends TBaseContentType>(
+    public Post<T extends Content>(
         path: string,
         contentBody: T['options'],
         postedContentType: { new(...args: any[]): T }): Observable<T['options']> {
@@ -138,7 +138,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Patch<T extends TBaseContentType>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T['options']> {
+    public Patch<T extends Content>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T['options']> {
 
         let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
@@ -164,7 +164,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
      * });
      * ```
      */
-    public Put<T extends TBaseContentType>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T> {
+    public Put<T extends Content>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T> {
         let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
         return this.repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
@@ -179,7 +179,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider, TBaseContentType e
       * @param {new(...args): TReturnType} returns Th type that the action should return
       * @returns {Observable<TReturnType>} Returns an Rxjs observable whitch will be resolved with TReturnType that you can subscribe of in your code.
       */
-    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams, returns?: { new(...args: any[]): TReturnType }): Observable<TReturnType> {
+    public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams<any>, returns?: { new(...args: any[]): TReturnType }): Observable<TReturnType> {
         if (!returns) {
             returns = Object as { new(...args: any[]): any };
         }

@@ -42,7 +42,7 @@
  */ /** */
 
 import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
-import { ODataRequestOptions, IODataParams, ODataApi } from './ODataApi';
+import { IODataParams, ODataApi, ODataFieldParameter } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
@@ -88,7 +88,7 @@ export const isContentOptionList = (objectList: any[]): objectList is IContentOp
 
 export class Content<T extends IContentOptions = IContentOptions> {
 
-    private readonly odata: ODataApi<BaseHttpProvider, Content>;
+    private readonly odata: ODataApi<BaseHttpProvider>;
 
     /**
      * An unique identifier for a content
@@ -474,22 +474,22 @@ export class Content<T extends IContentOptions = IContentOptions> {
             throw new Error('Content Id or Path has to be provided')
         }
 
-        let selectFields: string | string[] = 'all';
-        let expandFields;
+        let selectFields: ODataFieldParameter<this> | 'all' = 'all';
+        let expandFields: ODataFieldParameter<this> | undefined = undefined;
         if (actionName){
             const fieldSettings = this.GetSchema().FieldSettings.filter(f => {
                 return actionName === 'edit' && f.VisibleEdit
                        || actionName === 'view' && f.VisibleBrowse
             });
-            selectFields = fieldSettings.map(f => f.Name);
+            selectFields = fieldSettings.map(f => f.Name) as ODataFieldParameter<this>;
             expandFields = fieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting)
-                .map(f => f.Name);
+                .map(f => f.Name) as ODataFieldParameter<this>;
         }
         
         return this.repository.Load(this.Id || this.Path as any, {
             select: selectFields,
             expand: expandFields
-        });
+        } as IODataParams<this>);
     }
 
     /**
@@ -498,7 +498,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @throws if the Content is not saved yet or no Id or Path is provided
      * @returns {Observable<this>} An observable whitch will be updated with the Content
      */
-    ReloadFields(...fields: (keyof this)[]): Observable<this>{
+    ReloadFields(...fields: (keyof this['options'])[]): Observable<this>{
 
         if (!this.IsSaved){
             throw new Error('Content has to be saved to reload')
@@ -508,11 +508,11 @@ export class Content<T extends IContentOptions = IContentOptions> {
         }
 
         const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
-                .map(f => f.Name);
+                .map(f => f.Name) as ODataFieldParameter<this>;
         return this.repository.Load(this.Id || this.Path as any, {
             select: fields,
             expand: toExpand
-        });
+        } as IODataParams<this>);
     }
 
     /**
@@ -531,12 +531,12 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      */
     Actions(scenario?: string): Observable<ActionModel[]> {
-        return this.odata.Get(new ODataRequestOptions({
+        return this.odata.Get({
             path: ODataHelper.joinPaths(this.GetFullPath(), 'Actions'),
             params: {
                 scenario: scenario
             }
-        }), Object as { new(...args) })
+        }, Object as { new(...args) })
             .map(resp => {
                 return resp.d.Actions as ActionModel[];
             });
@@ -556,7 +556,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: IODataParams): Observable<ContentType[]> {
+    GetAllowedChildTypes(options?: IODataParams<ContentTypes.ContentType>): Observable<ContentType[]> {
         return this.AllowedChildTypes.GetContent(options);
     }
     /**
@@ -574,7 +574,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: IODataParams): Observable<ContentType[]> {
+    GetEffectiveAllowedChildTypes(options?: IODataParams<ContentTypes.ContentType>): Observable<ContentType[]> {
         return this.EffectiveAllowedChildTypes.GetContent(options);
     }
     /**
@@ -592,7 +592,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetOwner(options?: IODataParams): Observable<User> {
+    GetOwner(options?: IODataParams<ContentTypes.User>): Observable<User> {
         return this.Owner.GetContent(options);
     }
 
@@ -612,7 +612,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Creator(options?: IODataParams): Observable<User> {
+    Creator(options?: IODataParams<ContentTypes.User>): Observable<User> {
         return this.CreatedBy.GetContent(options);
     }
     /**
@@ -630,7 +630,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Modifier(options?: IODataParams): Observable<User> {
+    Modifier(options?: IODataParams<ContentTypes.User>): Observable<User> {
         return this.ModifiedBy.GetContent(options);
     }
     /**
@@ -648,7 +648,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    CheckedOutBy(options?: IODataParams): Observable<User> {
+    CheckedOutBy(options?: IODataParams<ContentTypes.User> ): Observable<User> {
         return this.CheckedOutTo.GetContent(options);
     }
     /**
@@ -670,15 +670,15 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Children(options?: IODataParams): Observable<Content[]> {
+    Children(options?: IODataParams<Content>): Observable<Content[]> {
         if (!this.Path) {
             throw new Error('No path specified');
         }
 
-        return this.odata.Fetch(new ODataRequestOptions({
+        return this.odata.Fetch({
             path: this.Path,
             params: options
-        }), Content).map(resp => {
+        }, Content).map(resp => {
             return resp.d.results.map(c => this.repository.HandleLoadedContent(c));
         });
     }
@@ -701,7 +701,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetVersions(options?: IODataParams): Observable<this[]> {
+    GetVersions(options?: IODataParams<this>): Observable<this[]> {
         return this.Versions.GetContent(options);
     }
     /**
@@ -723,7 +723,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetWorkspace(options?: IODataParams): Observable<Workspace> {
+    GetWorkspace(options?: IODataParams<Workspace>): Observable<Workspace> {
         return this.Workspace.GetContent(options);
     }
     /**
@@ -1792,7 +1792,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams) => FinializedQuery<T> 
+    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T> 
         = (build, params) => {
             if (!this.Path){
                 throw new Error('No Content path provided for querying')

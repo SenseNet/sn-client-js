@@ -4,7 +4,8 @@
 
 import { SnConfigBehavior } from './snconfigbehavior';
 import { SnConfigField } from './snconfigfielddecorator';
-import { IContentOptions } from '../Content';
+import { ODataMetadataType, ODataFieldParameter } from '../ODataApi/ODataParams';
+import { Content } from '../Content';
 
 /**
  * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. The values can be populated from sn.config.js.
@@ -73,7 +74,7 @@ export class SnConfigModel {
         FieldDescription: 'The default values to select when triggering an OData Action',
         Question: ''
     })
-    public DefaultSelect: (keyof IContentOptions)[] | 'all' = ['DisplayName', 'Description', 'Icon']
+    public DefaultSelect: ODataFieldParameter<Content> | 'all' = ['DisplayName', 'Description', 'Icon']
 
 
     @SnConfigField({
@@ -81,14 +82,14 @@ export class SnConfigModel {
         FieldDescription: 'The values are required when triggering an OData Action and will be always included in Select statements',
         Question: ''
     })
-    public RequiredSelect: (keyof IContentOptions)[] = ['Id', 'Path', 'Name', 'Type']
+    public RequiredSelect: ODataFieldParameter<Content> = ['Id', 'Path', 'Name', 'Type']
 
     @SnConfigField({
         Behavior: SnConfigBehavior.AllowFromConfig,
         FieldDescription: 'The default OData metadata option',
         Question: ''
     })
-    public DefaultMetadata: 'full' | 'minimal' | 'no' = 'no';
+    public DefaultMetadata: ODataMetadataType = 'no';
 
     @SnConfigField({
         Behavior: SnConfigBehavior.AllowFromConfig,
@@ -102,7 +103,7 @@ export class SnConfigModel {
         FieldDescription: 'The default OData references to expand',
         Question: ''
     })
-    public DefaultExpand: (keyof IContentOptions)[] | undefined = undefined;
+    public DefaultExpand: ODataFieldParameter<Content> | undefined = undefined;
 
     @SnConfigField({
         Behavior: SnConfigBehavior.AllowFromConfig,

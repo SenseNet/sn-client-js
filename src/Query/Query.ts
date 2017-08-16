@@ -5,7 +5,7 @@
 import { Content } from '../Content';
 import { QuerySegment, QueryExpression, QueryResult } from '.';
 import { BaseRepository } from '../Repository/BaseRepository';
-import { ODataRequestOptions, IODataParams } from '../ODataApi';
+import { IODataParams } from '../ODataApi';
 import { Observable } from '@reactivex/rxjs';
 
 /**
@@ -46,12 +46,12 @@ export class Query<T extends Content = Content>{
      * @param {ODataParams} odataParams Additional OData parameters (like $select, $expand, etc...)
      * @returns {Observable<QueryResult<TReturns>>} An Observable that will publish the Query result
      */
-    public Exec(repository: BaseRepository, path: string, odataParams: IODataParams = {}): Observable<QueryResult<T>>{
+    public Exec(repository: BaseRepository, path: string, odataParams: IODataParams<T> = {}): Observable<QueryResult<T>>{
         odataParams.query = this.toString();
-        return repository.GetODataApi().Fetch(new ODataRequestOptions({
+        return repository.GetODataApi().Fetch({
                 path,
                 params: odataParams
-            }), Content)
+            }, Content)
             .map(q => {
                 return {
                     Result: q.d.results.map(c => repository.HandleLoadedContent<T, T['options']>(c)),
@@ -68,7 +68,7 @@ export class FinializedQuery<T extends Content = Content> extends Query<T>{
     constructor(build: (first: QueryExpression<Content>) => void, 
                         private readonly repository: BaseRepository, 
                         private readonly path: string, 
-                        private readonly odataParams: IODataParams = {}) {
+                        private readonly odataParams: IODataParams<T> = {}) {
         super(build);
     }
 

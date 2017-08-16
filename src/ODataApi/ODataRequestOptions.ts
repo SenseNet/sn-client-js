@@ -3,24 +3,12 @@
  */ /** */
  
 import { IODataParams } from './';
+import { Content } from '../Content';
 
-export class ODataRequestOptions {
+
+export interface IODataRequestOptions<T extends Content> {
     path: string;
-    params?: IODataParams;
-    async: boolean;
-    type: string;
-    success?: Function;
-    error?: Function;
-    complete?: Function;
-
-    constructor(options: IODataRequestOptions) {
-        Object.assign(this, options);
-    }
-}
-
-export interface IODataRequestOptions {
-    path: string;
-    params?: IODataParams;
+    params?: IODataParams<T>;
     async?: boolean;
     type?: string;
     success?: Function;

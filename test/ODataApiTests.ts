@@ -1,6 +1,6 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
-import { ODataRequestOptions, CustomAction, ODataCollectionResponse, ODataApi } from '../src/ODataApi';
+import { CustomAction, ODataCollectionResponse, ODataApi } from '../src/ODataApi';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
 import { LoginState } from '../src/Authentication';
@@ -11,7 +11,7 @@ const expect = Chai.expect;
 
 describe('ODataApi', () => {
     let service: MockRepository; //  = new MockRepository();
-    let odataApi: ODataApi<MockHttpProvider, Content>; //  = service.GetODataApi();
+    let odataApi: ODataApi<MockHttpProvider>; //  = service.GetODataApi();
 
     beforeEach(() => {
         service = new MockRepository();
@@ -21,8 +21,7 @@ describe('ODataApi', () => {
 
     describe('#Get()', () => {
         it('request a Content and returns an Observable object', () => {
-            const options = new ODataRequestOptions({ path: '/workspace/project' })
-            expect(typeof odataApi.Get(options)).to.be.eq('object');
+            expect(typeof odataApi.Get({ path: '/workspace/project' })).to.be.eq('object');
         });
     })
 
@@ -37,8 +36,7 @@ describe('ODataApi', () => {
                     ]
                 }
             } as ODataCollectionResponse<Content>)
-            const options = new ODataRequestOptions({ path: '/workspace/project' })
-            odataApi.Fetch(options).first().subscribe(result => {
+            odataApi.Fetch({ path: '/workspace/project' }).first().subscribe(result => {
                 expect(result.d.results[0].Id).to.be.eq(1);
                 done();
             }, done)
