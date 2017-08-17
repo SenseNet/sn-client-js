@@ -39,7 +39,7 @@ export const buildUrlParamString: <T extends Content>(config: Partial<SnConfigMo
         return '';
     }
     if (config.RequiredSelect === 'all' || config.DefaultSelect === 'all' || options.select === 'all') {
-        options.select = 'all';
+        options.select = undefined;
     } else {
         options.select = combineODataFieldParameters<T>(config.RequiredSelect, options.select || config.DefaultSelect)
     }

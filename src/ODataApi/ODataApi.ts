@@ -51,7 +51,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      */
     public Get<T extends Content>(options: IODataRequestOptions<T>, returns?: { new(...args: any[]): T }): Observable<ODataResponse<T['options']>> {
 
-        return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
+        return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -75,7 +75,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         options: IODataRequestOptions<T>,
         returnsType?: { new(...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
 
-        return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
+        return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
