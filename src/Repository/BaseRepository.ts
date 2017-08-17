@@ -7,11 +7,10 @@ import { Observable, BehaviorSubject } from '@reactivex/rxjs';
 import { VersionInfo, RepositoryEventHub } from './';
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
-import { ODataRequestOptions } from '../ODataApi';
 import { IAuthenticationService, LoginState } from '../Authentication/';
 import { ContentType } from '../ContentTypes';
 import { Content } from '../Content';
-import { ODataApi, ODataCollectionResponse, IODataParams, ODataParams } from '../ODataApi';
+import { ODataApi, ODataCollectionResponse, IODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ContentSerializer } from '../ContentSerializer';
 import { QuerySegment, QueryExpression, FinializedQuery } from '../Query';
@@ -21,7 +20,7 @@ import { QuerySegment, QueryExpression, FinializedQuery } from '../Query';
  */
 export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpProvider,
     TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService> {
-    private odataApi: ODataApi<TProviderType, Content>;
+    private odataApi: ODataApi<TProviderType>;
     public readonly Events: RepositoryEventHub = new RepositoryEventHub();
 
 
@@ -66,12 +65,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Reference to the OData API used by the current repository
      */
-    public get Content(): ODataApi<TProviderType, any> {
+    public get Content(): ODataApi<TProviderType> {
         console.warn('The property repository.Content is deprecated and will be removed in the near future. Use repositoy.GetODataApi() instead.')
         return this.odataApi;
     };
 
-    public GetODataApi(): ODataApi<TProviderType, Content> {
+    public GetODataApi(): ODataApi<TProviderType> {
         return this.odataApi;
     }
 
@@ -203,7 +202,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     */
     public Load<TContentType extends Content>(
         idOrPath: string | number,
-        odataOptions?: IODataParams,
+        odataOptions?: IODataParams<TContentType>,
         returnsType?: { new(...args: any[]): TContentType },
         version?: string): Observable<TContentType> {
 
@@ -211,12 +210,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             ODataHelper.getContentURLbyPath(idOrPath) :
             ODataHelper.getContentUrlbyId(idOrPath);
 
-        let params = new ODataParams(odataOptions || {});
-
-        let odataRequestOptions = new ODataRequestOptions({
+        let odataRequestOptions = {
             path: contentURL,
-            params: params
-        })
+            params: odataOptions
+        };
         const returnType = returnsType || Content as { new(...args: any[]): any };
 
         return this.odataApi.Get(odataRequestOptions, returnType)
@@ -260,7 +257,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T>
+    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
     = (build, params) => new FinializedQuery(build, this, 'Root', params);
 
 

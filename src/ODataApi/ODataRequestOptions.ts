@@ -2,25 +2,13 @@
  * @module ODataApi
  */ /** */
  
-import { ODataParams } from './';
+import { IODataParams } from './';
+import { Content } from '../Content';
 
-export class ODataRequestOptions {
+
+export interface IODataRequestOptions<T extends Content> {
     path: string;
-    params?: ODataParams;
-    async: boolean;
-    type: string;
-    success?: Function;
-    error?: Function;
-    complete?: Function;
-
-    constructor(options: IODataRequestOptions) {
-        Object.assign(this, options);
-    }
-}
-
-export interface IODataRequestOptions {
-    path: string;
-    params?: ODataParams;
+    params?: IODataParams<T>;
     async?: boolean;
     type?: string;
     success?: Function;

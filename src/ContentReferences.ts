@@ -7,13 +7,12 @@ import { isDeferred, isContentOptions, Content, isContentOptionList } from './Co
 import { DeferredObject } from './ComplexTypes'
 import { BaseRepository } from './Repository/BaseRepository';
 import { Observable } from '@reactivex/rxjs';
-import { ODataRequestOptions } from './ODataApi/ODataRequestOptions';
-import { ODataParams, IODataParams } from './ODataApi/ODataParams';
+import { IODataParams } from './ODataApi/ODataParams';
 import { ReferenceFieldSetting } from './FieldSettings';
 import { FinializedQuery } from './Query';
 import { ContentTypes } from './SN';
 
-export abstract class ReferenceAbstract {
+export abstract class ReferenceAbstract<T extends Content> {
     public readonly abstract FieldSetting: ReferenceFieldSetting;
     public readonly abstract Repository: BaseRepository;
 
@@ -37,7 +36,7 @@ export abstract class ReferenceAbstract {
      * });
      * ```
      */
-    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams = {}): FinializedQuery {
+    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams<T> = {}): FinializedQuery {
         return new FinializedQuery(q => {
             let query = q.Equals('_Text', `*${term}*`);
             if (this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.length) {
@@ -82,7 +81,7 @@ export abstract class ReferenceAbstract {
  * ```
  * 
  */
-export class ContentReferenceField<T extends Content> extends ReferenceAbstract {
+export class ContentReferenceField<T extends Content> extends ReferenceAbstract<T> {
     private contentReference: T;
     private referenceUrl: string;
 
@@ -100,11 +99,11 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
      * @param {ODataParams} odataOptions Additional options to select/expand/etc...
      * @returns {Observable<T>} An observable that will publish the referenced content
      */
-    GetContent(odataOptions?: ODataParams): Observable<T> {
+    GetContent(odataOptions?: IODataParams<T>): Observable<T> {
         if (this.contentReference !== undefined) {
             return Observable.of(this.contentReference);
         }
-        const request = this.Repository.GetODataApi().Get(new ODataRequestOptions({ path: this.referenceUrl, params: odataOptions }))
+        const request = this.Repository.GetODataApi().Get({ path: this.referenceUrl, params: odataOptions })
             .map(r => {
                 return r && r.d && this.Repository.HandleLoadedContent<T, T['options']>(r.d);
             }).share();
@@ -154,7 +153,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract 
  * ```
  * 
  */
-export class ContentListReferenceField<T extends Content> extends ReferenceAbstract {
+export class ContentListReferenceField<T extends Content> extends ReferenceAbstract<T> {
     private contentReferences: T[];
 
     private referenceUrl: string;
@@ -174,15 +173,15 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      * @param {ODataParams} odataOptions Additional options to select/expand/etc...
      * @returns {Observable<T[]>} An observable that will publish the list of the referenced content
      */
-    GetContent(odataOptions?: ODataParams): Observable<T[]> {
+    GetContent(odataOptions?: IODataParams<T>): Observable<T[]> {
         if (this.contentReferences) {
             return Observable.of(this.contentReferences);
         }
         //
-        const request = this.Repository.GetODataApi().Fetch(new ODataRequestOptions({
+        const request = this.Repository.GetODataApi().Fetch({
             path: this.referenceUrl,
             params: odataOptions
-        }), Content).map(resp => {
+        }, Content).map(resp => {
             return resp && resp.d && resp.d.results.map(c => this.Repository.HandleLoadedContent<T, any>(c)) || [];
         }).share();
 

@@ -6,10 +6,24 @@
  */ /** */
 
 // TODO: ezeket vhova kivezetni
-import { ODataApi } from './SN';
+import { IODataParams, ODataFieldParameter } from './ODataApi';
+import { SnConfigModel } from './Config/snconfigmodel';
+import { Content } from './Content';
 
 const ODATA_PARAMS = ['select', 'expand', 'orderby', 'top', 'skip', 'filter', 'format', 'inlinecount'];
 export const DATA_ROOT = 'OData.svc';
+
+
+export const combineODataFieldParameters: <T extends Content>(...params: ODataFieldParameter<T>[]) => ODataFieldParameter<T>
+    = <T extends Content>(...params: ODataFieldParameter<T>[]) => {
+        params.forEach(param => {
+            if (typeof param === 'string') {
+                param = [param];
+            }
+        });
+        params = params.filter(param => param && param.length > 0);
+        return [...new Set([...params])] as ODataFieldParameter<T>;
+    }
 
 /**
  * Method to build proper parameter string to OData requests based on the given option Object.
@@ -20,71 +34,36 @@ export const DATA_ROOT = 'OData.svc';
  * @param {IODataOptions} options Represents an ODataOptions obejct based through the IODataOptions interface. Holds the possible url parameters as properties.
  * @returns {string} String with the url params in the correct format e.g. '$select=DisplayName,Index'&$top=2&metadata=no'.
  */
-export const buildUrlParamString: (options?: ODataApi.IODataParams) => string = (options?: ODataApi.IODataParams): string => {
+export const buildUrlParamString: <T extends Content>(config: Partial<SnConfigModel>, options?: IODataParams<T>) => string = <T extends Content>(config: SnConfigModel, options?: IODataParams<T>): string => {
     if (!options) {
         return '';
     }
-    let params: string = '?';
-    if (options.select) {
-        if (typeof options.select === 'string' && options.select !== 'all') {
-            let value = options.select;
-            options.select = [value, 'Id', 'Type'];
-        }
-        else if (options.select !== 'all') {
-            options.select = [...options.select, 'Id', 'Type']
-        }
-        else {
-            delete options['select'];
-        }
+    if (config.RequiredSelect === 'all' || config.DefaultSelect === 'all' || options.select === 'all') {
+        options.select = undefined;
+    } else {
+        options.select = combineODataFieldParameters<T>(config.RequiredSelect, options.select || config.DefaultSelect)
     }
-    else {
-        options.select = ['Id', 'Type'];
-    }
+    options.metadata = options.metadata || config.DefaultMetadata;
+    options.inlinecount = options.inlinecount || config.DefaultInlineCount;
+    options.expand = options.expand || config.DefaultExpand;
+    options.top = options.top || config.DefaultTop;
+
+    const segments: {name: string, value: string}[] = [];
     for (let key in options) {
-
-        if (options[key]) {
-            if (ODATA_PARAMS.indexOf(key) > -1) {
-                params += `$${key}=`;
-                if (typeof options[key] === 'string') {
-                    params += options[key];
-                }
-                else if (typeof options[key] !== 'undefined') {
-                    for (let x = 0; x < options[key].length; x++) {
-                        if (typeof options[key] !== 'undefined') {
-                            params += `${options[key][x]}`;
-                            if (x < options[key].length - 1) {
-                                params += `,`;
-                            }
-                        }
-                    }
-                }
-
-            }
-            else {
-                if (typeof options[key] !== 'undefined') {
-                    params += `${key}=${options[key]}`;
-                }
-            }
-            params += `&`;
+        const name = ODATA_PARAMS.indexOf(key) > -1 ? `$${key}` : key;
+        const plainValue = options[key];
+        let parsedValue = plainValue;
+        if (plainValue instanceof Array && plainValue.length && plainValue.length > 0){
+            parsedValue = plainValue.join(',');
+        }
+        if (name && parsedValue && parsedValue.length){
+            segments.push({name, value: parsedValue});
         }
     }
-    if (typeof options.metadata === 'undefined') {
-        params += 'metadata=no&';
-    }
 
-    return params.slice(0, params.length - 1);
+    return segments.map(s => `${s.name}=${s.value}`).join('&');
 }
-/**
- * Method to help building body part of a POST OData request.
- *
- * Converts the given JSON to string and wraps it into a 'models' array.
- * @param options
- * @returns {string} Models array with the given options in string format e.g. 'models=["{ '__ContentType':'EventList' , 'DisplayName': 'Calendar', 'Index': 2 }"]'.
- */
-export const buildRequestBody = (options) => {
-    let stringifiedOptions = JSON.stringify(options);
-    return `models=[${stringifiedOptions}]`;
-}
+
 /**
  * Method that gets the URL that refers to a single item in the Sense/Net Content Repository
  * @param path {string} Path that you want to format.

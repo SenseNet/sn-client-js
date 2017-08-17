@@ -94,7 +94,7 @@ export module EventModels {
         Error: any;
     }
 
-    export class CustomActionExecuted {
+    export class CustomActionExecuted<T extends Content> {
         /**
          * The Action options
          */        
@@ -102,14 +102,14 @@ export module EventModels {
         /**
          * The additional OData parameters (optional)
          */        
-        ODataParams?: IODataParams;
+        ODataParams?: IODataParams<T>;
         /**
          * The Action result
          */
         Result: any
     }
 
-    export class CustomActionFailed {
+    export class CustomActionFailed<T extends Content> {
         /**
          * The Action options
          */
@@ -117,7 +117,7 @@ export module EventModels {
         /**
          * The additional OData parameters (optional)
          */
-        ODataParams?: IODataParams;
+        ODataParams?: IODataParams<T>;
         /**
          * The Type of the Result object
          */
@@ -171,8 +171,8 @@ export class RepositoryEventHub {
     private readonly onContentLoadedSubject = new Subject<EventModels.Loaded>();
     private readonly onContentDeletedSubject = new Subject<EventModels.Deleted>();
     private readonly onContentDeleteFailedSubject = new Subject<EventModels.DeleteFailed>();
-    private readonly onCustomActionExecutedSubject = new Subject<EventModels.CustomActionExecuted>();
-    private readonly onCustomActionFailedSubject = new Subject<EventModels.CustomActionFailed>();
+    private readonly onCustomActionExecutedSubject = new Subject<EventModels.CustomActionExecuted<Content>>();
+    private readonly onCustomActionFailedSubject = new Subject<EventModels.CustomActionFailed<Content>>();
     private readonly onContentMovedSubject = new Subject<EventModels.ContentMoved>()
     private readonly onContentMoveFailedSubject = new Subject<EventModels.ContentMoveFailed>()
 

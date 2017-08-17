@@ -42,7 +42,13 @@ let repository = new Repository.SnRepository({
             RepositoryUrl: 'https://my-sensenet-site.com',
             ODataToken: 'OData.svc',
             JwtTokenKeyTemplate: 'my-${tokenName}-token-for-${siteName}',
-            JwtTokenPersist: 'expiration'
+            JwtTokenPersist: 'expiration',
+			DefaultSelect: ['DisplayName', 'Icon'],
+			RequiredSelect: ['Id', 'Type', 'Path', 'Name'],
+			DefaultMetadata: 'no',
+			DefaultInlineCount: 'allpages',
+			DefaultExpand: [],
+			DefaultTop: 1000
         });
 ```
  - __RepositoryURL__: The component will communicate with your repositoy using the following url. This will fall back to your _window.location.href_, if not specified. To enable your external app to send request against your sensenet portal change your ```Portal.settings```. For further information about cross-origin resource sharing in sensenet check [this](community.sensenet.com/docs/cors/)
@@ -50,6 +56,12 @@ article.
  - __ODataToken__: Check your Sense/Net portal's web.config and if the ```ODataServiceToken``` is set, you can configure it here for the client side.
  - __JwtTokenKeyTemplate__ - This will be the template how your JWT tokens will be stored (in _local/session storage_ or as a _cookie_). _${tokenName}_ will be replaced with the token's name ('access' or 'refresh'), _${siteName}_ will be replaced with your site's name
  - __JwtTokenPersist__ - You can change how JWT Tokens should be persisted on the client, you can use _'session'_, whitch means the token will be invalidated on browser close, or _'expiration'_, in that case the token expiration property will be used (See [JWT Token docs](http://community.sensenet.com/docs/web-token-authentication/) for further details)
+ - __DefaultSelect__ - These fields will be selected by default on each OData request. Can be a field, an array of fields or 'all'
+ - __RequiredSelect__ - These fields will always be included in the OData *$select* statement. Also can be a field, an array of fields or 'all'
+ - __DefaultMetadata__ - Default *metadata* value for OData requests. Can be 'full', 'minimal' or 'no'
+ - __DefaultInlineCount__ - Default *inlinecount* OData parameter. Can be 'allpages' or 'none'
+ - __DefaultExpand__ - Default fields to *$expand*, empty by default. Can be a field or an array of fields.
+ - __DefaultTop__ - Default value to the odata *$top* parameter
 
 ### Create, Save, Update
 
