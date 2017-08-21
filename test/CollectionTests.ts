@@ -23,6 +23,7 @@ describe('Collection', () => {
       }, Content),
       Repo.HandleLoadedContent({
         Id: 2,
+        Path: 'Root/Test',
         Name: 'test2'
       }, Content)];
 
@@ -65,7 +66,7 @@ describe('Collection', () => {
     });
 
     it('Observable should be resolved', (done) => {
-      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, ContentTypes.Task);
+      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, ContentTypes.Task);
       Repo.Authentication.stateSubject.next(LoginState.Authenticated);
       Repo.httpProviderRef.setResponse({ d: content.GetFields() });
       collection.Add(content.options).subscribe(r => {

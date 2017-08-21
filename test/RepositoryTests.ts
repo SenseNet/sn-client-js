@@ -116,17 +116,21 @@ export class RepositoryTests {
             RepositoryUrl: 'https://demo.sensenet.com'
         }));
         const task = snRepo.HandleLoadedContent({
-            Id: 1,
+            Id: 100,
+            Path: 'Root/Test',
             Type: 'Task'
         })
 
         const usr = snRepo.HandleLoadedContent({
-            Id: 2,
+            Id: 200,
+            Path: 'Root/Test',
             Name: 'User'
         }, User)
 
         const content = snRepo.HandleLoadedContent({
-            Id: 3
+            Id: 300,
+            Path: 'Root/Test',
+            Name: ''
         })
         expect(task).to.be.instanceof(Task);
 

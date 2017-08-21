@@ -1,7 +1,7 @@
 /**
  * @module Query
  * */ /** */
-import { Content } from  '../Content';
+import { Content, SavedContent } from '../Content';
 
 /**
  * Represents a Content Query result
@@ -10,7 +10,7 @@ export class QueryResult<T extends Content>{
     /**
      * The result yielded by the Query
      */
-    Result: T[];
+    Result: SavedContent<T>[];
     /**
      * The item count
      */
