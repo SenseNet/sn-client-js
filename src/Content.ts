@@ -852,7 +852,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    Publish(rejectReason?: string) {
+    Publish() {
         return this.odata.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true });
     }
     /**
