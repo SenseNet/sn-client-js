@@ -261,7 +261,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     }
 
     /**
-     * Executes a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
+     * Creates a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
      * Usage:
      * ```ts
      * const query = repository.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
@@ -277,7 +277,21 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
     = (build, params) => new FinializedQuery(build, this, 'Root', params);
 
-    DeleteBatch = (contentList: (SavedContent<Content<IContentOptions>>)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) => {
+    /**
+     * Executes a DeleteBatch request to delete multiple content by a single request.
+     * 
+     * Usage:
+     * ```ts
+     * repository.DeleteBatch([content1, content2...], true).subscribe(()=>{
+     *  console.log('Contents deleted.')
+     * })
+     * ```
+     * 
+     * @param {Content[]} contentList An array of content to be deleted
+     * @param {boolean} permanently Option to delete the content permanently or just move it to the trash
+     * @param {Content} rootContent The context node, the PortalRoot by default
+     */
+    public DeleteBatch(contentList: (SavedContent<Content<IContentOptions>>)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields());
         const action = this.odataApi.CreateCustomAction({
             name: 'DeleteBatch',
@@ -303,6 +317,18 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return action;
     };
 
+    /**
+    * Executes a MoveBatch request to move multiple content by a single request.
+     * 
+     * Usage:
+     * ```ts
+     * repository.MoveBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
+     *  console.log('Contents moved.')
+     * })
+     * @param {Content[]} contentList An array of content to move
+     * @param {string} targetPath The target Path
+     * @param {Content} rootContent The context node, the PortalRoot by default
+     */
     MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
         const contentFields = contentList.map(c => c.GetFields());
         const action = this.odataApi.CreateCustomAction({
@@ -332,6 +358,18 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return action;
     }
 
+    /**
+    * Executes a CopyBatch request to copy multiple content by a single request.
+     * 
+     * Usage:
+     * ```ts
+     * repository.CopyBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
+     *  console.log('Contents copied.')
+     * })
+     * @param {Content[]} contentList An array of content to copy
+     * @param {string} targetPath The target Path
+     * @param {Content} rootContent The context node, the PortalRoot by default
+     */
     CopyBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
         const contentFields = contentList.map(c => c.GetFields());
         const action = this.odataApi.CreateCustomAction({
