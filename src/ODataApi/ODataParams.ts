@@ -9,7 +9,7 @@ export type ODataMetadataType = 'full' | 'minimal' | 'no';
 
 export type ODataFormatType = 'json' | 'verbosejson';
 
-export interface IODataParams<T extends Content> {
+export class IODataParams<T extends Content> {
     select?: ODataFieldParameter<T> | 'all';
     expand?: ODataFieldParameter<T>;
     orderby?: ODataFieldParameter<T>;
