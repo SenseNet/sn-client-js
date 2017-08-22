@@ -162,6 +162,19 @@ export class RepositoryTests {
         expect(action).to.be.instanceof(Observable);
     }
 
+    
+    @test 'DeleteBatch() should fire a DeleteBatch request by path'(){
+        const testContentWithoutId = this.repo.HandleLoadedContent({Path: 'Root/Test2'} as any);
+
+        const action = this.repo.DeleteBatch([testContentWithoutId]);
+
+        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
+        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":["Root/Test2"]},{"permanently":false}]');
+        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
+
+        expect(action).to.be.instanceof(Observable);
+    }
+
     @test 'DeleteBatch() should trigger ContentDeleted event after success'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
 

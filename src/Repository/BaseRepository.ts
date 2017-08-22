@@ -330,7 +330,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
     MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
-        const contentFields = contentList.map(c => c.GetFields());
+        const contentFields = contentList.map(c => c.GetFields()) as SavedContent<any>;
         const action = this.odataApi.CreateCustomAction({
             name: 'MoveBatch',
             path: rootContent.Path,
@@ -348,11 +348,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
         action.subscribe(result => {
             contentFields.forEach((contentData, index) => {
-                this.Events.Trigger.ContentMoved({From: contentData.Path || '', Content: contentList[index], To: targetPath})
+                this.Events.Trigger.ContentMoved({From: contentData.Path, Content: contentList[index], To: targetPath})
             });
         }, error => {
             contentList.forEach((contentData, index) => {
-                this.Events.Trigger.ContentMoveFailed({From: contentData.Path || '', Content: contentList[index], To: targetPath, Error: error})
+                this.Events.Trigger.ContentMoveFailed({From: contentData.Path, Content: contentList[index], To: targetPath, Error: error})
             })
         });
         return action;
