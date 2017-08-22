@@ -3,7 +3,6 @@ import { suite, test } from 'mocha-typescript';
 import { ContentReferenceField } from '../src/ContentReferences';
 import { DeferredObject } from '../src/ComplexTypes';
 import { MockRepository } from './Mocks/MockRepository';
-import { IContentOptions } from '../src/Content';
 import { ContentTypes } from '../src/SN';
 import { LoginState } from '../src/Authentication/LoginState';
 import { ReferenceFieldSetting } from '../src/FieldSettings';
@@ -25,7 +24,7 @@ export class ContentReferenceFieldTests {
             Path: 'root/a/b',
             Name: 'Name',
             Type: 'Task'
-        } as IContentOptions, new ReferenceFieldSetting({}), this.repo);
+        }, new ReferenceFieldSetting({}), this.repo);
         this.unloadedRef = new ContentReferenceField({
             __deferred: {
                 uri: 'a/b/c'

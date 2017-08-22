@@ -54,7 +54,7 @@ export class Query<T extends Content = Content>{
             }, Content)
             .map(q => {
                 return {
-                    Result: q.d.results.map(c => repository.HandleLoadedContent<T, T['options']>(c)),
+                    Result: q.d.results.map(c => repository.HandleLoadedContent<T, T['options']>(c as any)),
                     Count: q.d.__count
                 }
             });

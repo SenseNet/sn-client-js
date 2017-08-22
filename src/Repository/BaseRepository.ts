@@ -9,7 +9,7 @@ import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { IAuthenticationService, LoginState } from '../Authentication/';
 import { ContentType } from '../ContentTypes';
-import { Content } from '../Content';
+import { Content, IContentOptions, SavedContent } from '../Content';
 import { ODataApi, ODataCollectionResponse, IODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ContentSerializer } from '../ContentSerializer';
@@ -144,12 +144,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             undefined,
             ODataCollectionResponse)
             .map(resp => {
-                return resp.d.results.map(c => this.HandleLoadedContent(c, ContentType));
+                return resp.d.results.map(c => this.HandleLoadedContent(c as any, ContentType));
             });
     }
 
 
-    private _loadedContentReferenceCache: Content[] = [];
+    private _loadedContentReferenceCache: SavedContent<Content>[] = [];
 
     /**
      * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
@@ -160,7 +160,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O, contentType?: { new(...args: any[]): T }): T {
+    public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O & {Id: number, Path: string}, contentType?: { new(...args: any[]): T }): SavedContent<T> {
         let instance: T;
         const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Content) as { new(...args: any[]): T };
 
@@ -170,7 +170,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 instance['UpdateLastSavedFields'](opt);
             } else {
                 instance = Content.Create(opt, realContentType, this);
-                this._loadedContentReferenceCache[opt.Id] = instance;
+                this._loadedContentReferenceCache[opt.Id] = instance as SavedContent<T>;
             }
 
         } else {
@@ -178,7 +178,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
         instance['_isSaved'] = true;
         this.Events.Trigger.ContentLoaded({ Content: instance });
-        return instance;
+        return instance as  T & {Id: number, Path: string};
     }
 
     /**
@@ -240,11 +240,28 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0) {
             throw new Error('Content belongs to a different Repository.');
         }
-        return this.HandleLoadedContent(serializedContent.Data)
+        return this.HandleLoadedContent(serializedContent.Data as any)
+    }
+
+    private readonly _staticContent = {
+        VisitorUser: this.HandleLoadedContent({
+            Id: 6,
+            DisplayName: 'Visitor',
+            Domain: 'BuiltIn',
+            Name: 'Visitor',
+            Path: '/Root/IMS/BuiltIn/Portal/Visitor',
+            LoginName: 'Visitor'
+        }, ContentTypes.User),
+        PortalRoot: this.HandleLoadedContent({
+            Id: 2,
+            Path: '/Root',
+            Name: 'Root',
+            DisplayName: 'Root'
+        }, ContentTypes.PortalRoot)
     }
 
     /**
-     * Executes a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
+     * Creates a Content Query on a Repositoy instance, at Root level (path e.g.: '/OData.svc/Root' )
      * Usage:
      * ```ts
      * const query = repository.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
@@ -260,16 +277,134 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
     = (build, params) => new FinializedQuery(build, this, 'Root', params);
 
+    /**
+     * Executes a DeleteBatch request to delete multiple content by a single request.
+     * 
+     * Usage:
+     * ```ts
+     * repository.DeleteBatch([content1, content2...], true).subscribe(()=>{
+     *  console.log('Contents deleted.')
+     * })
+     * ```
+     * 
+     * @param {Content[]} contentList An array of content to be deleted
+     * @param {boolean} permanently Option to delete the content permanently or just move it to the trash
+     * @param {Content} rootContent The context node, the PortalRoot by default
+     */
+    public DeleteBatch(contentList: (SavedContent<Content<IContentOptions>>)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
+        const contentFields = contentList.map(c => c.GetFields());
+        const action = this.odataApi.CreateCustomAction({
+            name: 'DeleteBatch',
+            path: rootContent.Path,
+            isAction: true,
+            requiredParams: ['paths']
+        }, {
+            data: [
+                { 'paths': contentList.map(c => c.Id || c.Path).filter(c => c !== undefined) },
+                { 'permanently': permanently }
+            ]
+        });
 
-    private readonly VisitorUser: ContentTypes.User = this.HandleLoadedContent({
-        Id: 6,
-        DisplayName: 'Visitor',
-        Domain: 'BuiltIn',
-        Name: 'Visitor',
-        Path: '/Root/IMS/BuiltIn/Portal/Visitor',
-        LoginName: 'Visitor'
-    })
-    private readonly currentUserSubject = new BehaviorSubject<ContentTypes.User>(this.VisitorUser);
+        action.subscribe(result => {
+            contentFields.forEach(contentData => {
+                this.Events.Trigger.ContentDeleted({ContentData: contentData, Permanently: permanently})
+            });
+        }, error => {
+            contentList.forEach(content => {
+                this.Events.Trigger.ContentDeleteFailed({Content: content, Error: error, Permanently: permanently})
+            })
+        });
+        return action;
+    };
+
+    /**
+    * Executes a MoveBatch request to move multiple content by a single request.
+     * 
+     * Usage:
+     * ```ts
+     * repository.MoveBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
+     *  console.log('Contents moved.')
+     * })
+     * @param {Content[]} contentList An array of content to move
+     * @param {string} targetPath The target Path
+     * @param {Content} rootContent The context node, the PortalRoot by default
+     */
+    MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
+        const contentFields = contentList.map(c => c.GetFields()) as SavedContent<any>;
+        const action = this.odataApi.CreateCustomAction({
+            name: 'MoveBatch',
+            path: rootContent.Path,
+            isAction: true,
+            requiredParams: ['targetPath', 'paths']
+        }, {
+            data: [
+                {
+                    'paths': contentList.map(c => c.Path).filter(c => c !== undefined),
+                    targetPath
+                },
+                
+            ]
+        });
+
+        action.subscribe(result => {
+            contentFields.forEach((contentData, index) => {
+                this.Events.Trigger.ContentMoved({From: contentData.Path, Content: contentList[index], To: targetPath})
+            });
+        }, error => {
+            contentList.forEach((contentData, index) => {
+                this.Events.Trigger.ContentMoveFailed({From: contentData.Path, Content: contentList[index], To: targetPath, Error: error})
+            })
+        });
+        return action;
+    }
+
+    /**
+    * Executes a CopyBatch request to copy multiple content by a single request.
+     * 
+     * Usage:
+     * ```ts
+     * repository.CopyBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
+     *  console.log('Contents copied.')
+     * })
+     * @param {Content[]} contentList An array of content to copy
+     * @param {string} targetPath The target Path
+     * @param {Content} rootContent The context node, the PortalRoot by default
+     */
+    CopyBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
+        const contentFields = contentList.map(c => c.GetFields());
+        const action = this.odataApi.CreateCustomAction({
+            name: 'CopyBatch',
+            path: rootContent.Path,
+            isAction: true,
+            requiredParams: ['targetPath', 'paths']
+        }, {
+            data: [
+                {
+                    'paths': contentList.map(c => c.Path).filter(c => c !== undefined),
+                    targetPath
+                },
+                
+            ]
+        });
+
+        action.subscribe(result => {
+            contentFields.forEach((contentData, index) => {
+                // ToDo: Update from CopyBatch response
+                const created = this.HandleLoadedContent(contentData as any);
+                created.Path = ODataHelper.joinPaths(targetPath, created.Name || '');
+                (created as any).Id = undefined;
+                this.Events.Trigger.ContentCreated({Content: created});
+            });
+        }, error => {
+            contentList.forEach((contentData, index) => {
+                this.Events.Trigger.ContentCreateFailed({Error: error, Content: contentData})
+            })
+        });
+        return action;
+    }
+
+
+    private readonly currentUserSubject = new BehaviorSubject<ContentTypes.User>(this._staticContent.VisitorUser);
     public GetCurrentUser: () => Observable<ContentTypes.User> = () => this.currentUserSubject.distinctUntilChanged();
 
     private _lastKnownUserName = 'BuiltIn\\Visitor';
@@ -277,7 +412,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .subscribe(state => {
                 if (state === LoginState.Unauthenticated) {
-                    this.currentUserSubject.next(this.VisitorUser);
+                    this.currentUserSubject.next(this._staticContent.VisitorUser);
                     this._lastKnownUserName = 'BuiltIn\\Visitor';
                 } else {
                     if (this._lastKnownUserName !== this.Authentication.CurrentUser) {

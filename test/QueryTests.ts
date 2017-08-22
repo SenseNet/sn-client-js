@@ -48,8 +48,8 @@ export class QueryTests {
         
         const content = repo.HandleLoadedContent({
             Id: 3,
-            Type: 'Folder'
-        })
+            Type: 'Folder',
+        } as any)
 
         expect(() => content.CreateQuery(q => q.TypeIs(ContentTypes.Folder))).to.throw('No Content path provided for querying');
     }

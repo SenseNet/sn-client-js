@@ -6,7 +6,7 @@ import { IODataParams } from './';
 import { Content } from '../Content';
 
 
-export interface IODataRequestOptions<T extends Content> {
+export class IODataRequestOptions<T extends Content> {
     path: string;
     params?: IODataParams<T>;
     async?: boolean;
