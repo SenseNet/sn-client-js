@@ -151,6 +151,110 @@ export class RepositoryTests {
     }
 
 
+    @test 'DeleteBatch() should fire a DeleteBatch request'(){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        const action = this.repo.DeleteBatch([testContent]);
+
+        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
+        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":[12345]},{"permanently":false}]');
+        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
+
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test 'DeleteBatch() should trigger ContentDeleted event after success'(done: MochaDone){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+
+        this.repo.Events.OnContentDeleted.subscribe(c => {
+            expect(c.ContentData.Id).to.be.eq(testContent.Id);
+            done();
+        });
+        this.repo.httpProviderRef.setResponse({});
+        const action = this.repo.DeleteBatch([testContent]);
+        expect(action).to.be.instanceof(Observable);
+    }    
+
+    @test 'DeleteBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnContentDeleteFailed.subscribe(c => {
+            expect(c.Content).to.be.eq(testContent);
+            done();
+        });
+        this.repo.httpProviderRef.setError({message: ':('});
+        const action = this.repo.DeleteBatch([testContent]);
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test 'MoveBatch() should fire a MoveBatch request'(){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        const action = this.repo.MoveBatch([testContent], 'Root/Test2');
+
+        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/MoveBatch");
+        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
+        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
+
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test 'MoveBatch() should trigger ContentMoved event after success'(done: MochaDone){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        const sourcePath = testContent.Path;
+
+        this.repo.Events.OnContentMoved.subscribe(c => {
+            expect(c.Content.Id).to.be.eq(testContent.Id);
+            expect(c.From).to.be.eq(sourcePath);
+            expect(c.To).to.be.eq('Root/Test2')
+            done();
+        });
+        this.repo.httpProviderRef.setResponse({});
+        const action = this.repo.MoveBatch([testContent], 'Root/Test2');
+        expect(action).to.be.instanceof(Observable);
+    }    
+
+    @test 'MoveBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnContentMoveFailed.subscribe(c => {
+            expect(c.Content).to.be.eq(testContent);
+            done();
+        });
+        this.repo.httpProviderRef.setError({message: ':('});
+        const action = this.repo.MoveBatch([testContent], 'Root/Test2');
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test 'CopyBatch() should fire a CopyBatch request'(){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        const action = this.repo.CopyBatch([testContent], 'Root/Test2');
+
+        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/CopyBatch");
+        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
+        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
+
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test 'CopyBatch() should trigger ContentCreated event after success'(done: MochaDone){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnContentCreated.subscribe(c => {
+            expect(c.Content.Id).to.be.eq(testContent.Id);
+            done();
+        });
+        this.repo.httpProviderRef.setResponse({});
+        const action = this.repo.CopyBatch([testContent], 'Root/Test2');
+        expect(action).to.be.instanceof(Observable);
+    }    
+
+    @test 'CopyBatch() should trigger ContentCreateFailed event after failure'(done: MochaDone){
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnContentCreateFailed.subscribe(c => {
+            expect(c.Content).to.be.eq(testContent);
+            done();
+        });
+        this.repo.httpProviderRef.setError({message: ':('});
+        const action = this.repo.CopyBatch([testContent], 'Root/Test2');
+        expect(action).to.be.instanceof(Observable);
+    }
+
     @test 'GetCurrentUser() should return an Observable '() {
         let repo = new MockRepository();
         expect(repo.GetCurrentUser()).to.be.instanceof(Observable)
@@ -185,6 +289,7 @@ export class RepositoryTests {
             done();
         }, done)
     }
+
 
     @test 'GetCurrentUser() should not update if multiple users found  on change '(done: MochaDone) {
         let repo = new MockRepository();
