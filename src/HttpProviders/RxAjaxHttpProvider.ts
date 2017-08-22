@@ -2,13 +2,20 @@
  * @module HttpProviders
  *//** */
 
-import { Observable, AjaxRequest, Subject } from '@reactivex/rxjs';
+import { Observable, AjaxRequest } from '@reactivex/rxjs';
 import { BaseHttpProvider } from './';
+import { SnConfigModel } from '../Config';
 
 /**
  * This is the default RxJs-Ajax based Http calls.
  */
 export class RxAjaxHttpProvider extends BaseHttpProvider {
+
+    public ForceCheckCrossDomain: boolean = true;
+
+    private isCrossDomain(path: string): boolean {
+        return path.indexOf(SnConfigModel.DEFAULT_BASE_URL) === -1;
+    }
 
     constructor(){
         super();
@@ -17,29 +24,12 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
     }
 
     protected AjaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
-        const sub = new Subject<T>();
-        const req = new XMLHttpRequest();
-        req.open(options.method || 'GET', options.url || '', true);
-        if (options.headers){
-            for (let headerName in options.headers || []){
-                if (options.headers[headerName])
-                req.setRequestHeader(headerName, options.headers[headerName]);
-            }
+        
+        if (this.ForceCheckCrossDomain){
+            const crossDomain = this.isCrossDomain(options.url || '');            
+            options.withCredentials = crossDomain;
+            options.crossDomain = crossDomain;
         }
-        req.withCredentials = true; // pass along cookies
-
-        req.onload = () => {
-            try {
-                sub.next(req.responseText && JSON.parse(req.responseText) || null);
-            } catch (error) {
-                sub.error(error);
-            }
-        }
-
-        req.send(options.body);
-
-        req.onerror = sub.error;
-        return sub.asObservable();
-        // return Observable.ajax(options).map(req => req.response as T).share();
+        return Observable.ajax(options).map(req => req.response as T).share();
     }
 }

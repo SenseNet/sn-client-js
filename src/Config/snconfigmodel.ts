@@ -4,6 +4,8 @@
 
 import { SnConfigBehavior } from './snconfigbehavior';
 import { SnConfigField } from './snconfigfielddecorator';
+import { ODataMetadataType, ODataFieldParameter } from '../ODataApi/ODataParams';
+import { Content } from '../Content';
 
 /**
  * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. The values can be populated from sn.config.js.
@@ -66,6 +68,67 @@ export class SnConfigModel {
         Question: ''
     })
     public JwtTokenPersist: 'session' | 'expiration' = 'session';
+
+    /**
+     * This parameter describes what fields should be included in the OData $select statements by default
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default values to select when triggering an OData Action',
+        Question: ''
+    })
+    public DefaultSelect: ODataFieldParameter<Content> | 'all' = ['DisplayName', 'Description', 'Icon']
+
+
+    /**
+     * This parameter describes what fields should always be included in the OData $select statements
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The values are required when triggering an OData Action and will be always included in Select statements',
+        Question: ''
+    })
+    public RequiredSelect: ODataFieldParameter<Content> = ['Id', 'Path', 'Name', 'Type']
+
+    /**
+     * This field sets the default OData $metadata value
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData metadata option',
+        Question: ''
+    })
+    public DefaultMetadata: ODataMetadataType = 'no';
+
+    /**
+     * This field sets the default OData inline count value
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData inline count option',
+        Question: ''
+    })
+    public DefaultInlineCount: 'allpages' | 'none' = 'allpages'
+
+    /**
+     * This field describes what fields should be expanded on every OData request by default
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData references to expand',
+        Question: ''
+    })
+    public DefaultExpand: ODataFieldParameter<Content> | undefined = undefined;
+
+    /**
+     * This field sets up a default OData $top parameter
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'The default OData $top parameter for querying / fetching content',
+        Question: ''
+    })
+    public DefaultTop: number = 1000;
 
     /**
      *

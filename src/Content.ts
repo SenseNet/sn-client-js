@@ -42,7 +42,7 @@
  */ /** */
 
 import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
-import { ODataRequestOptions, ODataParams, ODataApi } from './ODataApi';
+import { IODataParams, ODataApi, ODataFieldParameter } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
@@ -86,9 +86,13 @@ export const isContentOptionList = (objectList: any[]): objectList is IContentOp
 }
 
 
+export type SavedContent<T extends Content> = T & {Id: number, Path: string};
+
 export class Content<T extends IContentOptions = IContentOptions> {
 
-    private readonly odata: ODataApi<BaseHttpProvider, Content>;
+    private get odata(): ODataApi<BaseHttpProvider>{
+        return this.repository.GetODataApi();
+    }
 
     /**
      * An unique identifier for a content
@@ -251,7 +255,6 @@ export class Content<T extends IContentOptions = IContentOptions> {
         Object.assign(this, options);
         Object.assign(this._lastSavedFields, options);
         this.updateReferenceFields();
-        this.odata = repository.GetODataApi();
     }
 
     /**
@@ -269,7 +272,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    Delete(permanently?: boolean): Observable<any> {
+    Delete(permanently?: boolean): Observable<void> {
         if (this.Id) {
             const fields = this.GetFields();
             const observable = this.odata.Delete(this.Id, permanently);
@@ -280,7 +283,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 });
             }, (err) => {
                 this.repository.Events.Trigger.ContentDeleteFailed({
-                    Content: this,
+                    Content: this as SavedContent<Content>,
                     Permanently: permanently || false,
                     Error: err
                 });
@@ -305,7 +308,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Rename(newDisplayName: string, newName?: string): Observable<this> {
+    Rename(newDisplayName: string, newName?: string): Observable<SavedContent<this>> {
 
         if (!this.IsSaved) {
             throw new Error('Content is not saved. You can rename only saved content!')
@@ -321,7 +324,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
         return this.Save(fields);
     }
 
-    private saveContentInternal(fields?: T, override?: boolean): Observable<this> {
+    private saveContentInternal(fields?: T, override?: boolean): Observable<SavedContent<this>> {
         const contentType = this.constructor as { new(...args: any[]): any };
         const originalFields = this.GetFields();
         /** Fields Save logic */
@@ -329,7 +332,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             if (!this.Id) {
                 const err = new Error('Content Id not present');
                 this.repository.Events.Trigger.ContentModificationFailed({ 
-                    Content: this,
+                    Content: this as SavedContent<this>,
                     Fields: fields,
                     Error: err                    
                 });
@@ -339,7 +342,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             if (!this.IsSaved) {
                 const err = new Error('The Content is not saved to the Repository, Save it before updating.')
                 this.repository.Events.Trigger.ContentModificationFailed({
-                    Content: this,
+                    Content: this as SavedContent<this>,
                     Fields: fields,
                     Error: err
                 });
@@ -350,14 +353,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
                         this.repository.Events.Trigger.ContentModified({ 
-                            Content: this,
+                            Content: this as SavedContent<this > ,
                             OriginalFields: originalFields,
                             Changes: fields
                         });
-                        return this;
+                        return this as SavedContent<this>;
                     }).share();
                 request.subscribe(() => { }, err => {
-                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: fields, Error: err });
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this as SavedContent<this>, Fields: fields, Error: err });
                 })
                 return request;
             }
@@ -365,12 +368,12 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 const request = this.odata.Patch(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository.Events.Trigger.ContentModified({ Content: this, OriginalFields: originalFields, Changes: fields });
-                        return this;
+                        this.repository.Events.Trigger.ContentModified({ Content: this as SavedContent<this>, OriginalFields: originalFields, Changes: fields });
+                        return this as SavedContent<this>;
                     }).share();
 
                 request.subscribe(() => { }, err => {
-                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: fields, Error: err });
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this as SavedContent<this>, Fields: fields, Error: err });
                 })
                 return request;
 
@@ -391,13 +394,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
                         throw Error('Error: No content Id in response!');
                     }
                     this.UpdateLastSavedFields(resp);
-                    this.repository['_loadedContentReferenceCache'][resp.Id] = this;
+                    this.repository['_loadedContentReferenceCache'][resp.Id] = this as SavedContent<this>;
                     this._isSaved = true;
-                    return this;
+                    return this as SavedContent<this>;
                 }).share();
 
             request.subscribe((c) => {
-                this.repository.Events.Trigger.ContentCreated({Content: this});
+                this.repository.Events.Trigger.ContentCreated({Content: this as SavedContent<this>});
             }, err => {
                 this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
             });
@@ -407,7 +410,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             // Content saved
             if (!this.IsDirty) {
                 // No changes, no request
-                return Observable.of(this);
+                return Observable.of(this as SavedContent<this>);
             } else {
                 if (!this.Id) {
                     throw new Error('Content Id not present');
@@ -417,12 +420,12 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 const request = this.odata.Patch<this>(this.Id, contentType, changes)
                     .map(resp => {
                         this.UpdateLastSavedFields(resp);
-                        return this;
+                        return this as SavedContent<this>;
                     }).share();
                 request.subscribe(() => {
-                    this.repository.Events.Trigger.ContentModified({ Content: this, Changes: changes, OriginalFields: originalFields });
+                    this.repository.Events.Trigger.ContentModified({ Content: this as SavedContent<this>, Changes: changes, OriginalFields: originalFields });
                 }, err => {
-                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this, Fields: changes, Error: err });
+                    this.repository.Events.Trigger.ContentModificationFailed({ Content: this as SavedContent<this>, Fields: changes, Error: err });
 
                 })
                 return request;
@@ -447,7 +450,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Save(fields?: T, override?: boolean): Observable<this> {
+    Save(fields?: T, override?: boolean): Observable<SavedContent<this>> {
 
         this._isOperationInProgress = true;
         const saveObservable = this.saveContentInternal(fields, override).share();
@@ -474,22 +477,22 @@ export class Content<T extends IContentOptions = IContentOptions> {
             throw new Error('Content Id or Path has to be provided')
         }
 
-        let selectFields: string | string[] = 'all';
-        let expandFields;
+        let selectFields: ODataFieldParameter<this> | 'all' = 'all';
+        let expandFields: ODataFieldParameter<this> | undefined = undefined;
         if (actionName){
             const fieldSettings = this.GetSchema().FieldSettings.filter(f => {
                 return actionName === 'edit' && f.VisibleEdit
                        || actionName === 'view' && f.VisibleBrowse
             });
-            selectFields = fieldSettings.map(f => f.Name);
+            selectFields = fieldSettings.map(f => f.Name) as ODataFieldParameter<this>;
             expandFields = fieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting)
-                .map(f => f.Name);
+                .map(f => f.Name) as ODataFieldParameter<this>;
         }
         
         return this.repository.Load(this.Id || this.Path as any, {
             select: selectFields,
             expand: expandFields
-        });
+        } as IODataParams<this>);
     }
 
     /**
@@ -498,7 +501,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @throws if the Content is not saved yet or no Id or Path is provided
      * @returns {Observable<this>} An observable whitch will be updated with the Content
      */
-    ReloadFields(...fields: (keyof this)[]): Observable<this>{
+    ReloadFields(...fields: (keyof this['options'])[]): Observable<this>{
 
         if (!this.IsSaved){
             throw new Error('Content has to be saved to reload')
@@ -508,11 +511,11 @@ export class Content<T extends IContentOptions = IContentOptions> {
         }
 
         const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
-                .map(f => f.Name);
+                .map(f => f.Name) as ODataFieldParameter<this>;
         return this.repository.Load(this.Id || this.Path as any, {
             select: fields,
             expand: toExpand
-        });
+        } as IODataParams<this>);
     }
 
     /**
@@ -531,12 +534,12 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      */
     Actions(scenario?: string): Observable<ActionModel[]> {
-        return this.odata.Get(new ODataRequestOptions({
+        return this.odata.Get({
             path: ODataHelper.joinPaths(this.GetFullPath(), 'Actions'),
             params: {
                 scenario: scenario
             }
-        }), Object as { new(...args) })
+        }, Object as { new(...args) })
             .map(resp => {
                 return resp.d.Actions as ActionModel[];
             });
@@ -556,7 +559,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+    GetAllowedChildTypes(options?: IODataParams<ContentTypes.ContentType>): Observable<SavedContent<ContentType>[]> {
         return this.AllowedChildTypes.GetContent(options);
     }
     /**
@@ -574,7 +577,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: ODataParams): Observable<ContentType[]> {
+    GetEffectiveAllowedChildTypes(options?: IODataParams<ContentTypes.ContentType>): Observable<SavedContent<ContentType>[]> {
         return this.EffectiveAllowedChildTypes.GetContent(options);
     }
     /**
@@ -592,7 +595,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetOwner(options?: ODataParams): Observable<User> {
+    GetOwner(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
         return this.Owner.GetContent(options);
     }
 
@@ -612,7 +615,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Creator(options?: ODataParams): Observable<User> {
+    Creator(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
         return this.CreatedBy.GetContent(options);
     }
     /**
@@ -630,7 +633,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Modifier(options?: ODataParams): Observable<User> {
+    Modifier(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
         return this.ModifiedBy.GetContent(options);
     }
     /**
@@ -648,7 +651,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    CheckedOutBy(options?: ODataParams): Observable<User> {
+    CheckedOutBy(options?: IODataParams<ContentTypes.User> ): Observable<SavedContent<User>> {
         return this.CheckedOutTo.GetContent(options);
     }
     /**
@@ -670,16 +673,16 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Children(options?: ODataParams): Observable<Content[]> {
+    Children(options?: IODataParams<Content>): Observable<Content[]> {
         if (!this.Path) {
             throw new Error('No path specified');
         }
 
-        return this.odata.Fetch(new ODataRequestOptions({
+        return this.odata.Fetch({
             path: this.Path,
             params: options
-        }), Content).map(resp => {
-            return resp.d.results.map(c => this.repository.HandleLoadedContent(c));
+        }, Content).map(resp => {
+            return resp.d.results.map(c => this.repository.HandleLoadedContent(c as any));
         });
     }
     /**
@@ -701,7 +704,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetVersions(options?: ODataParams): Observable<this[]> {
+    GetVersions(options?: IODataParams<this>): Observable<SavedContent<this>[]> {
         return this.Versions.GetContent(options);
     }
     /**
@@ -723,7 +726,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetWorkspace(options?: ODataParams): Observable<Workspace> {
+    GetWorkspace(options?: IODataParams<Workspace>): Observable<SavedContent<Workspace>> {
         return this.Workspace.GetContent(options);
     }
     /**
@@ -852,7 +855,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    Publish(rejectReason?: string) {
+    Publish() {
         return this.odata.CreateCustomAction({ name: 'Publish', id: this.Id, isAction: true });
     }
     /**
@@ -942,13 +945,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
             this.Path = newPath;
             this.UpdateLastSavedFields({ Path: newPath } as T);
             this.repository.Events.Trigger.ContentMoved({
-                Content: this,
+                Content: this as SavedContent<this>,
                 From: fromPath,
                 To: toPath
             })
         }, err => {
             this.repository.Events.Trigger.ContentMoveFailed({
-                Content: this,
+                Content: this as SavedContent<this>,
                 From: fromPath,
                 To: toPath,
                 Error: err
@@ -1071,8 +1074,8 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     // Shortcut to repository.HandleLoadedContent()
     // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
-    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O,
-        repository: BaseRepository) => TContent
+    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O & {Id: number, Path: string},
+        repository: BaseRepository) => SavedContent<TContent>
     = (contentType, contentOptions, repository) => {
         console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
         return repository.HandleLoadedContent(contentOptions, contentType);
@@ -1792,7 +1795,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: ODataParams) => FinializedQuery<T> 
+    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T> 
         = (build, params) => {
             if (!this.Path){
                 throw new Error('No Content path provided for querying')

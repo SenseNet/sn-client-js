@@ -8,14 +8,14 @@
  */ /** */
 
 import { Observable } from '@reactivex/rxjs';
-import { CustomAction, IODataParams, ODataRequestOptions, ODataApi } from './ODataApi';
+import { CustomAction, IODataParams, IODataRequestOptions, ODataApi } from './ODataApi';
 import { ODataHelper } from './SN';
 import { Content } from './Content';
 import { BaseRepository } from './Repository/BaseRepository';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
 
 export class Collection<T extends Content> {
-    odata: ODataApi<BaseHttpProvider, Content>;
+    odata: ODataApi<BaseHttpProvider>;
     Path: string = '';
 
     /**
@@ -83,7 +83,7 @@ export class Collection<T extends Content> {
     public Add(content: T['options']): Observable<T> {
         const newcontent = this.odata.Post(this.Path, content, this.contentType)
             .map(resp => {
-                return this.repository.HandleLoadedContent(resp, this.contentType);
+                return this.repository.HandleLoadedContent(resp as any, this.contentType);
             });
         newcontent
             .subscribe({
@@ -177,19 +177,15 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Read(path: string, options?: IODataParams): Observable<any> {
+    public Read(path: string, options?: IODataParams<T>): Observable<any> {
         this.Path = path;
-        let o: any = {};
-        if (typeof options !== 'undefined') {
-            o['params'] = options;
-        }
-        o['path'] = path;
-        let optionList = new ODataRequestOptions(o as ODataRequestOptions);
-        const children = this.odata.Fetch<T>(optionList)
+        const children = this.odata.Fetch<T>({
+            params: options,
+            path: path
+        })
             .map(items => {
-                return items.d.results.map(c => this.repository.HandleLoadedContent(c, this.contentType));
-            }
-            );
+                return items.d.results.map(c => this.repository.HandleLoadedContent(c as any, this.contentType));
+            });
         return children;
     }
     /**
@@ -309,7 +305,7 @@ export class Collection<T extends Content> {
             o['params'] = options;
         }
         o['path'] = ODataHelper.getContentURLbyPath(this.Path);
-        let optionList = new ODataRequestOptions(o as ODataRequestOptions);
+        let optionList = o as IODataRequestOptions<T>;
         return this.odata.Get<T>(optionList);
     }
     /**

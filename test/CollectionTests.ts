@@ -23,6 +23,7 @@ describe('Collection', () => {
       }, Content),
       Repo.HandleLoadedContent({
         Id: 2,
+        Path: 'Root/Test',
         Name: 'test2'
       }, Content)];
 
@@ -65,7 +66,7 @@ describe('Collection', () => {
     });
 
     it('Observable should be resolved', (done) => {
-      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, ContentTypes.Task);
+      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, ContentTypes.Task);
       Repo.Authentication.stateSubject.next(LoginState.Authenticated);
       Repo.httpProviderRef.setResponse({ d: content.GetFields() });
       collection.Add(content.options).subscribe(r => {
@@ -136,10 +137,30 @@ describe('Collection', () => {
       expect(collection.Upload('Task', 'task.docx')).to.be.instanceof(Observable);
     });
   });
-  describe('#Upload()', () => {
+  describe('#Read()', () => {
     it('should return an observable', () => {
       collection['Path'] = '/workspaces/project';
       expect(collection.Read('Task')).to.be.instanceof(Observable);
+    });
+
+    it('should update from Result', (done) => {
+      collection['Path'] = '/workspaces/project';
+      Repo.Authentication.stateSubject.next(LoginState.Authenticated);
+      Repo.httpProviderRef.setResponse({
+        d: {
+            __count: 1,
+            results: [{
+                Name: 'NewUser2',
+                Id: 1000,
+                LoginName: 'NewUser2',
+                Type: 'User',
+            }]
+        }
+    })
+      collection.Read('Task').subscribe(result => {
+        expect(result.length).to.be.eq(1);
+        done();
+      }, done);
     });
   });
 });

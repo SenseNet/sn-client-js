@@ -4,7 +4,7 @@
 /** */
 
 
-import { Content, IContentOptions } from '../Content';
+import { Content, IContentOptions, SavedContent } from '../Content';
 import { Subject, Observable } from '@reactivex/rxjs';
 import { IODataParams, ICustomActionOptions } from '../ODataApi';
 
@@ -14,7 +14,7 @@ export module EventModels {
         /**
          * The created Content instance
          */
-        Content: Content;
+        Content: SavedContent<Content>;
     }
 
     export class CreateFailed {
@@ -33,7 +33,7 @@ export module EventModels {
         /**
          * The Content instance that has been modified.
          */
-        Content: Content;
+        Content: SavedContent<Content>;
         
         /**
          * The original fields
@@ -49,7 +49,7 @@ export module EventModels {
         /**
          * The Content instance that has been failed to modify
          */
-        Content: Content;
+        Content: SavedContent<Content>;
         /**
          * The Fields that you've been tried to modify
          */
@@ -64,7 +64,7 @@ export module EventModels {
         /**
          * The Loaded content instance
          */
-        Content: Content
+        Content: SavedContent<Content>
     }
 
     export class Deleted {
@@ -82,7 +82,7 @@ export module EventModels {
         /**
          * The Content that you've tried to delete
          */
-        Content: Content;
+        Content: SavedContent<Content>;
         /**
          * Indicates if you've tried to delete the Content permanently or just tried to move it to the Trash
          */        
@@ -94,7 +94,7 @@ export module EventModels {
         Error: any;
     }
 
-    export class CustomActionExecuted {
+    export class CustomActionExecuted<T extends Content> {
         /**
          * The Action options
          */        
@@ -102,14 +102,14 @@ export module EventModels {
         /**
          * The additional OData parameters (optional)
          */        
-        ODataParams?: IODataParams;
+        ODataParams?: IODataParams<T>;
         /**
          * The Action result
          */
         Result: any
     }
 
-    export class CustomActionFailed {
+    export class CustomActionFailed<T extends Content> {
         /**
          * The Action options
          */
@@ -117,7 +117,7 @@ export module EventModels {
         /**
          * The additional OData parameters (optional)
          */
-        ODataParams?: IODataParams;
+        ODataParams?: IODataParams<T>;
         /**
          * The Type of the Result object
          */
@@ -140,7 +140,7 @@ export module EventModels {
         /**
          * The moved Content instance
          */
-        Content: Content;
+        Content: SavedContent<Content>;
     }
 
     export class ContentMoveFailed {
@@ -155,7 +155,7 @@ export module EventModels {
         /**
          * The Content instance that you've tried to move
          */
-        Content: Content;
+        Content: SavedContent<Content>;
         /**
          * The Error that caused the failure
          */
@@ -171,8 +171,8 @@ export class RepositoryEventHub {
     private readonly onContentLoadedSubject = new Subject<EventModels.Loaded>();
     private readonly onContentDeletedSubject = new Subject<EventModels.Deleted>();
     private readonly onContentDeleteFailedSubject = new Subject<EventModels.DeleteFailed>();
-    private readonly onCustomActionExecutedSubject = new Subject<EventModels.CustomActionExecuted>();
-    private readonly onCustomActionFailedSubject = new Subject<EventModels.CustomActionFailed>();
+    private readonly onCustomActionExecutedSubject = new Subject<EventModels.CustomActionExecuted<Content>>();
+    private readonly onCustomActionFailedSubject = new Subject<EventModels.CustomActionFailed<Content>>();
     private readonly onContentMovedSubject = new Subject<EventModels.ContentMoved>()
     private readonly onContentMoveFailedSubject = new Subject<EventModels.ContentMoveFailed>()
 
@@ -180,22 +180,22 @@ export class RepositoryEventHub {
      * Method group for triggering Repository events
      */
     public Trigger = {
-        ContentCreated: (ev) => this.onContentCreatedSubject.next(ev),
-        ContentCreateFailed: (ev) => this.onContentCreateFailedSubject.next(ev),
+        ContentCreated: (ev: EventModels.Created) => this.onContentCreatedSubject.next(ev),
+        ContentCreateFailed: (ev: EventModels.CreateFailed) => this.onContentCreateFailedSubject.next(ev),
 
-        ContentModified: (ev) => this.onContentModifiedSubject.next(ev),
-        ContentModificationFailed: (ev) => this.onContentModificationFailedSubject.next(ev),
+        ContentModified: (ev: EventModels.Modified) => this.onContentModifiedSubject.next(ev),
+        ContentModificationFailed: (ev: EventModels.ModificationFailed) => this.onContentModificationFailedSubject.next(ev),
 
         ContentLoaded: (ev) => this.onContentLoadedSubject.next(ev),
 
-        ContentDeleted: (ev) => this.onContentDeletedSubject.next(ev),
-        ContentDeleteFailed: (ev) => this.onContentDeleteFailedSubject.next(ev),
+        ContentDeleted: (ev: EventModels.Deleted) => this.onContentDeletedSubject.next(ev),
+        ContentDeleteFailed: (ev: EventModels.DeleteFailed) => this.onContentDeleteFailedSubject.next(ev),
 
-        CustomActionExecuted: (ev) => this.onCustomActionExecutedSubject.next(ev),
-        CustomActionFailed: (ev) => this.onCustomActionFailedSubject.next(ev),
+        CustomActionExecuted: (ev: EventModels.CustomActionExecuted<any>) => this.onCustomActionExecutedSubject.next(ev),
+        CustomActionFailed: (ev: EventModels.CustomActionFailed<any>) => this.onCustomActionFailedSubject.next(ev),
 
-        ContentMoved: (ev) => this.onContentMovedSubject.next(ev),
-        ContentMoveFailed: (ev) => this.onContentMoveFailedSubject.next(ev)
+        ContentMoved: (ev: EventModels.ContentMoved) => this.onContentMovedSubject.next(ev),
+        ContentMoveFailed: (ev: EventModels.ContentMoveFailed) => this.onContentMoveFailedSubject.next(ev)
     }
 
     /**
