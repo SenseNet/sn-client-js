@@ -60,6 +60,7 @@
   "homepage": "https://sensenet.com",
   "dependencies": {
     "@reactivex/rxjs": "^5.4.2",
+    "sensenet-kfi-cz-conventional-changelog": "^1.0.0",
     "nyc": "^11.0.2"
   },
   "devDependencies": {
@@ -77,8 +78,10 @@
     "typedoc-plugin-external-module-name": "^1.0.9",
     "typescript": "2.5.2"
   },
-  "czConfig": {
-    "path": "node_modules/cz-conventional-changelog"
+  "config": {
+    "commitizen": {
+      "path": "sensenet-kfi-cz-conventional-changelog"
+    }
   },
   "typings": "./dist/src/SN.d.ts"
 }
