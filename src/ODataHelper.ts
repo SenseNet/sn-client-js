@@ -22,7 +22,7 @@ export const combineODataFieldParameters: <T extends Content>(...params: ODataFi
             }
         });
         params = params.filter(param => param && param.length > 0);
-        return [...new Set([...params])] as ODataFieldParameter<T>;
+        return [...new Set([].concat.apply([], params))] as ODataFieldParameter<T>;
     }
 
 /**
@@ -54,7 +54,7 @@ export const buildUrlParamString: <T extends Content>(config: Partial<SnConfigMo
         const plainValue = options[key];
         let parsedValue = plainValue;
         if (plainValue instanceof Array && plainValue.length && plainValue.length > 0){
-            parsedValue = plainValue.join(',');
+            parsedValue = plainValue.map(v => v.join && v.join(' ') || v).join(',');
         }
         if (name && parsedValue && parsedValue.length){
             segments.push({name, value: parsedValue});
