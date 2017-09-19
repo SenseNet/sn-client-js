@@ -75,6 +75,32 @@ describe('#buildUrlParamString()', () => {
         const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: 'DisplayName' });
         expect(urlParamString).to.be.eq('$orderby=DisplayName&metadata=no');
     });
+
+    it('should parse a single orderby expression', () => {
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: 'Name' });
+        expect(urlParamString).to.be.eq('$orderby=Name&metadata=no');
+    });
+
+    it('should parse an orderby array with fields expression', () => {
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: ['Name', 'DisplayName'] });
+        expect(urlParamString).to.be.eq('$orderby=Name,DisplayName&metadata=no');
+    });
+
+    it('should parse an orderby field expression with order', () => {
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: [['Name', 'asc']] });
+        expect(urlParamString).to.be.eq('$orderby=Name asc&metadata=no');
+    });    
+
+    it('should parse an orderby array with ordered fields list expression', () => {
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: [['Name', 'asc'], ['DisplayName', 'desc']] });
+        expect(urlParamString).to.be.eq('$orderby=Name asc,DisplayName desc&metadata=no');
+    });
+
+    it('should parse an orderby array with ordered fields list expression and field names', () => {
+        const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: [['Name', 'asc'], 'DisplayName'] });
+        expect(urlParamString).to.be.eq('$orderby=Name asc,DisplayName&metadata=no');
+    });
+
     it('should return a string without any param', () => {
         const urlParamString = ODataHelper.buildUrlParamString({RequiredSelect: ['Id', 'Type'], DefaultMetadata: 'no'});
         expect(urlParamString).to.be.eq('');
