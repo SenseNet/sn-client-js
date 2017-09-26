@@ -18,7 +18,7 @@
     "pretest": "npm run build",
     "test": "nyc mocha -p tsconfig.json dist/test/index.js",
     "check-coverage": "istanbul check-coverage ",
-    "report-coverage": "cat ./coverage/lcov.info | ./node_modules/.bin/codecovcodecov",
+    "report-coverage": "cat ./coverage/lcov.info | ./node_modules/.bin/codecov",
     "semantic-release": "semantic-release pre && semantic-release post",
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
