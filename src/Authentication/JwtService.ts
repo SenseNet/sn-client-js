@@ -173,21 +173,14 @@ export class JwtService implements IAuthenticationService {
      * ```
      */
     public Logout(): Observable<boolean> {
-        const sub = new Subject<boolean>();
-
-        this.httpProviderRef.Ajax(LoginResponse, {
-            method: 'POST',
-            url: ODataHelper.joinPaths(this.repositoryUrl, 'sn-token/logout'),
-        }).subscribe(() => {
-            sub.next(true);
-        }, err => {
-            this.stateSubject.next(LoginState.Unauthenticated);
-            sub.next(false);
-        });
-
         this.TokenStore.AccessToken = Token.CreateEmpty();
         this.TokenStore.RefreshToken = Token.CreateEmpty();
         this.stateSubject.next(LoginState.Unauthenticated);
-        return sub;
+        
+        return this.httpProviderRef.Ajax(LoginResponse, {
+            method: 'POST',
+            url: ODataHelper.joinPaths(this.repositoryUrl, 'sn-token/logout'),
+        }).map(() => true);
+
     }
 }
