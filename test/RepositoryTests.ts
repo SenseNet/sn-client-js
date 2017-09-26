@@ -288,6 +288,7 @@ export class RepositoryTests {
                 __count: 1,
                 results: [{
                     Name: 'NewUser',
+                    Domain: 'BuiltIn',
                     Id: 1000,
                     LoginName: 'NewUser',
                     Type: 'User',
@@ -297,7 +298,7 @@ export class RepositoryTests {
         repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
         repo.Authentication.stateSubject.next(LoginState.Pending);
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-        repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
+        repo.GetCurrentUser().subscribe(u => {
             expect(u.Name).to.be.eq('NewUser');
             done();
         }, done)
@@ -306,8 +307,10 @@ export class RepositoryTests {
 
     @test 'GetCurrentUser() should not update if multiple users found  on change '(done: MochaDone) {
         let repo = new MockRepository();
+        repo.Authentication.stateSubject.next(LoginState.Pending);
+        repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
 
-        repo.GetCurrentUser().skipWhile(u => u.Name === 'Visitor').subscribe(u => {
+        repo.GetCurrentUser().subscribe(u => {
             done('Error should be thrown here.');
         }, err => {
             expect(err).to.be.eq("Error getting current user: found multiple users with login name 'NewUser' in domain 'BuiltIn'")
@@ -321,18 +324,18 @@ export class RepositoryTests {
                     Name: 'NewUser',
                     Id: 1000,
                     LoginName: 'NewUser',
+                    Domain: 'BuiltIn',
                     Type: 'User',
                 },
                 {
                     Name: 'NewUser',
                     Id: 1000,
                     LoginName: 'NewUser',
+                    Domain: 'BuiltIn',
                     Type: 'User',
                 }]
             }
-        })
-        repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
-        repo.Authentication.stateSubject.next(LoginState.Pending);
+        });
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
     }
 

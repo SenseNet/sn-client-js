@@ -405,7 +405,14 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
 
     private readonly currentUserSubject = new BehaviorSubject<ContentTypes.User>(this._staticContent.VisitorUser);
-    public GetCurrentUser: () => Observable<ContentTypes.User> = () => this.currentUserSubject.distinctUntilChanged();
+    public GetCurrentUser: () => Observable<ContentTypes.User> = () => {
+        return this.currentUserSubject
+            .distinctUntilChanged()
+            .filter(u => {
+                const [userDomain, userName] = this.Authentication.CurrentUser.split('\\');
+                return u.LoginName === userName && u.Domain === userDomain
+            });
+    }
 
     private _lastKnownUserName = 'BuiltIn\\Visitor';
     private initUserUpdate() {
