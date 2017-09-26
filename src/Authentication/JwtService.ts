@@ -167,7 +167,7 @@ export class JwtService implements IAuthenticationService {
     }
 
     /**
-     * Logs out the current user, sets the tokes to 'empty'
+     * Logs out the current user, sets the tokens to 'empty'
      * ```
      * service.Logout();
      * ```
@@ -176,6 +176,11 @@ export class JwtService implements IAuthenticationService {
         this.TokenStore.AccessToken = Token.CreateEmpty();
         this.TokenStore.RefreshToken = Token.CreateEmpty();
         this.stateSubject.next(LoginState.Unauthenticated);
-        return new BehaviorSubject(false).asObservable();
+        
+        return this.httpProviderRef.Ajax(LoginResponse, {
+            method: 'POST',
+            url: ODataHelper.joinPaths(this.repositoryUrl, 'sn-token/logout'),
+        }).map(() => true);
+
     }
 }
