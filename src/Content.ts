@@ -44,6 +44,7 @@
 import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
 import { IODataParams, ODataApi, ODataFieldParameter } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
+import { Upload } from './Upload';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
@@ -86,11 +87,11 @@ export const isContentOptionList = (objectList: any[]): objectList is IContentOp
 }
 
 
-export type SavedContent<T extends Content> = T & {Id: number, Path: string};
+export type SavedContent<T extends Content> = T & { Id: number, Path: string };
 
 export class Content<T extends IContentOptions = IContentOptions> {
 
-    private get odata(): ODataApi<BaseHttpProvider>{
+    private get odata(): ODataApi<BaseHttpProvider> {
         return this.repository.GetODataApi();
     }
 
@@ -128,7 +129,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     /**
      * Returns the assigned Repository instance
      */
-    public GetRepository(): BaseRepository{
+    public GetRepository(): BaseRepository {
         return this.repository;
     }
 
@@ -156,13 +157,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
         for (let field in this.GetFields()) {
             const currentField = (this as any)[field];
             if (currentField !== this._lastSavedFields[field]) {
-                
+
                 if (currentField instanceof ContentReferenceField) {
-                    if (currentField.IsDirty){
+                    if (currentField.IsDirty) {
                         changedFields[field] = currentField.getValue();
                     }
                 } else if (currentField instanceof ContentListReferenceField) {
-                    if (currentField.IsDirty){
+                    if (currentField.IsDirty) {
                         changedFields[field] = currentField.getValue();
                     }
                 } else {
@@ -232,12 +233,12 @@ export class Content<T extends IContentOptions = IContentOptions> {
     EffectiveAllowedChildTypes: ContentListReferenceField<ContentType>;
     AllowedChildTypes: ContentListReferenceField<ContentType>;
 
-    private referenceFieldCache: (ContentListReferenceField<Content>|ContentReferenceField<Content>)[] = []
-    private updateReferenceFields(){
+    private referenceFieldCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = []
+    private updateReferenceFields() {
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
-        referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, {Name: 'AllowedChildTypes', AllowMultiple: true}]);
+        referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, { Name: 'AllowedChildTypes', AllowMultiple: true }]);
         referenceSettings.forEach(f => {
-            if (!this.referenceFieldCache[f.Name]){
+            if (!this.referenceFieldCache[f.Name]) {
                 this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
             } else {
                 this.referenceFieldCache[f.Name].handleLoaded(this[f.Name]);
@@ -331,10 +332,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
         if (fields) {
             if (!this.Id) {
                 const err = new Error('Content Id not present');
-                this.repository.Events.Trigger.ContentModificationFailed({ 
+                this.repository.Events.Trigger.ContentModificationFailed({
                     Content: this as SavedContent<this>,
                     Fields: fields,
-                    Error: err                    
+                    Error: err
                 });
                 throw err;
             }
@@ -352,8 +353,8 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 const request = this.odata.Put(this.Id, contentType, fields)
                     .map(newFields => {
                         this.UpdateLastSavedFields(newFields);
-                        this.repository.Events.Trigger.ContentModified({ 
-                            Content: this as SavedContent<this > ,
+                        this.repository.Events.Trigger.ContentModified({
+                            Content: this as SavedContent<this>,
                             OriginalFields: originalFields,
                             Changes: fields
                         });
@@ -400,7 +401,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 }).share();
 
             request.subscribe((c) => {
-                this.repository.Events.Trigger.ContentCreated({Content: this as SavedContent<this>});
+                this.repository.Events.Trigger.ContentCreated({ Content: this as SavedContent<this> });
             }, err => {
                 this.repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
             });
@@ -469,26 +470,26 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @param {'edit' | 'view'} actionName
      * @returns {Observable<this>} An observable whitch will be updated with the Content
      */
-    Reload(actionName?: 'edit' | 'view'): Observable<this>{
-        if (!this.IsSaved){
+    Reload(actionName?: 'edit' | 'view'): Observable<SavedContent<this>> {
+        if (!this.IsSaved) {
             throw new Error('Content has to be saved to reload')
         }
-        if (!this.Id && !this.Path){
+        if (!this.Id && !this.Path) {
             throw new Error('Content Id or Path has to be provided')
         }
 
         let selectFields: ODataFieldParameter<this> | 'all' = 'all';
         let expandFields: ODataFieldParameter<this> | undefined = undefined;
-        if (actionName){
+        if (actionName) {
             const fieldSettings = this.GetSchema().FieldSettings.filter(f => {
                 return actionName === 'edit' && f.VisibleEdit
-                       || actionName === 'view' && f.VisibleBrowse
+                    || actionName === 'view' && f.VisibleBrowse
             });
             selectFields = fieldSettings.map(f => f.Name) as ODataFieldParameter<this>;
             expandFields = fieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting)
                 .map(f => f.Name) as ODataFieldParameter<this>;
         }
-        
+
         return this.repository.Load(this.Id || this.Path as any, {
             select: selectFields,
             expand: expandFields
@@ -501,17 +502,17 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @throws if the Content is not saved yet or no Id or Path is provided
      * @returns {Observable<this>} An observable whitch will be updated with the Content
      */
-    ReloadFields(...fields: (keyof this['options'])[]): Observable<this>{
+    ReloadFields(...fields: (keyof this['options'])[]): Observable<this> {
 
-        if (!this.IsSaved){
+        if (!this.IsSaved) {
             throw new Error('Content has to be saved to reload')
         }
-        if (!this.Id && !this.Path){
+        if (!this.Id && !this.Path) {
             throw new Error('Content Id or Path has to be provided')
         }
 
         const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
-                .map(f => f.Name) as ODataFieldParameter<this>;
+            .map(f => f.Name) as ODataFieldParameter<this>;
         return this.repository.Load(this.Id || this.Path as any, {
             select: fields,
             expand: toExpand
@@ -651,7 +652,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    CheckedOutBy(options?: IODataParams<ContentTypes.User> ): Observable<SavedContent<User>> {
+    CheckedOutBy(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
         return this.CheckedOutTo.GetContent(options);
     }
     /**
@@ -919,7 +920,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     */
     MoveTo(toPath: string) {
 
-        if (!this.IsSaved){
+        if (!this.IsSaved) {
             throw new Error('Content not saved!')
         }
 
@@ -931,7 +932,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             throw new Error('No Name provided for the content');
         }
 
-        if (toPath.indexOf(this.Path) === 0){
+        if (toPath.indexOf(this.Path) === 0) {
             throw new Error('Content cannot be moved below itself')
         }
 
@@ -1074,7 +1075,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     // Shortcut to repository.HandleLoadedContent()
     // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
-    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O & {Id: number, Path: string},
+    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O & { Id: number, Path: string },
         repository: BaseRepository) => SavedContent<TContent>
     = (contentType, contentOptions, repository) => {
         console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
@@ -1671,7 +1672,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
-    public Upload(contentType: string = 'File', fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName: string= 'Binary', fileText?: string) {
+    public Upload(contentType: string = 'File', fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName: string = 'Binary', fileText?: string) {
         if (!this.Path) {
             throw Error('No Path provided!');
         }
@@ -1702,6 +1703,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
         return uploadCreation;
     }
 
+    public UploadFile: <T extends Content>(File: File, ContentType: { new(...args): T }, PropertyName: keyof T | 'Binary', Settings?: {
+        Overwrite: boolean,
+        UseChunk: boolean
+    }) => Observable<T> = (file, contentType = File as {new(...args)}, propertyName = 'Binary', settings = {
+        Overwrite: false,
+        UseChunk: false
+    }) => Upload.File(this as SavedContent<this>, file, contentType, propertyName, settings)
 
     /**
      * Returns the parent content's Path
@@ -1724,8 +1732,8 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * Indicates if the current Content is the parent a specified Content
      */
     public IsParentOf(childContent: Content): boolean {
-        return this.repository === childContent.repository && this.IsSaved && 
-            (this.Id && childContent.ParentId === this.Id 
+        return this.repository === childContent.repository && this.IsSaved &&
+            (this.Id && childContent.ParentId === this.Id
                 || childContent.ParentPath === this.Path);
     }
 
@@ -1733,7 +1741,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * Indicates if the current Content is a child of a specified Content
      */
     public IsChildOf(parentContent: Content): boolean {
-        return this.repository === parentContent.repository && parentContent.IsSaved && 
+        return this.repository === parentContent.repository && parentContent.IsSaved &&
             (parentContent.Id && this.ParentId === parentContent.Id
                 || this.ParentPath === parentContent.Path);
     }
@@ -1795,13 +1803,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T> 
-        = (build, params) => {
-            if (!this.Path){
-                throw new Error('No Content path provided for querying')
-            }
-            return new FinializedQuery(build, this.repository, this.Path, params);
-        };
+    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
+    = (build, params) => {
+        if (!this.Path) {
+            throw new Error('No Content path provided for querying')
+        }
+        return new FinializedQuery(build, this.repository, this.Path, params);
+    };
 }
 
 /**

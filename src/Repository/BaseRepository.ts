@@ -39,7 +39,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {any} body The post body (optional)
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
-    public Ajax<T>(path: string, method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', returnsType?: { new(...args: any[]): T }, body?: any): Observable<T> {
+    public Ajax<T>(path: string,
+                    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', 
+                    returnsType?: { new(...args: any[]): T }, 
+                    body?: any,
+                    additionalHeaders?: {name: string, value: string}[]
+                ): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
             .first()
@@ -53,7 +58,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         method: method,
                         body: body,
                         responseType: 'json',
-                    });
+                    }, additionalHeaders);
             });
     }
 
@@ -204,7 +209,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         idOrPath: string | number,
         odataOptions?: IODataParams<TContentType>,
         returnsType?: { new(...args: any[]): TContentType },
-        version?: string): Observable<TContentType> {
+        version?: string): Observable<SavedContent<TContentType>> {
 
         let contentURL = typeof idOrPath === 'string' ?
             ODataHelper.getContentURLbyPath(idOrPath) :
