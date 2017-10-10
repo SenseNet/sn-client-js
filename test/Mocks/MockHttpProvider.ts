@@ -1,7 +1,7 @@
 /**
  * @module Mocks
  */ /** */
- 
+
 import { Observable, ReplaySubject, AjaxRequest } from '@reactivex/rxjs';
 import { BaseHttpProvider } from '../../src/HttpProviders';
 
@@ -9,6 +9,16 @@ import { BaseHttpProvider } from '../../src/HttpProviders';
  * This HttpProvider can be used for test purposes only, it doesn't make any API calls
  */
 export class MockHttpProvider extends BaseHttpProvider {
+
+    private _lastUploadOptions?: AjaxRequest & { url: string; };
+    protected UploadInner<T>(returnType: new (...args: any[]) => T, File: File, options?: (AjaxRequest & { url: string; })): Observable<T> {
+        let subject = new ReplaySubject<T>();
+
+        this.UseTimeout ? setTimeout(() => this.runMocks(subject, options as AjaxRequest)) : this.runMocks(subject, options as AjaxRequest);
+
+        this._lastUploadOptions = options;
+        return subject.asObservable();
+    }
 
     public get actualHeaders() {
         return this.headers;
@@ -38,16 +48,16 @@ export class MockHttpProvider extends BaseHttpProvider {
 
     public UseTimeout: boolean = true;
 
-    private runMocks<T>(subject: ReplaySubject<T>, options: AjaxRequest){
-            this._lastUrl = options.url || '';
-            if (this._nextResponse) {
-                subject.next(this._nextResponse);
-                this._nextResponse = null;
-            }
-            if (this._nextError) {
-                subject.error(this._nextError);
-                this._nextError = null;
-            }
+    private runMocks<T>(subject: ReplaySubject<T>, options: AjaxRequest) {
+        this._lastUrl = options.url || '';
+        if (this._nextResponse) {
+            subject.next(this._nextResponse);
+            this._nextResponse = null;
+        }
+        if (this._nextError) {
+            subject.error(this._nextError);
+            this._nextError = null;
+        }
     }
 
 

@@ -3,8 +3,8 @@
  */
 /** */
 
-import { Observable, BehaviorSubject } from '@reactivex/rxjs';
-import { VersionInfo, RepositoryEventHub } from './';
+import { Observable, BehaviorSubject, Subject } from '@reactivex/rxjs';
+import { VersionInfo, RepositoryEventHub, UploadFileOptions, UploadTextOptions, UploadOptions, UploadProgressInfo, WithParentContent } from './';
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { IAuthenticationService, LoginState } from '../Authentication/';
@@ -31,6 +31,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return ODataHelper.joinPaths(this.Config.RepositoryUrl, this.Config.ODataToken);
     }
 
+    public WaitForAuthStateReady() {
+        return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
+            .first();
+    }
+
     /**
      * Public endpoint for making Ajax calls to the Repository
      * @param {string} path The Path for the call
@@ -40,14 +45,13 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @returns {Observable<T>} An observable, which will be updated with the response.
      */
     public Ajax<T>(path: string,
-                    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', 
-                    returnsType?: { new(...args: any[]): T }, 
-                    body?: any,
-                    additionalHeaders?: {name: string, value: string}[]
-                ): Observable<T> {
+        method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
+        returnsType?: { new(...args: any[]): T },
+        body?: any,
+        additionalHeaders?: { name: string, value: string }[]
+    ): Observable<T> {
         this.Authentication.CheckForUpdate();
-        return this.Authentication.State.skipWhile(state => state === Authentication.LoginState.Pending)
-            .first()
+        return this.WaitForAuthStateReady()
             .flatMap(state => {
                 if (!returnsType) {
                     returnsType = Object as { new(...args: any[]): any };
@@ -60,6 +64,51 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         responseType: 'json',
                     }, additionalHeaders);
             });
+    }
+
+    public UploadFile<T extends Content = Content>(uploadOptions: WithParentContent<UploadFileOptions<T>>): Observable<UploadProgressInfo<T>> {
+        this.Authentication.CheckForUpdate();
+        uploadOptions.Body = {
+            ...uploadOptions.Body,
+            Overwrite: uploadOptions.Overwrite,
+            PropertyName: uploadOptions.PropertyName,
+            FileName: uploadOptions.File.name,
+            ContentType: uploadOptions.ContentType.name,
+            UseChunk: uploadOptions.UseChunk
+        }
+        return this.WaitForAuthStateReady()
+            .flatMap(state => {
+                const uploadSubject = new Subject<UploadProgressInfo<T>>();
+                if (!uploadOptions.UseChunk){
+                    uploadOptions.Body.ChunkToken = '0*0*False*False';
+                    this.httpProviderRef.Upload<T>(uploadOptions.ContentType['options'] || Content['options'] as { new(...args) }, uploadOptions.File, {
+                        url: ODataHelper.joinPaths(this.ODataBaseUrl, uploadOptions.Parent.GetFullPath()),
+                        body: uploadOptions.Body,
+                    }, uploadOptions.AdditionalHeaders)
+                    .subscribe(created => {
+                        uploadSubject.next({
+                            Completed: true,
+                            ChunkCount: 1,
+                            UploadedChunks: 1,
+                            CreatedContent: this.HandleLoadedContent(created as  T & {Id: number, Path: string} , uploadOptions.ContentType)
+                        });
+                        uploadSubject.complete();
+                    }, error => uploadSubject.error(error))
+                } else {
+                    // ToDo: Split to chunks here
+                    throw new Error('Chunks not implemented yet :( sooorrry....');
+                }
+
+                return uploadSubject.asObservable();
+            })
+    }
+
+    public UploadTextAsFile<T extends Content = Content>(options: UploadTextOptions<T> & { Parent: Content}) {
+        const file = new File([options.Text], options.FileName);
+        return this.UploadFile<T>({
+            File: file,
+            ...options as WithParentContent<UploadOptions<T>>
+        });
     }
 
     /**
@@ -165,7 +214,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O & {Id: number, Path: string}, contentType?: { new(...args: any[]): T }): SavedContent<T> {
+    public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O & { Id: number, Path: string }, contentType?: { new(...args: any[]): T }): SavedContent<T> {
         let instance: T;
         const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Content) as { new(...args: any[]): T };
 
@@ -183,7 +232,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
         instance['_isSaved'] = true;
         this.Events.Trigger.ContentLoaded({ Content: instance });
-        return instance as  T & {Id: number, Path: string};
+        return instance as T & { Id: number, Path: string };
     }
 
     /**
@@ -304,19 +353,19 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             isAction: true,
             requiredParams: ['paths']
         }, {
-            data: [
-                { 'paths': contentList.map(c => c.Id || c.Path).filter(c => c !== undefined) },
-                { 'permanently': permanently }
-            ]
-        });
+                data: [
+                    { 'paths': contentList.map(c => c.Id || c.Path).filter(c => c !== undefined) },
+                    { 'permanently': permanently }
+                ]
+            });
 
         action.subscribe(result => {
             contentFields.forEach(contentData => {
-                this.Events.Trigger.ContentDeleted({ContentData: contentData, Permanently: permanently})
+                this.Events.Trigger.ContentDeleted({ ContentData: contentData, Permanently: permanently })
             });
         }, error => {
             contentList.forEach(content => {
-                this.Events.Trigger.ContentDeleteFailed({Content: content, Error: error, Permanently: permanently})
+                this.Events.Trigger.ContentDeleteFailed({ Content: content, Error: error, Permanently: permanently })
             })
         });
         return action;
@@ -334,7 +383,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
+    MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields()) as SavedContent<any>;
         const action = this.odataApi.CreateCustomAction({
             name: 'MoveBatch',
@@ -342,22 +391,22 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             isAction: true,
             requiredParams: ['targetPath', 'paths']
         }, {
-            data: [
-                {
-                    'paths': contentList.map(c => c.Path).filter(c => c !== undefined),
-                    targetPath
-                },
-                
-            ]
-        });
+                data: [
+                    {
+                        'paths': contentList.map(c => c.Path).filter(c => c !== undefined),
+                        targetPath
+                    },
+
+                ]
+            });
 
         action.subscribe(result => {
             contentFields.forEach((contentData, index) => {
-                this.Events.Trigger.ContentMoved({From: contentData.Path, Content: contentList[index], To: targetPath})
+                this.Events.Trigger.ContentMoved({ From: contentData.Path, Content: contentList[index], To: targetPath })
             });
         }, error => {
             contentList.forEach((contentData, index) => {
-                this.Events.Trigger.ContentMoveFailed({From: contentData.Path, Content: contentList[index], To: targetPath, Error: error})
+                this.Events.Trigger.ContentMoveFailed({ From: contentData.Path, Content: contentList[index], To: targetPath, Error: error })
             })
         });
         return action;
@@ -375,7 +424,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    CopyBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot){
+    CopyBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields());
         const action = this.odataApi.CreateCustomAction({
             name: 'CopyBatch',
@@ -383,14 +432,14 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             isAction: true,
             requiredParams: ['targetPath', 'paths']
         }, {
-            data: [
-                {
-                    'paths': contentList.map(c => c.Path).filter(c => c !== undefined),
-                    targetPath
-                },
-                
-            ]
-        });
+                data: [
+                    {
+                        'paths': contentList.map(c => c.Path).filter(c => c !== undefined),
+                        targetPath
+                    },
+
+                ]
+            });
 
         action.subscribe(result => {
             contentFields.forEach((contentData, index) => {
@@ -398,11 +447,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 const created = this.HandleLoadedContent(contentData as any);
                 created.Path = ODataHelper.joinPaths(targetPath, created.Name || '');
                 (created as any).Id = undefined;
-                this.Events.Trigger.ContentCreated({Content: created});
+                this.Events.Trigger.ContentCreated({ Content: created });
             });
         }, error => {
             contentList.forEach((contentData, index) => {
-                this.Events.Trigger.ContentCreateFailed({Error: error, Content: contentData})
+                this.Events.Trigger.ContentCreateFailed({ Error: error, Content: contentData })
             })
         });
         return action;

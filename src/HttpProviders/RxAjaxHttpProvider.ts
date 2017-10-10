@@ -2,7 +2,7 @@
  * @module HttpProviders
  *//** */
 
-import { Observable, AjaxRequest } from '@reactivex/rxjs';
+import { Observable, AjaxRequest, Subject } from '@reactivex/rxjs';
 import { BaseHttpProvider } from './';
 import { SnConfigModel } from '../Config';
 
@@ -10,6 +10,40 @@ import { SnConfigModel } from '../Config';
  * This is the default RxJs-Ajax based Http calls.
  */
 export class RxAjaxHttpProvider extends BaseHttpProvider {
+    protected UploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & {url: string}): Observable<T> {
+        const subject = new Subject<T>();
+        const formData = new FormData();
+        formData.append(File.name || 'File', File);
+
+        if (options && options.body){
+            for (const index in options.body){
+                formData.append(index, options.body[index]);
+            }
+        }
+        
+        const request = new XMLHttpRequest();
+        request.withCredentials = this.isCrossDomain(options.url);
+        request.open('POST', options.url);
+
+        request.onreadystatechange = () => {
+            if (request.readyState === 4) {
+
+                switch (request.status) {
+                    case 200:
+                        try {
+                            const responseResult: T = JSON.parse(request.response);
+                            subject.next(responseResult);
+                        } catch (error) {
+                            subject.error(error);
+                        }
+                        break;
+                    default:
+                        subject.error({ message: 'Invalid Request status', request })
+                }
+            }
+        }
+        request.send(formData);
+        return subject.asObservable();    }
 
     public ForceCheckCrossDomain: boolean = true;
 

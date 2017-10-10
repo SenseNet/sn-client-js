@@ -44,7 +44,6 @@
 import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
 import { IODataParams, ODataApi, ODataFieldParameter } from './ODataApi';
 import { Observable } from '@reactivex/rxjs';
-import { Upload } from './Upload';
 import { ActionModel } from './Repository/ActionModel';
 import { BaseRepository } from './Repository/BaseRepository';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
@@ -53,6 +52,8 @@ import { DeferredObject } from './ComplexTypes';
 import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
 import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
 import { QueryExpression, QuerySegment, FinializedQuery } from './Query';
+import { BinaryField } from './BinaryField';
+import { UploadFileOptions, UploadProgressInfo, UploadTextOptions } from './Repository/UploadModels';
 
 /**
  * Typeguard that determines if the specified Object is a DeferredObject
@@ -233,18 +234,27 @@ export class Content<T extends IContentOptions = IContentOptions> {
     EffectiveAllowedChildTypes: ContentListReferenceField<ContentType>;
     AllowedChildTypes: ContentListReferenceField<ContentType>;
 
-    private referenceFieldCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = []
+    private fieldHandlerCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = []
     private updateReferenceFields() {
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
         referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, { Name: 'AllowedChildTypes', AllowMultiple: true }]);
         referenceSettings.forEach(f => {
-            if (!this.referenceFieldCache[f.Name]) {
-                this.referenceFieldCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
+            if (!this.fieldHandlerCache[f.Name]) {
+                this.fieldHandlerCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this.repository) : new ContentReferenceField(this[f.Name], f, this.repository);
             } else {
-                this.referenceFieldCache[f.Name].handleLoaded(this[f.Name]);
+                this.fieldHandlerCache[f.Name].handleLoaded(this[f.Name]);
             }
-            this[f.Name] = this.referenceFieldCache[f.Name];
+            this[f.Name] = this.fieldHandlerCache[f.Name];
         });
+        const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.BinaryFieldSetting);
+        
+        binarySettings.forEach(s => {
+            if (!(this[s.Name] instanceof BinaryField)){
+                const mediaResourceObject = this[s.Name];
+                this[s.Name] = new BinaryField(mediaResourceObject, this as SavedContent<this>, s);
+            }
+        });
+
     }
 
     /**
@@ -1703,13 +1713,20 @@ export class Content<T extends IContentOptions = IContentOptions> {
         return uploadCreation;
     }
 
-    public UploadFile: <T extends Content>(File: File, ContentType: { new(...args): T }, PropertyName: keyof T | 'Binary', Settings?: {
-        Overwrite: boolean,
-        UseChunk: boolean
-    }) => Observable<T> = (file, contentType = File as {new(...args)}, propertyName = 'Binary', settings = {
-        Overwrite: false,
-        UseChunk: false
-    }) => Upload.File(this as SavedContent<this>, file, contentType, propertyName, settings)
+
+    public UploadFile<T extends Content>(uploadOptions: UploadFileOptions<T>): Observable<UploadProgressInfo<T>>{
+        return this.repository.UploadFile({
+            ...uploadOptions,
+            Parent: this
+        });
+    }
+
+    public UploadText<T extends Content>(uploadOptions: UploadTextOptions<T>): Observable<UploadProgressInfo<T>>{
+        return this.repository.UploadTextAsFile({
+            ...uploadOptions,
+            Parent: this
+        });
+    }
 
     /**
      * Returns the parent content's Path
