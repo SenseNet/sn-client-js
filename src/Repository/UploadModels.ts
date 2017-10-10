@@ -20,6 +20,11 @@ export class UploadTextOptions<T extends Content> extends UploadOptions<T>{
     FileName: string;
 }
 
+export class UploadFromEventOptions<T extends Content> extends UploadOptions<T>{
+    Event: DragEvent;
+    CreateFolders: boolean;
+}
+
 export class UploadProgressInfo<T extends Content> {
     CreatedContent: T;
     ChunkCount: number;

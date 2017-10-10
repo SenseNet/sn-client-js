@@ -53,7 +53,7 @@ import { ContentListReferenceField, ContentReferenceField } from './ContentRefer
 import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
 import { QueryExpression, QuerySegment, FinializedQuery } from './Query';
 import { BinaryField } from './BinaryField';
-import { UploadFileOptions, UploadProgressInfo, UploadTextOptions } from './Repository/UploadModels';
+import { UploadFileOptions, UploadProgressInfo, UploadTextOptions, UploadFromEventOptions } from './Repository/UploadModels';
 
 /**
  * Typeguard that determines if the specified Object is a DeferredObject
@@ -1723,6 +1723,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     public UploadText<T extends Content>(uploadOptions: UploadTextOptions<T>): Observable<UploadProgressInfo<T>>{
         return this.repository.UploadTextAsFile({
+            ...uploadOptions,
+            Parent: this
+        });
+    }
+
+    public UploadFromDropEvent<T extends Content>(uploadOptions: UploadFromEventOptions<T>){
+        return this.repository.UploadFromDropEvent({
             ...uploadOptions,
             Parent: this
         });

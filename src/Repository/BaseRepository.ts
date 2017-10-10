@@ -4,7 +4,7 @@
 /** */
 
 import { Observable, BehaviorSubject, Subject } from '@reactivex/rxjs';
-import { VersionInfo, RepositoryEventHub, UploadFileOptions, UploadTextOptions, UploadOptions, UploadProgressInfo, WithParentContent } from './';
+import { VersionInfo, RepositoryEventHub, UploadFileOptions, UploadTextOptions, UploadOptions, UploadProgressInfo, WithParentContent, UploadFromEventOptions } from './';
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { IAuthenticationService, LoginState } from '../Authentication/';
@@ -95,9 +95,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                 ChunkCount: 1,
                                 UploadedChunks: 1,
                                 CreatedContent: c
-                            });                            
+                            });
+                            uploadSubject.complete();
                         });
-                        uploadSubject.complete();
                     }, error => {
                         this.Events.Trigger.ContentCreateFailed({
                             Content: {
@@ -124,6 +124,78 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             File: file,
             ...options as WithParentContent<UploadOptions<T>>
         });
+    }
+
+
+
+    private async webkitFileHandler(FileEntry: WebKitFileEntry, Scope: Content){
+        await new Promise((resolve, reject) => {
+            FileEntry.file(f => {
+                Scope.UploadFile({
+                    File: f as any,
+                    ContentType: ContentTypes.File,
+                    PropertyName: 'Binary',
+                    Overwrite: true,
+                    UseChunk: false
+                })
+                .skipWhile(progress => !progress.Completed)
+                .subscribe(progress => resolve(progress), err => reject(err))
+            }, err => reject(err));
+        })
+    }
+
+    private async webkitDirectoryHandler(Directory: WebKitDirectoryEntry, Scope: Content){
+        await new Promise((resolve, reject) => {
+            this.CreateContent({
+                Name: Directory.name,
+                Path: Scope.Path,
+                DisplayName: Directory.name
+            }, ContentTypes.Folder).Save().subscribe(async c => {
+                const dirReader = Directory.createReader();
+                await new Promise((res) => {
+                    dirReader.readEntries(async items => {
+                        await this.webkitItemListHandler(items as any, c, true);
+                        res();
+                    })
+                });
+                resolve(c);
+            }, err => reject(err));
+        })
+    }
+
+    private async webkitItemListHandler(items: (WebKitFileEntry |  WebKitDirectoryEntry)[], Scope: Content, CreateFolders: boolean){
+        for (const index in items){
+            if (CreateFolders && items[index].isDirectory) {
+                await this.webkitDirectoryHandler(items[index] as WebKitDirectoryEntry, Scope);
+            }
+            if (items[index].isFile){
+                await this.webkitFileHandler(items[index] as WebKitFileEntry, Scope);
+            }
+        }
+    }
+    
+    public async UploadFromDropEvent<T extends Content = Content>(options: UploadFromEventOptions<T> & {Parent: Content}){
+        if ((window as any).webkitRequestFileSystem){
+            const entries: (WebKitFileEntry |  WebKitDirectoryEntry)[] = [].map.call(options.Event.dataTransfer.items, i => i.webkitGetAsEntry());
+            await this.webkitItemListHandler(entries, options.Parent, options.CreateFolders);
+        } else {
+            // Fallback for non-webkit browsers.
+            [].forEach.call(options.Event.dataTransfer.files, async (f: File) => {
+                if (f.type === 'file'){
+                    options.Parent.UploadFile({
+                        File: f,
+                        ContentType: ContentTypes.File,
+                        PropertyName: 'Binary',
+                        Overwrite: true,
+                        UseChunk: false,
+                    }).subscribe(c => {
+                        
+                    });
+                }
+    
+            })
+        }
+
     }
 
     /**
