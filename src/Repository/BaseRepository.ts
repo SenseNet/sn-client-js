@@ -82,18 +82,33 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 if (!uploadOptions.UseChunk){
                     uploadOptions.Body.ChunkToken = '0*0*False*False';
                     this.httpProviderRef.Upload<T>(uploadOptions.ContentType['options'] || Content['options'] as { new(...args) }, uploadOptions.File, {
-                        url: ODataHelper.joinPaths(this.ODataBaseUrl, uploadOptions.Parent.GetFullPath()),
+                        url: ODataHelper.joinPaths(this.ODataBaseUrl, uploadOptions.Parent.GetFullPath(), 'upload'),
                         body: uploadOptions.Body,
                     }, uploadOptions.AdditionalHeaders)
                     .subscribe(created => {
-                        uploadSubject.next({
-                            Completed: true,
-                            ChunkCount: 1,
-                            UploadedChunks: 1,
-                            CreatedContent: this.HandleLoadedContent(created as  T & {Id: number, Path: string} , uploadOptions.ContentType)
+                        this.HandleLoadedContent(created as  T & {Id: number, Path: string} , uploadOptions.ContentType).Reload().subscribe(c => {
+                            this.Events.Trigger.ContentCreated({
+                                Content: c
+                            });
+                            uploadSubject.next({
+                                Completed: true,
+                                ChunkCount: 1,
+                                UploadedChunks: 1,
+                                CreatedContent: c
+                            });                            
                         });
                         uploadSubject.complete();
-                    }, error => uploadSubject.error(error))
+                    }, error => {
+                        this.Events.Trigger.ContentCreateFailed({
+                            Content: {
+                                Id: null,
+                                Path: null,
+                                Name: uploadOptions.File.name
+                            } as any, 
+                            Error: error
+                        })
+                        uploadSubject.error(error);
+                    })
                 } else {
                     // ToDo: Split to chunks here
                     throw new Error('Chunks not implemented yet :( sooorrry....');
