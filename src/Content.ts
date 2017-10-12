@@ -1736,7 +1736,8 @@ export class Content<T extends IContentOptions = IContentOptions> {
     }
 
     /**
-     * Returns the parent content's Path
+     * Returns the parent content's Path in a Collection format
+     * e.g. for the 'Child' content '/Root/Parent/Child' you will get '/Root/Parent'
      * @throws if no Path is specified or the content is not saved yet.
      */
     public get ParentPath(): string {
@@ -1750,6 +1751,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
         const segments = this.Path.split('/');
         segments.pop();
         return segments.join('/');
+    }
+
+    /**
+     * Returns the parent content's Path in an Entity format
+     * e.g. for the 'Child' content '/Root/Parent/Child' you will get '/Root/('Parent')'
+     */
+    public get ParentContentPath(): string{
+        return ODataHelper.getContentURLbyPath(this.ParentPath);
     }
 
     /**
