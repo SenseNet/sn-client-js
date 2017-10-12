@@ -15,15 +15,22 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
         const formData = new FormData();
         formData.append(File.name || 'File', File);
 
-        if (options && options.body){
+        if (options.body){
             for (const index in options.body){
                 formData.append(index, options.body[index]);
             }
         }
         
+
         const request = new XMLHttpRequest();
         request.withCredentials = this.isCrossDomain(options.url);
         request.open('POST', options.url);
+
+        if (options.headers){
+            for (const header in options.headers){
+                request.setRequestHeader(header, options.headers[header]);
+            }
+        }
 
         request.onreadystatechange = () => {
             if (request.readyState === 4) {
@@ -34,7 +41,7 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
                             const responseResult: T = JSON.parse(request.response);
                             subject.next(responseResult);
                         } catch (error) {
-                            subject.error(error);
+                            subject.next(request.response);
                         }
                         break;
                     default:
@@ -43,7 +50,8 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
             }
         }
         request.send(formData);
-        return subject.asObservable();    }
+        return subject.asObservable();
+    }
 
     public ForceCheckCrossDomain: boolean = true;
 
