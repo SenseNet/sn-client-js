@@ -130,6 +130,13 @@ export class SnConfigModel {
     })
     public DefaultTop: number = 1000;
 
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'Default chunk size for chunked uploads',
+        Question: ''
+    })
+    public ChunkSize: number = 1024 * 1024;
+
     /**
      *
      * @param {Partial<SnConfigMoel>} config Partial config values, the default values will be overwritten if provided
