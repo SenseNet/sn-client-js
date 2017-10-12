@@ -7,6 +7,7 @@
 import { Content, IContentOptions, SavedContent } from '../Content';
 import { Subject, Observable } from '@reactivex/rxjs';
 import { IODataParams, ICustomActionOptions } from '../ODataApi';
+import { UploadProgressInfo } from './UploadModels';
 
 
 export module EventModels {
@@ -176,6 +177,8 @@ export class RepositoryEventHub {
     private readonly onContentMovedSubject = new Subject<EventModels.ContentMoved>()
     private readonly onContentMoveFailedSubject = new Subject<EventModels.ContentMoveFailed>()
 
+    private readonly onUploadProgressSubject = new Subject<UploadProgressInfo<Content>>()
+
     /**
      * Method group for triggering Repository events
      */
@@ -195,7 +198,9 @@ export class RepositoryEventHub {
         CustomActionFailed: (ev: EventModels.CustomActionFailed<any>) => this.onCustomActionFailedSubject.next(ev),
 
         ContentMoved: (ev: EventModels.ContentMoved) => this.onContentMovedSubject.next(ev),
-        ContentMoveFailed: (ev: EventModels.ContentMoveFailed) => this.onContentMoveFailedSubject.next(ev)
+        ContentMoveFailed: (ev: EventModels.ContentMoveFailed) => this.onContentMoveFailedSubject.next(ev),
+
+        UploadProgress: (ev: UploadProgressInfo<Content>) => this.onUploadProgressSubject.next(ev)
     }
 
     /**
@@ -253,6 +258,11 @@ export class RepositoryEventHub {
      * Triggered after a custom OData Action has been failed
      */
     public OnCustomActionFailed = this.onCustomActionFailedSubject.asObservable();
+
+    /**
+     * Triggered on Upload progress
+     */
+    public OnUploadProgress = this.onUploadProgressSubject.asObservable();
 
 
 }

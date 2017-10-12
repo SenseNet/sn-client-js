@@ -1717,7 +1717,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     public UploadFile<T extends Content>(uploadOptions: UploadFileOptions<T>): Observable<UploadProgressInfo<T>>{
         return this.repository.UploadFile({
             ...uploadOptions,
-            Parent: this
+            Parent: (this as SavedContent<this>)
         });
     }
 

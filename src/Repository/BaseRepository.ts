@@ -4,7 +4,7 @@
 /** */
 
 import { Observable, BehaviorSubject, Subject } from '@reactivex/rxjs';
-import { VersionInfo, RepositoryEventHub, UploadFileOptions, UploadTextOptions, UploadOptions, UploadProgressInfo, WithParentContent, UploadFromEventOptions } from './';
+import { VersionInfo, RepositoryEventHub, UploadFileOptions, UploadTextOptions, UploadOptions, UploadProgressInfo, WithParentContent, UploadFromEventOptions, UploadResponse } from './';
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { IAuthenticationService, LoginState } from '../Authentication/';
@@ -74,51 +74,160 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             PropertyName: uploadOptions.PropertyName,
             FileName: uploadOptions.File.name,
             ContentType: uploadOptions.ContentType.name,
-            UseChunk: uploadOptions.UseChunk
         }
+
         return this.WaitForAuthStateReady()
             .flatMap(state => {
                 const uploadSubject = new Subject<UploadProgressInfo<T>>();
-                if (!uploadOptions.UseChunk){
+                const fileName = uploadOptions.File.name;
+                const uploadPath = ODataHelper.joinPaths(this.ODataBaseUrl, uploadOptions.Parent.GetFullPath(), 'upload');
+
+                if (uploadOptions.File.size <= this.Config.ChunkSize) {
+
+                    /** Non-chunked upload */
                     uploadOptions.Body.ChunkToken = '0*0*False*False';
                     this.httpProviderRef.Upload<T>(uploadOptions.ContentType['options'] || Content['options'] as { new(...args) }, uploadOptions.File, {
-                        url: ODataHelper.joinPaths(this.ODataBaseUrl, uploadOptions.Parent.GetFullPath(), 'upload'),
+                        url: uploadPath,
                         body: uploadOptions.Body,
-                    }, uploadOptions.AdditionalHeaders)
-                    .subscribe(created => {
-                        this.HandleLoadedContent(created as  T & {Id: number, Path: string} , uploadOptions.ContentType).Reload().subscribe(c => {
-                            this.Events.Trigger.ContentCreated({
-                                Content: c
-                            });
-                            uploadSubject.next({
-                                Completed: true,
-                                ChunkCount: 1,
-                                UploadedChunks: 1,
-                                CreatedContent: c
-                            });
-                            uploadSubject.complete();
-                        });
-                    }, error => {
-                        this.Events.Trigger.ContentCreateFailed({
-                            Content: {
-                                Id: null,
-                                Path: null,
-                                Name: uploadOptions.File.name
-                            } as any, 
-                            Error: error
-                        })
-                        uploadSubject.error(error);
                     })
+                        .subscribe(created => {
+                            this.HandleLoadedContent(created as T & { Id: number, Path: string }, uploadOptions.ContentType).Reload().subscribe(c => {
+                                this.Events.Trigger.ContentCreated({
+                                    Content: c
+                                });
+
+                                const progress = {
+                                    Completed: true,
+                                    ChunkCount: 1,
+                                    UploadedChunks: 1,
+                                    CreatedContent: c
+                                }
+
+                                uploadSubject.next(progress);
+                                this.Events.Trigger.UploadProgress(progress);
+                                uploadSubject.complete();
+                            });
+                        }, error => {
+                            this.Events.Trigger.ContentCreateFailed({
+                                Content: {
+                                    Id: null,
+                                    Path: null,
+                                    Name: fileName
+                                } as any,
+                                Error: error
+                            })
+                            uploadSubject.error(error);
+                        })
                 } else {
-                    // ToDo: Split to chunks here
-                    throw new Error('Chunks not implemented yet :( sooorrry....');
+
+                    /* Chunked upload  */
+
+                    /**
+                     * Init request
+                     */
+
+                    const initialChunkData = uploadOptions.File.slice(0, this.Config.ChunkSize);
+                    return this.httpProviderRef.Upload(String, new File([initialChunkData], uploadOptions.File.name), {
+                        url: uploadPath,
+                        body: {
+                            ...uploadOptions.Body,
+                            UseChunk: true,
+                            create: 1
+                        },
+                        headers: {
+                            'Content-Range': `bytes ${0}-${this.Config.ChunkSize}/${uploadOptions.File.size}`,
+                            'Content-Disposition': `attachment; filename="${uploadOptions.File.name}"`
+                        }
+                    }
+                    ).
+                        flatMap(chunkToken => {
+                            const resp = new UploadResponse(...chunkToken.split('*'));
+
+                            this.Events.Trigger.ContentCreated({
+                                Content: this.HandleLoadedContent({
+                                    Id: resp.ContentId,
+                                    Path: uploadOptions.Parent.Path,
+                                    Name: uploadOptions.File.name,
+                                }, uploadOptions.ContentType)
+                            })
+
+                            return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
+                                .flatMap(c => {
+                                    return this.Load(resp.ContentId, undefined, uploadOptions.ContentType)
+                                    .map(content => {
+                                        const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
+                                        content['_isOperationInProgress'] = false;
+                                        return {
+                                            Completed: true,
+                                            ChunkCount: chunkCount,
+                                            UploadedChunks: chunkCount,
+                                            CreatedContent: content as T
+                                        } as UploadProgressInfo<T>
+                                    });
+                                })
+
+                            // return this.Load(resp.ContentId, undefined, uploadOptions.ContentType)
+                            //     .map(content => {
+                            //         const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
+                            //         content['_isOperationInProgress'] = false;
+                            //         return {
+                            //             Completed: true,
+                            //             ChunkCount: chunkCount,
+                            //             UploadedChunks: chunkCount,
+                            //             CreatedContent: content as T
+                            //         } as UploadProgressInfo<T>
+                            //     });
+                        })
                 }
 
                 return uploadSubject.asObservable();
             })
     }
 
-    public UploadTextAsFile<T extends Content = Content>(options: UploadTextOptions<T> & { Parent: Content}) {
+    private sendChunk<T extends Content>(options: WithParentContent<UploadFileOptions<T>>, uploadPath: string, chunkToken: string, contentId: number, offset: number = 0) {
+
+        let chunkEnd = offset + this.Config.ChunkSize;
+        chunkEnd = chunkEnd > options.File.size ? options.File.size : chunkEnd;
+
+        const chunkData = options.File.slice(offset, chunkEnd);
+
+        const request = this.httpProviderRef.Upload(Object, new File([chunkData], options.File.name), {
+            url: uploadPath,
+            body: {
+                ...options.Body,
+                UseChunk: true,
+                FileLength: options.File.size,
+                ChunkToken: chunkToken
+            },
+            headers: {
+                'Content-Range': `bytes ${offset}-${chunkEnd - 1}/${options.File.size}`,
+                'Content-Disposition': `attachment; filename="${options.File.name}"`
+            }
+        })
+
+        request.subscribe(newResp => {
+            const content = this.HandleLoadedContent({
+                Id: contentId,
+                Path: '',
+                Name: options.File.name,
+            }, options.ContentType);
+            content['_isOperationInProgress'] = true;
+            const progress = {
+                Completed: false,
+                ChunkCount: Math.ceil(options.File.size / this.Config.ChunkSize),
+                CreatedContent: content,
+                UploadedChunks: (offset / this.Config.ChunkSize) + 1
+            };
+            this.Events.Trigger.UploadProgress(progress);
+        });
+
+        if (chunkEnd === options.File.size){
+            return request;
+        }
+        return request.flatMap(r => this.sendChunk(options, uploadPath, chunkToken, contentId, offset + this.Config.ChunkSize));
+    }
+
+    public UploadTextAsFile<T extends Content = Content>(options: UploadTextOptions<T> & { Parent: Content }) {
         const file = new File([options.Text], options.FileName);
         return this.UploadFile<T>({
             File: file,
@@ -128,23 +237,23 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
 
 
-    private async webkitFileHandler(FileEntry: WebKitFileEntry, Scope: Content){
+    private async webkitFileHandler<T extends Content>(FileEntry: WebKitFileEntry, Scope: Content, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
             FileEntry.file(f => {
                 Scope.UploadFile({
                     File: f as any,
-                    ContentType: ContentTypes.File,
-                    PropertyName: 'Binary',
-                    Overwrite: true,
-                    UseChunk: false
+                    ...options
                 })
-                .skipWhile(progress => !progress.Completed)
-                .subscribe(progress => resolve(progress), err => reject(err))
+                    .skipWhile(progress => !progress.Completed)
+                    .subscribe(progress => {
+                        resolve(progress);
+                        console.log(progress);
+                    }, err => reject(err))
             }, err => reject(err));
         })
     }
 
-    private async webkitDirectoryHandler(Directory: WebKitDirectoryEntry, Scope: Content){
+    private async webkitDirectoryHandler<T extends Content>(Directory: WebKitDirectoryEntry, Scope: Content, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
             this.CreateContent({
                 Name: Directory.name,
@@ -154,7 +263,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 const dirReader = Directory.createReader();
                 await new Promise((res) => {
                     dirReader.readEntries(async items => {
-                        await this.webkitItemListHandler(items as any, c, true);
+                        await this.webkitItemListHandler(items as any, c, true, options);
                         res();
                     })
                 });
@@ -163,36 +272,33 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         })
     }
 
-    private async webkitItemListHandler(items: (WebKitFileEntry |  WebKitDirectoryEntry)[], Scope: Content, CreateFolders: boolean){
-        for (const index in items){
+    private async webkitItemListHandler<T extends Content>(items: (WebKitFileEntry | WebKitDirectoryEntry)[], Scope: Content, CreateFolders: boolean, options: UploadOptions<T>) {
+        for (const index in items) {
             if (CreateFolders && items[index].isDirectory) {
-                await this.webkitDirectoryHandler(items[index] as WebKitDirectoryEntry, Scope);
+                await this.webkitDirectoryHandler(items[index] as WebKitDirectoryEntry, Scope, options);
             }
-            if (items[index].isFile){
-                await this.webkitFileHandler(items[index] as WebKitFileEntry, Scope);
+            if (items[index].isFile) {
+                await this.webkitFileHandler(items[index] as WebKitFileEntry, Scope, options);
             }
         }
     }
-    
-    public async UploadFromDropEvent<T extends Content = Content>(options: UploadFromEventOptions<T> & {Parent: Content}){
-        if ((window as any).webkitRequestFileSystem){
-            const entries: (WebKitFileEntry |  WebKitDirectoryEntry)[] = [].map.call(options.Event.dataTransfer.items, i => i.webkitGetAsEntry());
-            await this.webkitItemListHandler(entries, options.Parent, options.CreateFolders);
+
+    public async UploadFromDropEvent<T extends Content = Content>(options: UploadFromEventOptions<T> & { Parent: Content }) {
+        if ((window as any).webkitRequestFileSystem) {
+            const entries: (WebKitFileEntry | WebKitDirectoryEntry)[] = [].map.call(options.Event.dataTransfer.items, i => i.webkitGetAsEntry());
+            await this.webkitItemListHandler<T>(entries, options.Parent, options.CreateFolders, options);
         } else {
             // Fallback for non-webkit browsers.
             [].forEach.call(options.Event.dataTransfer.files, async (f: File) => {
-                if (f.type === 'file'){
+                if (f.type === 'file') {
                     options.Parent.UploadFile({
                         File: f,
-                        ContentType: ContentTypes.File,
-                        PropertyName: 'Binary',
-                        Overwrite: true,
-                        UseChunk: false,
+                        ...options as UploadOptions<T>
                     }).subscribe(c => {
-                        
+
                     });
                 }
-    
+
             })
         }
 
