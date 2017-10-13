@@ -1,7 +1,7 @@
 /**
  * @module Content
  * @preferred
- * 
+ *
  * @description Top level base type of sense NET's Type hierarchy.
  *
  * Content has the basic properties and functionality that can be reached on all of the inherited types. It's almost the same as an abstract class, it may not be instantiated directly,
@@ -247,7 +247,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             this[f.Name] = this.fieldHandlerCache[f.Name];
         });
         const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.BinaryFieldSetting);
-        
+
         binarySettings.forEach(s => {
             if (!(this[s.Name] instanceof BinaryField)){
                 const mediaResourceObject = this[s.Name];
@@ -285,6 +285,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
     */
     Delete(permanently?: boolean): Observable<void> {
         if (this.Id) {
+            this._isOperationInProgress = true;
             const fields = this.GetFields();
             const observable = this.odata.Delete(this.Id, permanently);
             observable.subscribe(() => {
@@ -292,12 +293,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
                     ContentData: fields,
                     Permanently: permanently || false
                 });
+                this._isOperationInProgress = false;
             }, (err) => {
                 this.repository.Events.Trigger.ContentDeleteFailed({
                     Content: this as SavedContent<Content>,
                     Permanently: permanently || false,
                     Error: err
                 });
+                this._isOperationInProgress = false;
             })
             return observable;
         }
@@ -320,7 +323,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      */
     Rename(newDisplayName: string, newName?: string): Observable<SavedContent<this>> {
-
+        this._isOperationInProgress = true;
         if (!this.IsSaved) {
             throw new Error('Content is not saved. You can rename only saved content!')
         }
@@ -1824,15 +1827,15 @@ export class Content<T extends IContentOptions = IContentOptions> {
 
     /**
      * Creates a content query on a Content instance.
-     * Usage: 
+     * Usage:
      * ```ts
      * const query = content.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
      *                        .Top(10))
      * query.Exec().subscribe(res => {
      *      console.log('Folders count: ', res.Count);
      *      console.log('Folders: ', res.Result);
-     * } 
-     * 
+     * }
+     *
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
