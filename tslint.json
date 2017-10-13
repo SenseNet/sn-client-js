@@ -1,5 +1,5 @@
 {
-    
+    "rulesDirectory": ["tslint-consistent-codestyle"],
     "rules": {
         "comment-format": [
             true
@@ -8,6 +8,10 @@
             true,
             "spaces"
         ],
+        "no-trailing-whitespace": {
+            "severity": "warn",
+            "options": []
+        },
         "no-duplicate-variable": true,
         "no-eval": true,
         "no-internal-module": false,
@@ -41,17 +45,33 @@
             "avoid-escape"
         ],
         "variable-name": false,
-        "whitespace": [
+        "whitespace": {
+            "severity": "warn",
+            "options": [
             true,
             "check-branch",
             "check-decl",
             "check-operator",
             "check-separator",
             "check-type"
-        ],
+        ]},
         "max-file-line-count": [
             false
-        ]
+        ],
+        "naming-convention": {
+            "severity": "warn",
+            "options": [
+                true,
+
+                {"type": "method", "modifiers": "private", "leadingUnderscore": "forbid", "format":"camelCase"},
+                {"type": "method", "modifiers": "protected", "leadingUnderscore": "forbid", "format":"camelCase"},
+                {"type": "method", "modifiers": "public", "leadingUnderscore": "forbid", "format":"PascalCase"},
+
+                {"type": "property", "modifiers": "private", "leadingUnderscore": "require", "format":"camelCase"},
+                {"type": "property", "modifiers": "protected", "leadingUnderscore": "require", "format":"camelCase"},
+                {"type": "property", "modifiers": "public", "leadingUnderscore": "forbid", "format": "PascalCase"}
+            ]
+        }
     },
     "jsRules": {
         "indent": [
