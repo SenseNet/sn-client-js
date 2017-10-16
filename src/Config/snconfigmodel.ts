@@ -20,7 +20,7 @@ export class SnConfigModel {
             return (window && window.location && window.location.origin) || '';
         return '';
     }
-    
+
     /**
      * The default Sense/Net OData Service token (odata.svc)
      */

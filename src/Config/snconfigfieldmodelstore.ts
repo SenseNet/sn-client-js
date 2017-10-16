@@ -13,7 +13,7 @@ export class SnConfigFieldModelStore {
     /**
      * An array that contains the field definitions.
      */
-    private static store: SnConfigFieldModel[] = [];
+    private static _store: SnConfigFieldModel[] = [];
 
     /**
      * Adds a new model to the store
@@ -27,7 +27,7 @@ export class SnConfigFieldModelStore {
         if (this.Contains(newModel.StoreKey)) {
             throw new Error(`Field ${newModel.StoreKey} for configuration model already in the store!`);
         }
-        this.store[newModel.StoreKey] = newModel;
+        this._store[newModel.StoreKey] = newModel;
     }
 
     /**
@@ -36,11 +36,11 @@ export class SnConfigFieldModelStore {
      * @throws error {error} if the store doesn't contain entry for the field.
      */
     public static Get(storeKey: string): SnConfigFieldModel {
-        const found = this.store[storeKey];
+        const found = this._store[storeKey];
         if (!found) {
             throw new Error(`No entry found with the field name '${storeKey}'`);
         }
-        return this.store[storeKey];
+        return this._store[storeKey];
     }
 
     /**
@@ -48,7 +48,7 @@ export class SnConfigFieldModelStore {
      * @param fieldName fieldName {string} The field's name to search for
      */
     public static Contains(fieldName: string): boolean {
-        const found = this.store[fieldName];
+        const found = this._store[fieldName];
         return found !== undefined;
     }
 
@@ -58,9 +58,9 @@ export class SnConfigFieldModelStore {
      */
     public static GetCommandOptions(): SnConfigFieldModel[] {
         const items: SnConfigFieldModel[] = [];
-        for (const field in this.store) {
-            if (field && (this.store[field].Behavior & SnConfigBehavior.AllowFromCommandLine) === SnConfigBehavior.AllowFromCommandLine) {
-                items.push(this.store[field]);
+        for (const field in this._store) {
+            if (field && (this._store[field].Behavior & SnConfigBehavior.AllowFromCommandLine) === SnConfigBehavior.AllowFromCommandLine) {
+                items.push(this._store[field]);
             }
         }
         return items;
