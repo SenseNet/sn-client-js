@@ -36,13 +36,13 @@ export class ContentListReferenceFieldTests {
     @test
     public 'Should be able to construct ContentReferenceField from Deferred without loaded content reference'() {
         expect(this.unloadedRef).to.be.instanceof(ContentListReferenceField);
-        expect(this.unloadedRef['contentReferences']).to.be.eq(undefined);
+        expect(this.unloadedRef['_contentReferences']).to.be.eq(undefined);
     }
 
     @test
     public 'Should be able to construct ContentReferenceField from IContentOptions with loaded content reference'() {
         expect(this.loadedRef).to.be.instanceof(ContentListReferenceField);
-        expect(this.loadedRef['contentReferences'][0]).to.be.instanceOf(ContentTypes.Task)
+        expect(this.loadedRef['_contentReferences'][0]).to.be.instanceOf(ContentTypes.Task)
     }
 
 
@@ -60,7 +60,7 @@ export class ContentListReferenceFieldTests {
             }
         })
         this.unloadedRef.GetContent().subscribe(c => {
-            expect(this.unloadedRef['contentReferences']).to.be.eq(c);
+            expect(this.unloadedRef['_contentReferences']).to.be.eq(c);
             done();
         }, err => done);
     }
@@ -68,7 +68,7 @@ export class ContentListReferenceFieldTests {
     @test
     public 'Getting loaded referenced Content should NOT trigger an OData call'(done: MochaDone) {
         this.loadedRef.GetContent().subscribe(c => {
-            expect(this.loadedRef['contentReferences']).to.be.eq(c);
+            expect(this.loadedRef['_contentReferences']).to.be.eq(c);
             done();
         }, err => done);
     }
@@ -80,14 +80,14 @@ export class ContentListReferenceFieldTests {
 
     @test
     public 'getValue should return the loaded Path for a loaded reference'() {
-        expect(this.loadedRef.getValue()).to.be.deep.eq(this.loadedRef['contentReferences'].map(p => p.Path));
+        expect(this.loadedRef.getValue()).to.be.deep.eq(this.loadedRef['_contentReferences'].map(p => p.Path));
     }
 
     @test
     public 'SetContent should set the reference content'(done: MochaDone) {
-        this.unloadedRef.SetContent(this.loadedRef['contentReferences']);
+        this.unloadedRef.SetContent(this.loadedRef['_contentReferences']);
         this.unloadedRef.GetContent().subscribe(c => {
-            expect(c).to.eq(this.loadedRef['contentReferences']);
+            expect(c).to.eq(this.loadedRef['_contentReferences']);
             done();
         }, err => done)
     }
