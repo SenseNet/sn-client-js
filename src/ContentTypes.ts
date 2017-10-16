@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * @module ContentTypes
  * @preferred
- * 
- * 
+ *
+ *
  * @description The Content Repository contains many different types of ```Content```. ```Content``` vary in structure and even in function. Different types of content contain different fields,
  * are displayed with different views, and may also implement different business logic. The fields, views and business logic of a content is defined by its type - the Content Type.
  *
@@ -12,7 +12,7 @@
  * This module represents the above mentioned type hierarchy by Typescript classes with the Content Types' Fields as properties. With Typescript classes we can derive types from another
  * inheriting its properties just like Content Types in the Content Repository. This module provides us to create an objects with a type so that we can validate on its properties by their
  * types or check the required ones.
- * 
+ *
  *//** */
 import { Content, IContentOptions } from './Content';
 import { Enums, ComplexTypes } from './SN';
