@@ -1,7 +1,7 @@
 /**
  * @module sn-client-js
  * @preferred
- * 
+ *
  * @description The main entry module of the package
  */ /** */
 
