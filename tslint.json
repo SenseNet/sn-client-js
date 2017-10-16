@@ -66,10 +66,12 @@
                 {"type": "method", "modifiers": "private", "leadingUnderscore": "forbid", "format":"camelCase"},
                 {"type": "method", "modifiers": "protected", "leadingUnderscore": "forbid", "format":"camelCase"},
                 {"type": "method", "modifiers": "public", "leadingUnderscore": "forbid", "format":"PascalCase"},
+                {"type": "method", "modifiers": ["public", "static"], "leadingUnderscore": "forbid", "format":"UPPER_CASE"},
 
                 {"type": "property", "modifiers": "private", "leadingUnderscore": "require", "format":"camelCase"},
                 {"type": "property", "modifiers": "protected", "leadingUnderscore": "require", "format":"camelCase"},
-                {"type": "property", "modifiers": "public", "leadingUnderscore": "forbid", "format": "PascalCase"}
+                {"type": "property", "modifiers": "public", "leadingUnderscore": "forbid", "format": "PascalCase"},
+                {"type": "property", "modifiers": ["public", "static"], "leadingUnderscore": "forbid", "format":"UPPER_CASE"}               
             ]
         }
     },

@@ -8,6 +8,7 @@ import { LoginState } from '../src/Authentication';
 import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
 import { User, Task, ContentType } from '../src/ContentTypes';
 import { Observable } from '@reactivex/rxjs';
+import { ContentTypes } from '../src/SN';
 
 const expect = Chai.expect;
 
@@ -413,6 +414,73 @@ export class RepositoryTests {
             .subscribe(progress => {
 
             }, err => done(err));
+    }
+
+    @test 'UploadTextAsFile should trigger an Upload request'(done: MochaDone){
+        this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            done();
+        }
+        this._repo.UploadTextAsFile({
+            Text: 'alma',
+            ContentType: ContentTypes.File,
+            Overwrite: true,
+            Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'}),
+            PropertyName: 'Binary',
+            FileName: 'alma.txt'
+        });
+    }
+
+    @test 'UploadFromDropEvent should trigger an Upload request w/o webkitRequestFileSystem'(done: MochaDone){
+        this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            done();
+        }
+
+        (global as any).window = {};
+        const file = new File(['alma.txt'], 'alma');
+        Object.assign(file, {type: 'file'});
+        this._repo.UploadFromDropEvent({
+            Event: {
+                dataTransfer: {
+                    files: [
+                        file
+                    ]
+                }
+            } as any,
+            Overwrite: true,
+            ContentType: ContentTypes.File,
+            CreateFolders: false,
+            PropertyName: 'Binary',
+            Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'})
+        });
+    }
+
+    @test 'UploadFromDropEvent should trigger an Upload request with webkitRequestFileSystem'(done: MochaDone){
+        this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            done();
+        }
+
+        (global as any).window = {webkitRequestFileSystem: () => {}};
+        const file = {
+            isFile: true,
+            file: (cb: (f: File) => void) => { cb(new File(['alma.txt'], 'alma')); }
+        };
+        this._repo.UploadFromDropEvent({
+            Event: {
+                dataTransfer: {
+                    items: [
+                        {webkitGetAsEntry: () => {return file}}
+                    ]
+                }
+            } as any,
+            Overwrite: true,
+            ContentType: ContentTypes.File,
+            CreateFolders: false,
+            PropertyName: 'Binary',
+            Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'})
+        });
     }
 
     @test 'GetCurrentUser() should return an Observable '() {

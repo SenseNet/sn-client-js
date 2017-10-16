@@ -47,7 +47,6 @@ export class SnConfigModel {
     })
     public ODataToken: string = SnConfigModel.DEFAULT_SERVICE_TOKEN;
 
-
     /**
      * This string represents how the Jwt Web Token will be stored in the localStorage.
      */
