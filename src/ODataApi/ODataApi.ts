@@ -20,7 +20,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
     /**
      * The HTTP provider instance for making AJAX calls.
      */
-    private readonly httpProvider: THttpProvider;
+    private readonly _httpProvider: THttpProvider;
 
     /**
      * @param {THttpProvider} providerRef Reference to a specifed HTTP Provider to make Ajax calls
@@ -28,9 +28,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      */
     constructor(
         providerRef: { new(): THttpProvider },
-        private readonly repository: BaseRepository<THttpProvider>,
+        private readonly _repository: BaseRepository<THttpProvider>,
     ) {
-        this.httpProvider = new providerRef();
+        this._httpProvider = new providerRef();
     }
 
     /**
@@ -39,7 +39,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * @param {ODataRequestOptions} options Object with the params of the ajax request.
      * @param {new(...args): T} returns The content type that will be returned
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
-     * 
+     *
      * ```ts
      * myODataApi.Get(new ODataApi.ODataRequestOptions({
      *      path: 'Root/Sites/Default_site/todos'
@@ -51,7 +51,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      */
     public Get<T extends Content>(options: IODataRequestOptions<T>, returns?: { new(...args: any[]): T }): Observable<ODataResponse<T['options']>> {
 
-        return this.repository.Ajax<ODataResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
+        return this._repository.Ajax<ODataResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this._repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -60,7 +60,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
      * @params options {ODataRequestOptions} Object with the params of the ajax request.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
-     * 
+     *
      * ```ts
      * myODataApi.Fetch(new ODataApi.ODataRequestOptions({
      *       path: 'Root/Sites/Default_site/todos'
@@ -75,7 +75,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         options: IODataRequestOptions<T>,
         returnsType?: { new(...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
 
-        return this.repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this.repository.Config, options.params)}`, 'GET').share();
+        return this._repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this._repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -85,13 +85,13 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * @param { new(opt, repository):T } postedContentType The type of the content
      * @param {IRepository} repository The repository for the content creation
      * @returns {Observable<T>} An observable whitch will be updated with the created content.
-     * 
+     *
      * ```ts
      *  const myTask = new ContentTypes.Task({
      *       Name: 'My New Task',
      *       DueDate: new Date(),
      *  }, myRepository)
-     * 
+     *
      *  myODataApi.Post('Root/Sites/Default_site/todos', myTask, ContentTypes.Task)
      *  .subscribe(result=>{
      *      console.log('My New Task is:', result);
@@ -104,7 +104,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         postedContentType: { new(...args: any[]): T }): Observable<T['options']> {
 
         (contentBody as any).__ContentType = contentBody.Type || postedContentType.name;
-        return this.repository
+        return this._repository
             .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', ODataResponse, JSON.stringify(contentBody))
             .map(resp => resp.d)
             .share();
@@ -118,7 +118,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * @returns {Observable} Returns an observable that you can subscribe of in your code.
      */
     public Delete = (id: number, permanent?: boolean): Observable<any> =>
-        this.repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent }).share();
+        this._repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent }).share();
 
 
     /**
@@ -128,8 +128,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * @param {{new(...args): T}} contentType The type of the content
      * @param {Partial<T['options']>} fields Contains the modifiable fieldnames as keys and their values.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
-     * 
-     * ```ts 
+     *
+     * ```ts
      * myODataApi.Patch(3, ContentTypes.Task, {
      *       Name: 'MyUpdatedTask'
      *  })
@@ -141,7 +141,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
     public Patch<T extends Content>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T['options']> {
 
         let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
-        return this.repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
+        return this._repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
 
@@ -154,8 +154,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * @param {{new(...args): T}} contentType The type of the content
      * @param {T['options']} fields Contains the modifiable fieldnames as keys and their values.
      * @returns {Observable} Returns an Rxjs observable that you can subscribe of in your code.
-     * 
-     * ```ts 
+     *
+     * ```ts
      * myODataApi.Put(3, ContentTypes.Task, {
      *       Name: 'MyUpdatedTask'
      *  })
@@ -166,7 +166,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      */
     public Put<T extends Content>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T> {
         let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
-        return this.repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
+        return this._repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
 
@@ -193,7 +193,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
             path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
         } else {
             const error = new Error('No Id or Path provided.')
-            this.repository.Events.Trigger.CustomActionFailed({
+            this._repository.Events.Trigger.CustomActionFailed({
                 ActionOptions: actionOptions,
                 ODataParams: options,
                 ResultType: returns,
@@ -211,15 +211,15 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         }
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            const ajax = this.repository.Ajax(path, 'GET', returns).share();
+            const ajax = this._repository.Ajax(path, 'GET', returns).share();
             ajax.subscribe(resp => {
-                this.repository.Events.Trigger.CustomActionExecuted({
+                this._repository.Events.Trigger.CustomActionExecuted({
                     ActionOptions: actionOptions,
                     ODataParams: options,
                     Result: resp
                 });
             }, (err) => {
-                this.repository.Events.Trigger.CustomActionFailed({
+                this._repository.Events.Trigger.CustomActionFailed({
                     ActionOptions: actionOptions,
                     ODataParams: options,
                     ResultType: returns as any,
@@ -230,37 +230,37 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         }
         else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                const ajax = this.repository.Ajax(path, 'POST', returns, JSON.stringify(options.data)).share();
+                const ajax = this._repository.Ajax(path, 'POST', returns, JSON.stringify(options.data)).share();
                 ajax.subscribe(resp => {
-                    this.repository.Events.Trigger.CustomActionExecuted({
+                    this._repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
                         ODataParams: options,
                         Result: resp
                     });
                 }, (err) => {
-                    this.repository.Events.Trigger.CustomActionFailed({
+                    this._repository.Events.Trigger.CustomActionFailed({
                         ActionOptions: actionOptions,
                         ODataParams: options,
                         ResultType: returns as any,
-                        Error: err                        
+                        Error: err
                     });
                 });
                 return ajax;
             }
             else {
-                const ajax = this.repository.Ajax(path, 'POST', returns).share();
+                const ajax = this._repository.Ajax(path, 'POST', returns).share();
                 ajax.subscribe(resp => {
-                    this.repository.Events.Trigger.CustomActionExecuted({
+                    this._repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
                         ODataParams: options,
                         Result: resp
                     });
                 }, (err) => {
-                    this.repository.Events.Trigger.CustomActionFailed({
+                    this._repository.Events.Trigger.CustomActionFailed({
                         ActionOptions: actionOptions,
                         ODataParams: options,
                         ResultType: returns as any,
-                        Error: err                        
+                        Error: err
                     });
                 });
                 return ajax;
@@ -276,6 +276,6 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         else {
             url = url;
         }
-        return this.repository.Ajax(url, 'POST', Object, data);
+        return this._repository.Ajax(url, 'POST', Object, data);
     }
 }

@@ -1,7 +1,7 @@
 /**
  * @module ODataApi
  */ /** */
- 
+
 /**
  * Generic Class that represents a basic OData Response structure
  */
