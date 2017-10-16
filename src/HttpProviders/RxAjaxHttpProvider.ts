@@ -10,7 +10,7 @@ import { SnConfigModel } from '../Config';
  * This is the default RxJs-Ajax based Http calls.
  */
 export class RxAjaxHttpProvider extends BaseHttpProvider {
-    protected UploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & {url: string}): Observable<T> {
+    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & {url: string}): Observable<T> {
         const subject = new Subject<T>();
         const formData = new FormData();
         formData.append(File.name || 'File', File);
@@ -20,7 +20,6 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
                 formData.append(index, options.body[index]);
             }
         }
-        
 
         const request = new XMLHttpRequest();
         request.withCredentials = this.isCrossDomain(options.url);
@@ -65,10 +64,10 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
         this.SetGlobalHeader('Accept', 'application/json');
     }
 
-    protected AjaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
-        
+    protected ajaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
+
         if (this.ForceCheckCrossDomain){
-            const crossDomain = this.isCrossDomain(options.url || '');            
+            const crossDomain = this.isCrossDomain(options.url || '');
             options.withCredentials = crossDomain;
             options.crossDomain = crossDomain;
         }

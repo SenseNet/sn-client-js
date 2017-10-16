@@ -20,7 +20,7 @@ export class MockHttpProvider extends BaseHttpProvider {
 
     public readonly RequestLog: { Options: AjaxRequest, Response: MockResponse }[] = [];
     private _lastUploadOptions?: AjaxRequest & { url: string; };
-    protected UploadInner<T>(returnType: new (...args: any[]) => T, File: File, options?: (AjaxRequest & { url: string; })): Observable<T> {
+    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options?: (AjaxRequest & { url: string; })): Observable<T> {
         let subject = new ReplaySubject<T>();
         this.UseTimeout ? setTimeout(() => this.runMocks(subject, options as AjaxRequest)) : this.runMocks(subject, options as AjaxRequest);
         this._lastUploadOptions = options;
@@ -28,7 +28,7 @@ export class MockHttpProvider extends BaseHttpProvider {
     }
 
     public get ActualHeaders() {
-        return this.headers;
+        return this._headers;
     }
 
     public AddResponse(response: any) {
@@ -60,7 +60,7 @@ export class MockHttpProvider extends BaseHttpProvider {
         return this.RequestLog[this.RequestLog.length - 1].Options;
     }
 
-    protected AjaxInner<T>(tReturnType: new (...args: any[]) => T, options: AjaxRequest): Observable<T> {
+    protected ajaxInner<T>(tReturnType: new (...args: any[]) => T, options: AjaxRequest): Observable<T> {
         let subject = new ReplaySubject<T>();
         this.UseTimeout ? setTimeout(() => this.runMocks(subject, options)) : this.runMocks(subject, options);
         return subject.asObservable();
