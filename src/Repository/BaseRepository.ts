@@ -86,7 +86,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                     /** Non-chunked upload */
                     uploadOptions.Body.ChunkToken = '0*0*False*False';
-                    this.httpProviderRef.Upload<T>(uploadOptions.ContentType['options'] || Content['options'] as { new(...args) }, uploadOptions.File, {
+                    this.httpProviderRef.Upload((uploadOptions.ContentType || Content) as { new(...args: any[]): T }, uploadOptions.File, {
                         url: uploadPath,
                         body: uploadOptions.Body,
                     })
@@ -157,12 +157,14 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                         .map(content => {
                                             const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
                                             content['_isOperationInProgress'] = false;
-                                            return {
+                                            const progressInfo = {
                                                 Completed: true,
                                                 ChunkCount: chunkCount,
                                                 UploadedChunks: chunkCount,
                                                 CreatedContent: content as T
                                             } as UploadProgressInfo<T>
+                                            this.Events.Trigger.UploadProgress(progressInfo);
+                                            return progressInfo;
                                         });
                                 })
                         })
@@ -172,7 +174,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             })
     }
 
-    private sendChunk<T extends Content>(options: WithParentContent<UploadFileOptions<T>>, uploadPath: string, chunkToken: string, contentId: number, offset: number = 0) {
+    private sendChunk<T extends Content>
+        (options: WithParentContent<UploadFileOptions<T>>, uploadPath: string, chunkToken: string, contentId: number, offset: number = 0)
+        : Observable<UploadProgressInfo<T>> {
         this.Authentication.CheckForUpdate();
         return this.WaitForAuthStateReady()
             .flatMap(state => {
@@ -194,9 +198,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         'Content-Range': `bytes ${offset}-${chunkEnd - 1}/${options.File.size}`,
                         'Content-Disposition': `attachment; filename="${options.File.name}"`
                     }
-                })
-
-                request.subscribe(newResp => {
+                }).map(newResp => {
                     const content = this.HandleLoadedContent({
                         Id: contentId,
                         Path: '',
@@ -210,6 +212,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         UploadedChunks: (offset / this.Config.ChunkSize) + 1
                     };
                     this.Events.Trigger.UploadProgress(progress);
+                    return progress;
                 });
 
                 if (chunkEnd === options.File.size) {
