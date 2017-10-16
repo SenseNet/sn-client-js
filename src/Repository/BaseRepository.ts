@@ -280,7 +280,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
     public async UploadFromDropEvent<T extends Content = Content>(options: UploadFromEventOptions<T> & { Parent: Content }) {
         if ((window as any).webkitRequestFileSystem) {
-            const entries: (WebKitFileEntry | WebKitDirectoryEntry)[] = [].map.call(options.Event.dataTransfer.items, i => i.webkitGetAsEntry());
+            const entries: (WebKitFileEntry | WebKitDirectoryEntry)[] =
+                [].map.call(options.Event.dataTransfer.items, i => i.webkitGetAsEntry());
+
             await this.webkitItemListHandler<T>(entries, options.Parent, options.CreateFolders, options);
         } else {
             // Fallback for non-webkit browsers.
@@ -572,7 +574,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
     MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
-        const contentFields = contentList.map(c => c.GetFields()) as SavedContent<any>;
+        const contentPathList: string[] = contentList.map(c => c.Path);
         const action = this.odataApi.CreateCustomAction({
             name: 'MoveBatch',
             path: rootContent.Path,
@@ -589,8 +591,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             });
 
         action.subscribe(result => {
-            contentFields.forEach((contentData, index) => {
-                this.Events.Trigger.ContentMoved({ From: contentData.Path, Content: contentList[index], To: targetPath })
+            contentPathList.forEach((path, index) => {
+                this.Events.Trigger.ContentMoved({ From: path, Content: contentList[index], To: targetPath })
             });
         }, error => {
             contentList.forEach((contentData, index) => {

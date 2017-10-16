@@ -22,18 +22,18 @@ export class TokenStore {
     * @param {Storage} localStorageRef The localStorage reference (used by unit tests)
     * @param {Storage} sessionStorageRef The sessionStorage reference (used by unit tests)
      */
-    constructor(private readonly baseUrl: string,
-        private readonly keyTemplate: string,
-        private readonly tokenPersist: TokenPersist,
-        private documentRef = (typeof document === 'object') ? document : undefined,
-        private localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
-        private sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
-        let storesAvailable = (typeof this.localStorageRef !== 'undefined' && typeof this.sessionStorageRef !== 'undefined');
-        let cookieAvailable = (typeof this.documentRef !== 'undefined' && typeof this.documentRef.cookie !== 'undefined');
+    constructor(private readonly _baseUrl: string,
+        private readonly _keyTemplate: string,
+        private readonly _tokenPersist: TokenPersist,
+        private _documentRef = (typeof document === 'object') ? document : undefined,
+        private _localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
+        private _sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
+        let storesAvailable = (typeof this._localStorageRef !== 'undefined' && typeof this._sessionStorageRef !== 'undefined');
+        let cookieAvailable = (typeof this._documentRef !== 'undefined' && typeof this._documentRef.cookie !== 'undefined');
 
         if (!storesAvailable && !cookieAvailable) {
             this.TokenStoreType = TokenStoreType.InMemory;
-        } else if (this.tokenPersist === TokenPersist.Expiration) {
+        } else if (this._tokenPersist === TokenPersist.Expiration) {
             storesAvailable ? this.TokenStoreType = TokenStoreType.LocalStorage : this.TokenStoreType = TokenStoreType.ExpirationCookie;
         } else {
             storesAvailable ? this.TokenStoreType = TokenStoreType.SessionStorage : this.TokenStoreType = TokenStoreType.SessionCookie;
@@ -43,7 +43,7 @@ export class TokenStore {
     /**
      * If localStorage is not available, stores the token data in this in-memory array
      */
-    private innerStore: string[] = [];
+    private _innerStore: string[] = [];
 
     /**
      * The type of the generated Token Store
@@ -51,7 +51,7 @@ export class TokenStore {
     public readonly TokenStoreType: TokenStoreType;
 
     private getStoreKey(key: TokenType) {
-        return this.keyTemplate.replace('${siteName}', this.baseUrl).replace('${tokenName}', key);
+        return this._keyTemplate.replace('${siteName}', this._baseUrl).replace('${tokenName}', key);
     }
 
     private getTokenFromCookie(key: string, document: Document): Token {
@@ -85,17 +85,17 @@ export class TokenStore {
         try {
             switch (this.TokenStoreType) {
                 case TokenStoreType.InMemory:
-                    return Token.FromHeadAndPayload(this.innerStore[storeKey as any]);
+                    return Token.FromHeadAndPayload(this._innerStore[storeKey as any]);
                 case TokenStoreType.LocalStorage:
-                    return Token.FromHeadAndPayload((this.localStorageRef as any).getItem(storeKey));
+                    return Token.FromHeadAndPayload((this._localStorageRef as any).getItem(storeKey));
                 case TokenStoreType.SessionStorage:
-                    return Token.FromHeadAndPayload((this.sessionStorageRef as any).getItem(storeKey));
+                    return Token.FromHeadAndPayload((this._sessionStorageRef as any).getItem(storeKey));
                 case TokenStoreType.ExpirationCookie:
                 case TokenStoreType.SessionCookie:
-                    return this.getTokenFromCookie(storeKey, this.documentRef as Document);
+                    return this.getTokenFromCookie(storeKey, this._documentRef as Document);
             }
         } catch (err) {
-            // 
+            //
         }
         return Token.CreateEmpty();
     }
@@ -110,19 +110,19 @@ export class TokenStore {
         let dtaString = token.toString();
         switch (this.TokenStoreType) {
             case TokenStoreType.InMemory:
-                this.innerStore[storeKey as any] = dtaString;
+                this._innerStore[storeKey as any] = dtaString;
                 break;
             case TokenStoreType.LocalStorage:
-                this.localStorageRef && this.localStorageRef.setItem(storeKey, dtaString);
+                this._localStorageRef && this._localStorageRef.setItem(storeKey, dtaString);
                 break;
             case TokenStoreType.SessionStorage:
-                this.sessionStorageRef && this.sessionStorageRef.setItem(storeKey, dtaString);
+                this._sessionStorageRef && this._sessionStorageRef.setItem(storeKey, dtaString);
                 break;
             case TokenStoreType.ExpirationCookie:
-                this.setTokenToCookie(storeKey, token, TokenPersist.Expiration, this.documentRef as Document);
+                this.setTokenToCookie(storeKey, token, TokenPersist.Expiration, this._documentRef as Document);
                 break;
             case TokenStoreType.SessionCookie:
-                this.setTokenToCookie(storeKey, token, TokenPersist.Session, this.documentRef as Document);
+                this.setTokenToCookie(storeKey, token, TokenPersist.Session, this._documentRef as Document);
                 break;
         }
     }

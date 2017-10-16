@@ -8,9 +8,9 @@ import { ITokenPayload } from './';
  */
 export class Token {
 
-    private get tokenPayload(): ITokenPayload {
+    private get _tokenPayload(): ITokenPayload {
         try {
-            return JSON.parse(Buffer.from(this.payloadEncoded, 'base64').toString()) as ITokenPayload;
+            return JSON.parse(Buffer.from(this._payloadEncoded, 'base64').toString()) as ITokenPayload;
         } catch (err) {
             return {
                 aud: '',
@@ -34,28 +34,28 @@ export class Token {
      * The Username from the current Token payload
      */
     public get Username(): string {
-        return this.tokenPayload.name;
+        return this._tokenPayload.name;
     };
 
     /**
      * The current Token full Payload
      */
     public GetPayload(): ITokenPayload {
-        return this.tokenPayload;
+        return this._tokenPayload;
     }
 
     /**
      * The Date when the token will expire
      */
     public get ExpirationTime(): Date {
-        return this.fromEpoch(this.tokenPayload.exp);
+        return this.fromEpoch(this._tokenPayload.exp);
     }
 
     /**
      * The token will be valid only after this date
      */
     public get NotBefore(): Date {
-        return this.fromEpoch(this.tokenPayload.nbf);
+        return this.fromEpoch(this._tokenPayload.nbf);
     }
 
     /**
@@ -63,21 +63,21 @@ export class Token {
      */
     public IsValid(): boolean {
         let now = new Date();
-        return this.tokenPayload && this.ExpirationTime > now && this.NotBefore < now;
+        return this._tokenPayload && this.ExpirationTime > now && this.NotBefore < now;
     }
 
     /**
      * The date when the Token was issued
      */
     public get IssuedDate() {
-        return this.fromEpoch(this.tokenPayload.iat);
+        return this.fromEpoch(this._tokenPayload.iat);
     }
 
     /**
      * Returns the Token in string format (in a base64 encoded, dot separated header and payload)
      */
     public toString() {
-        return `${this.headerEncoded}.${this.payloadEncoded}`;
+        return `${this._headerEncoded}.${this._payloadEncoded}`;
     }
 
 
@@ -104,6 +104,6 @@ export class Token {
         return new Token('', '');
     }
 
-    private constructor(private readonly headerEncoded: string, private readonly payloadEncoded: string) {
+    private constructor(private readonly _headerEncoded: string, private readonly _payloadEncoded: string) {
     }
 }
