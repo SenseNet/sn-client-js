@@ -159,7 +159,7 @@ export class Collection<T extends Content> {
      * Method to fetch Content from the Content Repository.
      *
      * Calls the method [FetchContent]{@link ODataApi.FetchContent} with the current collections path and the given OData options.
-     * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options 
+     * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @param path {string} Path of the requested container item.
      * @param options {OData.IODataParams} Represents an ODataOptions object based on the IODataOptions interface. Holds the possible url parameters as properties.
@@ -310,15 +310,15 @@ export class Collection<T extends Content> {
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
-     * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the 
+     * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the
      * web.config and the allowed content types in the particular folder. In most cases, this will be File.
      * @params FileName {string} Name of the uploaded file.
-     * @params Overwrite {bool=True} Whether the upload action should overwrite a content if it already exist with the same name. If false, a new file will be created with a similar name containing an 
+     * @params Overwrite {bool=True} Whether the upload action should overwrite a content if it already exist with the same name. If false, a new file will be created with a similar name containing an
      * incremental number (e.g. sample(2).docx).
-     * @params UseChunk {bool=False} Determines whether the system should start a chunk upload process instead of saving the file in one round. Usually this is determined by the size of the file. 
+     * @params UseChunk {bool=False} Determines whether the system should start a chunk upload process instead of saving the file in one round. Usually this is determined by the size of the file.
      * It's optional, used in the first request
      * @params PropertyName {string=Binary} Appoints the binary field of the content where the data should be saved.
-     * @params ChunkToken {string} The response of first request returns this token. It must be posted in all of the subsequent requests without modification. It is used for executing the chunk upload operation. 
+     * @params ChunkToken {string} The response of first request returns this token. It must be posted in all of the subsequent requests without modification. It is used for executing the chunk upload operation.
      * It's mandatory, except in the first request
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.

@@ -7,33 +7,33 @@ import { UploadProgressInfo } from './Repository/UploadModels';
 export class BinaryField<T extends SavedContent<Content>> {
 
 
-    private get fieldName(): keyof T {
-        return this.fieldSettings.Name as keyof T;
+    private get _fieldName(): keyof T {
+        return this._fieldSettings.Name as keyof T;
     }
 
     public SaveBinaryFile: (file: File) => Observable<UploadProgressInfo<T>>
     = (file: File) =>
 
-        this.contentReference.GetRepository().UploadFile({
-            File: new File([file], this.contentReference.Name || file.name),
-            Parent: {GetFullPath: () => this.contentReference.ParentContentPath, Path: this.contentReference.ParentPath},
-            PropertyName: this.fieldName,
-            ContentType: this.contentReference.constructor as { new(...args): T },
+        this._contentReference.GetRepository().UploadFile({
+            File: new File([file], this._contentReference.Name || file.name),
+            Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath},
+            PropertyName: this._fieldName,
+            ContentType: this._contentReference.constructor as { new(...args): T },
             Overwrite: true,
         })
 
-    public SaveBinaryText: (text: String) => Observable<UploadProgressInfo<T>> = (text: string) => this.SaveBinaryFile(new File([text], this.contentReference.Name || 'File'));
+    public SaveBinaryText: (text: String) => Observable<UploadProgressInfo<T>> = (text: string) => this.SaveBinaryFile(new File([text], this._contentReference.Name || 'File'));
 
     public GetDownloadUrl(): string {
-        return this.mediaResourceObject.__mediaresource.media_src;
+        return this._mediaResourceObject.__mediaresource.media_src;
     }
 
     public GetMediaResourceObject(): MediaResourceObject {
-        return Object.assign({}, this.mediaResourceObject);
+        return Object.assign({}, this._mediaResourceObject);
     }
 
-    constructor(public readonly mediaResourceObject: MediaResourceObject,
-        private readonly contentReference: T,
-        private readonly fieldSettings: FieldSettings.BinaryFieldSetting) {
+    constructor(private readonly _mediaResourceObject: MediaResourceObject,
+        private readonly _contentReference: T,
+        private readonly _fieldSettings: FieldSettings.BinaryFieldSetting) {
     }
 }

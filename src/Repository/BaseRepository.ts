@@ -411,7 +411,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         if (opt.Id) {
             if (this._loadedContentReferenceCache[opt.Id]) {
                 instance = this._loadedContentReferenceCache[opt.Id] as T;
-                instance['UpdateLastSavedFields'](opt);
+                instance['updateLastSavedFields'](opt);
             } else {
                 instance = Content.Create(opt, realContentType, this);
                 this._loadedContentReferenceCache[opt.Id] = instance as SavedContent<T>;
