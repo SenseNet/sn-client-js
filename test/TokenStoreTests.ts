@@ -4,13 +4,13 @@ import { TokenStore, TokenPersist, TokenStoreType, Token } from '../src/Authenti
 const expect = Chai.expect;
 
 class MockStorage {
-    private innerStore: any[] = []
+    private _innerStore: any[] = []
     public getItem(key: string){
-        return this.innerStore[key as any];
+        return this._innerStore[key as any];
     }
 
     public setItem(key: string, value: any){
-        this.innerStore[key as any] = value;
+        this._innerStore[key as any] = value;
     }
 }
 

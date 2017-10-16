@@ -13,7 +13,7 @@ export class HttpProviderTests {
     private readonly _testHeaderValue: string = 'testHeaderValue';
 
     @test
-    public setGlobalHeaders(){
+    public SetGlobalHeaders(){
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
         let headers = p.ActualHeaders;
@@ -21,7 +21,7 @@ export class HttpProviderTests {
     }
 
     @test
-    public unsetGlobalHeaders(){
+    public UnsetGlobalHeaders(){
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
         let headers = p.ActualHeaders;
