@@ -48,7 +48,7 @@ export class ContentListReferenceFieldTests {
 
     @test
     public 'Getting unloaded referenced Content should trigger an OData call'(done: MochaDone) {
-        this.repo.httpProviderRef.setResponse({
+        this.repo.httpProviderRef.AddResponse({
             d: {
                 results: [{
                     Id: 123,

@@ -68,11 +68,11 @@ describe('Collection', () => {
     it('Observable should be resolved', (done) => {
       let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, ContentTypes.Task);
       Repo.Authentication.stateSubject.next(LoginState.Authenticated);
-      Repo.httpProviderRef.setResponse({ d: content.GetFields() });
+      Repo.httpProviderRef.AddResponse({ d: content.GetFields() });
       collection.Add(content.options).subscribe(r => {
         done()
       }, done)
-    });    
+    });
 
   });
   describe('#Remove()', () => {
@@ -146,7 +146,7 @@ describe('Collection', () => {
     it('should update from Result', (done) => {
       collection['Path'] = '/workspaces/project';
       Repo.Authentication.stateSubject.next(LoginState.Authenticated);
-      Repo.httpProviderRef.setResponse({
+      Repo.httpProviderRef.AddResponse({
         d: {
             __count: 1,
             results: [{

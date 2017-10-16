@@ -95,7 +95,7 @@ export class UploadResponse {
      */
     MustCheckin: boolean;
 
-    constructor(...args) {
+    constructor(...args: any[]) {
         this.ContentId = parseInt(args[0]);
         this.ChunkToken = args[1];
         this.MustFinialize = args[2];

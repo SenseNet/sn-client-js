@@ -28,7 +28,7 @@ describe('ODataApi', () => {
     describe('#Fetch()', () => {
         it('request a collection of Content and returns an Observable object', (done) => {
             service.Authentication.stateSubject.next(LoginState.Authenticated);
-            service.httpProviderRef.setResponse({
+            service.httpProviderRef.AddResponse({
                 d: {
                     __count: 1,
                     results: [
@@ -106,7 +106,7 @@ describe('ODataApi', () => {
 
 
         it('should trigger a CustomActionFailed event on a Repository when GET request failed', (done) => {
-            service.httpProviderRef.setError({message: ':('})
+            service.httpProviderRef.AddError({message: ':('})
             let action = new CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
             service.Events.OnCustomActionFailed.subscribe(ac => {
                 expect(ac.Error.message).to.be.eq(':(');
@@ -116,7 +116,7 @@ describe('ODataApi', () => {
         });
 
         it('should trigger a CustomActionFailed event on a Repository when POST without Data request failed', (done) => {
-            service.httpProviderRef.setError({message: ':('})
+            service.httpProviderRef.AddError({message: ':('})
             let action = new CustomAction({ name: 'CheckOut', id: 111, isAction: true })
             service.Events.OnCustomActionFailed.subscribe(ac => {
                 expect(ac.Error.message).to.be.eq(':(');
@@ -126,14 +126,14 @@ describe('ODataApi', () => {
         });
 
         it('should trigger a OnCustomActionExecuted event on a Repository when POST without Data request succeeded', (done) => {
-            service.httpProviderRef.setResponse({message: ':)'})
+            service.httpProviderRef.AddResponse({message: ':)'})
             let action = new CustomAction({ name: 'CheckOut', id: 111, isAction: true })
             service.Events.OnCustomActionExecuted.subscribe(ac => {
                 expect(ac.Result.message).to.be.eq(':)');
                 done();
             })
             odataApi.CreateCustomAction(action);
-        });               
+        });
 
     })
 
@@ -149,7 +149,7 @@ describe('ODataApi', () => {
             let http = service.httpProviderRef;
             service.Authentication.stateSubject.next(LoginState.Authenticated);
             service.httpProviderRef.UseTimeout = true;
-            http.setResponse({ success: true });
+            http.AddResponse({ success: true });
             odataApi.CreateCustomAction({
                 path: `localhost/OData.svc('Root')`,
                 name: 'exampleAction'
@@ -157,7 +157,7 @@ describe('ODataApi', () => {
             });
 
             setTimeout(() => {
-                expect(http.lastUrl).to.contains('OData.svc/(');
+                expect(http.RequestLog[http.RequestLog.length - 1].Options.url).to.contains('OData.svc/(');
                 done();
             }, 10)
 

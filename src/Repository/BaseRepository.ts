@@ -75,7 +75,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             FileName: uploadOptions.File.name,
             ContentType: uploadOptions.ContentType.name,
         }
-
+        this.Authentication.CheckForUpdate();
         return this.WaitForAuthStateReady()
             .flatMap(state => {
                 const uploadSubject = new Subject<UploadProgressInfo<T>>();
@@ -154,29 +154,17 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                             return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
                                 .flatMap(c => {
                                     return this.Load(resp.ContentId, undefined, uploadOptions.ContentType)
-                                    .map(content => {
-                                        const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
-                                        content['_isOperationInProgress'] = false;
-                                        return {
-                                            Completed: true,
-                                            ChunkCount: chunkCount,
-                                            UploadedChunks: chunkCount,
-                                            CreatedContent: content as T
-                                        } as UploadProgressInfo<T>
-                                    });
+                                        .map(content => {
+                                            const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
+                                            content['_isOperationInProgress'] = false;
+                                            return {
+                                                Completed: true,
+                                                ChunkCount: chunkCount,
+                                                UploadedChunks: chunkCount,
+                                                CreatedContent: content as T
+                                            } as UploadProgressInfo<T>
+                                        });
                                 })
-
-                            // return this.Load(resp.ContentId, undefined, uploadOptions.ContentType)
-                            //     .map(content => {
-                            //         const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
-                            //         content['_isOperationInProgress'] = false;
-                            //         return {
-                            //             Completed: true,
-                            //             ChunkCount: chunkCount,
-                            //             UploadedChunks: chunkCount,
-                            //             CreatedContent: content as T
-                            //         } as UploadProgressInfo<T>
-                            //     });
                         })
                 }
 
@@ -185,46 +173,50 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     }
 
     private sendChunk<T extends Content>(options: WithParentContent<UploadFileOptions<T>>, uploadPath: string, chunkToken: string, contentId: number, offset: number = 0) {
+        this.Authentication.CheckForUpdate();
+        return this.WaitForAuthStateReady()
+            .flatMap(state => {
 
-        let chunkEnd = offset + this.Config.ChunkSize;
-        chunkEnd = chunkEnd > options.File.size ? options.File.size : chunkEnd;
+                let chunkEnd = offset + this.Config.ChunkSize;
+                chunkEnd = chunkEnd > options.File.size ? options.File.size : chunkEnd;
 
-        const chunkData = options.File.slice(offset, chunkEnd);
+                const chunkData = options.File.slice(offset, chunkEnd);
 
-        const request = this.httpProviderRef.Upload(Object, new File([chunkData], options.File.name), {
-            url: uploadPath,
-            body: {
-                ...options.Body,
-                UseChunk: true,
-                FileLength: options.File.size,
-                ChunkToken: chunkToken
-            },
-            headers: {
-                'Content-Range': `bytes ${offset}-${chunkEnd - 1}/${options.File.size}`,
-                'Content-Disposition': `attachment; filename="${options.File.name}"`
-            }
-        })
+                const request = this.httpProviderRef.Upload(Object, new File([chunkData], options.File.name), {
+                    url: uploadPath,
+                    body: {
+                        ...options.Body,
+                        UseChunk: true,
+                        FileLength: options.File.size,
+                        ChunkToken: chunkToken
+                    },
+                    headers: {
+                        'Content-Range': `bytes ${offset}-${chunkEnd - 1}/${options.File.size}`,
+                        'Content-Disposition': `attachment; filename="${options.File.name}"`
+                    }
+                })
 
-        request.subscribe(newResp => {
-            const content = this.HandleLoadedContent({
-                Id: contentId,
-                Path: '',
-                Name: options.File.name,
-            }, options.ContentType);
-            content['_isOperationInProgress'] = true;
-            const progress = {
-                Completed: false,
-                ChunkCount: Math.ceil(options.File.size / this.Config.ChunkSize),
-                CreatedContent: content,
-                UploadedChunks: (offset / this.Config.ChunkSize) + 1
-            };
-            this.Events.Trigger.UploadProgress(progress);
-        });
+                request.subscribe(newResp => {
+                    const content = this.HandleLoadedContent({
+                        Id: contentId,
+                        Path: '',
+                        Name: options.File.name,
+                    }, options.ContentType);
+                    content['_isOperationInProgress'] = true;
+                    const progress = {
+                        Completed: false,
+                        ChunkCount: Math.ceil(options.File.size / this.Config.ChunkSize),
+                        CreatedContent: content,
+                        UploadedChunks: (offset / this.Config.ChunkSize) + 1
+                    };
+                    this.Events.Trigger.UploadProgress(progress);
+                });
 
-        if (chunkEnd === options.File.size){
-            return request;
-        }
-        return request.flatMap(r => this.sendChunk(options, uploadPath, chunkToken, contentId, offset + this.Config.ChunkSize));
+                if (chunkEnd === options.File.size) {
+                    return request;
+                }
+                return request.flatMap(r => this.sendChunk(options, uploadPath, chunkToken, contentId, offset + this.Config.ChunkSize));
+            })
     }
 
     public UploadTextAsFile<T extends Content = Content>(options: UploadTextOptions<T> & { Parent: Content }) {
@@ -513,11 +505,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```ts
      * const query = repository.CreateQuery(q => q.TypeIs(ContentTypes.Folder)
      *                        .Top(10))
-     * 
+     *
      * query.Exec().subscribe(res => {
      *      console.log('Folders count: ', res.Count);
      *      console.log('Folders: ', res.Result);
-     * } 
+     * }
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
@@ -526,14 +518,14 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
     /**
      * Executes a DeleteBatch request to delete multiple content by a single request.
-     * 
+     *
      * Usage:
      * ```ts
      * repository.DeleteBatch([content1, content2...], true).subscribe(()=>{
      *  console.log('Contents deleted.')
      * })
      * ```
-     * 
+     *
      * @param {Content[]} contentList An array of content to be deleted
      * @param {boolean} permanently Option to delete the content permanently or just move it to the trash
      * @param {Content} rootContent The context node, the PortalRoot by default
@@ -566,7 +558,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
     /**
     * Executes a MoveBatch request to move multiple content by a single request.
-     * 
+     *
      * Usage:
      * ```ts
      * repository.MoveBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
@@ -607,7 +599,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
     /**
     * Executes a CopyBatch request to copy multiple content by a single request.
-     * 
+     *
      * Usage:
      * ```ts
      * repository.CopyBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{

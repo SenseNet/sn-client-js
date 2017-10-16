@@ -19,7 +19,7 @@ export class QueryTests {
     public 'Can be from a repository'(done: MochaDone) {
         const repo = new MockRepository()
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-        repo.httpProviderRef.setResponse({
+        repo.httpProviderRef.AddResponse({
             d: {
                 __count: 1,
                 results: [{
@@ -45,7 +45,7 @@ export class QueryTests {
     @test
     public 'Should throw Error when try to run from a Content without Path'() {
         const repo = new MockRepository()
-        
+
         const content = repo.HandleLoadedContent({
             Id: 3,
             Type: 'Folder',
@@ -58,7 +58,7 @@ export class QueryTests {
     public 'Can be from a Content'(done: MochaDone) {
         const repo = new MockRepository()
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-        repo.httpProviderRef.setResponse({
+        repo.httpProviderRef.AddResponse({
             d: {
                 __count: 1,
                 results: [{
@@ -93,7 +93,7 @@ export class QueryTests {
     public 'Term syntax'() {
         const queryInstance = new Query(q => q.Term('test term'));
         expect(queryInstance.toString()).to.be.eq('test term')
-    }    
+    }
 
     @test
     public 'TypeIs syntax'() {

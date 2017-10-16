@@ -2,7 +2,7 @@ import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { SnConfigModel } from '../src/Config';
 import { MockRepository, MockAuthService, MockHttpProvider } from './Mocks';
-import { VersionInfo, SnRepository } from '../src/Repository';
+import { VersionInfo, SnRepository, UploadResponse } from '../src/Repository';
 import { Content } from '../src/Content';
 import { LoginState } from '../src/Authentication';
 import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
@@ -33,7 +33,7 @@ export class RepositoryTests {
     @test 'GetVersionInfo should return a valid Version Info'() {
         let vResponse = new VersionInfo();
         vResponse.DatabaseAvailable = true;
-        (this.repo.httpProviderRef as MockHttpProvider).setResponse(vResponse);
+        (this.repo.httpProviderRef as MockHttpProvider).AddResponse(vResponse);
 
         this.repo.GetVersionInfo().first().subscribe(result => {
             expect(result.DatabaseAvailable).to.be.eq(true);
@@ -54,7 +54,7 @@ export class RepositoryTests {
                 ]
             }
         } as ODataCollectionResponse<ContentType>;
-        this.repo.httpProviderRef.setResponse(cResponse);
+        this.repo.httpProviderRef.AddResponse(cResponse);
         this.repo.GetAllContentTypes().first().subscribe(types => {
             expect(types.length).to.be.eq(1);
             expect(types[0].Name).to.be.eq('testContentType');
@@ -71,7 +71,7 @@ export class RepositoryTests {
             }
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
-        (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
+        (this.repo.httpProviderRef as MockHttpProvider).AddResponse(cResponse);
         this.repo.Load(1).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
             expect(response).to.be.instanceof(Content);
@@ -89,7 +89,7 @@ export class RepositoryTests {
             }
         };
         (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
-        (this.repo.httpProviderRef as MockHttpProvider).setResponse(cResponse);
+        (this.repo.httpProviderRef as MockHttpProvider).AddResponse(cResponse);
         this.repo.Load(1, {}, User).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
             expect(response).to.be.instanceof(User);
@@ -151,41 +151,41 @@ export class RepositoryTests {
     }
 
 
-    @test 'DeleteBatch() should fire a DeleteBatch request'(){
+    @test 'DeleteBatch() should fire a DeleteBatch request'(done: MochaDone){
+        this.repo.httpProviderRef.AddResponse({})
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
-        const action = this.repo.DeleteBatch([testContent]);
+        this.repo.DeleteBatch([testContent]).subscribe(r => {
+            expect(this.repo.httpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
+            expect(this.repo.httpProviderRef.LastOptions.body).to.be.eq('[{"paths":[12345]},{"permanently":false}]');
+            expect(this.repo.httpProviderRef.LastOptions.method).to.be.eq('POST');
+            done();
 
-        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
-        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":[12345]},{"permanently":false}]');
-        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
+        }, err => done(err));
 
-        expect(action).to.be.instanceof(Observable);
     }
 
-    
-    @test 'DeleteBatch() should fire a DeleteBatch request by path'(){
+
+    @test 'DeleteBatch() should fire a DeleteBatch request by path'(done: MochaDone){
         const testContentWithoutId = this.repo.HandleLoadedContent({Path: 'Root/Test2'} as any);
-
-        const action = this.repo.DeleteBatch([testContentWithoutId]);
-
-        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
-        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":["Root/Test2"]},{"permanently":false}]');
-        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
-
-        expect(action).to.be.instanceof(Observable);
+        this.repo.httpProviderRef.AddResponse({})
+        this.repo.DeleteBatch([testContentWithoutId]).subscribe(res => {
+            expect(this.repo.httpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
+            expect(this.repo.httpProviderRef.LastOptions.body).to.be.eq('[{"paths":["Root/Test2"]},{"permanently":false}]');
+            expect(this.repo.httpProviderRef.LastOptions.method).to.be.eq('POST');
+            done();
+        }, err => done(err));
     }
 
     @test 'DeleteBatch() should trigger ContentDeleted event after success'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
-
         this.repo.Events.OnContentDeleted.subscribe(c => {
             expect(c.ContentData.Id).to.be.eq(testContent.Id);
             done();
         });
-        this.repo.httpProviderRef.setResponse({});
+        this.repo.httpProviderRef.AddResponse({});
         const action = this.repo.DeleteBatch([testContent]);
         expect(action).to.be.instanceof(Observable);
-    }    
+    }
 
     @test 'DeleteBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
@@ -193,20 +193,20 @@ export class RepositoryTests {
             expect(c.Content).to.be.eq(testContent);
             done();
         });
-        this.repo.httpProviderRef.setError({message: ':('});
+        this.repo.httpProviderRef.AddError({message: ':('});
         const action = this.repo.DeleteBatch([testContent]);
         expect(action).to.be.instanceof(Observable);
     }
 
-    @test 'MoveBatch() should fire a MoveBatch request'(){
+    @test 'MoveBatch() should fire a MoveBatch request'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
-        const action = this.repo.MoveBatch([testContent], 'Root/Test2');
-
-        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/MoveBatch");
-        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
-        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
-
-        expect(action).to.be.instanceof(Observable);
+        this.repo.httpProviderRef.AddResponse({})
+        this.repo.MoveBatch([testContent], 'Root/Test2').subscribe(r => {
+            expect(this.repo.httpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/MoveBatch");
+            expect(this.repo.httpProviderRef.LastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
+            expect(this.repo.httpProviderRef.LastOptions.method).to.be.eq('POST');
+            done();
+        });
     }
 
     @test 'MoveBatch() should trigger ContentMoved event after success'(done: MochaDone){
@@ -219,10 +219,10 @@ export class RepositoryTests {
             expect(c.To).to.be.eq('Root/Test2')
             done();
         });
-        this.repo.httpProviderRef.setResponse({});
+        this.repo.httpProviderRef.AddResponse({});
         const action = this.repo.MoveBatch([testContent], 'Root/Test2');
         expect(action).to.be.instanceof(Observable);
-    }    
+    }
 
     @test 'MoveBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
@@ -230,20 +230,20 @@ export class RepositoryTests {
             expect(c.Content).to.be.eq(testContent);
             done();
         });
-        this.repo.httpProviderRef.setError({message: ':('});
+        this.repo.httpProviderRef.AddError({message: ':('});
         const action = this.repo.MoveBatch([testContent], 'Root/Test2');
         expect(action).to.be.instanceof(Observable);
     }
 
-    @test 'CopyBatch() should fire a CopyBatch request'(){
+    @test 'CopyBatch() should fire a CopyBatch request'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
-        const action = this.repo.CopyBatch([testContent], 'Root/Test2');
-
-        expect(this.repo.httpProviderRef.lastOptions.url).to.contains("https://localhost/odata.svc/('Root')/CopyBatch");
-        expect(this.repo.httpProviderRef.lastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
-        expect(this.repo.httpProviderRef.lastOptions.method).to.be.eq('POST');
-
-        expect(action).to.be.instanceof(Observable);
+        this.repo.httpProviderRef.AddResponse({});
+        this.repo.CopyBatch([testContent], 'Root/Test2').subscribe(r => {
+            expect(this.repo.httpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/CopyBatch");
+            expect(this.repo.httpProviderRef.LastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
+            expect(this.repo.httpProviderRef.LastOptions.method).to.be.eq('POST');
+            done();
+        }, err => done(err));
     }
 
     @test 'CopyBatch() should trigger ContentCreated event after success'(done: MochaDone){
@@ -252,10 +252,10 @@ export class RepositoryTests {
             expect(c.Content.Id).to.be.eq(testContent.Id);
             done();
         });
-        this.repo.httpProviderRef.setResponse({});
+        this.repo.httpProviderRef.AddResponse({});
         const action = this.repo.CopyBatch([testContent], 'Root/Test2');
         expect(action).to.be.instanceof(Observable);
-    }    
+    }
 
     @test 'CopyBatch() should trigger ContentCreateFailed event after failure'(done: MochaDone){
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
@@ -263,9 +263,90 @@ export class RepositoryTests {
             expect(c.Content).to.be.eq(testContent);
             done();
         });
-        this.repo.httpProviderRef.setError({message: ':('});
+        this.repo.httpProviderRef.AddError({message: ':('});
         const action = this.repo.CopyBatch([testContent], 'Root/Test2');
         expect(action).to.be.instanceof(Observable);
+    }
+
+    @test 'UploadResponse can be constructed'(){
+        const model = new UploadResponse('123', 'chunkToken', true, true);
+        expect(model).to.be.instanceof(UploadResponse);
+    }
+
+    @test 'Upload() should trigger UploadProgress event'(done: MochaDone){
+        this.repo.Config.ChunkSize = 1024 * 1024;
+        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnUploadProgress.subscribe(pi => {
+            expect(pi).to.be.instanceof(Object);
+            done();
+        }, err => done(err));
+        this.repo.httpProviderRef
+                                .AddResponse({Id: 12356, Path: 'Root/Test/alma'})
+                                .AddResponse({d: {Id: 12356, Path: 'Root/Test/alma'}});
+
+        const mockFile = new File(['alma'], 'alma.txt');
+        Object.assign((mockFile as any), {
+            size: 8
+        });
+
+
+        testContent.UploadFile({ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true})
+            .subscribe(progress => {
+
+            }, err => done(err));
+    }
+
+    @test 'Upload() should trigger ContentCreated event'(done: MochaDone){
+        this.repo.Config.ChunkSize = 1024 * 1024;
+        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnContentCreated.subscribe(pi => {
+            expect(pi).to.be.instanceof(Object);
+            done();
+        }, err => done(err));
+        this.repo.httpProviderRef
+                .AddResponse({Id: 12356, Path: 'Root/Test/alma'})
+                .AddResponse({d: {Id: 12356, Path: 'Root/Test/alma'}});
+        const mockFile = new File(['alma'], 'alma.txt');
+        Object.assign((mockFile as any), {
+            size: 8
+        });
+
+
+        testContent.UploadFile({ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true})
+            .subscribe(progress => {
+
+            }, err => done(err));
+    }
+
+    @test 'Upload() failure should trigger ContentCreateFailed event'(done: MochaDone){
+        this.repo.Config.ChunkSize = 1024 * 1024;
+        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.httpProviderRef
+            .AddError(Error('e'))
+            .AddResponse({d: {Id: 12356, Path: 'Root/Test/alma'}});
+
+
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        this.repo.Events.OnUploadProgress.subscribe(pi => {
+            done('This shouldn\'t be triggered');
+        });
+        this.repo.Events.OnContentCreateFailed.subscribe(failure => {
+            done();
+        })
+        const mockFile = new File(['alma'], 'alma.txt');
+        Object.assign((mockFile as any), {
+            size: 8
+        });
+
+
+        testContent.UploadFile({ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true})
+            .subscribe(progress => {
+
+            });
     }
 
     @test 'GetCurrentUser() should return an Observable '() {
@@ -283,7 +364,7 @@ export class RepositoryTests {
 
     @test 'GetCurrentUser() should update with the new User on change '(done: MochaDone) {
         let repo = new MockRepository();
-        repo.httpProviderRef.setResponse({
+        repo.httpProviderRef.AddResponse({
             d: {
                 __count: 1,
                 results: [{
@@ -317,7 +398,7 @@ export class RepositoryTests {
             done()
         })
 
-        repo.httpProviderRef.setResponse({
+        repo.httpProviderRef.AddResponse({
             d: {
                 __count: 2,
                 results: [{

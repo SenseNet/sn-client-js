@@ -47,7 +47,7 @@ export class ContentReferenceFieldTests {
 
     @test
     public 'Getting unloaded referenced Content should trigger an OData call'(done: MochaDone) {
-        this.repo.httpProviderRef.setResponse({
+        this.repo.httpProviderRef.AddResponse({
             d: {
                 Id: 123,
                 DisplayName: 'aaa',
@@ -114,5 +114,5 @@ export class ContentReferenceFieldTests {
         this.unloadedRef.FieldSetting.AllowedTypes = ['Task', 'Folder'];
         const search = this.unloadedRef.Search('test-term');
         expect(search.toString()).to.be.eq('_Text:\'*test-term*\' AND (Type:Task OR Type:Folder) .TOP:10 .SKIP:0');
-    }        
+    }
 }

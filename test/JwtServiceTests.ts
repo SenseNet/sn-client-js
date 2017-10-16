@@ -30,7 +30,7 @@ export class JwtServiceTests {
 
     @test
     public 'State change should update global header on HttpProvider to access token head & payload'() {
-        let headers = this.httpProvider.actualHeaders as any;
+        let headers = this.httpProvider.ActualHeaders as any;
         let validToken = MockTokenFactory.CreateValid();
 
         expect(headers['X-Access-Data']).to.be.eq(undefined);
@@ -57,7 +57,7 @@ export class JwtServiceTests {
 
     @test
     public 'LoginResponse with invalid token sould be emit False'(done: MochaDone) {
-        this.httpProvider.setResponse({
+        this.httpProvider.AddResponse({
             access: 'invalidEncodedValue',
             refresh: 'invalidEncodedValue'
         } as LoginResponse)
@@ -74,7 +74,7 @@ export class JwtServiceTests {
 
     @test
     public 'Error response from Http endpoint response sould be emit False'(done: MochaDone) {
-        this.httpProvider.setError('Error happened :(');
+        this.httpProvider.AddError('Error happened :(');
         let obs = this.jwtService.Login('usr', 'pass');
         obs.subscribe(t => {
             expect(t).to.be.eq(false);
@@ -111,7 +111,7 @@ export class JwtServiceTests {
 
     @test 'CheckForUpdate should resolve with true and state should be Authenticated, if refresh token is valid, but the access token has been expired and the request was valid'(done: MochaDone) {
         let refreshToken = MockTokenFactory.CreateValid();
-        this.httpProvider.setResponse({
+        this.httpProvider.AddResponse({
             access: MockTokenFactory.CreateValid().toString(),
             refresh: refreshToken.toString()
         })
@@ -128,7 +128,7 @@ export class JwtServiceTests {
 
     @test 'CheckForUpdate should resolve with false and state should be Unauthenticated, if refresh token is valid, but the access token has been expired and the request has failed'(done: MochaDone) {
         let refreshToken = MockTokenFactory.CreateValid();
-        this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
+        this.httpProvider.AddError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         let store = t['TokenStore'] as TokenStore;
         store.SetToken('access', MockTokenFactory.CreateExpired());
@@ -143,7 +143,7 @@ export class JwtServiceTests {
 
     @test 'Login should resolve with true and set state to Authenticated, when request succeeded. '(done: MochaDone) {
         let refreshToken = MockTokenFactory.CreateValid();
-                this.httpProvider.setResponse({
+                this.httpProvider.AddResponse({
             access: MockTokenFactory.CreateValid().toString(),
             refresh: refreshToken.toString()
         });
@@ -154,10 +154,10 @@ export class JwtServiceTests {
         }, (err) => {
             done(err);
         });
-    }    
+    }
 
     @test 'Login should resolve with false and set state to Unauthenticated, when request failed. '(done: MochaDone) {
-        this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
+        this.httpProvider.AddError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         t.Login('user', 'pass').first().subscribe(result => {
             expect(LoginState[t.CurrentState]).to.be.eq(LoginState[LoginState.Unauthenticated]);
@@ -168,7 +168,7 @@ export class JwtServiceTests {
     }
 
     @test 'Logout should invalidate both Access and Refresh tokens' (done: MochaDone) {
-        this.httpProvider.setError(new Error('There was some error during the token refresh request.'));
+        this.httpProvider.AddError(new Error('There was some error during the token refresh request.'));
         let t = new JwtService(this.httpProvider, this.hostUrl, this.tokenTemplate, 'expiration');
         let store = t['TokenStore'] as TokenStore;
         store.SetToken('access', MockTokenFactory.CreateValid());

@@ -1,7 +1,7 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { RxAjaxHttpProvider } from '../src/HttpProviders';
-import { Observable } from '@reactivex/rxjs';
+import { Observable, AjaxRequest } from '@reactivex/rxjs';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 
 const expect = Chai.expect;
@@ -16,7 +16,7 @@ export class HttpProviderTests {
     public setGlobalHeaders(){
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
-        let headers = p.actualHeaders;
+        let headers = p.ActualHeaders;
         Chai.expect(headers[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
     }
 
@@ -24,11 +24,11 @@ export class HttpProviderTests {
     public unsetGlobalHeaders(){
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
-        let headers = p.actualHeaders;
+        let headers = p.ActualHeaders;
         Chai.expect(headers[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
 
         p.UnsetGlobalHeader(this._testHeaderName);
-        headers = p.actualHeaders;
+        headers = p.ActualHeaders;
         Chai.expect(headers[this._testHeaderName as any]).to.be.eq(undefined);
     }
 
@@ -37,10 +37,13 @@ export class HttpProviderTests {
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
 
-        let options: any = {};
-        options[this._testHeaderName as any] = 'modifiedValue';
+        let options: AjaxRequest = {
+            headers: {
+            }
+        };
+        (options.headers as any)[this._testHeaderName] = 'modifiedValue';
         p.Ajax(Object, options).toPromise();
-        expect((p.lastOptions as any).headers[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
+        expect((p.ActualHeaders as any)[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
     }
 
     @test
@@ -59,6 +62,12 @@ export class HttpProviderTests {
         let file = new File(['alma'], 'alma.txt');
         let obs = p.Upload(Object, file, {
             url: '',
+            body: {
+                data: 1
+            },
+            headers: {
+                'X-Alma': 1
+            }
         });
         expect(obs).to.be.instanceof(Observable);
     }
