@@ -188,7 +188,7 @@ describe('Content', () => {
                 Path: 'Root/Workspace',
                 Type: 'Workspace'
             }
-            repo.httpProviderRef.AddResponse({ d: options });
+            repo.HttpProviderRef.AddResponse({ d: options });
             contentSaved.ReloadFields('Workspace').subscribe(w => {
                 contentSaved.Workspace && contentSaved.Workspace.SetContent(repo.HandleLoadedContent({
                     Id: 92635,
@@ -209,7 +209,7 @@ describe('Content', () => {
             options.Type = 'Task';
             (options.Versions as any) = [];
 
-            repo.httpProviderRef.AddResponse({ d: options });
+            repo.HttpProviderRef.AddResponse({ d: options });
             contentSaved.ReloadFields('Versions').subscribe(w => {
                 contentSaved.Versions && contentSaved.Versions.SetContent([contentSaved]);
                 const changes = contentSaved.GetChanges();
@@ -238,7 +238,7 @@ describe('Content', () => {
 
         it('should trigger an OnContentDeleted event', (done) => {
             repo.Authentication.stateSubject.next(LoginState.Authenticated);
-            repo.httpProviderRef.AddResponse({});
+            repo.HttpProviderRef.AddResponse({});
             repo.Events.OnContentDeleted.subscribe(d => {
                 done();
             }, err => done(err))
@@ -247,7 +247,7 @@ describe('Content', () => {
 
         it('error should trigger an OnContentDeleteFailed event', (done) => {
             repo.Authentication.stateSubject.next(LoginState.Authenticated);
-            repo.httpProviderRef.AddError({});
+            repo.HttpProviderRef.AddError({});
             repo.Events.OnContentDeleteFailed.subscribe(d => {
                 done();
             }, err => done(err))
@@ -261,7 +261,7 @@ describe('Content', () => {
     });
     describe('#Rename()', () => {
         it('should return an Observable object', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'aaa',
                     Name: 'bbb'
@@ -336,7 +336,7 @@ describe('Content', () => {
         });
 
         it('should throw Error is server returns Error, and isOperationInProgress should be set to False', (done) => {
-            repo.httpProviderRef.AddError({ message: 'serverErrorMessage' });
+            repo.HttpProviderRef.AddError({ message: 'serverErrorMessage' });
             let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, ContentTypes.Task);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
@@ -348,7 +348,7 @@ describe('Content', () => {
         });
 
         it('should send a PATCH request if fields are specified and override is false', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new',
                 }
@@ -356,7 +356,7 @@ describe('Content', () => {
             let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, ContentTypes.Task);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.LastOptions;
+                const lastOptions = repo.HttpProviderRef.LastOptions;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(c.DisplayName).to.be.eq('new');
                 done();
@@ -364,13 +364,13 @@ describe('Content', () => {
         });
 
         it('should send a PUT request if fields are specified and override is false', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new2',
                 }
             })
             contentSaved.Save({ DisplayName: 'new2' }, true).subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.RequestLog[repo.httpProviderRef.RequestLog.length - 1].Options;
+                const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('PUT');
                 expect(contentSaved.DisplayName).to.be.eq('new2');
                 done();
@@ -379,14 +379,14 @@ describe('Content', () => {
 
 
         it('should send a POST request if triggering Save on an unsaved Content', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
                 }
             })
             content.Save().subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.RequestLog[repo.httpProviderRef.RequestLog.length - 1].Options;
+                const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('POST');
                 expect(content.DisplayName).to.be.eq('new3');
                 done();
@@ -400,7 +400,7 @@ describe('Content', () => {
         });
 
         it('should return an Observable without request on a non-dirty content', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -414,7 +414,7 @@ describe('Content', () => {
 
 
         it('should send a PATCH request if triggering Save on an already saved Content', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -423,7 +423,7 @@ describe('Content', () => {
             contentSaved.DisplayName = 'new3';
 
             contentSaved.Save().subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.RequestLog[repo.httpProviderRef.RequestLog.length - 1].Options;
+                const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(contentSaved.DisplayName).to.be.eq('new3');
                 done();
@@ -431,7 +431,7 @@ describe('Content', () => {
         });
 
         it('should trigger fail if there is no Id field in the response', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -445,7 +445,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentCreated event on success', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
@@ -459,7 +459,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentCreateFailed event on failure', (done) => {
-            repo.httpProviderRef.AddError({
+            repo.HttpProviderRef.AddError({
                 message: ':('
             })
             repo.Events.OnContentCreateFailed.subscribe(c => {
@@ -470,7 +470,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentModified event on success after update', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
@@ -487,7 +487,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentModificationFailed event on failed after update', (done) => {
-            repo.httpProviderRef.AddError({ message: ':(' })
+            repo.HttpProviderRef.AddError({ message: ':(' })
 
             repo.Events.OnContentModificationFailed.subscribe(c => {
                 expect(c.Error.message).to.be.eq(':(');
@@ -500,7 +500,7 @@ describe('Content', () => {
 
 
         it('should trigger an OnContentModificationFailed event on failed after update, when using Override', (done) => {
-            repo.httpProviderRef.AddError({ message: ':(' })
+            repo.HttpProviderRef.AddError({ message: ':(' })
 
             repo.Events.OnContentModificationFailed.subscribe(c => {
                 expect(c.Error.message).to.be.eq(':(');
@@ -532,7 +532,7 @@ describe('Content', () => {
         });
 
         it('should retrieve an Action list', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Actions: [
                         {
@@ -562,7 +562,7 @@ describe('Content', () => {
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', (done) => {
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     __count: 1,
                     results: [
@@ -643,7 +643,7 @@ describe('Content', () => {
 
         it('should be resolved with a list of content', (done) => {
 
-            repo.httpProviderRef.AddResponse({
+            repo.HttpProviderRef.AddResponse({
                 d:
                 {
                     results: [
@@ -775,7 +775,7 @@ describe('Content', () => {
             const toPath = 'workspaces/document';
             const newPath = ODataHelper.joinPaths(toPath, contentSaved.Name || '');
 
-            repo.httpProviderRef.AddResponse({});
+            repo.HttpProviderRef.AddResponse({});
             repo.Events.OnContentMoved.subscribe(move => {
                 expect(move.From).to.be.eq(originalPath);
                 expect(move.To).to.be.eq(toPath);
@@ -791,7 +791,7 @@ describe('Content', () => {
             const originalPath = contentSaved.Path;
             const toPath = 'workspaces/document';
 
-            repo.httpProviderRef.AddError({ message: ':(' });
+            repo.HttpProviderRef.AddError({ message: ':(' });
             repo.Events.OnContentMoveFailed.subscribe(move => {
                 expect(move.Error.message).to.be.eq(':(');
                 expect(move.From).to.be.eq(originalPath);
@@ -881,7 +881,7 @@ describe('Content', () => {
                 Path: 'Root/Workspace',
                 Type: 'Workspace'
             }
-            repo.httpProviderRef.AddResponse({ d: options })
+            repo.HttpProviderRef.AddResponse({ d: options })
             contentSaved.ReloadFields('Workspace').subscribe(c => {
                 expect(contentSaved.Workspace).to.be.instanceof(ContentReferenceField);
                 contentSaved.Workspace && contentSaved.Workspace.GetContent().subscribe(c => {

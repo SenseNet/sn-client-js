@@ -20,7 +20,7 @@ import { QuerySegment, QueryExpression, FinializedQuery } from '../Query';
  */
 export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpProvider,
     TAuthenticationServiceType extends IAuthenticationService = IAuthenticationService> {
-    private odataApi: ODataApi<TProviderType>;
+    private _odataApi: ODataApi<TProviderType>;
     public readonly Events: RepositoryEventHub = new RepositoryEventHub();
 
 
@@ -56,7 +56,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 if (!returnsType) {
                     returnsType = Object as { new(...args: any[]): any };
                 }
-                return this.httpProviderRef.Ajax<T>(returnsType,
+                return this.HttpProviderRef.Ajax<T>(returnsType,
                     {
                         url: ODataHelper.joinPaths(this.ODataBaseUrl, path),
                         method: method,
@@ -86,7 +86,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                     /** Non-chunked upload */
                     uploadOptions.Body.ChunkToken = '0*0*False*False';
-                    this.httpProviderRef.Upload((uploadOptions.ContentType || Content) as { new(...args: any[]): T }, uploadOptions.File, {
+                    this.HttpProviderRef.Upload((uploadOptions.ContentType || Content) as { new(...args: any[]): T }, uploadOptions.File, {
                         url: uploadPath,
                         body: uploadOptions.Body,
                     })
@@ -127,7 +127,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                      */
 
                     const initialChunkData = uploadOptions.File.slice(0, this.Config.ChunkSize);
-                    return this.httpProviderRef.Upload(String, new File([initialChunkData], uploadOptions.File.name), {
+                    return this.HttpProviderRef.Upload(String, new File([initialChunkData], uploadOptions.File.name), {
                         url: uploadPath,
                         body: {
                             ...uploadOptions.Body,
@@ -186,7 +186,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                 const chunkData = options.File.slice(offset, chunkEnd);
 
-                const request = this.httpProviderRef.Upload(Object, new File([chunkData], options.File.name), {
+                const request = this.HttpProviderRef.Upload(Object, new File([chunkData], options.File.name), {
                     url: uploadPath,
                     body: {
                         ...options.Body,
@@ -304,18 +304,18 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Reference to the Http Provider used by the current repository
      */
-    public readonly httpProviderRef: TProviderType;
+    public readonly HttpProviderRef: TProviderType;
 
     /**
      * Reference to the OData API used by the current repository
      */
     public get Content(): ODataApi<TProviderType> {
         console.warn('The property repository.Content is deprecated and will be removed in the near future. Use repositoy.GetODataApi() instead.')
-        return this.odataApi;
+        return this._odataApi;
     };
 
     public GetODataApi(): ODataApi<TProviderType> {
-        return this.odataApi;
+        return this._odataApi;
     }
 
     /**
@@ -334,15 +334,15 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param authentication The type of the Authentication Service to be used.
      */
     constructor(config: Partial<SnConfigModel>,
-        private readonly httpProviderType: { new(): TProviderType },
+        _httpProviderType: { new(): TProviderType },
         authentication: { new(...args: any[]): TAuthenticationServiceType }) {
 
-        this.httpProviderRef = new httpProviderType();
+        this.HttpProviderRef = new _httpProviderType();
         this.Config = new SnConfigModel(config);
 
         //warning: Authentication constructor parameterization is not type-safe
-        this.Authentication = new authentication(this.httpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this.odataApi = new ODataApi(this.httpProviderType, this);
+        this.Authentication = new authentication(this.HttpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
+        this._odataApi = new ODataApi(_httpProviderType, this);
 
         this.initUserUpdate();
     }
@@ -363,7 +363,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      */
     public GetVersionInfo() {
-        return this.odataApi.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
+        return this._odataApi.CreateCustomAction({ name: 'GetVersionInfo', path: '/Root', isAction: false }, {}, VersionInfo);
     }
     /**
      * Returns the list of all ContentTypes in the system.
@@ -380,7 +380,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      */
     public GetAllContentTypes(): Observable<ContentType[]> {
-        return this.odataApi.CreateCustomAction<ODataCollectionResponse<ContentType>>({
+        return this._odataApi.CreateCustomAction<ODataCollectionResponse<ContentType>>({
             name: 'GetAllContentTypes',
             path: '/Root',
             isAction: false
@@ -460,7 +460,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         };
         const returnType = returnsType || Content as { new(...args: any[]): any };
 
-        return this.odataApi.Get(odataRequestOptions, returnType)
+        return this._odataApi.Get(odataRequestOptions, returnType)
             .share()
             .map(r => {
                 return this.HandleLoadedContent(r.d, returnType);
@@ -537,7 +537,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      */
     public DeleteBatch(contentList: (SavedContent<Content<IContentOptions>>)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields());
-        const action = this.odataApi.CreateCustomAction({
+        const action = this._odataApi.CreateCustomAction({
             name: 'DeleteBatch',
             path: rootContent.Path,
             isAction: true,
@@ -575,7 +575,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      */
     MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentPathList: string[] = contentList.map(c => c.Path);
-        const action = this.odataApi.CreateCustomAction({
+        const action = this._odataApi.CreateCustomAction({
             name: 'MoveBatch',
             path: rootContent.Path,
             isAction: true,
@@ -616,7 +616,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      */
     CopyBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields());
-        const action = this.odataApi.CreateCustomAction({
+        const action = this._odataApi.CreateCustomAction({
             name: 'CopyBatch',
             path: rootContent.Path,
             isAction: true,

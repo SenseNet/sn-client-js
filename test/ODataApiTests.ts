@@ -28,7 +28,7 @@ describe('ODataApi', () => {
     describe('#Fetch()', () => {
         it('request a collection of Content and returns an Observable object', (done) => {
             service.Authentication.stateSubject.next(LoginState.Authenticated);
-            service.httpProviderRef.AddResponse({
+            service.HttpProviderRef.AddResponse({
                 d: {
                     __count: 1,
                     results: [
@@ -106,7 +106,7 @@ describe('ODataApi', () => {
 
 
         it('should trigger a CustomActionFailed event on a Repository when GET request failed', (done) => {
-            service.httpProviderRef.AddError({message: ':('})
+            service.HttpProviderRef.AddError({message: ':('})
             let action = new CustomAction({ name: 'GetPermission', id: 111, isAction: false, params: ['identity'] });
             service.Events.OnCustomActionFailed.subscribe(ac => {
                 expect(ac.Error.message).to.be.eq(':(');
@@ -116,7 +116,7 @@ describe('ODataApi', () => {
         });
 
         it('should trigger a CustomActionFailed event on a Repository when POST without Data request failed', (done) => {
-            service.httpProviderRef.AddError({message: ':('})
+            service.HttpProviderRef.AddError({message: ':('})
             let action = new CustomAction({ name: 'CheckOut', id: 111, isAction: true })
             service.Events.OnCustomActionFailed.subscribe(ac => {
                 expect(ac.Error.message).to.be.eq(':(');
@@ -126,7 +126,7 @@ describe('ODataApi', () => {
         });
 
         it('should trigger a OnCustomActionExecuted event on a Repository when POST without Data request succeeded', (done) => {
-            service.httpProviderRef.AddResponse({message: ':)'})
+            service.HttpProviderRef.AddResponse({message: ':)'})
             let action = new CustomAction({ name: 'CheckOut', id: 111, isAction: true })
             service.Events.OnCustomActionExecuted.subscribe(ac => {
                 expect(ac.Result.message).to.be.eq(':)');
@@ -146,9 +146,9 @@ describe('ODataApi', () => {
         });
 
         it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
-            let http = service.httpProviderRef;
+            let http = service.HttpProviderRef;
             service.Authentication.stateSubject.next(LoginState.Authenticated);
-            service.httpProviderRef.UseTimeout = true;
+            service.HttpProviderRef.UseTimeout = true;
             http.AddResponse({ success: true });
             odataApi.CreateCustomAction({
                 path: `localhost/OData.svc('Root')`,

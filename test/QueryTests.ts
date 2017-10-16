@@ -19,7 +19,7 @@ export class QueryTests {
     public 'Can be from a repository'(done: MochaDone) {
         const repo = new MockRepository()
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-        repo.httpProviderRef.AddResponse({
+        repo.HttpProviderRef.AddResponse({
             d: {
                 __count: 1,
                 results: [{
@@ -58,7 +58,7 @@ export class QueryTests {
     public 'Can be from a Content'(done: MochaDone) {
         const repo = new MockRepository()
         repo.Authentication.stateSubject.next(LoginState.Authenticated);
-        repo.httpProviderRef.AddResponse({
+        repo.HttpProviderRef.AddResponse({
             d: {
                 __count: 1,
                 results: [{
