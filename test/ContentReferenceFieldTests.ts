@@ -18,7 +18,7 @@ export class ContentReferenceFieldTests {
     private repo: MockRepository;
     before() {
         this.repo = new MockRepository();
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this.loadedRef = new ContentReferenceField({
             Id: 1,
             Path: 'root/a/b',

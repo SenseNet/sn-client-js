@@ -1,7 +1,7 @@
 /**
  * @module Mocks
  */ /** */
- 
+
 import { BaseRepository } from '../../src/Repository/index';
 import { MockHttpProvider } from './MockHttpProvider';
 import { SnConfigModel } from '../../src/Config';

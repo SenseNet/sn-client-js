@@ -16,7 +16,7 @@ describe('ODataApi', () => {
     beforeEach(() => {
         service = new MockRepository();
         odataApi = service.GetODataApi()
-        service.Authentication.stateSubject.next(LoginState.Authenticated);
+        service.Authentication.StateSubject.next(LoginState.Authenticated);
     });
 
     describe('#Get()', () => {
@@ -27,7 +27,7 @@ describe('ODataApi', () => {
 
     describe('#Fetch()', () => {
         it('request a collection of Content and returns an Observable object', (done) => {
-            service.Authentication.stateSubject.next(LoginState.Authenticated);
+            service.Authentication.StateSubject.next(LoginState.Authenticated);
             service.HttpProviderRef.AddResponse({
                 d: {
                     __count: 1,
@@ -147,7 +147,7 @@ describe('ODataApi', () => {
 
         it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
             let http = service.HttpProviderRef;
-            service.Authentication.stateSubject.next(LoginState.Authenticated);
+            service.Authentication.StateSubject.next(LoginState.Authenticated);
             service.HttpProviderRef.UseTimeout = true;
             http.AddResponse({ success: true });
             odataApi.CreateCustomAction({

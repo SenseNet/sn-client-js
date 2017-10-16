@@ -29,7 +29,7 @@ describe('Content', () => {
         };
         content = Content.Create(options, ContentTypes.Task, repo);
         contentSaved = repo.HandleLoadedContent(options as any, ContentTypes.Task);
-        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
     });
 
@@ -237,7 +237,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentDeleted event', (done) => {
-            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            repo.Authentication.StateSubject.next(LoginState.Authenticated);
             repo.HttpProviderRef.AddResponse({});
             repo.Events.OnContentDeleted.subscribe(d => {
                 done();
@@ -246,7 +246,7 @@ describe('Content', () => {
         });
 
         it('error should trigger an OnContentDeleteFailed event', (done) => {
-            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            repo.Authentication.StateSubject.next(LoginState.Authenticated);
             repo.HttpProviderRef.AddError({});
             repo.Events.OnContentDeleteFailed.subscribe(d => {
                 done();
@@ -871,7 +871,7 @@ describe('Content', () => {
         });
 
         it('should throw Error when no Id provided', (done) => {
-            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            repo.Authentication.StateSubject.next(LoginState.Authenticated);
             const options = contentSaved.GetFields();
 
             (options.Workspace as any) = {

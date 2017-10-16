@@ -1,7 +1,7 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { SnConfigModel } from '../src/Config';
-import { MockRepository, MockAuthService, MockHttpProvider } from './Mocks';
+import { MockRepository, MockHttpProvider } from './Mocks';
 import { VersionInfo, SnRepository, UploadResponse } from '../src/Repository';
 import { Content } from '../src/Content';
 import { LoginState } from '../src/Authentication';
@@ -22,7 +22,7 @@ export class RepositoryTests {
             ODataToken: 'odata.svc'
         });
 
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
     };
 
     @test
@@ -70,8 +70,8 @@ export class RepositoryTests {
                 Type: 'ContentType'
             }
         };
-        (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
-        (this.repo.HttpProviderRef as MockHttpProvider).AddResponse(cResponse);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
+        this.repo.HttpProviderRef.AddResponse(cResponse);
         this.repo.Load(1).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
             expect(response).to.be.instanceof(Content);
@@ -88,8 +88,8 @@ export class RepositoryTests {
                 Type: 'User',
             }
         };
-        (this.repo.Authentication as MockAuthService).stateSubject.next(LoginState.Authenticated);
-        (this.repo.HttpProviderRef as MockHttpProvider).AddResponse(cResponse);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
+        this.repo.HttpProviderRef.AddResponse(cResponse);
         this.repo.Load(1, {}, User).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
             expect(response).to.be.instanceof(User);
@@ -275,7 +275,7 @@ export class RepositoryTests {
 
     @test 'Upload() should trigger UploadProgress event'(done: MochaDone){
         this.repo.Config.ChunkSize = 1024 * 1024;
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
         this.repo.Events.OnUploadProgress.subscribe(pi => {
@@ -300,7 +300,7 @@ export class RepositoryTests {
 
     @test 'Upload() should trigger ContentCreated event'(done: MochaDone){
         this.repo.Config.ChunkSize = 1024 * 1024;
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
         const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
         this.repo.Events.OnContentCreated.subscribe(pi => {
@@ -324,7 +324,7 @@ export class RepositoryTests {
 
     @test 'Upload() failure should trigger ContentCreateFailed event'(done: MochaDone){
         this.repo.Config.ChunkSize = 1024 * 1024;
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this.repo.HttpProviderRef
             .AddError(Error('e'))
             .AddResponse({d: {Id: 12356, Path: 'Root/Test/alma'}});
@@ -351,7 +351,7 @@ export class RepositoryTests {
 
     @test 'Upload() chunked content should trigger multiple UploadProgress requests and resolves from Upload observable'(done: MochaDone){
         this.repo.Config.ChunkSize = 4;
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this.repo.HttpProviderRef
             .AddResponse('9865*chunk-token*true*true')              // first upload
             .AddResponse({})                                        // Mocked chunks
@@ -386,7 +386,7 @@ export class RepositoryTests {
     }
     @test 'Upload() chunked content should trigger multiple UploadProgress requests and resolves from UploadProgress observable'(done: MochaDone){
         this.repo.Config.ChunkSize = 4;
-        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this.repo.HttpProviderRef
             .AddResponse('9865*chunk-token*true*true')              // first upload
             .AddResponse({})                                        // Mocked chunks
@@ -443,8 +443,8 @@ export class RepositoryTests {
             }
         })
         repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
-        repo.Authentication.stateSubject.next(LoginState.Pending);
-        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.Authentication.StateSubject.next(LoginState.Pending);
+        repo.Authentication.StateSubject.next(LoginState.Authenticated);
         repo.GetCurrentUser().subscribe(u => {
             expect(u.Name).to.be.eq('NewUser');
             done();
@@ -454,7 +454,7 @@ export class RepositoryTests {
 
     @test 'GetCurrentUser() should not update if multiple users found  on change '(done: MochaDone) {
         let repo = new MockRepository();
-        repo.Authentication.stateSubject.next(LoginState.Pending);
+        repo.Authentication.StateSubject.next(LoginState.Pending);
         repo.Authentication.CurrentUser = 'BuiltIn\\NewUser';
 
         repo.GetCurrentUser().subscribe(u => {
@@ -483,7 +483,7 @@ export class RepositoryTests {
                 }]
             }
         });
-        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        repo.Authentication.StateSubject.next(LoginState.Authenticated);
     }
 
 }
