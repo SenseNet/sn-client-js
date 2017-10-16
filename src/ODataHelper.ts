@@ -1,7 +1,7 @@
 /**
  * @module ODataHelper
  * @preferred
- * 
+ *
  * @description Helper methods for OData Operations
  */ /** */
 
