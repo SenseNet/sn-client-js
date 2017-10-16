@@ -56,7 +56,7 @@ export class HttpProviderTests {
     @test
     public 'RxHttpProvider Upload should return an Observable<TReturns>'(){
         (global as any).XMLHttpRequest = class { open(){}; send(){}; setRequestHeader(){}};
-        (global as any).File = class { };
+        (global as any).File = class { slice(from: number, size: number){ return ''} };
         (global as any).FormData = class { append(){}; };
         let p = new RxAjaxHttpProvider();
         let file = new File(['alma'], 'alma.txt');

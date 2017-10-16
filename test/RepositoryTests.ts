@@ -349,6 +349,72 @@ export class RepositoryTests {
             });
     }
 
+    @test 'Upload() chunked content should trigger multiple UploadProgress requests and resolves from Upload observable'(done: MochaDone){
+        this.repo.Config.ChunkSize = 4;
+        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.httpProviderRef
+            .AddResponse('9865*chunk-token*true*true')              // first upload
+            .AddResponse({})                                        // Mocked chunks
+            .AddResponse({})
+            .AddResponse({})
+            .AddResponse({d: {Id: 12356, Path: 'Root/Test/alma'}})  // Content reload;
+
+
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+        let uploadReqCount = 0;
+
+        this.repo.Events.OnUploadProgress.subscribe(pi => {
+            uploadReqCount = pi.UploadedChunks;
+        }, err => done(err), () => {
+            expect(uploadReqCount).to.be.eq(3);
+            done();
+        });
+        const mockFile = new File(['alma'], 'alma.txt');
+        Object.assign((mockFile as any), {
+            size: 12
+        });
+
+
+        testContent.UploadFile({ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true})
+            .subscribe(progress => {
+                if (progress.Completed){
+                    expect(progress.ChunkCount).to.be.eq(progress.UploadedChunks);
+                    expect(uploadReqCount).to.be.eq(progress.ChunkCount);
+                    done();
+                }
+            });
+    }
+    @test 'Upload() chunked content should trigger multiple UploadProgress requests and resolves from UploadProgress observable'(done: MochaDone){
+        this.repo.Config.ChunkSize = 4;
+        this.repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        this.repo.httpProviderRef
+            .AddResponse('9865*chunk-token*true*true')              // first upload
+            .AddResponse({})                                        // Mocked chunks
+            .AddResponse({})
+            .AddResponse({})
+            .AddResponse({d: {Id: 12356, Path: 'Root/Test/alma'}})  // Content reload;
+
+
+        const testContent = this.repo.HandleLoadedContent({Id: 12345, Path: 'Root/Test'});
+
+        this.repo.Events.OnUploadProgress.subscribe(progress => {
+            if (progress.Completed){
+                expect(progress.ChunkCount).to.be.eq(progress.UploadedChunks);
+                done();
+            }
+        }, err => done(err));
+        const mockFile = new File(['alma'], 'alma.txt');
+        Object.assign((mockFile as any), {
+            size: 12
+        });
+
+
+        testContent.UploadFile({ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true})
+            .subscribe(progress => {
+
+            }, err => done(err));
+    }
+
     @test 'GetCurrentUser() should return an Observable '() {
         let repo = new MockRepository();
         expect(repo.GetCurrentUser()).to.be.instanceof(Observable)
