@@ -587,7 +587,7 @@ export class RepositoryTests {
 
         (global as any).window = { webkitRequestFileSystem: () => { } };
 
-        this._repo.HttpProviderRef.AddResponse({d: {Id: 123456, Path: 'Root/Folder'}});
+        this._repo.HttpProviderRef.AddResponse({ d: { Id: 123456, Path: 'Root/Folder' } });
 
 
         (this._repo as any)['UploadFile'] = (...args: any[]) => {
@@ -603,7 +603,7 @@ export class RepositoryTests {
             isDirectory: true,
             createReader: () => {
                 return {
-                    readEntries:  (cb: (entries: any) => void, err: (err: any) => void) => {
+                    readEntries: (cb: (entries: any) => void, err: (err: any) => void) => {
                         cb([
                             {
                                 isFile: true,
@@ -633,6 +633,41 @@ export class RepositoryTests {
         }).then(result => {
             done();
         }).catch(err => done(err));
+    }
+
+    @test 'UploadFromDropEvent should fail on error when creating a folder'(done: MochaDone) {
+
+        (global as any).window = { webkitRequestFileSystem: () => { } };
+        this._repo.HttpProviderRef.AddError('neeee');
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            return Observable.of({
+                ChunkCount: 1,
+                Completed: true,
+                CreatedContent: { Id: 123456 },
+                UploadedChunks: 1
+            } as UploadProgressInfo<Content>);
+        }
+        const directory = {
+            isFile: false,
+            isDirectory: true,
+        };
+
+        this._repo.UploadFromDropEvent({
+            Event: {
+                dataTransfer: {
+                    items: [
+                        { webkitGetAsEntry: () => { return directory } }
+                    ]
+                }
+            } as any,
+            Overwrite: true,
+            ContentType: ContentTypes.File,
+            CreateFolders: true,
+            PropertyName: 'Binary',
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
+        }).then(result => {
+            done('This shouldn\'t be triggered on error');
+        }).catch(err => done());
     }
 
     @test 'GetCurrentUser() should return an Observable '() {
