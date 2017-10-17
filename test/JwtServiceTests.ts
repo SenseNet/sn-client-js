@@ -168,16 +168,17 @@ export class JwtServiceTests {
     }
 
     @test 'Logout should invalidate both Access and Refresh tokens' (done: MochaDone) {
-        this._httpProvider.AddError(new Error('There was some error during the token refresh request.'));
+        this._httpProvider.AddResponse({success: true});
         let t = new JwtService(this._httpProvider, this._hostUrl, this._tokenTemplate, 'expiration');
         let store = t['_tokenStore'] as TokenStore;
         store.SetToken('access', MockTokenFactory.CreateValid());
         store.SetToken('refresh', MockTokenFactory.CreateValid());
         t.CheckForUpdate().subscribe(result => {
             expect(LoginState[t.CurrentState]).to.be.eq(LoginState[LoginState.Authenticated]);
-            t.Logout();
-            expect(LoginState[t.CurrentState]).to.be.eq(LoginState[LoginState.Unauthenticated]);
-            done();
+            t.Logout().subscribe(result => {
+                expect(LoginState[t.CurrentState]).to.be.eq(LoginState[LoginState.Unauthenticated]);
+                done();
+            });
         });
     }
 
