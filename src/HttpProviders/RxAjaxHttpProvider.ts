@@ -10,13 +10,13 @@ import { SnConfigModel } from '../Config';
  * This is the default RxJs-Ajax based Http calls.
  */
 export class RxAjaxHttpProvider extends BaseHttpProvider {
-    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & {url: string}): Observable<T> {
+    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & { url: string }): Observable<T> {
         const subject = new Subject<T>();
         const formData = new FormData();
         formData.append(File.name || 'File', File);
 
-        if (options.body){
-            for (const index in options.body){
+        if (options.body) {
+            for (const index in options.body) {
                 formData.append(index, options.body[index]);
             }
         }
@@ -25,8 +25,8 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
         request.withCredentials = this.isCrossDomain(options.url);
         request.open('POST', options.url);
 
-        if (options.headers){
-            for (const header in options.headers){
+        if (options.headers) {
+            for (const header in options.headers) {
                 request.setRequestHeader(header, options.headers[header]);
             }
         }
@@ -52,13 +52,11 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
         return subject.asObservable();
     }
 
-    public ForceCheckCrossDomain: boolean = true;
-
     private isCrossDomain(path: string): boolean {
         return path.indexOf(SnConfigModel.DEFAULT_BASE_URL) === -1;
     }
 
-    constructor(){
+    constructor() {
         super();
         this.SetGlobalHeader('content-type', 'application/json; charset=utf-8');
         this.SetGlobalHeader('Accept', 'application/json');
@@ -66,11 +64,9 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
 
     protected ajaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
 
-        if (this.ForceCheckCrossDomain){
-            const crossDomain = this.isCrossDomain(options.url || '');
-            options.withCredentials = crossDomain;
-            options.crossDomain = crossDomain;
-        }
+        const crossDomain = this.isCrossDomain(options.url || '');
+        options.withCredentials = crossDomain;
+        options.crossDomain = crossDomain;
         return Observable.ajax(options).map(req => req.response as T).share();
     }
 }
