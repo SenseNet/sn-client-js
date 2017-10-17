@@ -47,6 +47,15 @@ export class HttpProviderTests {
     }
 
     @test
+    public 'globalHeaders should be overridden by additional headers'() {
+        let p = new MockHttpProvider();
+        p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
+
+        p.Ajax(Object, {}, [{name: this._testHeaderName, value: 'modifiedValue'}]).toPromise();
+        expect((p.ActualHeaders as any)[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
+    }
+
+    @test
     public 'RxHttpProvider Ajax should make an XmlHttpRequest call'(done: MochaDone) {
         let p = new RxAjaxHttpProvider();
         (global as any).XMLHttpRequest = class { open() { }; send() { this.readyState = 4; this.status = 200; this.response = {}; this.onreadystatechange() }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any };
