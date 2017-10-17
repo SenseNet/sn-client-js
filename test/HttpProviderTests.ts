@@ -1,7 +1,7 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { RxAjaxHttpProvider } from '../src/HttpProviders';
-import { Observable, AjaxRequest } from '@reactivex/rxjs';
+import { AjaxRequest } from '@reactivex/rxjs';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 
 const expect = Chai.expect;
@@ -13,7 +13,7 @@ export class HttpProviderTests {
     private readonly _testHeaderValue: string = 'testHeaderValue';
 
     @test
-    public SetGlobalHeaders(){
+    public SetGlobalHeaders() {
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
         let headers = p.ActualHeaders;
@@ -21,7 +21,7 @@ export class HttpProviderTests {
     }
 
     @test
-    public UnsetGlobalHeaders(){
+    public UnsetGlobalHeaders() {
         let p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
         let headers = p.ActualHeaders;
@@ -47,20 +47,28 @@ export class HttpProviderTests {
     }
 
     @test
-    public 'RxHttpProvider Ajax should return an Observable<TReturns>'() {
+    public 'RxHttpProvider Ajax should make an XmlHttpRequest call'(done: MochaDone) {
         let p = new RxAjaxHttpProvider();
-        let obs = p.Ajax(Object, {});
-        expect(obs).to.be.instanceof(Observable);
+        (global as any).XMLHttpRequest = class { open() { }; send() { this.readyState = 4; this.status = 200; this.response = {}; this.onreadystatechange() }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any };
+        p.Ajax(Object, {}).subscribe(result => {
+            done();
+        }, err => done(err));
     }
 
     @test
-    public 'RxHttpProvider Upload should return an Observable<TReturns>'(){
-        (global as any).XMLHttpRequest = class { open(){}; send(){}; setRequestHeader(){}};
-        (global as any).File = class { slice(from: number, size: number){ return ''} };
-        (global as any).FormData = class { append(){}; };
+    public 'RxHttpProvider Upload should make an XmlHttpRequest call and parses response if possible'(done: MochaDone) {
+        (global as any).XMLHttpRequest = class {
+            open() { }; send() {
+                setTimeout(() => {
+                    this.readyState = 4; this.status = 200; this.response = '{"success": "true"}'; this.onreadystatechange()
+                }, 10);
+            }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any
+        };
+        (global as any).File = class { slice(from: number, size: number) { return '' } };
+        (global as any).FormData = class { append() { }; };
         let p = new RxAjaxHttpProvider();
         let file = new File(['alma'], 'alma.txt');
-        let obs = p.Upload(Object, file, {
+        p.Upload(Object, file, {
             url: '',
             body: {
                 data: 1
@@ -68,8 +76,63 @@ export class HttpProviderTests {
             headers: {
                 'X-Alma': 1
             }
-        });
-        expect(obs).to.be.instanceof(Observable);
+        }).subscribe(result => {
+            expect((result as any).success).to.be.eq('true');
+            done()
+        }, err => done(err));
+    }
+
+    @test
+    public 'RxHttpProvider Upload should make an XmlHttpRequest call and returns raw response if failed to parse'(done: MochaDone) {
+        (global as any).XMLHttpRequest = class {
+            open() { }; send() {
+                setTimeout(() => {
+                    this.readyState = 4; this.status = 200; this.response = 'a*b*c'; this.onreadystatechange()
+                }, 10);
+            }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any
+        };
+        (global as any).File = class { slice(from: number, size: number) { return '' } };
+        (global as any).FormData = class { append() { }; };
+        let p = new RxAjaxHttpProvider();
+        let file = new File(['alma'], 'alma.txt');
+        p.Upload(Object, file, {
+            url: '',
+            body: {
+                data: 1
+            },
+            headers: {
+                'X-Alma': 1
+            }
+        }).subscribe(result => {
+            expect(result).to.be.eq('a*b*c');
+            done()
+        }, err => done(err));
+    }
+
+    @test
+    public 'RxHttpProvider Upload should distribute an Error if the request has an invalid status'(done: MochaDone) {
+        (global as any).XMLHttpRequest = class {
+            open() { }; send() {
+                setTimeout(() => {
+                    this.readyState = 4; this.status = 404; this.response = 'a*b*c'; this.onreadystatechange()
+                }, 10);
+            }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any
+        };
+        (global as any).File = class { slice(from: number, size: number) { return '' } };
+        (global as any).FormData = class { append() { }; };
+        let p = new RxAjaxHttpProvider();
+        let file = new File(['alma'], 'alma.txt');
+        p.Upload(Object, file, {
+            url: '',
+            body: {
+                data: 1
+            },
+            headers: {
+                'X-Alma': 1
+            }
+        }).subscribe(result => {
+            done('This request should be failed')
+        }, err => done());
     }
 
 }
