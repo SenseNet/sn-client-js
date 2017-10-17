@@ -6,9 +6,8 @@ import { VersionInfo, SnRepository, UploadResponse, UploadProgressInfo } from '.
 import { Content } from '../src/Content';
 import { LoginState } from '../src/Authentication';
 import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
-import { User, Task, ContentType } from '../src/ContentTypes';
+import { User, Task, ContentType, File as SnFile } from '../src/ContentTypes';
 import { Observable, Subject } from '@reactivex/rxjs';
-import { ContentTypes } from '../src/SN';
 
 const expect = Chai.expect;
 
@@ -421,9 +420,11 @@ export class RepositoryTests {
         (this._repo as any)['UploadFile'] = (...args: any[]) => {
             done();
         }
+
+
         this._repo.UploadTextAsFile({
             Text: 'alma',
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             Overwrite: true,
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }),
             PropertyName: 'Binary',
@@ -450,7 +451,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
@@ -478,7 +479,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
@@ -509,7 +510,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
@@ -541,7 +542,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
@@ -574,7 +575,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
@@ -626,7 +627,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: true,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
@@ -661,7 +662,7 @@ export class RepositoryTests {
                 }
             } as any,
             Overwrite: true,
-            ContentType: ContentTypes.File,
+            ContentType: SnFile,
             CreateFolders: true,
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })

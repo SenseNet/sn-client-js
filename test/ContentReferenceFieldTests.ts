@@ -3,17 +3,17 @@ import { suite, test } from 'mocha-typescript';
 import { ContentReferenceField } from '../src/ContentReferences';
 import { DeferredObject } from '../src/ComplexTypes';
 import { MockRepository } from './Mocks/MockRepository';
-import { ContentTypes } from '../src/SN';
 import { LoginState } from '../src/Authentication/LoginState';
 import { ReferenceFieldSetting } from '../src/FieldSettings';
 import { FinializedQuery } from '../src/Query/index';
+import { Task } from '../src/ContentTypes';
 
 const expect = Chai.expect;
 
 @suite('ContentReferenceField')
 export class ContentReferenceFieldTests {
-    private _unloadedRef: ContentReferenceField<ContentTypes.Task>;
-    private _loadedRef: ContentReferenceField<ContentTypes.Task>;
+    private _unloadedRef: ContentReferenceField<Task>;
+    private _loadedRef: ContentReferenceField<Task>;
 
     private _repo: MockRepository;
     before() {
@@ -41,7 +41,7 @@ export class ContentReferenceFieldTests {
     @test
     public 'Should be able to construct ContentReferenceField from IContentOptions with loaded content reference'() {
         expect(this._loadedRef).to.be.instanceof(ContentReferenceField);
-        expect(this._loadedRef['_contentReference']).to.be.instanceOf(ContentTypes.Task)
+        expect(this._loadedRef['_contentReference']).to.be.instanceOf(Task)
     }
 
 

@@ -1,36 +1,36 @@
-import { ComplexTypes } from '../src/SN';
+import { ChoiceOption, DeferredObject, DeferredUriObject, MediaResourceObject, MediaObject } from '../src/ComplexTypes';
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
-describe('ComplexTypes', () => {
+export const ComplexTypesTests = describe('ComplexTypes', () => {
     describe('#ChoiceOption', () => {
-        const option = new ComplexTypes.ChoiceOption('text');
+        const option = new ChoiceOption('text');
         it('should return a choice option object', () => {
-            expect(option).to.be.an.instanceof(ComplexTypes.ChoiceOption);
+            expect(option).to.be.an.instanceof(ChoiceOption);
         });
     });
     describe('#DeferredObject', () => {
-        const link = new ComplexTypes.DeferredObject();
+        const link = new DeferredObject();
         it('should return a DeferredObject object', () => {
-            expect(link).to.be.an.instanceof(ComplexTypes.DeferredObject);
+            expect(link).to.be.an.instanceof(DeferredObject);
         });
     });
     describe('#DeferredUriObject', () => {
-        const link = new ComplexTypes.DeferredUriObject();
+        const link = new DeferredUriObject();
         it('should return a DeferredUriObject object', () => {
-            expect(link).to.be.an.instanceof(ComplexTypes.DeferredUriObject);
+            expect(link).to.be.an.instanceof(DeferredUriObject);
         });
     });
     describe('#MediaResourceObject', () => {
-        const link = new ComplexTypes.MediaResourceObject();
+        const link = new MediaResourceObject();
         it('should return a MediaResourceObject object', () => {
-            expect(link).to.be.an.instanceof(ComplexTypes.MediaResourceObject);
+            expect(link).to.be.an.instanceof(MediaResourceObject);
         });
     });
     describe('#Hyperlink', () => {
-        const link = new ComplexTypes.MediaObject();
+        const link = new MediaObject();
         it('should return a hyperlink object', () => {
-            expect(link).to.be.an.instanceof(ComplexTypes.MediaObject);
+            expect(link).to.be.an.instanceof(MediaObject);
         });
     });
 });

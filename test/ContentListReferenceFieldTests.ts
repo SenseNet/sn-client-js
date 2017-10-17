@@ -4,16 +4,16 @@ import { ContentListReferenceField } from '../src/ContentReferences';
 import { DeferredObject } from '../src/ComplexTypes';
 import { MockRepository } from './Mocks/MockRepository';
 import { IContentOptions } from '../src/Content';
-import { ContentTypes } from '../src/SN';
 import { LoginState } from '../src/Authentication/LoginState';
 import { ReferenceFieldSetting } from '../src/FieldSettings';
+import { Task } from '../src/ContentTypes';
 
 const expect = Chai.expect;
 
 @suite('ContentListReferenceField')
 export class ContentListReferenceFieldTests {
-    private _unloadedRef: ContentListReferenceField<ContentTypes.Task>;
-    private _loadedRef: ContentListReferenceField<ContentTypes.Task>;
+    private _unloadedRef: ContentListReferenceField<Task>;
+    private _loadedRef: ContentListReferenceField<Task>;
 
     private _repo: MockRepository;
     before() {
@@ -42,7 +42,7 @@ export class ContentListReferenceFieldTests {
     @test
     public 'Should be able to construct ContentReferenceField from IContentOptions with loaded content reference'() {
         expect(this._loadedRef).to.be.instanceof(ContentListReferenceField);
-        expect(this._loadedRef['_contentReferences'][0]).to.be.instanceOf(ContentTypes.Task)
+        expect(this._loadedRef['_contentReferences'][0]).to.be.instanceOf(Task)
     }
 
 

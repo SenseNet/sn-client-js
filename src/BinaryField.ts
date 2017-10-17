@@ -6,19 +6,14 @@ import { UploadProgressInfo } from './Repository/UploadModels';
 
 export class BinaryField<T extends SavedContent<Content>> {
 
-
-    private get _fieldName(): keyof T {
-        return this._fieldSettings.Name as keyof T;
-    }
-
     public SaveBinaryFile: (file: File) => Observable<UploadProgressInfo<T>>
     = (file: File) =>
 
         this._contentReference.GetRepository().UploadFile({
             File: new File([file], this._contentReference.Name || file.name),
             Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath},
-            PropertyName: this._fieldName,
-            ContentType: this._contentReference.constructor as { new(...args): T },
+            PropertyName: this._fieldSettings.Name,
+            ContentType: this._contentReference.constructor as { new(...args: any[]): T },
             Overwrite: true,
         })
 
