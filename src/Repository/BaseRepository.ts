@@ -239,11 +239,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     File: f as any,
                     ...options
                 })
-                    .skipWhile(progress => !progress.Completed)
-                    .subscribe(progress => {
-                        resolve(progress);
-                        console.log(progress);
-                    }, err => reject(err))
+                .skipWhile(progress => !progress.Completed)
+                .subscribe(
+                    progress => resolve(progress),
+                    err => reject(err));
             }, err => reject(err));
         })
     }
