@@ -5,7 +5,7 @@ import { File as SnFile } from '../src/ContentTypes';
 import { BinaryField } from '../src/BinaryField';
 import { SavedContent } from '../src/Content';
 import { BinaryFieldSetting } from '../src/FieldSettings';
-import { UploadFileOptions } from '../src/Repository/UploadModels';
+import { UploadFileOptions, WithParentContent } from '../src/Repository/UploadModels';
 
 const expect = Chai.expect;
 
@@ -47,7 +47,40 @@ export class BinaryFieldTests {
     }
 
     @test
+    public 'Parent.GetFullPath() should return the Content path'(done: MochaDone) {
+        (this._file as any)['GetRepository'] = () => {
+            return {
+                UploadFile: (options: WithParentContent<UploadFileOptions<SnFile>>) => {
+                    expect(options.Parent.GetFullPath()).to.be.eq(this._file.Path);
+                    expect(options).to.be.instanceof(Object);
+                    done();
+                }
+            }
+        };
+
+        const field = new BinaryField(this._file.Binary as MediaResourceObject, this._file, this._fieldSetting);
+        field.SaveBinaryFile(new File(['alma'], 'alma.txt'));
+    }
+
+    @test
     public 'SaveBinaryFile() should trigger an upload request'(done: MochaDone) {
+        (this._file as any)['GetRepository'] = () => {
+            return {
+                UploadFile: (options: UploadFileOptions<SnFile>) => {
+
+                    expect(options).to.be.instanceof(Object);
+
+                    done();
+                }
+            }
+        };
+
+        const field = new BinaryField(this._file.Binary as MediaResourceObject, this._file, this._fieldSetting);
+        field.SaveBinaryFile(new File(['alma'], 'alma.txt'));
+    }
+
+    @test
+    public 'SaveBinaryText() should trigger an upload request'(done: MochaDone) {
         (this._file as any)['GetRepository'] = () => {
             return {
                 UploadFile: (options: UploadFileOptions<SnFile>) => {
@@ -58,7 +91,7 @@ export class BinaryFieldTests {
         };
 
         const field = new BinaryField(this._file.Binary as MediaResourceObject, this._file, this._fieldSetting);
-        field.SaveBinaryFile(new File(['alma'], 'alma.txt'));
+        field.SaveBinaryText('alma');
     }
 
 }
