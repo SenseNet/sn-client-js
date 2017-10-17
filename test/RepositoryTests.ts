@@ -2,12 +2,12 @@ import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { SnConfigModel } from '../src/Config';
 import { MockRepository, MockHttpProvider } from './Mocks';
-import { VersionInfo, SnRepository, UploadResponse } from '../src/Repository';
+import { VersionInfo, SnRepository, UploadResponse, UploadProgressInfo } from '../src/Repository';
 import { Content } from '../src/Content';
 import { LoginState } from '../src/Authentication';
 import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
 import { User, Task, ContentType } from '../src/ContentTypes';
-import { Observable } from '@reactivex/rxjs';
+import { Observable, Subject } from '@reactivex/rxjs';
 import { ContentTypes } from '../src/SN';
 
 const expect = Chai.expect;
@@ -435,6 +435,7 @@ export class RepositoryTests {
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         (this._repo as any)['UploadFile'] = (...args: any[]) => {
             done();
+            return Observable.of([true]);
         }
 
         (global as any).window = {};
@@ -460,6 +461,7 @@ export class RepositoryTests {
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         (this._repo as any)['UploadFile'] = (...args: any[]) => {
             done();
+            return Observable.of([true]);
         }
 
         (global as any).window = {webkitRequestFileSystem: () => {}};
@@ -481,6 +483,104 @@ export class RepositoryTests {
             PropertyName: 'Binary',
             Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'})
         });
+    }
+
+    @test 'UploadFromDropEvent should upload a file and distribute proper status info'(done: MochaDone){
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            return Observable.of({
+                ChunkCount: 1,
+                Completed: true,
+                CreatedContent: {Id: 123456},
+                UploadedChunks: 1
+             } as UploadProgressInfo<Content>);
+        }
+
+        (global as any).window = {webkitRequestFileSystem: () => {}};
+        const file = {
+            isFile: true,
+            file: (cb: (f: File) => void) => { cb(new File(['alma.txt'], 'alma')); }
+        };
+        this._repo.UploadFromDropEvent({
+            Event: {
+                dataTransfer: {
+                    items: [
+                        {webkitGetAsEntry: () => {return file}}
+                    ]
+                }
+            } as any,
+            Overwrite: true,
+            ContentType: ContentTypes.File,
+            CreateFolders: false,
+            PropertyName: 'Binary',
+            Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'})
+        }).then(result => {
+            done();
+        }).catch(err => done(err));
+    }
+
+    @test 'UploadFromDropEvent should distribute an error on upload failure'(done: MochaDone){
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            const sub = new Subject();
+            setTimeout(() => {
+                sub.error('erroor');
+            }, 10)
+            return sub.asObservable;
+        }
+
+        (global as any).window = {webkitRequestFileSystem: () => {}};
+        const file = {
+            isFile: true,
+            file: (cb: (f: File) => void) => { cb(new File(['alma.txt'], 'alma')); }
+        };
+        this._repo.UploadFromDropEvent({
+            Event: {
+                dataTransfer: {
+                    items: [
+                        {webkitGetAsEntry: () => {return file}}
+                    ]
+                }
+            } as any,
+            Overwrite: true,
+            ContentType: ContentTypes.File,
+            CreateFolders: false,
+            PropertyName: 'Binary',
+            Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'})
+        }).then(result => {
+            done('This shouldn\'t be called on error');
+        }).catch(err => done());
+    }
+
+    @test 'UploadFromDropEvent should distribute an error on file read failure'(done: MochaDone){
+        (this._repo as any)['UploadFile'] = (...args: any[]) => {
+            return Observable.of({
+                ChunkCount: 1,
+                Completed: true,
+                CreatedContent: {Id: 123456},
+                UploadedChunks: 1
+             } as UploadProgressInfo<Content>);
+        }
+
+        (global as any).window = {webkitRequestFileSystem: () => {}};
+        const file = {
+            isFile: true,
+            file: (cb: (f: File) => void, err: (err: any) => void) => { err('File read fails here...')}
+        };
+        this._repo.UploadFromDropEvent({
+            Event: {
+                dataTransfer: {
+                    items: [
+                        {webkitGetAsEntry: () => {return file}}
+                    ]
+                }
+            } as any,
+            Overwrite: true,
+            ContentType: ContentTypes.File,
+            CreateFolders: false,
+            PropertyName: 'Binary',
+            Parent: this._repo.HandleLoadedContent({Id: 12379846, Path: '/Root/Text', Name: 'asd'})
+        }).then(result => {
+            done('This shouldn\'t be called on error');
+        }).catch(err => done());
     }
 
     @test 'GetCurrentUser() should return an Observable '() {
