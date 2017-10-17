@@ -9,7 +9,7 @@ import { MockHttpProvider } from './Mocks/MockHttpProvider';
 
 const expect = Chai.expect;
 
-describe('ODataApi', () => {
+export const ODataApiTests = describe('ODataApi', () => {
     let service: MockRepository; //  = new MockRepository();
     let odataApi: ODataApi<MockHttpProvider>; //  = service.GetODataApi();
 
