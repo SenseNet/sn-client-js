@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "2.4.1",
+  "version": "2.5.0-development.1",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "dist/src/SN.js",
   "files": [
@@ -22,7 +22,7 @@
     "semantic-release": "semantic-release pre && semantic-release post",
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
-    "typedoc": "./node_modules/.bin/typedoc --tsconfig ./tsconfig.typedoc.json --out documentation --excludePrivate --theme default --readme readme.md",
+    "typedoc": "./node_modules/.bin/typedoc --mode modules --tsconfig ./tsconfig.typedoc.json --out documentation --excludePrivate --theme default --readme readme.md ./src",
     "publish:development": "npm t && npm run typedoc && npm publish --tag development"
   },
   "repository": {
