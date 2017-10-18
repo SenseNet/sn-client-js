@@ -134,7 +134,7 @@ export class SnConfigModel {
         FieldDescription: 'Default chunk size for chunked uploads',
         Question: ''
     })
-    public ChunkSize: number = 1024 * 1024;
+    public ChunkSize: number = 10485760;    // 10 mb
 
     /**
      *
