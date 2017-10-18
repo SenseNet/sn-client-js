@@ -129,9 +129,12 @@ export class SnConfigModel {
     })
     public DefaultTop: number = 1000;
 
+    /**
+     * Chunk size for chunked uploads, must be equal to BinaryChunkSize setting at the backend
+     */
     @SnConfigField({
         Behavior: SnConfigBehavior.AllowFromConfig,
-        FieldDescription: 'Default chunk size for chunked uploads',
+        FieldDescription: 'Chunk size for chunked uploads, must be equal to BinaryChunkSize setting at the backend',
         Question: ''
     })
     public ChunkSize: number = 10485760;    // 10 mb

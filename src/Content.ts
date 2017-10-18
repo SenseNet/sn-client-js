@@ -1686,6 +1686,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
     public Upload(contentType: string = 'File', fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName: string = 'Binary', fileText?: string) {
+        console.warn(`This method is deprecated, please use 'UploadFile' or 'UploadText' instead `)
         if (!this.Path) {
             throw Error('No Path provided!');
         }
@@ -1717,6 +1718,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
     }
 
 
+    /**
+     * Uploads a File into a level below the specified Content
+     * @param {UploadFileOptions<T>} uploadOptions The options to the Upload request
+     */
     public UploadFile<T extends Content>(uploadOptions: UploadFileOptions<T>): Observable<UploadProgressInfo<T>>{
         return this._repository.UploadFile({
             ...uploadOptions,
@@ -1724,6 +1729,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
         });
     }
 
+    /**
+     * Creates and uploads a text file from a string value into a level below the specified Content
+     * @param {UploadTextOptions<T>} uploadOptions The options to the Upload request
+     */
     public UploadText<T extends Content>(uploadOptions: UploadTextOptions<T>): Observable<UploadProgressInfo<T>>{
         return this._repository.UploadTextAsFile({
             ...uploadOptions,
@@ -1731,6 +1740,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
         });
     }
 
+    /**
+     * Uploads multiple files / folders from a single Drop event into a level below a specified content
+     * @param {UploadFromEventOptions<T>} uploadOptions The options to the Upload request
+     */
     public UploadFromDropEvent<T extends Content>(uploadOptions: UploadFromEventOptions<T>){
         return this._repository.UploadFromDropEvent({
             ...uploadOptions,
