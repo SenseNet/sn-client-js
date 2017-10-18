@@ -1,3 +1,8 @@
+
+/**
+ * @module Content
+ */ /** */
+
 import { Content } from '../Content';
 
 export type WithParentContent<T> = T & { Parent: Content & {Path: string} | {GetFullPath: () => string, Path: string} }
