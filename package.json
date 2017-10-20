@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "2.5.0-development.1",
+  "version": "2.5.0",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "dist/src/SN.js",
   "files": [
