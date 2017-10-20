@@ -1,7 +1,7 @@
 /**
  * @module ODataApi
  */ /** */
- 
+
 import { IODataParams } from './';
 import { Content } from '../Content';
 

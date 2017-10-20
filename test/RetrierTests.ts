@@ -5,7 +5,7 @@ const expect = Chai.expect;
 
 @suite('Retrier Tests')
 export class RetrierTests{
-        
+
         @test
         public async 'Simple Counter'(){
             let count = 0;
@@ -21,7 +21,7 @@ export class RetrierTests{
             let triggered = false;
             await Retrier.Create(async () => true)
             .Setup({
-                onSuccess: () => {
+                OnSuccess: () => {
                     triggered = true;
                 }
             }).Run()
@@ -34,10 +34,10 @@ export class RetrierTests{
             let triggered = false;
             await Retrier.Create(async () => false)
             .Setup({
-                onFail: () => {
+                OnFail: () => {
                     triggered = true;
                 },
-                timeoutMs: 1
+                TimeoutMs: 1
             }).Run()
 
             expect(triggered).to.be.eq(true);
@@ -48,7 +48,7 @@ export class RetrierTests{
             let triggered = false;
             await Retrier.Create(async () => true)
                 .Setup({
-                    onTry: () => { 
+                    OnTry: () => {
                         triggered = true;
                     }
                 })
@@ -68,9 +68,9 @@ export class RetrierTests{
             }
             const retrierSuccess = await Retrier.Create(funcToRetry)
                 .Setup({
-                    retries: 3,
-                    retryIntervalMs: 1,
-                    timeoutMs: 1000
+                    Retries: 3,
+                    RetryIntervalMs: 1,
+                    TimeoutMs: 1000
                 })
                 .Run();
 
@@ -80,14 +80,14 @@ export class RetrierTests{
         @test
         public async 'Should throw error when started twice'(){
             const retrier = Retrier.Create(async () => {return false; });
-            
+
             retrier.Run();
 
             try {
                 await retrier.Run();
                 throw new Error('Should have failed.');
             } catch (error) {
-                // 
+                //
             }
         }
 
@@ -97,7 +97,7 @@ export class RetrierTests{
             retrier.Run();
             expect(() => {
                 retrier.Setup({
-                    retries: 2
+                    Retries: 2
                 })
             }).to.throw();
         }

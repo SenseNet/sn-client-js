@@ -6,28 +6,28 @@ import { Observable, BehaviorSubject, ReplaySubject } from '@reactivex/rxjs';
 
 export class MockAuthService implements IAuthenticationService {
     CurrentUser: string = 'BuiltIn\\Visitor';
-    public stateSubject: BehaviorSubject<LoginState>;
+    public StateSubject: BehaviorSubject<LoginState>;
 
     constructor() {
-        this.stateSubject = new BehaviorSubject(LoginState.Pending);
+        this.StateSubject = new BehaviorSubject(LoginState.Pending);
     }
 
-    public validUserName: string;
-    public validPassword: string
+    public ValidUserName: string;
+    public ValidPassword: string
 
     public get State(): Observable<LoginState>{
-        return this.stateSubject.asObservable();
+        return this.StateSubject.asObservable();
     }
 
     public get CurrentState(): LoginState{
-        return this.stateSubject.value;
+        return this.StateSubject.value;
     }
     CheckForUpdate() {
         return Observable.from([false]);
     }
     Login(username: string, password: string): Observable<boolean> {
         let subject = new ReplaySubject<boolean>();
-        if (username === this.validUserName && password === this.validPassword){
+        if (username === this.ValidUserName && password === this.ValidPassword){
             subject.next(true);
         } else {
             subject.next(false);

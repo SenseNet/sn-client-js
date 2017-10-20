@@ -2,7 +2,7 @@
  * @module ContentSerializer
  * @preferred
  * @description Utility to serialize and deserialize Content instances.
- * 
+ *
  * */ /** */
 
 import { Content } from './Content';

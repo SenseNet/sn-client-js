@@ -89,7 +89,7 @@ describe('#buildUrlParamString()', () => {
     it('should parse an orderby field expression with order', () => {
         const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: [['Name', 'asc']] });
         expect(urlParamString).to.be.eq('$orderby=Name asc&metadata=no');
-    });    
+    });
 
     it('should parse an orderby array with ordered fields list expression', () => {
         const urlParamString = ODataHelper.buildUrlParamString({DefaultMetadata: 'no'}, { orderby: [['Name', 'asc'], ['DisplayName', 'desc']] });

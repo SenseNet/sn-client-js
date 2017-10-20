@@ -27,9 +27,9 @@ export class SchemaTests {
                 })
             ], Icon: '', DisplayName: '', AllowedChildTypes: [], AllowIncrementalNaming: true, AllowIndexing: true, Description: ''
         });
-        
+
         Chai.expect(schema).to.be.instanceof(Schema);
-        
+
     }
 
     @test

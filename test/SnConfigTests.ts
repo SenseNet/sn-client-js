@@ -42,7 +42,7 @@ export class SnConfigTests {
     public 'SnConfigFieldModelStore Should throw an error if you try to add a field without StoreKey'() {
         const add = () => { SnConfigFieldModelStore.Add({ FieldName: 'Example', Question: 'ExampleQuestion', Behavior: SnConfigBehavior.Default }); };
         expect(add).to.throw(Error);
-    }    
+    }
 
     @test
     public 'GetCommandOptions should return only commands that has AllowFromCommandLine flag'() {
@@ -52,7 +52,7 @@ export class SnConfigTests {
             expect(isAllowed).to.eq(true);
         });
     }
-    
+
     @test
     public 'DEFAULT_BASE_URL should be equals to window.location.origin, if available'() {
         const empty = SnConfigModel.DEFAULT_BASE_URL;
@@ -63,7 +63,7 @@ export class SnConfigTests {
                 origin: 'http://google.com'
             }
         };
-        
+
         const origin = SnConfigModel.DEFAULT_BASE_URL;
         expect(origin).to.be.eq('http://google.com');
     }

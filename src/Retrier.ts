@@ -1,9 +1,9 @@
 /**
  * @module Retrier
  * @preferred
- * 
+ *
  * @description Module for Retrier.
- * 
+ *
  * */ /** */
 
 
@@ -17,10 +17,10 @@ export class RetrierOptions {
     /**
      * How many times should retry the operation
      */
-    public get retries(): number {
+    public get Retries(): number {
         return this._retries !== undefined ? this._retries : RetrierOptions.RETRIES_DEFAULT;
     }
-    public set retries(v: number) {
+    public set Retries(v: number) {
         this._retries = v;
     }
 
@@ -29,10 +29,10 @@ export class RetrierOptions {
     /**
      * The interval between tries in milliseconds
      */
-    public get retryIntervalMs(): number {
+    public get RetryIntervalMs(): number {
         return this._retryIntervalMs !== undefined ? this._retryIntervalMs : RetrierOptions.RETRY_INTERVAL_MS_DEFAULT;
     }
-    public set retryIntervalMs(v: number) {
+    public set RetryIntervalMs(v: number) {
         this._retryIntervalMs = v;
     }
 
@@ -42,25 +42,25 @@ export class RetrierOptions {
     /**
      * The Timeout interval in milliseconds
      */
-    public get timeoutMs(): number {
+    public get TimeoutMs(): number {
         return this._timeoutMs !== undefined ? this._timeoutMs : RetrierOptions.TIMEOUT_MS_DEFAULT;
     }
-    public set timeoutMs(v: number) {
+    public set TimeoutMs(v: number) {
         this._timeoutMs = v;
     }
 
     /**
      * Optional callback, triggered right before each try
      */
-    onTry?: () => void;
+    public OnTry?: () => void;
     /**
      * Optional callback, triggered on success
      */
-    onSuccess?: () => void;
+    public OnSuccess?: () => void;
     /**
      * Optional callback, triggered on fail (timeout or too many retries)
      */
-    onFail?: () => void;
+    public OnFail?: () => void;
 }
 
 
@@ -86,7 +86,7 @@ export class RetrierOptions {
  */
 export class Retrier {
 
-    private isRunning: boolean = false;
+    private _isRunning: boolean = false;
 
     /**
      * Factory method for creating a Retrier
@@ -97,8 +97,8 @@ export class Retrier {
     }
 
     private constructor(
-        private callback: () => Promise<boolean>,
-        public readonly options: RetrierOptions) {
+        private _callback: () => Promise<boolean>,
+        public readonly Options: RetrierOptions) {
     }
 
     private async wait(ms: number) {
@@ -114,10 +114,10 @@ export class Retrier {
      * @returns the Retrier instance
      */
     public Setup(options: Partial<RetrierOptions>){
-        if (this.isRunning){
+        if (this._isRunning){
             throw Error('Retrier already started!');
         }
-        Object.assign(this.options, options);
+        Object.assign(this.Options, options);
         return this;
     }
 
@@ -128,7 +128,7 @@ export class Retrier {
      */
     public async Run(): Promise<boolean> {
 
-        if (this.isRunning){
+        if (this._isRunning){
             throw Error('Retrier already started!');
         }
 
@@ -136,30 +136,30 @@ export class Retrier {
         let retries = 0;
         let timedOut = false;
 
-        this.isRunning = true;
+        this._isRunning = true;
 
         setTimeout(() => {
             if (!succeeded) {
                 timedOut = true;
             }
-        }, this.options.timeoutMs);
+        }, this.Options.TimeoutMs);
 
-        while (!succeeded && !timedOut && (this.options.retries > retries)) {
+        while (!succeeded && !timedOut && (this.Options.Retries > retries)) {
             retries++;
-            if (this.options.onTry){
-                this.options.onTry();
+            if (this.Options.OnTry){
+                this.Options.OnTry();
             }
-            succeeded = await this.callback();
-            !succeeded && await this.wait(this.options.retryIntervalMs);
+            succeeded = await this._callback();
+            !succeeded && await this.wait(this.Options.RetryIntervalMs);
         }
 
         if (succeeded){
-            if (!timedOut && this.options.onSuccess){
-                this.options.onSuccess();
+            if (!timedOut && this.Options.OnSuccess){
+                this.Options.OnSuccess();
             }
         } else {
-            if (this.options.onFail){
-                this.options.onFail();
+            if (this.Options.OnFail){
+                this.Options.OnFail();
             }
         }
         return succeeded;

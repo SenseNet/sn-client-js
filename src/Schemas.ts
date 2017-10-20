@@ -20,7 +20,7 @@ import { FieldSettings, Content, ContentTypes } from './SN';
      * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
      */
     export class Schema<TContentType extends Content> {
-        ContentType: {new(...args): TContentType}
+        ContentType: {new(...args: any[]): TContentType}
         Icon: string;
         DisplayName: string;
         Description: string;

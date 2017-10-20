@@ -1,7 +1,7 @@
 /**
  * @module FieldSettings
  * @preferred
- * 
+ *
  * @description Module for FieldSettings.
  *
  * FieldSetting object is the implementation of the configuration element in a Sense/Net Content Type Definition.
@@ -118,7 +118,7 @@ import { ComplexTypes } from './SN';
         step?: number;
     }
 
-    // 
+    //
     export class TextFieldSetting extends FieldSetting {
         MinLength?: number;
         MaxLength?: number;

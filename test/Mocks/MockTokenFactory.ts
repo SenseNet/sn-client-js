@@ -1,7 +1,7 @@
 /**
  * @module Mocks
  */ /** */
- 
+
 import { Token, ITokenPayload } from '../../src/Authentication';
 
 export class MockTokenFactory {
@@ -37,7 +37,7 @@ export class MockTokenFactory {
         return this.createWithDates(1, this.getStillValidDate());
     }
 
-    public static createNotValidYet(){
+    public static CreateNotValidYet(){
         return this.createWithDates(this.getStillValidDate(), this.getStillValidDate())
     }
 }
