@@ -20,7 +20,7 @@ export class SnConfigModel {
             return (window && window.location && window.location.origin) || '';
         return '';
     }
-    
+
     /**
      * The default Sense/Net OData Service token (odata.svc)
      */
@@ -46,7 +46,6 @@ export class SnConfigModel {
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
     })
     public ODataToken: string = SnConfigModel.DEFAULT_SERVICE_TOKEN;
-
 
     /**
      * This string represents how the Jwt Web Token will be stored in the localStorage.
@@ -129,6 +128,16 @@ export class SnConfigModel {
         Question: ''
     })
     public DefaultTop: number = 1000;
+
+    /**
+     * Chunk size for chunked uploads, must be equal to BinaryChunkSize setting at the backend
+     */
+    @SnConfigField({
+        Behavior: SnConfigBehavior.AllowFromConfig,
+        FieldDescription: 'Chunk size for chunked uploads, must be equal to BinaryChunkSize setting at the backend',
+        Question: ''
+    })
+    public ChunkSize: number = 10485760;    // 10 mb
 
     /**
      *

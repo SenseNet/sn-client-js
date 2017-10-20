@@ -1,10 +1,14 @@
-import { Schemas, Security, Enums, ContentTypes, Content, ODataHelper } from '../src/SN';
 import * as Chai from 'chai';
 import { Observable } from '@reactivex/rxjs';
 import { MockRepository } from './Mocks';
 import { LoginState } from '../src/Authentication/LoginState';
-import { isDeferred, isContentOptions, isContentOptionList, SavedContent } from '../src/Content';
+import { isDeferred, isContentOptions, isContentOptionList, SavedContent, Content } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';
+import { Task, ITaskOptions, Workspace, User, GenericContent } from '../src/ContentTypes';
+import { joinPaths } from '../src/ODataHelper';
+import { PermissionValues, Inheritance, PermissionLevel, IdentityKind } from '../src/Security';
+import { QueryType } from '../src/Enums';
+import { Schema } from '../src/Schemas';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
@@ -12,14 +16,14 @@ const CONTENT_NAME = 'TestTask';
 const CONTENT_DUE_TEXT = 'DueText';
 
 
-describe('Content', () => {
-    let content: ContentTypes.Task;
-    let contentSaved: SavedContent<ContentTypes.Task>;
+export const contentTests = describe('Content', () => {
+    let content: Task;
+    let contentSaved: SavedContent<Task>;
     let repo: MockRepository;
 
     beforeEach(() => {
         repo = new MockRepository();
-        const options: ContentTypes.ITaskOptions = {
+        const options: ITaskOptions = {
             Id: 1,
             Path: 'Root/Sites',
             DueDate: '2017-06-27T11:11:11Z',
@@ -27,9 +31,9 @@ describe('Content', () => {
             Name: CONTENT_NAME,
             DisplayName: ''
         };
-        content = Content.Create(options, ContentTypes.Task, repo);
-        contentSaved = repo.HandleLoadedContent(options as any, ContentTypes.Task);
-        repo.Authentication.stateSubject.next(LoginState.Authenticated);
+        content = Content.Create(options, Task, repo);
+        contentSaved = repo.HandleLoadedContent(options as any, Task);
+        repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
     });
 
@@ -88,7 +92,7 @@ describe('Content', () => {
             });
         });
 
-        
+
 
     });
 
@@ -188,14 +192,14 @@ describe('Content', () => {
                 Path: 'Root/Workspace',
                 Type: 'Workspace'
             }
-            repo.httpProviderRef.setResponse({ d: options });
+            repo.HttpProviderRef.AddResponse({ d: options });
             contentSaved.ReloadFields('Workspace').subscribe(w => {
                 contentSaved.Workspace && contentSaved.Workspace.SetContent(repo.HandleLoadedContent({
                     Id: 92635,
                     Path: 'Root/MyWorkspace',
                     Type: 'Workspace',
                     Name: 'ExampleWorkspace'
-                }, ContentTypes.Workspace));
+                }, Workspace));
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
                 expect(changes.Workspace && changes.Workspace).to.be.eq('Root/MyWorkspace');
@@ -209,7 +213,7 @@ describe('Content', () => {
             options.Type = 'Task';
             (options.Versions as any) = [];
 
-            repo.httpProviderRef.setResponse({ d: options });
+            repo.HttpProviderRef.AddResponse({ d: options });
             contentSaved.ReloadFields('Versions').subscribe(w => {
                 contentSaved.Versions && contentSaved.Versions.SetContent([contentSaved]);
                 const changes = contentSaved.GetChanges();
@@ -218,12 +222,12 @@ describe('Content', () => {
 
                 done();
             }, err => done)
-        });        
+        });
     });
 
     describe('#IsValid', () => {
         it('should return false if there are missing fields', () => {
-            const emptyContent = Content.Create({}, ContentTypes.Task, repo);
+            const emptyContent = Content.Create({}, Task, repo);
             expect(emptyContent.IsValid).to.be.eq(false);
         });
         it('should return true all complusory fields are filled', () => {
@@ -237,8 +241,8 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentDeleted event', (done) => {
-            repo.Authentication.stateSubject.next(LoginState.Authenticated);
-            repo.httpProviderRef.setResponse({});
+            repo.Authentication.StateSubject.next(LoginState.Authenticated);
+            repo.HttpProviderRef.AddResponse({});
             repo.Events.OnContentDeleted.subscribe(d => {
                 done();
             }, err => done(err))
@@ -246,8 +250,8 @@ describe('Content', () => {
         });
 
         it('error should trigger an OnContentDeleteFailed event', (done) => {
-            repo.Authentication.stateSubject.next(LoginState.Authenticated);
-            repo.httpProviderRef.setError({});
+            repo.Authentication.StateSubject.next(LoginState.Authenticated);
+            repo.HttpProviderRef.AddError({});
             repo.Events.OnContentDeleteFailed.subscribe(d => {
                 done();
             }, err => done(err))
@@ -255,13 +259,13 @@ describe('Content', () => {
         });
 
         it('should return an Observable on not saved content', () => {
-            const unsavedContent = Content.Create({}, ContentTypes.Task, repo);
+            const unsavedContent = Content.Create({}, Task, repo);
             expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
         });
     });
     describe('#Rename()', () => {
         it('should return an Observable object', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'aaa',
                     Name: 'bbb'
@@ -280,12 +284,12 @@ describe('Content', () => {
         });
 
         it('should throw an error if no ID provided', () => {
-            const newContent = Content.Create({}, ContentTypes.Task, repo);
+            const newContent = Content.Create({}, Task, repo);
             expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
         });
 
         it('should throw an error if trying to rename an unsaved content with Id', () => {
-            const newContent = Content.Create({ Id: 3 }, ContentTypes.Task, repo);
+            const newContent = Content.Create({ Id: 3 }, Task, repo);
             expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
         });
     });
@@ -307,7 +311,7 @@ describe('Content', () => {
         });
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const emptyContent = Content.Create({}, ContentTypes.Task, repo);
+            const emptyContent = Content.Create({}, Task, repo);
             expect(() => {
                 const obs = emptyContent.Save({ DisplayName: 'new' })
                 obs.subscribe(() => {
@@ -321,7 +325,7 @@ describe('Content', () => {
 
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const savedContent = repo.HandleLoadedContent({ DisplayName: 'Original' } as any, ContentTypes.Task);
+            const savedContent = repo.HandleLoadedContent({ DisplayName: 'Original' } as any, Task);
             savedContent.DisplayName = 'Modified';
             expect(() => {
                 const obs = savedContent.Save()
@@ -336,8 +340,8 @@ describe('Content', () => {
         });
 
         it('should throw Error is server returns Error, and isOperationInProgress should be set to False', (done) => {
-            repo.httpProviderRef.setError({ message: 'serverErrorMessage' });
-            let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, ContentTypes.Task);
+            repo.HttpProviderRef.AddError({ message: 'serverErrorMessage' });
+            let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, Task);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
                 done('Error should be thrown here');
@@ -348,15 +352,15 @@ describe('Content', () => {
         });
 
         it('should send a PATCH request if fields are specified and override is false', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new',
                 }
             });
-            let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, ContentTypes.Task);
+            let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, Task);
 
             c.Save({ DisplayName: 'new' }).subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.lastOptions;
+                const lastOptions = repo.HttpProviderRef.LastOptions;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(c.DisplayName).to.be.eq('new');
                 done();
@@ -364,13 +368,13 @@ describe('Content', () => {
         });
 
         it('should send a PUT request if fields are specified and override is false', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new2',
                 }
             })
             contentSaved.Save({ DisplayName: 'new2' }, true).subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.lastOptions;
+                const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('PUT');
                 expect(contentSaved.DisplayName).to.be.eq('new2');
                 done();
@@ -379,14 +383,14 @@ describe('Content', () => {
 
 
         it('should send a POST request if triggering Save on an unsaved Content', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
                 }
             })
             content.Save().subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.lastOptions;
+                const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('POST');
                 expect(content.DisplayName).to.be.eq('new3');
                 done();
@@ -395,17 +399,17 @@ describe('Content', () => {
 
 
         it('should throw error when triggering Save on an unsaved Content without path', () => {
-            let c = Content.Create({}, ContentTypes.Task, repo);
+            let c = Content.Create({}, Task, repo);
             expect(() => { c.Save() }).to.throw();
         });
 
         it('should return an Observable without request on a non-dirty content', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
             })
-            let c = repo.HandleLoadedContent({ DisplayName: 'test', Path: 'Root/Test', Id: 3845 }, ContentTypes.Task);
+            let c = repo.HandleLoadedContent({ DisplayName: 'test', Path: 'Root/Test', Id: 3845 }, Task);
             c.Save().subscribe(modifiedContent => {
                 expect(modifiedContent.DisplayName).to.be.eq('test');
                 done();
@@ -414,7 +418,7 @@ describe('Content', () => {
 
 
         it('should send a PATCH request if triggering Save on an already saved Content', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -423,7 +427,7 @@ describe('Content', () => {
             contentSaved.DisplayName = 'new3';
 
             contentSaved.Save().subscribe(resp => {
-                const lastOptions = repo.httpProviderRef.lastOptions;
+                const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(contentSaved.DisplayName).to.be.eq('new3');
                 done();
@@ -431,7 +435,7 @@ describe('Content', () => {
         });
 
         it('should trigger fail if there is no Id field in the response', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
@@ -445,7 +449,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentCreated event on success', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
@@ -459,7 +463,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentCreateFailed event on failure', (done) => {
-            repo.httpProviderRef.setError({
+            repo.HttpProviderRef.AddError({
                 message: ':('
             })
             repo.Events.OnContentCreateFailed.subscribe(c => {
@@ -470,7 +474,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentModified event on success after update', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
@@ -487,7 +491,7 @@ describe('Content', () => {
         });
 
         it('should trigger an OnContentModificationFailed event on failed after update', (done) => {
-            repo.httpProviderRef.setError({ message: ':(' })
+            repo.HttpProviderRef.AddError({ message: ':(' })
 
             repo.Events.OnContentModificationFailed.subscribe(c => {
                 expect(c.Error.message).to.be.eq(':(');
@@ -500,7 +504,7 @@ describe('Content', () => {
 
 
         it('should trigger an OnContentModificationFailed event on failed after update, when using Override', (done) => {
-            repo.httpProviderRef.setError({ message: ':(' })
+            repo.HttpProviderRef.AddError({ message: ':(' })
 
             repo.Events.OnContentModificationFailed.subscribe(c => {
                 expect(c.Error.message).to.be.eq(':(');
@@ -532,7 +536,7 @@ describe('Content', () => {
         });
 
         it('should retrieve an Action list', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     Actions: [
                         {
@@ -562,7 +566,7 @@ describe('Content', () => {
     });
     describe('#GetAllowedChildTypes()', () => {
         it('should return an Observable object', (done) => {
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d: {
                     __count: 1,
                     results: [
@@ -637,13 +641,13 @@ describe('Content', () => {
         });
 
         it('should throw error if no path provided', () => {
-            const contentWithoutPath = repo.HandleLoadedContent({} as any, ContentTypes.Task);
+            const contentWithoutPath = repo.HandleLoadedContent({} as any, Task);
             expect(() => { contentWithoutPath.Children() }).to.throw();
         });
 
         it('should be resolved with a list of content', (done) => {
 
-            repo.httpProviderRef.setResponse({
+            repo.HttpProviderRef.AddResponse({
                 d:
                 {
                     results: [
@@ -766,16 +770,16 @@ describe('Content', () => {
             expect(() => contentSaved.MoveTo('/workspaces/document')).to.throw('No Name provided for the content');
         });
         it('should throw Error if the target Path is below the content Path', () => {
-            const targetPath = ODataHelper.joinPaths(contentSaved.Path || '', 'test', 'test2');
+            const targetPath = joinPaths(contentSaved.Path || '', 'test', 'test2');
             expect(() => contentSaved.MoveTo(targetPath)).to.throw('Content cannot be moved below itself');
         });
 
         it('should trigger OnContentMoved and update Pathes', (done) => {
             const originalPath = contentSaved.Path;
             const toPath = 'workspaces/document';
-            const newPath = ODataHelper.joinPaths(toPath, contentSaved.Name || '');
+            const newPath = joinPaths(toPath, contentSaved.Name || '');
 
-            repo.httpProviderRef.setResponse({});
+            repo.HttpProviderRef.AddResponse({});
             repo.Events.OnContentMoved.subscribe(move => {
                 expect(move.From).to.be.eq(originalPath);
                 expect(move.To).to.be.eq(toPath);
@@ -791,7 +795,7 @@ describe('Content', () => {
             const originalPath = contentSaved.Path;
             const toPath = 'workspaces/document';
 
-            repo.httpProviderRef.setError({ message: ':(' });
+            repo.HttpProviderRef.AddError({ message: ':(' });
             repo.Events.OnContentMoveFailed.subscribe(move => {
                 expect(move.Error.message).to.be.eq(':(');
                 expect(move.From).to.be.eq(originalPath);
@@ -823,7 +827,7 @@ describe('Content', () => {
 
     describe('#HandleLoadedContent()', () => {
         it('should return a ContentType object', () => {
-            expect(Content.HandleLoadedContent(ContentTypes.Task, { Id: 1, Path: 'a/b' }, repo)).to.be.instanceof(ContentTypes.Task);
+            expect(Content.HandleLoadedContent(Task, { Id: 1, Path: 'a/b' }, repo)).to.be.instanceof(Task);
         });
     });
 
@@ -851,7 +855,7 @@ describe('Content', () => {
         });
 
         it('should throw Error when no Id provided', () => {
-            const invalidContent = repo.HandleLoadedContent({ Name: 'test' } as any, ContentTypes.Task);
+            const invalidContent = repo.HandleLoadedContent({ Name: 'test' } as any, Task);
             expect(() => { invalidContent.Reload('view') }).to.throw('Content Id or Path has to be provided')
         });
     });
@@ -866,12 +870,12 @@ describe('Content', () => {
         });
 
         it('should throw Error when no Id provided', () => {
-            const invalidContent = repo.HandleLoadedContent({ Name: 'Test' } as any, ContentTypes.Task);
+            const invalidContent = repo.HandleLoadedContent({ Name: 'Test' } as any, Task);
             expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id or Path has to be provided')
-        });      
+        });
 
         it('should throw Error when no Id provided', (done) => {
-            repo.Authentication.stateSubject.next(LoginState.Authenticated);
+            repo.Authentication.StateSubject.next(LoginState.Authenticated);
             const options = contentSaved.GetFields();
 
             (options.Workspace as any) = {
@@ -881,7 +885,7 @@ describe('Content', () => {
                 Path: 'Root/Workspace',
                 Type: 'Workspace'
             }
-            repo.httpProviderRef.setResponse({ d: options })
+            repo.HttpProviderRef.AddResponse({ d: options })
             contentSaved.ReloadFields('Workspace').subscribe(c => {
                 expect(contentSaved.Workspace).to.be.instanceof(ContentReferenceField);
                 contentSaved.Workspace && contentSaved.Workspace.GetContent().subscribe(c => {
@@ -897,14 +901,14 @@ describe('Content', () => {
     describe('#SetPermissions()', () => {
         it('should return an Observable object', () => {
             expect(typeof content.SetPermissions([
-                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: Security.PermissionValues.allow, Save: Security.PermissionValues.deny },
-                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', Custom01: Security.PermissionValues.allow, Custom14: Security.PermissionValues.deny },
+                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', OpenMinor: PermissionValues.allow, Save: PermissionValues.deny },
+                { identity: '/Root/IMS/BuiltIn/Portal/Visitor', Custom01: PermissionValues.allow, Custom14: PermissionValues.deny },
             ])).to.eq('object');
         });
 
         it('should return an Observable object', () => {
             content.Path = '/workspace/project';
-            expect(content.SetPermissions(Security.Inheritance.break)).to.be.instanceof(Observable);
+            expect(content.SetPermissions(Inheritance.break)).to.be.instanceof(Observable);
         });
     });
     describe('#GetPermission()', () => {
@@ -981,7 +985,7 @@ describe('Content', () => {
         });
 
         it('should return an Observable object', () => {
-            const usr = repo.HandleLoadedContent({ Path: 'Root/Users/alba', Id: 124798 }, ContentTypes.User);
+            const usr = repo.HandleLoadedContent({ Path: 'Root/Users/alba', Id: 124798 }, User);
             expect(contentSaved.HasPermission(['AddNew', 'Save'], usr)).to.be.instanceof(Observable);
         });
     });
@@ -996,11 +1000,11 @@ describe('Content', () => {
     });
     describe('#SaveQuery()', () => {
         it('should return an Observable object', () => {
-            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', Enums.QueryType.Public)).to.be.instanceof(Observable);
+            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', '', QueryType.Public)).to.be.instanceof(Observable);
         });
 
         it('should return an Observable object', () => {
-            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', Enums.QueryType.Public)).to.be.instanceof(Observable);
+            expect(content.SaveQuery('%2BTypeIs:WebContentDemo %2BInTree:/Root', 'my own query', QueryType.Public)).to.be.instanceof(Observable);
         });
     });
     describe('#RegeneratePreviews()', () => {
@@ -1035,27 +1039,27 @@ describe('Content', () => {
     });
     describe('#GetRelatedIdentities()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetRelatedIdentities(Security.PermissionLevel.AllowedOrDenied, Security.IdentityKind.Groups)).to.be.instanceof(Observable);
+            expect(content.GetRelatedIdentities(PermissionLevel.AllowedOrDenied, IdentityKind.Groups)).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedPermissions()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetRelatedPermissions(Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne')).to.be.instanceof(Observable);
+            expect(content.GetRelatedPermissions(PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne')).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedItems()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetRelatedItems(Security.PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.be.instanceof(Observable);
+            expect(content.GetRelatedItems(PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne', ['RunApplication'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedIdentitiesByPermissions()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetRelatedIdentitiesByPermissions(Security.PermissionLevel.AllowedOrDenied, Security.IdentityKind.Groups, ['Open', 'RunApplication'])).to.be.instanceof(Observable);
+            expect(content.GetRelatedIdentitiesByPermissions(PermissionLevel.AllowedOrDenied, IdentityKind.Groups, ['Open', 'RunApplication'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedItemsOneLevel()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetRelatedItemsOneLevel(Security.PermissionLevel.AllowedOrDenied, '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.be.instanceof(Observable);
+            expect(content.GetRelatedItemsOneLevel(PermissionLevel.AllowedOrDenied, '/Root/IMS/BuiltIn/Portal/Visitor', ['Open', 'RunApplication'])).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedUsers()', () => {
@@ -1081,7 +1085,7 @@ describe('Content', () => {
 
     describe('#GetSchema()', () => {
         it('should return a Schema object', () => {
-            expect(content.GetSchema()).to.be.instanceof(Schemas.Schema);
+            expect(content.GetSchema()).to.be.instanceof(Schema);
         });
         it('should return a Task', () => {
             const schema = content.GetSchema();
@@ -1090,7 +1094,7 @@ describe('Content', () => {
         it('should return GenericContent Schema if no Schema found', () => {
             class ContentWithoutSchema extends Content { };
             const contentInstance = Content.Create({}, ContentWithoutSchema, repo);
-            const genericSchema = Content.GetSchema(ContentTypes.GenericContent);
+            const genericSchema = Content.GetSchema(GenericContent);
             expect(contentInstance.GetSchema()).to.be.eq(genericSchema)
         });
 
@@ -1098,16 +1102,16 @@ describe('Content', () => {
     });
     describe('#static GetSchema()', () => {
         it('should return a Schema object', () => {
-            expect(Content.GetSchema(ContentTypes.Task)).to.be.instanceof(Schemas.Schema);
+            expect(Content.GetSchema(Task)).to.be.instanceof(Schema);
         });
         it('should return a Schema object', () => {
-            let schema = Content.GetSchema(ContentTypes.Task)
+            let schema = Content.GetSchema(Task)
             expect(schema.Icon).to.eq('FormItem');
         });
     });
     describe('#Schema()', () => {
         it('should return a Schema object', () => {
-            expect(content.GetSchema()).to.be.instanceof(Schemas.Schema);
+            expect(content.GetSchema()).to.be.instanceof(Schema);
         });
         it('should return a Schema object', () => {
             let schema = content.GetSchema()
@@ -1281,14 +1285,14 @@ describe('Content', () => {
             expect(c.GetFullPath()).to.be.eq('/content(1)');
         });
 
-        
+
         it('should return by Path if Id is not available possible', () => {
             const c = repo.HandleLoadedContent({
                 Name: 'Test',
                 Path: 'Root/Test'
             } as any)
             expect(c.GetFullPath()).to.be.eq("Root('Test')");
-        });    
+        });
     })
 
 });

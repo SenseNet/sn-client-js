@@ -6,6 +6,7 @@
 /** */
 
 export * from './BaseRepository';
+export * from './UploadModels';
 export * from './SnRepository';
 export * from './RepositoryEventHub';
 export * from './VersionInfoModels';

@@ -23,10 +23,10 @@ export class Collection<T extends Content> {
     * @param {T[]} items An array that holds items.
     * @param { IODataApi<any, any> } service The service to use as API Endpoint
     */
-    constructor(private items: T[],
-        private repository: BaseRepository,
-        private readonly contentType: { new(...args: any[]): T } = Content as { new(...args: any[]): any }) {
-        this.odata = repository.GetODataApi();
+    constructor(private _items: T[],
+        private _repository: BaseRepository,
+        private readonly _contentType: { new(...args: any[]): T } = Content as { new(...args: any[]): any }) {
+        this.odata = _repository.GetODataApi();
     }
 
     /**
@@ -37,7 +37,7 @@ export class Collection<T extends Content> {
      * ```
      */
     public Items(): T[] {
-        return this.items;
+        return this._items;
     }
 
     /**
@@ -49,7 +49,7 @@ export class Collection<T extends Content> {
      * ```
      */
     public Item(id: number): T | undefined {
-        return this.items.find(i => i.Id === id);
+        return this._items.find(i => i.Id === id);
     }
 
     /**
@@ -60,7 +60,7 @@ export class Collection<T extends Content> {
      * ```
      */
     public Count(): number {
-        return this.items.length;
+        return this._items.length;
     }
     /**
     * Method to add an item to a local collection and to the Content Repository through OData REST API at the same time.
@@ -81,15 +81,15 @@ export class Collection<T extends Content> {
      * ```
      */
     public Add(content: T['options']): Observable<T> {
-        const newcontent = this.odata.Post(this.Path, content, this.contentType)
+        const newcontent = this.odata.Post(this.Path, content, this._contentType)
             .map(resp => {
-                return this.repository.HandleLoadedContent(resp as any, this.contentType);
+                return this._repository.HandleLoadedContent(resp as any, this._contentType);
             });
         newcontent
             .subscribe({
                 next: (response) => {
-                    this.items = [
-                        ...this.items,
+                    this._items = [
+                        ...this._items,
                         response
                     ];
                 }
@@ -136,11 +136,11 @@ export class Collection<T extends Content> {
      */
     public Remove(arg: number | number[], permanently: boolean = false): Observable<any> {
         if (typeof arg === 'number') {
-            let content = this.items[arg];
+            let content = this._items[arg];
             if (content && content.Id) {
-                this.items =
-                    this.items.slice(0, arg)
-                        .concat(this.items.slice(arg + 1));
+                this._items =
+                    this._items.slice(0, arg)
+                        .concat(this._items.slice(arg + 1));
 
                 return this.odata.Delete(content.Id, permanently ? permanently : false);
             } else {
@@ -148,9 +148,9 @@ export class Collection<T extends Content> {
             }
         }
         else {
-            let ids = arg.map(i => this.items[i].Id);
-            this.items =
-                this.items.filter((item, i) => arg.indexOf(i) > -1);
+            let ids = arg.map(i => this._items[i].Id);
+            this._items =
+                this._items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
             return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
         }
@@ -159,7 +159,7 @@ export class Collection<T extends Content> {
      * Method to fetch Content from the Content Repository.
      *
      * Calls the method [FetchContent]{@link ODataApi.FetchContent} with the current collections path and the given OData options.
-     * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options 
+     * If you leave the options undefined only the Id and the Type fields will be in the response. These two fields are always the part of the reponse whether they're added or not to the options
      * as selectable.
      * @param path {string} Path of the requested container item.
      * @param options {OData.IODataParams} Represents an ODataOptions object based on the IODataOptions interface. Holds the possible url parameters as properties.
@@ -184,7 +184,7 @@ export class Collection<T extends Content> {
             path: path
         })
             .map(items => {
-                return items.d.results.map(c => this.repository.HandleLoadedContent(c as any, this.contentType));
+                return items.d.results.map(c => this._repository.HandleLoadedContent(c as any, this._contentType));
             });
         return children;
     }
@@ -224,16 +224,16 @@ export class Collection<T extends Content> {
      */
     public Move(arg: number | number[], targetPath: string): Observable<any> {
         if (typeof arg === 'number') {
-            this.items =
-                this.items.slice(0, arg)
-                    .concat(this.items.slice(arg + 1));
+            this._items =
+                this._items.slice(0, arg)
+                    .concat(this._items.slice(arg + 1));
             let action = new CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
-            let ids = arg.map(i => this.items[i].Id);
-            this.items =
-                this.items.filter((item, i) => arg.indexOf(i) > -1);
+            let ids = arg.map(i => this._items[i].Id);
+            this._items =
+                this._items.filter((item, i) => arg.indexOf(i) > -1);
             let action = new CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
             return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
@@ -279,7 +279,7 @@ export class Collection<T extends Content> {
             return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
         }
         else {
-            let ids = arg.map(i => this.items[i].Id);
+            let ids = arg.map(i => this._items[i].Id);
             let action = new CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
             return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
         }
@@ -310,15 +310,15 @@ export class Collection<T extends Content> {
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
-     * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the 
+     * @params ContentType {string=} Specific content type name for the uploaded content. If not provided, the system will try to determine it from the current environment: the upload content types configured in the
      * web.config and the allowed content types in the particular folder. In most cases, this will be File.
      * @params FileName {string} Name of the uploaded file.
-     * @params Overwrite {bool=True} Whether the upload action should overwrite a content if it already exist with the same name. If false, a new file will be created with a similar name containing an 
+     * @params Overwrite {bool=True} Whether the upload action should overwrite a content if it already exist with the same name. If false, a new file will be created with a similar name containing an
      * incremental number (e.g. sample(2).docx).
-     * @params UseChunk {bool=False} Determines whether the system should start a chunk upload process instead of saving the file in one round. Usually this is determined by the size of the file. 
+     * @params UseChunk {bool=False} Determines whether the system should start a chunk upload process instead of saving the file in one round. Usually this is determined by the size of the file.
      * It's optional, used in the first request
      * @params PropertyName {string=Binary} Appoints the binary field of the content where the data should be saved.
-     * @params ChunkToken {string} The response of first request returns this token. It must be posted in all of the subsequent requests without modification. It is used for executing the chunk upload operation. 
+     * @params ChunkToken {string} The response of first request returns this token. It must be posted in all of the subsequent requests without modification. It is used for executing the chunk upload operation.
      * It's mandatory, except in the first request
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.

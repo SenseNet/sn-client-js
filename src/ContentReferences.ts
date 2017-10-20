@@ -16,9 +16,9 @@ export abstract class ReferenceAbstract<T extends Content> {
     public readonly abstract FieldSetting: ReferenceFieldSetting;
     public readonly abstract Repository: BaseRepository;
 
-    protected isDirty: boolean = false;
+    protected _isDirty: boolean = false;
     public get IsDirty(): boolean{
-        return this.isDirty;
+        return this._isDirty;
     }
 
     /**
@@ -28,8 +28,8 @@ export abstract class ReferenceAbstract<T extends Content> {
      * @param { number } skip The Skip value for paging
      * @param { IOdataParams } odataParams The additional OData params (like select, expand, etc...)
      * @returns { FinializedQuery } The FinializedQuery instance that can be executed
-     * 
-     * Example: 
+     *
+     * Example:
      * ```ts
      * reference.Search('Term').Exec().subscribe(hits=>{
      *      console.log(hits);
@@ -79,36 +79,36 @@ export abstract class ReferenceAbstract<T extends Content> {
  *     })
  * }, error => console.error)
  * ```
- * 
+ *
  */
 export class ContentReferenceField<T extends Content> extends ReferenceAbstract<T> {
-    private contentReference: SavedContent<T>;
-    private referenceUrl: string;
+    private _contentReference: SavedContent<T>;
+    private _referenceUrl: string;
 
     /**
      * Updates the reference value to another Content
      * @param {T} content The new Content value
      */
     SetContent(content: SavedContent<T>) {
-        this.contentReference = content;
-        this.isDirty = true;
+        this._contentReference = content;
+        this._isDirty = true;
     }
 
     /**
-     * Gets the current reference value. 
+     * Gets the current reference value.
      * @param {ODataParams} odataOptions Additional options to select/expand/etc...
      * @returns {Observable<T>} An observable that will publish the referenced content
      */
     GetContent(odataOptions?: IODataParams<T>): Observable<SavedContent<T>> {
-        if (this.contentReference !== undefined) {
-            return Observable.of(this.contentReference);
+        if (this._contentReference !== undefined) {
+            return Observable.of(this._contentReference);
         }
-        const request = this.Repository.GetODataApi().Get({ path: this.referenceUrl, params: odataOptions })
+        const request = this.Repository.GetODataApi().Get({ path: this._referenceUrl, params: odataOptions })
             .map(r => {
                 return r && r.d && this.Repository.HandleLoadedContent<T, T['options']>(r.d as any);
             }).share();
         request.subscribe(c => {
-            this.contentReference = c || null;
+            this._contentReference = c || null;
         });
 
         return request;
@@ -118,20 +118,20 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract<
      * @returns The reference value (content Path) that can be used for change tracking and content updates.
      */
     public getValue(): string | undefined {
-        return this.contentReference && this.contentReference.Path;
+        return this._contentReference && this._contentReference.Path;
     }
 
     /**
      * Updates the reference URL in case of DeferredObject (not-expanded-fields) or populates the Content reference (for expanded fields) from an OData response's Field
-     * @param {DeferredObject | T['options']} fieldData The DeferredObject or ContentOptions data that can be used 
+     * @param {DeferredObject | T['options']} fieldData The DeferredObject or ContentOptions data that can be used
      */
     public handleLoaded(fieldData: DeferredObject | T['options'] & {Id: number, Path: string}) {
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
+            this._referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isContentOptions(fieldData)) {
-            this.contentReference = this.Repository.HandleLoadedContent(fieldData);
+            this._contentReference = this.Repository.HandleLoadedContent(fieldData);
         }
-        this.isDirty = false;
+        this._isDirty = false;
     }
 
     constructor(fieldData: DeferredObject | T['options'] & {Id: number, Path: string},
@@ -151,42 +151,42 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract<
  *     })
  * }, error => console.error)
  * ```
- * 
+ *
  */
 export class ContentListReferenceField<T extends Content> extends ReferenceAbstract<T> {
-    private contentReferences: SavedContent<T>[];
+    private _contentReferences: SavedContent<T>[];
 
-    private referenceUrl: string;
+    private _referenceUrl: string;
 
     /**
      * Updates the reference list to another Content list
      * @param {T[]} content The new list of content
      */
     SetContent(content: SavedContent<T>[]) {
-        this.contentReferences = content;
-        this.isDirty = true;
+        this._contentReferences = content;
+        this._isDirty = true;
     }
 
 
     /**
-     * Gets the current referenced values. 
+     * Gets the current referenced values.
      * @param {ODataParams} odataOptions Additional options to select/expand/etc...
      * @returns {Observable<T[]>} An observable that will publish the list of the referenced content
      */
     GetContent(odataOptions?: IODataParams<T>): Observable<SavedContent<T>[]> {
-        if (this.contentReferences) {
-            return Observable.of(this.contentReferences);
+        if (this._contentReferences) {
+            return Observable.of(this._contentReferences);
         }
         //
         const request = this.Repository.GetODataApi().Fetch({
-            path: this.referenceUrl,
+            path: this._referenceUrl,
             params: odataOptions
         }, Content).map(resp => {
             return resp && resp.d && resp.d.results.map(c => this.Repository.HandleLoadedContent<T, any>(c)) || [];
         }).share();
 
         request.subscribe(c => {
-            this.contentReferences = c
+            this._contentReferences = c
         });
 
         return request;
@@ -196,23 +196,23 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      * @returns The reference value (content Path list) that can be used for change tracking and content updates.
      */
     public getValue(): string[] | undefined {
-        return this.contentReferences && this.contentReferences
+        return this._contentReferences && this._contentReferences
             .filter(c => c.Path && c.Path.length)
             .map(c => c.Path as string);
     }
 
     /**
      * Updates the reference URL in case of DeferredObject (not-expanded-fields) or populates the Content list references (for expanded fields) from an OData response's field
-     * @param {DeferredObject | T['options'][]} fieldData The DeferredObject or ContentOptions data that can be used 
+     * @param {DeferredObject | T['options'][]} fieldData The DeferredObject or ContentOptions data that can be used
      */
     public handleLoaded(fieldData: DeferredObject | T['options'][]) {
         if (isDeferred(fieldData)) {
-            this.referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
+            this._referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isContentOptionList(fieldData)) {
-            this.contentReferences = fieldData.map(f => this.Repository.HandleLoadedContent(f as any));
+            this._contentReferences = fieldData.map(f => this.Repository.HandleLoadedContent(f as any));
         }
 
-        this.isDirty = false;
+        this._isDirty = false;
     }
 
     constructor(fieldData: DeferredObject | T['options'][],

@@ -40,9 +40,9 @@ export class IODataParams<T extends Content> {
      *      'Name',
      *      'DisplayName'
      *    ]
-     *    
+     *
      * }
-     * 
+     *
      * ```
      */
     orderby?: ODataOrderParameter<T>;

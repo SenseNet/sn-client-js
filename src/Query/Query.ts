@@ -10,28 +10,28 @@ import { Observable } from '@reactivex/rxjs';
 
 /**
  * Represents an instance of a Query expression.
- * Usage example: 
+ * Usage example:
  * ```ts
  * const query = new Query(q => q.TypeIs(ContentTypes.Task).And.Equals('DisplayName', 'Test'))
  * console.log(query.toString());   // the content query expression
  * ```
  */
 export class Query<T extends Content = Content>{
-    private readonly segments: QuerySegment<T>[] = [];
-    
+    private readonly _segments: QuerySegment<T>[] = [];
+
     /**
      * Appends a new QuerySegment to the existing Query
      * @param {QuerySegment<T>} newSegment The Segment to be added
      */
-    public addSegment(newSegment: QuerySegment<T> ) {
-        this.segments.push(newSegment);
+    public AddSegment(newSegment: QuerySegment<T> ) {
+        this._segments.push(newSegment);
     }
 
     /**
      * @returns {String} The Query expression as a sensenet Content Query
      */
     public toString(): string{
-        return this.segments.map(s => s.toString()).join('');
+        return this._segments.map(s => s.toString()).join('');
     }
 
     constructor(build: (first: QueryExpression<T>) => void) {
@@ -65,10 +65,10 @@ export class Query<T extends Content = Content>{
  * Represents a finialized Query instance that has a Repository, path and OData Parameters set up
  */
 export class FinializedQuery<T extends Content = Content> extends Query<T>{
-    constructor(build: (first: QueryExpression<Content>) => void, 
-                        private readonly repository: BaseRepository, 
-                        private readonly path: string, 
-                        private readonly odataParams: IODataParams<T> = {}) {
+    constructor(build: (first: QueryExpression<Content>) => void,
+                        private readonly _repository: BaseRepository,
+                        private readonly _path: string,
+                        private readonly _odataParams: IODataParams<T> = {}) {
         super(build);
     }
 
@@ -83,6 +83,6 @@ export class FinializedQuery<T extends Content = Content> extends Query<T>{
      * ```
      */
     public Exec(): Observable<QueryResult<T>> {
-        return super.Exec(this.repository, this.path, this.odataParams);
+        return super.Exec(this._repository, this._path, this._odataParams);
     }
 }

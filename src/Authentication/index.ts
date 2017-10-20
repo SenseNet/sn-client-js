@@ -3,7 +3,7 @@
  * @preferred
  * @description This module that contains authentication-related classes, types and interfaces
  */ /** */
- 
+
 export * from './IAuthenticationService';
 export * from './ITokenPayload';
 export * from './JwtService';

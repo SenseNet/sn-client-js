@@ -3,11 +3,11 @@ import * as Chai from 'chai';
 import { Collection } from '../src/Collection';
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
-import { ContentTypes } from '../src/SN';
 import { LoginState } from '../src/Authentication/LoginState';
+import { Task } from '../src/ContentTypes';
 const expect = Chai.expect;
 
-describe('Collection', () => {
+export const CollectionTests = describe('Collection', () => {
   let collection: Collection<Content>;
   let children: Content[];
 
@@ -61,18 +61,18 @@ describe('Collection', () => {
   });
   describe('#Add()', () => {
     it('should return an observable', () => {
-      let content = Content.Create({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, ContentTypes.Task, Repo);
+      let content = Content.Create({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, Task, Repo);
       expect(collection.Add(content.options)).to.be.instanceof(Observable);
     });
 
     it('Observable should be resolved', (done) => {
-      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, ContentTypes.Task);
-      Repo.Authentication.stateSubject.next(LoginState.Authenticated);
-      Repo.httpProviderRef.setResponse({ d: content.GetFields() });
+      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, Task);
+      Repo.Authentication.StateSubject.next(LoginState.Authenticated);
+      Repo.HttpProviderRef.AddResponse({ d: content.GetFields() });
       collection.Add(content.options).subscribe(r => {
         done()
       }, done)
-    });    
+    });
 
   });
   describe('#Remove()', () => {
@@ -145,8 +145,8 @@ describe('Collection', () => {
 
     it('should update from Result', (done) => {
       collection['Path'] = '/workspaces/project';
-      Repo.Authentication.stateSubject.next(LoginState.Authenticated);
-      Repo.httpProviderRef.setResponse({
+      Repo.Authentication.StateSubject.next(LoginState.Authenticated);
+      Repo.HttpProviderRef.AddResponse({
         d: {
             __count: 1,
             results: [{
