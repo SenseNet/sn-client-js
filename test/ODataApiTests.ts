@@ -4,7 +4,6 @@ import { CustomAction, ODataCollectionResponse, ODataApi } from '../src/ODataApi
 import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
 import { LoginState } from '../src/Authentication';
-import { ContentType } from '../src/ContentTypes';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 
 const expect = Chai.expect;
@@ -46,7 +45,7 @@ export const ODataApiTests = describe('ODataApi', () => {
 
     describe('#Post()', () => {
         it('requests to post a created a Content and returns an Observable object', () => {
-            let observable = odataApi.Post('/workspace/project', { Name: 'alma' }, Content);
+            let observable = odataApi.Post('/workspace/project', { Name: 'alma' });
             expect(observable).to.be.instanceof(Observable);
         });
     })
@@ -59,13 +58,13 @@ export const ODataApiTests = describe('ODataApi', () => {
 
     describe('#Patch()', () => {
         it('requests to patch a Content and returns an Observable object', () => {
-            expect(typeof odataApi.Patch(1111, Content, { DisplayName: 'test' })).to.be.eq('object');
+            expect(typeof odataApi.Patch(1111, { DisplayName: 'test' })).to.be.eq('object');
         });
     })
 
     describe('#Put()', () => {
         it('requests to put a Content and returns an Observable object', () => {
-            expect(typeof odataApi.Put(1111, ContentType, {
+            expect(typeof odataApi.Put(1111, {
                 DisplayName: 'test',
                 Type: 'testType',
                 Name: 'alma'

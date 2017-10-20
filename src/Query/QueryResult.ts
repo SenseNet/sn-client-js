@@ -1,12 +1,12 @@
 /**
  * @module Query
  * */ /** */
-import { Content, SavedContent } from '../Content';
+import { SavedContent, IContent } from '../Content';
 
 /**
  * Represents a Content Query result
  */
-export class QueryResult<T extends Content>{
+export class QueryResult<T extends IContent = IContent>{
     /**
      * The result yielded by the Query
      */

@@ -8,14 +8,15 @@
 // TODO: ezeket vhova kivezetni
 import { IODataParams, ODataFieldParameter } from './ODataApi';
 import { SnConfigModel } from './Config/snconfigmodel';
-import { Content } from './Content';
+import { IContent } from './Content';
+import { Content } from './SN';
 
 const ODATA_PARAMS = ['select', 'expand', 'orderby', 'top', 'skip', 'filter', 'format', 'inlinecount'];
 export const DATA_ROOT = 'OData.svc';
 
 
-export const combineODataFieldParameters: <T extends Content>(...params: ODataFieldParameter<T>[]) => ODataFieldParameter<T>
-    = <T extends Content>(...params: ODataFieldParameter<T>[]) => {
+export const combineODataFieldParameters: <T extends IContent>(...params: ODataFieldParameter<T>[]) => ODataFieldParameter<Content<T>>
+    = <T extends IContent>(...params: ODataFieldParameter<T>[]) => {
         params.forEach(param => {
             if (typeof param === 'string') {
                 param = [param];
@@ -34,18 +35,20 @@ export const combineODataFieldParameters: <T extends Content>(...params: ODataFi
  * @param {IODataOptions} options Represents an ODataOptions obejct based through the IODataOptions interface. Holds the possible url parameters as properties.
  * @returns {string} String with the url params in the correct format e.g. '$select=DisplayName,Index'&$top=2&metadata=no'.
  */
-export const buildUrlParamString: <T extends Content>(config: Partial<SnConfigModel>, options?: IODataParams<T>) => string = <T extends Content>(config: SnConfigModel, options?: IODataParams<T>): string => {
+export const buildUrlParamString: <T extends IContent = IContent>(config: Partial<SnConfigModel>, options?: IODataParams<T>) => string =
+        <T extends IContent>(config: SnConfigModel, options?: IODataParams<T>): string => {
     if (!options) {
         return '';
     }
+
     if (config.RequiredSelect === 'all' || config.DefaultSelect === 'all' || options.select === 'all') {
         options.select = undefined;
     } else {
-        options.select = combineODataFieldParameters<T>(config.RequiredSelect, options.select || config.DefaultSelect)
+        options.select = combineODataFieldParameters<any>(config.RequiredSelect, options.select || config.DefaultSelect) as any;
     }
     options.metadata = options.metadata || config.DefaultMetadata;
     options.inlinecount = options.inlinecount || config.DefaultInlineCount;
-    options.expand = options.expand || config.DefaultExpand;
+    options.expand = options.expand || config.DefaultExpand as any;
     options.top = options.top || config.DefaultTop;
 
     const segments: {name: string, value: string}[] = [];

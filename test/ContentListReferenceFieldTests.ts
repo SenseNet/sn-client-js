@@ -3,10 +3,10 @@ import { suite, test } from 'mocha-typescript';
 import { ContentListReferenceField } from '../src/ContentReferences';
 import { DeferredObject } from '../src/ComplexTypes';
 import { MockRepository } from './Mocks/MockRepository';
-import { IContentOptions } from '../src/Content';
 import { LoginState } from '../src/Authentication/LoginState';
 import { ReferenceFieldSetting } from '../src/FieldSettings';
 import { Task } from '../src/ContentTypes';
+import {ContentInternal} from '../src/Content';
 
 const expect = Chai.expect;
 
@@ -24,8 +24,9 @@ export class ContentListReferenceFieldTests {
                 Id: 1,
                 Path: 'root/a/b',
                 Name: 'Name',
-                Type: 'Task'
-            } as IContentOptions], new ReferenceFieldSetting({}), this._repo);
+                Type: 'Task',
+                DueText: 'testDueText'
+            }], new ReferenceFieldSetting({}), this._repo);
         this._unloadedRef = new ContentListReferenceField({
             __deferred: {
                 uri: 'a/b/c'
@@ -42,7 +43,8 @@ export class ContentListReferenceFieldTests {
     @test
     public 'Should be able to construct ContentReferenceField from IContentOptions with loaded content reference'() {
         expect(this._loadedRef).to.be.instanceof(ContentListReferenceField);
-        expect(this._loadedRef['_contentReferences'][0]).to.be.instanceOf(Task)
+        expect(this._loadedRef['_contentReferences'][0]).to.be.instanceOf(ContentInternal)
+        expect(this._loadedRef['_contentReferences'][0].DueText).to.be.eq('testDueText')
     }
 
 

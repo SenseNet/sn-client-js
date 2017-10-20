@@ -3,7 +3,7 @@ import { suite, test } from 'mocha-typescript';
 import { SnConfigModel } from '../src/Config';
 import { MockRepository, MockHttpProvider } from './Mocks';
 import { VersionInfo, SnRepository, UploadResponse, UploadProgressInfo } from '../src/Repository';
-import { Content } from '../src/Content';
+import { Content, ContentInternal } from '../src/Content';
 import { LoginState } from '../src/Authentication';
 import { ODataCollectionResponse, ODataApi } from '../src/ODataApi';
 import { User, Task, ContentType, File as SnFile } from '../src/ContentTypes';
@@ -49,7 +49,6 @@ export class RepositoryTests {
                     {
                         Name: 'testContentType',
                         Type: 'ContentType',
-                        options: {},
                     }
                 ]
             }
@@ -58,7 +57,7 @@ export class RepositoryTests {
         this._repo.GetAllContentTypes().first().subscribe(types => {
             expect(types.length).to.be.eq(1);
             expect(types[0].Name).to.be.eq('testContentType');
-            expect(types[0]).to.be.instanceof(ContentType);
+            expect(types[0]).to.be.instanceof(ContentInternal);
             done();
         }, done)
     }
@@ -74,7 +73,7 @@ export class RepositoryTests {
         this._repo.HttpProviderRef.AddResponse(cResponse);
         this._repo.Load(1).first().subscribe(response => {
             expect(response.Name).to.be.eq('testContentType');
-            expect(response).to.be.instanceof(Content);
+            expect(response).to.be.instanceof(ContentInternal);
             done();
         }, err => {
             done(err);
@@ -86,13 +85,15 @@ export class RepositoryTests {
             d: {
                 Name: 'testContentType',
                 Type: 'User',
+                LoginName: 'alba'
             }
         };
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this._repo.HttpProviderRef.AddResponse(cResponse);
-        this._repo.Load(1, {}, User).first().subscribe(response => {
+        this._repo.Load<User>(1).first().subscribe(response => {
+            expect(response.LoginName).to.be.eq('alba') // For type checking
             expect(response.Name).to.be.eq('testContentType');
-            expect(response).to.be.instanceof(User);
+            expect(response).to.be.instanceof(ContentInternal);
             done();
         }, err => {
             done(err);
@@ -111,32 +112,38 @@ export class RepositoryTests {
         expect(snRepo.Config.RepositoryUrl).to.be.eq('https://demo.sensenet.com');
     }
 
-    @test 'HandleLoadedContent should respect content type from Options'() {
+    @test 'HandleLoadedContent should respect content type (with fields) from generic'() {
         let snRepo = new SnRepository(new SnConfigModel({
             RepositoryUrl: 'https://demo.sensenet.com'
         }));
-        const task = snRepo.HandleLoadedContent({
+        const task = snRepo.HandleLoadedContent<Task>({
             Id: 100,
             Path: 'Root/Test',
-            Type: 'Task'
+            Type: 'Task',
+            Name: 'Task',
+            DueText: 'testDueText'
         })
 
-        const usr = snRepo.HandleLoadedContent({
+        const usr = snRepo.HandleLoadedContent<User>({
             Id: 200,
             Path: 'Root/Test',
-            Name: 'User'
-        }, User)
+            Name: 'User',
+            Type: 'User',
+            LoginName: 'testLoginName'
+        })
 
         const content = snRepo.HandleLoadedContent({
             Id: 300,
             Path: 'Root/Test',
             Name: ''
         })
-        expect(task).to.be.instanceof(Task);
+        expect(task).to.be.instanceof(ContentInternal);
+        expect(task.DueText).to.be.eq('testDueText')
 
-        expect(usr).to.be.instanceof(User);
+        expect(usr).to.be.instanceof(ContentInternal);
+        expect(usr.LoginName).to.be.eq('testLoginName')
 
-        expect(content).to.be.instanceof(Content);
+        expect(content).to.be.instanceof(ContentInternal);
     }
 
     @test 'Content should return an ODataApi instance'() {
@@ -146,14 +153,17 @@ export class RepositoryTests {
 
     @test 'Should be able to create content using repository.CreateContent() '() {
         let snRepo = new SnRepository();
-        let exampleTask = snRepo.CreateContent({}, Task);
-        expect(exampleTask).to.be.instanceOf(Task);
+        let exampleTask = snRepo.CreateContent<Task>({DueText: 'testDueText'});
+        expect(exampleTask).to.be.instanceOf(ContentInternal);
+        expect(exampleTask.DueText).to.be.eq('testDueText');
     }
 
 
     @test 'DeleteBatch() should fire a DeleteBatch request'(done: MochaDone) {
         this._repo.HttpProviderRef.AddResponse({})
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({
+            Id: 12345, Path: 'Root/Test', Name: 'Task'
+        });
         this._repo.DeleteBatch([testContent]).subscribe(r => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
             expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('[{"paths":[12345]},{"permanently":false}]');
@@ -177,7 +187,7 @@ export class RepositoryTests {
     }
 
     @test 'DeleteBatch() should trigger ContentDeleted event after success'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'Task' });
         this._repo.Events.OnContentDeleted.subscribe(c => {
             expect(c.ContentData.Id).to.be.eq(testContent.Id);
             done();
@@ -188,7 +198,7 @@ export class RepositoryTests {
     }
 
     @test 'DeleteBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'Task' });
         this._repo.Events.OnContentDeleteFailed.subscribe(c => {
             expect(c.Content).to.be.eq(testContent);
             done();
@@ -199,7 +209,7 @@ export class RepositoryTests {
     }
 
     @test 'MoveBatch() should fire a MoveBatch request'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'Task' });
         this._repo.HttpProviderRef.AddResponse({})
         this._repo.MoveBatch([testContent], 'Root/Test2').subscribe(r => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/MoveBatch");
@@ -210,7 +220,7 @@ export class RepositoryTests {
     }
 
     @test 'MoveBatch() should trigger ContentMoved event after success'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         const sourcePath = testContent.Path;
 
         this._repo.Events.OnContentMoved.subscribe(c => {
@@ -225,7 +235,7 @@ export class RepositoryTests {
     }
 
     @test 'MoveBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnContentMoveFailed.subscribe(c => {
             expect(c.Content).to.be.eq(testContent);
             done();
@@ -236,7 +246,7 @@ export class RepositoryTests {
     }
 
     @test 'CopyBatch() should fire a CopyBatch request'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.HttpProviderRef.AddResponse({});
         this._repo.CopyBatch([testContent], 'Root/Test2').subscribe(r => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/CopyBatch");
@@ -247,7 +257,7 @@ export class RepositoryTests {
     }
 
     @test 'CopyBatch() should trigger ContentCreated event after success'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnContentCreated.subscribe(c => {
             expect(c.Content.Id).to.be.eq(testContent.Id);
             done();
@@ -258,7 +268,7 @@ export class RepositoryTests {
     }
 
     @test 'CopyBatch() should trigger ContentCreateFailed event after failure'(done: MochaDone) {
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnContentCreateFailed.subscribe(c => {
             expect(c.Content).to.be.eq(testContent);
             done();
@@ -277,7 +287,7 @@ export class RepositoryTests {
         this._repo.Config.ChunkSize = 1024 * 1024;
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnUploadProgress.subscribe(pi => {
             expect(pi).to.be.instanceof(Object);
             done();
@@ -292,7 +302,7 @@ export class RepositoryTests {
         });
 
 
-        testContent.UploadFile({ ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
+        testContent.UploadFile({ ContentType: SnFile, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
             .subscribe(progress => {
 
             }, err => done(err));
@@ -302,7 +312,7 @@ export class RepositoryTests {
         this._repo.Config.ChunkSize = 1024 * 1024;
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnContentCreated.subscribe(pi => {
             expect(pi).to.be.instanceof(Object);
             done();
@@ -316,7 +326,7 @@ export class RepositoryTests {
         });
 
 
-        testContent.UploadFile({ ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
+        testContent.UploadFile({ ContentType: SnFile, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
             .subscribe(progress => {
 
             }, err => done(err));
@@ -330,7 +340,7 @@ export class RepositoryTests {
             .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } });
 
 
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnUploadProgress.subscribe(pi => {
             done('This shouldn\'t be triggered');
         });
@@ -343,7 +353,7 @@ export class RepositoryTests {
         });
 
 
-        testContent.UploadFile({ ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
+        testContent.UploadFile({ ContentType: SnFile, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
             .subscribe(progress => {
 
             });
@@ -360,7 +370,7 @@ export class RepositoryTests {
             .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } })  // Content reload;
 
 
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         let uploadReqCount = 0;
 
         this._repo.Events.OnUploadProgress.subscribe(pi => {
@@ -375,7 +385,7 @@ export class RepositoryTests {
         });
 
 
-        testContent.UploadFile({ ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
+        testContent.UploadFile({ ContentType: SnFile, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
             .subscribe(progress => {
                 if (progress.Completed) {
                     expect(progress.ChunkCount).to.be.eq(progress.UploadedChunks);
@@ -395,7 +405,7 @@ export class RepositoryTests {
             .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } })  // Content reload;
 
 
-        const testContent = this._repo.HandleLoadedContent({ Id: 12345, Path: 'Root/Test' });
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
 
         this._repo.Events.OnUploadProgress.subscribe(progress => {
             if (progress.Completed) {
@@ -409,7 +419,7 @@ export class RepositoryTests {
         });
 
 
-        testContent.UploadFile({ ContentType: Content, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
+        testContent.UploadFile<SnFile>({ ContentType: SnFile, File: mockFile as File, PropertyName: 'Binary', Body: {}, Overwrite: true })
             .subscribe(progress => {
 
             }, err => done(err));
@@ -588,7 +598,7 @@ export class RepositoryTests {
 
         (global as any).window = { webkitRequestFileSystem: () => { } };
 
-        this._repo.HttpProviderRef.AddResponse({ d: { Id: 123456, Path: 'Root/Folder' } });
+        this._repo.HttpProviderRef.AddResponse({ d: { Id: 123456, Path: 'Root/Folder', Name: 'Example' } });
 
 
         (this._repo as any)['UploadFile'] = (...args: any[]) => {
@@ -665,7 +675,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: true,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
+            Parent: this._repo.HandleLoadedContent<User>({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
         }).then(result => {
             done('This shouldn\'t be triggered on error');
         }).catch(err => done());

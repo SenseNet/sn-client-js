@@ -41,81 +41,54 @@
  * related to async data streams.
  */ /** */
 
-import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from './SN';
-import { IODataParams, ODataApi, ODataFieldParameter } from './ODataApi';
+import { Schemas, Security, Enums, ODataHelper, FieldSettings, ContentTypes } from '../SN';
+import { IODataParams, ODataApi, ODataFieldParameter } from '../ODataApi';
 import { Observable } from '@reactivex/rxjs';
-import { ActionModel } from './Repository/ActionModel';
-import { BaseRepository } from './Repository/BaseRepository';
-import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
-import { ContentSerializer } from './ContentSerializer';
-import { DeferredObject } from './ComplexTypes';
-import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
-import { Workspace, User, ContentType, GenericContent, Group } from './ContentTypes';
-import { QueryExpression, QuerySegment, FinializedQuery } from './Query';
-import { BinaryField } from './BinaryField';
-import { UploadFileOptions, UploadProgressInfo, UploadTextOptions, UploadFromEventOptions } from './Repository/UploadModels';
-
-/**
- * Typeguard that determines if the specified Object is a DeferredObject
- * @param fieldObject The object that needs to be checked
- */
-export const isDeferred = (fieldObject: any): fieldObject is DeferredObject => {
-    return fieldObject && fieldObject.__deferred && fieldObject.__deferred.uri && fieldObject.__deferred.uri.length > 0 || false;
-}
-
-/**
- * Typeguard that determines if the specified Object is an IContentOptions instance
- * @param object The object that needs to be checked
- */
-export const isContentOptions = (object: any): object is IContentOptions => {
-    return object && object.Id && object.Path && object.Type && object.Type.length > 0 || false;
-}
-
-/**
- * Typeguard that determines if the specified Object is a Content instance
- * @param object The object that needs to be checked
- */
-export const isContent = (object: any): object is Content => {
-    return object && object.Id && object.Path && object.Type && object.Type.length > 0 && object.options && isContentOptions(object.options) || false;
-}
-
-/**
- * Typeguard that determines if the specified Object is an IContentOptions array
- * @param {any[]} objectList The object that needs to be checked
- */
-export const isContentOptionList = (objectList: any[]): objectList is IContentOptions[] => {
-    return objectList && objectList.length !== undefined && objectList.find(o => !isContentOptions(o)) === undefined || false;
-}
+import { ActionModel } from '../Repository/ActionModel';
+import { BaseRepository } from '../Repository/BaseRepository';
+import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
+import { ContentSerializer } from '../ContentSerializer';
+import { ContentListReferenceField, ContentReferenceField } from '../ContentReferences';
+import { Workspace, User, ContentType, GenericContent, Group } from '../ContentTypes';
+import { QueryExpression, QuerySegment, FinializedQuery } from '../Query';
+import { BinaryField } from '../BinaryField';
+import { UploadFileOptions, UploadProgressInfo, UploadTextOptions, UploadFromEventOptions } from '../Repository/UploadModels';
+import { IContent } from './IContent';
+import { ISavedContent } from './ISavedContent';
+import { Content, SavedContent } from './Types';
+import { isSavedContent } from './TypeGuards';
 
 
-export type SavedContent<T extends Content> = T & { Id: number, Path: string };
-
-export class Content<T extends IContentOptions = IContentOptions> {
+export class ContentInternal<T extends IContent = IContent> {
 
     private get _odata(): ODataApi<BaseHttpProvider> {
         return this._repository.GetODataApi();
     }
 
-    /**
-     * An unique identifier for a content
-     */
-    Id?: number;
-
-    /**
-     * Name of the Content
-     */
-    Name?: string;
-
-    private _type?: string;
+    private _type: string = 'Content';
     /**
      * Type of the Content, e.g.: 'Task' or 'User'
      */
     public get Type(): string {
-        return this._type || this.constructor.name;
+        return this._type;
     }
     public set Type(newType: string) {
         this._type = newType;
     }
+
+    Id?: number;
+    Path?: string;
+    Name?: string;
+    ParentId?: Number;
+    Versions: ContentListReferenceField<T>;
+    Workspace: ContentReferenceField<Workspace>;
+    Owner: ContentReferenceField<User>;
+    CreatedBy: ContentReferenceField<User>;
+    ModifiedBy: ContentReferenceField<User>;
+    CheckedOutTo: ContentReferenceField<User>;
+    EffectiveAllowedChildTypes: ContentListReferenceField<ContentType>;
+    AllowedChildTypes: ContentListReferenceField<ContentType>;
+
 
     private _isSaved: boolean = false;
 
@@ -215,25 +188,6 @@ export class Content<T extends IContentOptions = IContentOptions> {
         return missings.length === 0;
     }
 
-    DisplayName?: string;
-    Description?: string;
-    Icon?: string;
-    IsFolder?: boolean;
-    Path?: string;
-    Index?: number;
-    CreationDate?: string;
-    ModificationDate?: string;
-    ParentId?: number;
-    Versions: ContentListReferenceField<this>;
-    Workspace: ContentReferenceField<Workspace>;
-    Owner: ContentReferenceField<User>;
-    CreatedBy: ContentReferenceField<User>;
-    ModifiedBy: ContentReferenceField<User>;
-    CheckedOutTo: ContentReferenceField<User>;
-
-    EffectiveAllowedChildTypes: ContentListReferenceField<ContentType>;
-    AllowedChildTypes: ContentListReferenceField<ContentType>;
-
     private _fieldHandlerCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = []
     private updateReferenceFields() {
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting);
@@ -251,11 +205,18 @@ export class Content<T extends IContentOptions = IContentOptions> {
         binarySettings.forEach(s => {
             if (!(this[s.Name] instanceof BinaryField)){
                 const mediaResourceObject = this[s.Name];
-                this[s.Name] = new BinaryField(mediaResourceObject, this as SavedContent<this>, s);
+                this[s.Name] = new BinaryField<T>(mediaResourceObject, this, s);
             }
         });
-
     }
+
+    private tryGetAsSaved(){
+        if (isSavedContent<T>(this)){
+            return this as SavedContent<T>;
+        }
+        throw new Error('Contnt is not saved.')
+    }
+
 
     /**
      * @constructs Content
@@ -296,7 +257,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
                 this._isOperationInProgress = false;
             }, (err) => {
                 this._repository.Events.Trigger.ContentDeleteFailed({
-                    Content: this as SavedContent<Content>,
+                    Content: this.tryGetAsSaved(),
                     Permanently: permanently || false,
                     Error: err
                 });
@@ -322,7 +283,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Rename(newDisplayName: string, newName?: string): Observable<SavedContent<this>> {
+    Rename(newDisplayName: string, newName?: string): Observable<SavedContent<T>> {
         this._isOperationInProgress = true;
         if (!this.IsSaved) {
             throw new Error('Content is not saved. You can rename only saved content!')
@@ -338,15 +299,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
         return this.Save(fields);
     }
 
-    private saveContentInternal(fields?: T, override?: boolean): Observable<SavedContent<this>> {
-        const contentType = this.constructor as { new(...args: any[]): any };
+    private saveContentInternal(fields?: T, override?: boolean): Observable<SavedContent<T>> {
         const originalFields = this.GetFields();
         /** Fields Save logic */
         if (fields) {
             if (!this.Id) {
                 const err = new Error('Content Id not present');
                 this._repository.Events.Trigger.ContentModificationFailed({
-                    Content: this as SavedContent<this>,
+                    Content: this.tryGetAsSaved(),
                     Fields: fields,
                     Error: err
                 });
@@ -356,38 +316,38 @@ export class Content<T extends IContentOptions = IContentOptions> {
             if (!this.IsSaved) {
                 const err = new Error('The Content is not saved to the Repository, Save it before updating.')
                 this._repository.Events.Trigger.ContentModificationFailed({
-                    Content: this as SavedContent<this>,
+                    Content: this.tryGetAsSaved(),
                     Fields: fields,
                     Error: err
                 });
                 throw err;
             }
             if (override) {
-                const request = this._odata.Put(this.Id, contentType, fields)
+                const request = this._odata.Put<T>(this.Id, fields)
                     .map(newFields => {
                         this.updateLastSavedFields(newFields);
                         this._repository.Events.Trigger.ContentModified({
-                            Content: this as SavedContent<this>,
+                            Content: this.tryGetAsSaved(),
                             OriginalFields: originalFields,
                             Changes: fields
                         });
-                        return this as SavedContent<this>;
+                        return this.tryGetAsSaved();
                     }).share();
                 request.subscribe(() => { }, err => {
-                    this._repository.Events.Trigger.ContentModificationFailed({ Content: this as SavedContent<this>, Fields: fields, Error: err });
+                    this._repository.Events.Trigger.ContentModificationFailed({ Content: this.tryGetAsSaved(), Fields: fields, Error: err });
                 })
                 return request;
             }
             else {
-                const request = this._odata.Patch(this.Id, contentType, fields)
+                const request = this._odata.Patch<T>(this.Id, fields)
                     .map(newFields => {
                         this.updateLastSavedFields(newFields);
-                        this._repository.Events.Trigger.ContentModified({ Content: this as SavedContent<this>, OriginalFields: originalFields, Changes: fields });
-                        return this as SavedContent<this>;
+                        this._repository.Events.Trigger.ContentModified({ Content: this.tryGetAsSaved(), OriginalFields: originalFields, Changes: fields });
+                        return this.tryGetAsSaved();
                     }).share();
 
                 request.subscribe(() => { }, err => {
-                    this._repository.Events.Trigger.ContentModificationFailed({ Content: this as SavedContent<this>, Fields: fields, Error: err });
+                    this._repository.Events.Trigger.ContentModificationFailed({ Content: this.tryGetAsSaved(), Fields: fields, Error: err });
                 })
                 return request;
 
@@ -398,25 +358,25 @@ export class Content<T extends IContentOptions = IContentOptions> {
             // Content not saved, verify Path and POST it
             if (!this.Path) {
                 const err = new Error('Cannot create content without a valid Path specified');
-                this._repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
+                this._repository.Events.Trigger.ContentCreateFailed({ Content: this as IContent, Error: err });
                 throw err;
             }
 
-            const request = this._odata.Post<this>(this.Path, this.GetFields(true), contentType)
+            const request = this._odata.Post<T>(this.Path, this.GetFields(true))
                 .map(resp => {
                     if (!resp.Id) {
                         throw Error('Error: No content Id in response!');
                     }
                     this.updateLastSavedFields(resp);
-                    this._repository['_loadedContentReferenceCache'][resp.Id] = this as SavedContent<this>;
+                    this._repository['_loadedContentReferenceCache'][resp.Id] = this.tryGetAsSaved();
                     this._isSaved = true;
-                    return this as SavedContent<this>;
+                    return this.tryGetAsSaved();
                 }).share();
 
             request.subscribe((c) => {
-                this._repository.Events.Trigger.ContentCreated({ Content: this as SavedContent<this> });
+                this._repository.Events.Trigger.ContentCreated({ Content: this.tryGetAsSaved()});
             }, err => {
-                this._repository.Events.Trigger.ContentCreateFailed({ Content: this, Error: err });
+                this._repository.Events.Trigger.ContentCreateFailed({ Content: this as IContent, Error: err });
             });
             return request;
 
@@ -424,22 +384,22 @@ export class Content<T extends IContentOptions = IContentOptions> {
             // Content saved
             if (!this.IsDirty) {
                 // No changes, no request
-                return Observable.of(this as SavedContent<this>);
+                return Observable.of(this.tryGetAsSaved());
             } else {
                 if (!this.Id) {
                     throw new Error('Content Id not present');
                 }
                 const changes = this.GetChanges();
                 // Patch content
-                const request = this._odata.Patch<this>(this.Id, contentType, changes)
+                const request = this._odata.Patch<T>(this.Id, changes)
                     .map(resp => {
                         this.updateLastSavedFields(resp);
-                        return this as SavedContent<this>;
+                        return this.tryGetAsSaved();
                     }).share();
                 request.subscribe(() => {
-                    this._repository.Events.Trigger.ContentModified({ Content: this as SavedContent<this>, Changes: changes, OriginalFields: originalFields });
+                    this._repository.Events.Trigger.ContentModified({ Content: this.tryGetAsSaved(), Changes: changes, OriginalFields: originalFields });
                 }, err => {
-                    this._repository.Events.Trigger.ContentModificationFailed({ Content: this as SavedContent<this>, Fields: changes, Error: err });
+                    this._repository.Events.Trigger.ContentModificationFailed({ Content: this.tryGetAsSaved(), Fields: changes, Error: err });
 
                 })
                 return request;
@@ -464,7 +424,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Save(fields?: T, override?: boolean): Observable<SavedContent<this>> {
+    Save(fields?: T, override?: boolean): Observable<SavedContent<T>> {
 
         this._isOperationInProgress = true;
         const saveObservable = this.saveContentInternal(fields, override).share();
@@ -483,7 +443,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @param {'edit' | 'view'} actionName
      * @returns {Observable<this>} An observable whitch will be updated with the Content
      */
-    Reload(actionName?: 'edit' | 'view'): Observable<SavedContent<this>> {
+    Reload(actionName?: 'edit' | 'view'): Observable<SavedContent<T>> {
         if (!this.IsSaved) {
             throw new Error('Content has to be saved to reload')
         }
@@ -491,22 +451,22 @@ export class Content<T extends IContentOptions = IContentOptions> {
             throw new Error('Content Id or Path has to be provided')
         }
 
-        let selectFields: ODataFieldParameter<this> | 'all' = 'all';
-        let expandFields: ODataFieldParameter<this> | undefined = undefined;
+        let selectFields: ODataFieldParameter<T> | 'all' = 'all';
+        let expandFields: ODataFieldParameter<T> | undefined = undefined;
         if (actionName) {
             const fieldSettings = this.GetSchema().FieldSettings.filter(f => {
                 return actionName === 'edit' && f.VisibleEdit
                     || actionName === 'view' && f.VisibleBrowse
             });
-            selectFields = fieldSettings.map(f => f.Name) as ODataFieldParameter<this>;
+            selectFields = fieldSettings.map(f => f.Name) as ODataFieldParameter<T>;
             expandFields = fieldSettings.filter(f => f instanceof FieldSettings.ReferenceFieldSetting)
-                .map(f => f.Name) as ODataFieldParameter<this>;
+                .map(f => f.Name) as ODataFieldParameter<T>;
         }
 
         return this._repository.Load(this.Id || this.Path as any, {
             select: selectFields,
             expand: expandFields
-        } as IODataParams<this>);
+        } as IODataParams<T>);
     }
 
     /**
@@ -515,7 +475,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @throws if the Content is not saved yet or no Id or Path is provided
      * @returns {Observable<this>} An observable whitch will be updated with the Content
      */
-    ReloadFields(...fields: (keyof this['options'])[]): Observable<this> {
+    ReloadFields(...fields: (keyof this['options'])[]): Observable<SavedContent<T>> {
 
         if (!this.IsSaved) {
             throw new Error('Content has to be saved to reload')
@@ -525,11 +485,11 @@ export class Content<T extends IContentOptions = IContentOptions> {
         }
 
         const toExpand = this.GetSchema().FieldSettings.filter(f => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
-            .map(f => f.Name) as ODataFieldParameter<this>;
-        return this._repository.Load(this.Id || this.Path as any, {
+            .map(f => f.Name) as ODataFieldParameter<T>;
+        return this._repository.Load<T>(this.Id || this.Path as any, {
             select: fields,
             expand: toExpand
-        } as IODataParams<this>);
+        } as IODataParams<T>);
     }
 
     /**
@@ -553,9 +513,9 @@ export class Content<T extends IContentOptions = IContentOptions> {
             params: {
                 scenario: scenario
             }
-        }, Object as { new(...args) })
+        })
             .map(resp => {
-                return resp.d.Actions as ActionModel[];
+                return (resp.d as any).Actions as ActionModel[];
             });
     }
     /**
@@ -573,7 +533,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetAllowedChildTypes(options?: IODataParams<ContentTypes.ContentType>): Observable<SavedContent<ContentType>[]> {
+    GetAllowedChildTypes(options?: IODataParams<ContentType>): Observable<(ContentType & ISavedContent)[]> {
         return this.AllowedChildTypes.GetContent(options);
     }
     /**
@@ -591,7 +551,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetEffectiveAllowedChildTypes(options?: IODataParams<ContentTypes.ContentType>): Observable<SavedContent<ContentType>[]> {
+    GetEffectiveAllowedChildTypes(options?: IODataParams<ContentType>): Observable<(ContentType & ISavedContent)[]> {
         return this.EffectiveAllowedChildTypes.GetContent(options);
     }
     /**
@@ -609,7 +569,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    GetOwner(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
+    GetOwner(options?: IODataParams<ContentTypes.User>): Observable<User & ISavedContent> {
         return this.Owner.GetContent(options);
     }
 
@@ -629,7 +589,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Creator(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
+    Creator(options?: IODataParams<User>): Observable<User & ISavedContent> {
         return this.CreatedBy.GetContent(options);
     }
     /**
@@ -647,7 +607,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Modifier(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
+    Modifier(options?: IODataParams<User>): Observable<User & ISavedContent> {
         return this.ModifiedBy.GetContent(options);
     }
     /**
@@ -665,7 +625,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    CheckedOutBy(options?: IODataParams<ContentTypes.User>): Observable<SavedContent<User>> {
+    CheckedOutBy(options?: IODataParams<User>): Observable<User & ISavedContent> {
         return this.CheckedOutTo.GetContent(options);
     }
     /**
@@ -687,7 +647,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
      */
-    Children(options?: IODataParams<Content>): Observable<Content[]> {
+    Children(options?: IODataParams<Content>): Observable<SavedContent[]> {
         if (!this.Path) {
             throw new Error('No path specified');
         }
@@ -695,7 +655,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
         return this._odata.Fetch({
             path: this.Path,
             params: options
-        }, Content).map(resp => {
+        }).map(resp => {
             return resp.d.results.map(c => this._repository.HandleLoadedContent(c as any));
         });
     }
@@ -718,7 +678,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * });
      * ```
     */
-    GetVersions(options?: IODataParams<this>): Observable<SavedContent<this>[]> {
+    GetVersions(options?: IODataParams<T>): Observable<SavedContent<T>[]> {
         return this.Versions.GetContent(options);
     }
     /**
@@ -959,13 +919,13 @@ export class Content<T extends IContentOptions = IContentOptions> {
             this.Path = newPath;
             this.updateLastSavedFields({ Path: newPath } as T);
             this._repository.Events.Trigger.ContentMoved({
-                Content: this as SavedContent<this>,
+                Content: this.tryGetAsSaved(),
                 From: fromPath,
                 To: toPath
             })
         }, err => {
             this._repository.Events.Trigger.ContentMoveFailed({
-                Content: this as SavedContent<this>,
+                Content: this.tryGetAsSaved(),
                 From: fromPath,
                 To: toPath,
                 Error: err
@@ -1030,7 +990,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
             { data: { 'contentTypes': contentTypes } });
     }
 
-    private static _schemaCache: Schemas.Schema<Content>[] = [];
+    private static _schemaCache: Schemas.Schema<IContent>[] = [];
     /**
      * Returns the Content Type Schema of the given Content Type;
      * @param type {string} The name of the Content Type;
@@ -1039,19 +999,19 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * var genericContentSchema = SenseNet.Content.getSchema(Content);
      * ```
      */
-    public static GetSchema<TType extends Content>(currentType: { new(...args: any[]): TType }): Schemas.Schema<TType> {
+    public static GetSchema<TType extends IContent>(currentType: { new(...args: any[]): TType }): Schemas.Schema<TType> {
         if (this._schemaCache[currentType.name as any]) {
             return this._schemaCache[currentType.name as any] as Schemas.Schema<TType>;
         }
         const schema = Schemas.SchemaStore.find(s => s.ContentType === currentType) as Schemas.Schema<TType>;
         if (!schema) {
-            return Content.GetSchema<TType>(GenericContent as any) as Schemas.Schema<TType>;
+            return ContentInternal.GetSchema<TType>(GenericContent as any) as Schemas.Schema<TType>;
         }
         const parent = Object.getPrototypeOf(currentType);
         const parentSchema = parent && Schemas.SchemaStore.find(s => s.ContentType === parent);
 
         if (parentSchema) {
-            let parentSchema = Content.GetSchema(parent);
+            let parentSchema = ContentInternal.GetSchema(parent);
             schema.FieldSettings = schema.FieldSettings.concat(parentSchema.FieldSettings);
         }
         this._schemaCache[currentType.name as any] = schema;
@@ -1065,9 +1025,9 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * let schema = SenseNet.Content.GetSchema(Content);
      *```
      */
-    GetSchema(): Schemas.Schema<this> {
-        const contentType = (ContentTypes as any)[this.Type] as { new(...args) };
-        return Content.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
+    GetSchema(): Schemas.Schema<T> {
+        const contentType = (ContentTypes as any)[this.Type] as { new(...args: any[]): T };
+        return ContentInternal.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
     }
 
     /**
@@ -1079,20 +1039,14 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * var content = SenseNet.Content.Create({ DisplayName: 'My folder' }, ContentTypes.Folder); // content is an instance of the ContentTypes.Folder with the DisplayName 'My folder'
      * ```
      */
-    public static Create<TContent extends Content, O extends TContent['options']>(opt: O, newContent: { new(...args: any[]): TContent },
-        repository: BaseRepository): TContent {
-        let constructed = new newContent(opt, repository);
-        return constructed;
-    }
+    // public static Create<TContent extends Content, O extends TContent['options']>(opt: O, newContent: { new(...args: any[]): TContent },
+    //     repository: BaseRepository): TContent {
+    //     let constructed = new newContent(opt, repository);
+    //     return constructed;
+    // }
 
-
-    // Shortcut to repository.HandleLoadedContent()
-    // ToDo: Remove. Deprecated since ~2.1.0 - 2017.07.14.
-    public static HandleLoadedContent: <TContent extends Content, O extends TContent['options']>(contentType: { new(...args: any[]): TContent }, opt: O & { Id: number, Path: string },
-        repository: BaseRepository) => SavedContent<TContent>
-    = (contentType, contentOptions, repository) => {
-        console.warn('Method Content.HandleLoadedContent is deprecated and will be removed in the upcoming release. Please use repository.HandleLoadedContent instead.')
-        return repository.HandleLoadedContent(contentOptions, contentType);
+    public static Create<T extends IContent = IContent>(options: T, repository: BaseRepository): Content<T> & T {
+        return new ContentInternal(options, repository) as Content<T>;
     }
 
     /**
@@ -1193,7 +1147,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
         if (identity && identity.Path) {
             params += `&identity=${identity.Path}`
         };
-        return this._repository.Ajax(`${this.GetFullPath()}/HasPermission?${params}`, 'GET', Boolean as { new() });
+        return this._repository.Ajax<boolean>(`${this.GetFullPath()}/HasPermission?${params}`, 'GET');
     }
     /**
      * Users who have TakeOwnership permission for the current content can modify the Owner of this content.
@@ -1722,10 +1676,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * Uploads a File into a level below the specified Content
      * @param {UploadFileOptions<T>} uploadOptions The options to the Upload request
      */
-    public UploadFile<T extends Content>(uploadOptions: UploadFileOptions<T>): Observable<UploadProgressInfo<T>>{
+    public UploadFile<T extends IContent>(uploadOptions: UploadFileOptions<T>): Observable<UploadProgressInfo<T>>{
         return this._repository.UploadFile({
             ...uploadOptions,
-            Parent: (this as SavedContent<this>)
+            Parent: (this.tryGetAsSaved())
         });
     }
 
@@ -1733,10 +1687,11 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * Creates and uploads a text file from a string value into a level below the specified Content
      * @param {UploadTextOptions<T>} uploadOptions The options to the Upload request
      */
-    public UploadText<T extends Content>(uploadOptions: UploadTextOptions<T>): Observable<UploadProgressInfo<T>>{
-        return this._repository.UploadTextAsFile({
+    public UploadText<T extends IContent>(uploadOptions: UploadTextOptions<T>): Observable<UploadProgressInfo<T>>{
+        const Parent = this.tryGetAsSaved();
+        return this._repository.UploadTextAsFile<T>({
             ...uploadOptions,
-            Parent: this
+            Parent
         });
     }
 
@@ -1745,9 +1700,10 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * @param {UploadFromEventOptions<T>} uploadOptions The options to the Upload request
      */
     public UploadFromDropEvent<T extends Content>(uploadOptions: UploadFromEventOptions<T>){
+        const Parent = this.tryGetAsSaved();
         return this._repository.UploadFromDropEvent({
             ...uploadOptions,
-            Parent: this
+            Parent
         });
     }
 
@@ -1836,7 +1792,7 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * Creates a stringified value from the current Content
      * @returns {string} The stringified value
      */
-    Stringify: () => string = () => ContentSerializer.Stringify(this);
+    Stringify: () => string = () => ContentSerializer.Stringify<T>(this.tryGetAsSaved());
 
     /**
      * Creates a content query on a Content instance.
@@ -1852,33 +1808,11 @@ export class Content<T extends IContentOptions = IContentOptions> {
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content = Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
+    CreateQuery: <T extends IContent = IContent>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
     = (build, params) => {
         if (!this.Path) {
             throw new Error('No Content path provided for querying')
         }
         return new FinializedQuery(build, this._repository, this.Path, params);
     };
-}
-
-/**
-* Interface for classes that represent a Content.
-* @interface IContentOptions
-*/
-
-export interface IContentOptions {
-    Type?: string;
-    Name?: string;
-    Id?: number;
-    DisplayName?: string;
-    Description?: string;
-    Icon?: string;
-    Index?: number;
-    CreationDate?: string;
-    ModificationDate?: string;
-    ParentId?: number;
-    IsFolder?: boolean;
-    Path?: string;
-    Versions?: ContentListReferenceField<Content>;
-    Workspace?: ContentReferenceField<Workspace>;
 }

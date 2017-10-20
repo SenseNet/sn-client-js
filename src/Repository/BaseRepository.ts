@@ -8,8 +8,8 @@ import { VersionInfo, RepositoryEventHub, UploadFileOptions, UploadTextOptions, 
 import { BaseHttpProvider } from '../HttpProviders';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { IAuthenticationService, LoginState } from '../Authentication/';
-import { ContentType } from '../ContentTypes';
-import { Content, IContentOptions, SavedContent } from '../Content';
+import { ContentType, User, Folder, PortalRoot } from '../ContentTypes';
+import { Content, IContent, ISavedContent, SavedContent, ContentInternal } from '../Content';
 import { ODataApi, ODataCollectionResponse, IODataParams } from '../ODataApi';
 import { ODataHelper, Authentication, ContentTypes } from '../SN';
 import { ContentSerializer } from '../ContentSerializer';
@@ -66,7 +66,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             });
     }
 
-    public UploadFile<T extends Content = Content>(uploadOptions: WithParentContent<UploadFileOptions<T>>): Observable<UploadProgressInfo<T>> {
+    public UploadFile<TFile extends IContent>(uploadOptions: WithParentContent<UploadFileOptions<TFile>>): Observable<UploadProgressInfo<TFile>> {
         this.Authentication.CheckForUpdate();
         uploadOptions.Body = {
             ...uploadOptions.Body,
@@ -78,7 +78,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         this.Authentication.CheckForUpdate();
         return this.WaitForAuthStateReady()
             .flatMap(state => {
-                const uploadSubject = new Subject<UploadProgressInfo<T>>();
+                const uploadSubject = new Subject<UploadProgressInfo<TFile>>();
                 const fileName = uploadOptions.File.name;
                 const uploadPath = ODataHelper.joinPaths(this.ODataBaseUrl, uploadOptions.Parent.GetFullPath(), 'upload');
 
@@ -86,12 +86,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                     /** Non-chunked upload */
                     uploadOptions.Body.ChunkToken = '0*0*False*False';
-                    this.HttpProviderRef.Upload((uploadOptions.ContentType || Content) as { new(...args: any[]): T }, uploadOptions.File, {
+                    this.HttpProviderRef.Upload<TFile>((uploadOptions.ContentType || ContentInternal) as { new(...args: any[]): Content<TFile> }, uploadOptions.File, {
                         url: uploadPath,
                         body: uploadOptions.Body,
                     })
                         .subscribe(created => {
-                            this.HandleLoadedContent(created as T & { Id: number, Path: string }, uploadOptions.ContentType).Reload().subscribe(c => {
+                            this.HandleLoadedContent<TFile>(created as SavedContent<TFile>).Reload().subscribe(c => {
                                 this.Events.Trigger.ContentCreated({
                                     Content: c
                                 });
@@ -142,18 +142,20 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     ).
                         flatMap(chunkToken => {
                             const resp = new UploadResponse(...chunkToken.split('*'));
+                            const createdContent: SavedContent<TFile> = this.HandleLoadedContent<TFile>({
+                                Id: resp.ContentId,
+                                Path: uploadOptions.Parent.Path,
+                                Name: uploadOptions.File.name,
+                                Type: uploadOptions.ContentType.name
+                            } as TFile & ISavedContent);
 
                             this.Events.Trigger.ContentCreated({
-                                Content: this.HandleLoadedContent({
-                                    Id: resp.ContentId,
-                                    Path: uploadOptions.Parent.Path,
-                                    Name: uploadOptions.File.name,
-                                }, uploadOptions.ContentType)
+                                Content: createdContent
                             })
 
                             return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
                                 .flatMap(c => {
-                                    return this.Load(resp.ContentId, undefined, uploadOptions.ContentType)
+                                    return this.Load<TFile>(resp.ContentId)
                                         .map(content => {
                                             const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
                                             content['_isOperationInProgress'] = false;
@@ -161,8 +163,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                                 Completed: true,
                                                 ChunkCount: chunkCount,
                                                 UploadedChunks: chunkCount,
-                                                CreatedContent: content as T
-                                            } as UploadProgressInfo<T>
+                                                CreatedContent: content
+                                            } as UploadProgressInfo<TFile>
                                             this.Events.Trigger.UploadProgress(progressInfo);
                                             return progressInfo;
                                         });
@@ -174,7 +176,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             })
     }
 
-    private sendChunk<T extends Content>
+    private sendChunk<T extends IContent>
         (options: WithParentContent<UploadFileOptions<T>>, uploadPath: string, chunkToken: string, contentId: number, offset: number = 0)
         : Observable<UploadProgressInfo<T>> {
         this.Authentication.CheckForUpdate();
@@ -199,11 +201,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         'Content-Disposition': `attachment; filename="${options.File.name}"`
                     }
                 }).map(newResp => {
-                    const content = this.HandleLoadedContent({
+                    const content = this.HandleLoadedContent<T>({
                         Id: contentId,
-                        Path: '',
-                        Name: options.File.name,
-                    }, options.ContentType);
+                        Path: 'asd',
+                        Name: options.File.name || 'File',
+                        Type: options.ContentType.name || 'File'
+                    } as T & ISavedContent);
                     content['_isOperationInProgress'] = true;
                     const progress = {
                         Completed: false,
@@ -222,7 +225,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             })
     }
 
-    public UploadTextAsFile<T extends Content = Content>(options: UploadTextOptions<T> & { Parent: Content }) {
+    public UploadTextAsFile<T extends IContent = IContent>(options: WithParentContent<UploadTextOptions<T>>) {
         const file = new File([options.Text], options.FileName);
         return this.UploadFile<T>({
             File: file,
@@ -232,10 +235,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
 
 
-    private async webkitFileHandler<T extends Content>(FileEntry: WebKitFileEntry, Scope: Content, options: UploadOptions<T>) {
+    private async webkitFileHandler<T extends IContent>(FileEntry: WebKitFileEntry, Scope: Content, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
             FileEntry.file(f => {
-                Scope.UploadFile({
+                Scope.UploadFile<T>({
                     File: f as any,
                     ...options
                 })
@@ -247,17 +250,17 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         })
     }
 
-    private async webkitDirectoryHandler<T extends Content>(Directory: WebKitDirectoryEntry, Scope: Content, options: UploadOptions<T>) {
+    private async webkitDirectoryHandler<T extends IContent>(Directory: WebKitDirectoryEntry, Scope: Content, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
-            this.CreateContent({
+            this.CreateContent<Folder>({
                 Name: Directory.name,
                 Path: Scope.Path,
                 DisplayName: Directory.name
-            }, ContentTypes.Folder).Save().subscribe(async c => {
+            }).Save().subscribe(async c => {
                 const dirReader = Directory.createReader();
                 await new Promise((res) => {
                     dirReader.readEntries(async items => {
-                        await this.webkitItemListHandler(items as any, c, true, options);
+                        await this.webkitItemListHandler<T>(items as any, c, true, options);
                         res();
                     })
                 });
@@ -266,7 +269,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         })
     }
 
-    private async webkitItemListHandler<T extends Content>(items: (WebKitFileEntry | WebKitDirectoryEntry)[], Scope: Content, CreateFolders: boolean, options: UploadOptions<T>) {
+    private async webkitItemListHandler<T extends IContent>(items: (WebKitFileEntry | WebKitDirectoryEntry)[], Scope: Content, CreateFolders: boolean, options: UploadOptions<T>) {
         for (const index in items) {
             if (CreateFolders && items[index].isDirectory) {
                 await this.webkitDirectoryHandler(items[index] as WebKitDirectoryEntry, Scope, options);
@@ -277,7 +280,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
     }
 
-    public async UploadFromDropEvent<T extends Content = Content>(options: UploadFromEventOptions<T> & { Parent: Content }) {
+    public async UploadFromDropEvent<T extends IContent = IContent>(options: UploadFromEventOptions<T> & { Parent: Content }) {
         if ((window as any).webkitRequestFileSystem) {
             const entries: (WebKitFileEntry | WebKitDirectoryEntry)[] =
                 [].map.call(options.Event.dataTransfer.items, i => i.webkitGetAsEntry());
@@ -387,12 +390,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             undefined,
             ODataCollectionResponse)
             .map(resp => {
-                return resp.d.results.map(c => this.HandleLoadedContent(c as any, ContentType));
+                return resp.d.results.map(c => this.HandleLoadedContent<ContentType>(c as any));
             });
     }
 
 
-    private _loadedContentReferenceCache: SavedContent<Content>[] = [];
+    private _loadedContentReferenceCache: (Content & ISavedContent)[] = [];
 
     /**
      * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
@@ -403,25 +406,23 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public HandleLoadedContent<T extends Content, O extends T['options']>(opt: O & { Id: number, Path: string }, contentType?: { new(...args: any[]): T }): SavedContent<T> {
-        let instance: T;
-        const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Content) as { new(...args: any[]): T };
-
+    public HandleLoadedContent<T extends IContent>(opt: T & ISavedContent): SavedContent<T> {
+        let instance: Content<T>;
         if (opt.Id) {
             if (this._loadedContentReferenceCache[opt.Id]) {
-                instance = this._loadedContentReferenceCache[opt.Id] as T;
+                instance = this._loadedContentReferenceCache[opt.Id] as Content<T>;
                 instance['updateLastSavedFields'](opt);
             } else {
-                instance = Content.Create(opt, realContentType, this);
+                instance = ContentInternal.Create<T>(opt, this);
                 this._loadedContentReferenceCache[opt.Id] = instance as SavedContent<T>;
             }
 
         } else {
-            instance = Content.Create(opt, realContentType, this);
+            instance = ContentInternal.Create<T>(opt, this);
         }
         instance['_isSaved'] = true;
         this.Events.Trigger.ContentLoaded({ Content: instance });
-        return instance as T & { Id: number, Path: string };
+        return instance as SavedContent<T>;
     }
 
     /**
@@ -443,10 +444,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * })
      * ```
     */
-    public Load<TContentType extends Content>(
+    public Load<TContentType extends IContent = IContent>(
         idOrPath: string | number,
         odataOptions?: IODataParams<TContentType>,
-        returnsType?: { new(...args: any[]): TContentType },
         version?: string): Observable<SavedContent<TContentType>> {
 
         let contentURL = typeof idOrPath === 'string' ?
@@ -457,20 +457,18 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             path: contentURL,
             params: odataOptions
         };
-        const returnType = returnsType || Content as { new(...args: any[]): any };
-
-        return this._odataApi.Get(odataRequestOptions, returnType)
+        return this._odataApi.Get(odataRequestOptions)
             .share()
             .map(r => {
-                return this.HandleLoadedContent(r.d, returnType);
+                return this.HandleLoadedContent<TContentType>(r.d);
             });
     }
 
     /**
      * Shortcut to Content.Create
      */
-    CreateContent: <T extends Content, K extends T['options']>(options: K, contentType: { new(...args: any[]): T }) => T =
-    (options, contentType) => Content.Create(options, contentType, this);
+    CreateContent: <TContentType extends IContent = IContent>(options: TContentType) => Content<TContentType> =
+        <TContentType>(options: TContentType) => ContentInternal.Create<TContentType>(options, this);
 
     /**
      * Parses a Content instance from a stringified SerializedContent<T> instance
@@ -487,20 +485,22 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     }
 
     private readonly _staticContent = {
-        VisitorUser: this.HandleLoadedContent({
+        VisitorUser: this.HandleLoadedContent<User>({
             Id: 6,
             DisplayName: 'Visitor',
             Domain: 'BuiltIn',
             Name: 'Visitor',
             Path: '/Root/IMS/BuiltIn/Portal/Visitor',
-            LoginName: 'Visitor'
-        }, ContentTypes.User),
-        PortalRoot: this.HandleLoadedContent({
+            LoginName: 'Visitor',
+            Type: 'User'
+        }),
+        PortalRoot: this.HandleLoadedContent<PortalRoot>({
             Id: 2,
             Path: '/Root',
             Name: 'Root',
-            DisplayName: 'Root'
-        }, ContentTypes.PortalRoot)
+            DisplayName: 'Root',
+            Type: 'PortalRoot'
+        })
     }
 
     /**
@@ -517,8 +517,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    CreateQuery: <T extends Content>(build: (first: QueryExpression<Content>) => QuerySegment<T>, params?: IODataParams<T>) => FinializedQuery<T>
-    = (build, params) => new FinializedQuery(build, this, 'Root', params);
+    CreateQuery = <T extends IContent>(build: (first: QueryExpression<IContent>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params);
 
     /**
      * Executes a DeleteBatch request to delete multiple content by a single request.
@@ -534,7 +533,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {boolean} permanently Option to delete the content permanently or just move it to the trash
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public DeleteBatch(contentList: (SavedContent<Content<IContentOptions>>)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
+    public DeleteBatch(contentList: (Content & ISavedContent)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields());
         const action = this._odataApi.CreateCustomAction({
             name: 'DeleteBatch',
@@ -572,7 +571,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    MoveBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+    MoveBatch(contentList: (Content & ISavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentPathList: string[] = contentList.map(c => c.Path);
         const action = this._odataApi.CreateCustomAction({
             name: 'MoveBatch',
@@ -613,7 +612,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    CopyBatch(contentList: SavedContent<Content>[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+    CopyBatch(contentList: (Content & ISavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentFields = contentList.map(c => c.GetFields());
         const action = this._odataApi.CreateCustomAction({
             name: 'CopyBatch',
@@ -667,7 +666,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 } else {
                     if (this._lastKnownUserName !== this.Authentication.CurrentUser) {
                         const [userDomain, userName] = this.Authentication.CurrentUser.split('\\');
-                        this.CreateQuery(q => q.TypeIs(ContentTypes.User)
+                        this.CreateQuery(q => q.TypeIs<User>(User)
                             .And
                             .Equals('Domain', userDomain)
                             .And

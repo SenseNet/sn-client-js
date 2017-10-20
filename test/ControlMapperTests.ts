@@ -4,8 +4,8 @@ import { ControlMapper } from '../src/ControlMapper';
 import { FieldSetting, ChoiceFieldSetting, ShortTextFieldSetting, FieldVisibility } from '../src/FieldSettings';
 import { Task, User } from '../src/ContentTypes';
 import * as ContentTypes from '../src/ContentTypes';
-import { Content } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
+import { ContentInternal } from '../src/SN';
 
 
 class ExampleControlBase { }
@@ -190,7 +190,7 @@ export class ControlMapperTests {
 
     @test
     public 'GetFullSchemaForContent filtered to New should be able to return all mappings'() {
-        const fullMapping = this._mapper.GetFullSchemaForContent(Content.Create({DueDate: '2017-06-27T11:11:11Z', Name: 'Task1'}, Task, new MockRepository()), 'new').FieldMappings;
+        const fullMapping = this._mapper.GetFullSchemaForContent(ContentInternal.Create<Task>({DueDate: '2017-06-27T11:11:11Z', Name: 'Task1'}, new MockRepository()), 'new').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
         fullMapping.forEach(m => {
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);

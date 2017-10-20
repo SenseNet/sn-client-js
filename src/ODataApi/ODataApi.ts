@@ -7,7 +7,7 @@ import { IODataParams, CustomAction, ODataResponse, ICustomActionOptions, ODataC
 import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
 import { BaseRepository } from '../Repository/BaseRepository';
-import { Content } from '../Content';
+import { IContent, ISavedContent, SavedContent } from '../Content';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -49,9 +49,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      *      });
      * ```
      */
-    public Get<T extends Content>(options: IODataRequestOptions<T>, returns?: { new(...args: any[]): T }): Observable<ODataResponse<T['options']>> {
+    public Get<T extends IContent>(options: IODataRequestOptions<T>): Observable<ODataResponse<T & ISavedContent>> {
 
-        return this._repository.Ajax<ODataResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this._repository.Config, options.params)}`, 'GET').share();
+        return this._repository.Ajax<ODataResponse<T & ISavedContent>>(`${options.path}?${ODataHelper.buildUrlParamString(this._repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -71,11 +71,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      *   });
      * ```
      */
-    public Fetch<T extends Content = Content>(
-        options: IODataRequestOptions<T>,
-        returnsType?: { new(...args: any[]): T['options'] }): Observable<ODataCollectionResponse<T['options']>> {
+    public Fetch<T extends IContent = IContent>(options: IODataRequestOptions<T>): Observable<ODataCollectionResponse<T & ISavedContent>> {
 
-        return this._repository.Ajax<ODataCollectionResponse<T['options']>>(`${options.path}?${ODataHelper.buildUrlParamString(this._repository.Config, options.params)}`, 'GET').share();
+        return this._repository.Ajax<ODataCollectionResponse<T & ISavedContent>>(`${options.path}?${ODataHelper.buildUrlParamString(this._repository.Config, options.params)}`, 'GET').share();
     }
 
     /**
@@ -98,12 +96,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      *  });
      * ```
      */
-    public Post<T extends Content>(
+    public Post<T extends IContent>(
         path: string,
-        contentBody: T['options'],
-        postedContentType: { new(...args: any[]): T }): Observable<T['options']> {
-
-        (contentBody as any).__ContentType = contentBody.Type || postedContentType.name;
+        contentBody: T): Observable<SavedContent<T>> {
         return this._repository
             .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', ODataResponse, JSON.stringify(contentBody))
             .map(resp => resp.d)
@@ -138,9 +133,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * });
      * ```
      */
-    public Patch<T extends Content>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T['options']> {
+    public Patch<T extends IContent>(id: number, fields: T): Observable<T & ISavedContent> {
 
-        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
+        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T & ISavedContent> };
         return this._repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }
@@ -164,8 +159,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * });
      * ```
      */
-    public Put<T extends Content>(id: number, contentType: { new(...args: any[]): T }, fields: T['options']): Observable<T> {
-        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T> };
+    public Put<T extends IContent>(id: number, fields: T): Observable<SavedContent<T>> {
+        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<SavedContent<T>> };
         return this._repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
             .map(result => result.d);
     }

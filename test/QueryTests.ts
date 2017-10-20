@@ -1,9 +1,10 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { Query } from '../src/Query';
-import { ContentTypes } from '../src/SN';
+import { ContentTypes, ContentInternal } from '../src/SN';
 import { MockRepository } from './Mocks/index';
 import { LoginState } from '../src/Authentication/LoginState';
+import { Task } from '../src/ContentTypes';
 
 const expect = Chai.expect;
 
@@ -34,7 +35,7 @@ export class QueryTests {
             query.Exec()
             .subscribe(res => {
                 expect(res.Count).to.be.eq(1);
-                expect(res.Result[0]).to.be.instanceof(ContentTypes.Folder);
+                expect(res.Result[0]).to.be.instanceof(ContentInternal);
                 expect(res.Result[0].Type).to.be.eq('Folder');
                 done();
             }, done);
@@ -73,13 +74,14 @@ export class QueryTests {
         const content = repo.HandleLoadedContent({
             Id: 3,
             Path: 'Root/Content/Folders',
-            Type: 'Folder'
+            Type: 'Folder',
+            Name: 'test'
         })
 
         const query = content.CreateQuery(q => q.TypeIs(ContentTypes.Folder))
         query.Exec().subscribe(res => {
             expect(res.Count).to.be.eq(1);
-            expect(res.Result[0]).to.be.instanceof(ContentTypes.Folder);
+            expect(res.Result[0]).to.be.instanceof(ContentInternal);
             expect(res.Result[0].Type).to.be.eq('Folder');
             done();
         }, done);
@@ -116,7 +118,7 @@ export class QueryTests {
     @test
     public 'InFolder with Content'() {
         const repo = new MockRepository();
-        const content = repo.CreateContent({ Id: 2, Path: 'a/b/c', Name: 'test', Type: 'Task' }, ContentTypes.Task);
+        const content = repo.HandleLoadedContent<Task>({ Id: 2, Path: 'a/b/c', Name: 'test', Type: 'Task' });
         const queryInstance = new Query(q => q.InFolder(content));
         expect(queryInstance.toString()).to.be.eq('InFolder:"a/b/c"')
     }
@@ -130,7 +132,7 @@ export class QueryTests {
     @test
     public 'InTree with Content'() {
         const repo = new MockRepository();
-        const content = repo.CreateContent({ Id: 2, Path: 'a/b/c', Name: 'test', Type: 'Task' }, ContentTypes.Task);
+        const content = repo.HandleLoadedContent<Task>({ Id: 2, Path: 'a/b/c', Name: 'test', Type: 'Task' });
         const queryInstance = new Query(q => q.InTree(content));
         expect(queryInstance.toString()).to.be.eq('InTree:"a/b/c"')
     }

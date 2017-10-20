@@ -18,28 +18,15 @@ export * from './SchemaTests';
 export * from './SnConfigTests';
 export * from './TokenTests';
 export * from './TokenStoreTests';
+
 export *  from './QueryTests';
 
-// export {
-//     HttpProviderTests,
-//     // BinaryFieldTests,
-//     JwtServiceTests,
-//     CollectionTests,
-//     ContentTests,
-//     ContentTypeTests,
-//     ContentReferenceFieldTests,
-//     ContentListReferenceFieldTests,
-//     ContentSerializerTests,
-//     ControlMapperTests,
-//     FieldSettingsTest,
-//     ComplexTypesTests,
-//     ODataApiTests,
-//     ODataHelperTests,
-//     RepositoryTests,
-//     RetrierTests,
-//     SchemaTests,
-//     SnConfigTests,
-//     TokenTests,
-//     TokenStoreTests,
-//     Query
-// }
+(global as any).File = class {
+    slice(from: number, size: number) {
+        return ''
+    }
+
+    constructor(fileData: any, public readonly name: string) {
+
+    }
+};

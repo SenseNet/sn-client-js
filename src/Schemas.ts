@@ -12,14 +12,14 @@
  * The ```Schema``` class represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
  */ /** */
 
-import { FieldSettings, Content, ContentTypes } from './SN';
+import { FieldSettings, ContentTypes, IContent } from './SN';
 
     /**
      * Class that represents a Schema.
      *
      * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
      */
-    export class Schema<TContentType extends Content> {
+    export class Schema<TContentType extends IContent> {
         ContentType: {new(...args: any[]): TContentType}
         Icon: string;
         DisplayName: string;
@@ -34,7 +34,7 @@ import { FieldSettings, Content, ContentTypes } from './SN';
         }
     }
 
-    export const SchemaStore: Schema<Content>[] = [
+    export const SchemaStore: Schema<IContent>[] = [
 
     /**
      * Method that returns the Content Type Definition of the ContentType

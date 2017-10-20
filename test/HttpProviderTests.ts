@@ -73,7 +73,6 @@ export class HttpProviderTests {
                 }, 10);
             }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any
         };
-        (global as any).File = class { slice(from: number, size: number) { return '' } };
         (global as any).FormData = class { append() { }; };
         let p = new RxAjaxHttpProvider();
         let file = new File(['alma'], 'alma.txt');
@@ -100,7 +99,6 @@ export class HttpProviderTests {
                 }, 10);
             }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any
         };
-        (global as any).File = class { slice(from: number, size: number) { return '' } };
         (global as any).FormData = class { append() { }; };
         let p = new RxAjaxHttpProvider();
         let file = new File(['alma'], 'alma.txt');
@@ -127,7 +125,6 @@ export class HttpProviderTests {
                 }, 10);
             }; setRequestHeader() { }; onreadystatechange: () => void; readyState: number; status: number; response: any
         };
-        (global as any).File = class { slice(from: number, size: number) { return '' } };
         (global as any).FormData = class { append() { }; };
         let p = new RxAjaxHttpProvider();
         let file = new File(['alma'], 'alma.txt');

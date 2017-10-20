@@ -4,7 +4,7 @@
 /** */
 
 
-import { Content, IContentOptions, SavedContent } from '../Content';
+import { SavedContent, IContent } from '../Content';
 import { Subject, Observable } from '@reactivex/rxjs';
 import { IODataParams, ICustomActionOptions } from '../ODataApi';
 import { UploadProgressInfo } from './UploadModels';
@@ -15,14 +15,14 @@ export module EventModels {
         /**
          * The created Content instance
          */
-        Content: SavedContent<Content>;
+        Content: SavedContent;
     }
 
     export class CreateFailed {
         /**
          * The unsaved Content instance
          */
-        Content: Content;
+        Content: IContent;
 
         /**
          * The Error that caused the failure
@@ -34,27 +34,27 @@ export module EventModels {
         /**
          * The Content instance that has been modified.
          */
-        Content: SavedContent<Content>;
+        Content: SavedContent;
 
         /**
          * The original fields
          */
-        OriginalFields: IContentOptions;
+        OriginalFields: IContent;
         /**
          * The Change data
          */
-        Changes: IContentOptions;
+        Changes: IContent;
     }
 
     export class ModificationFailed {
         /**
          * The Content instance that has been failed to modify
          */
-        Content: SavedContent<Content>;
+        Content: SavedContent;
         /**
          * The Fields that you've been tried to modify
          */
-        Fields?: IContentOptions;
+        Fields?: IContent;
         /**
          * The Error that caused the failure
          */
@@ -65,14 +65,14 @@ export module EventModels {
         /**
          * The Loaded content instance
          */
-        Content: SavedContent<Content>
+        Content: SavedContent;
     }
 
     export class Deleted {
         /**
          * The Content data that has been deleted
          */
-        ContentData: IContentOptions;
+        ContentData: IContent;
         /**
          * Indicates if the Content was deleted permanently or just moved to Trash
          */
@@ -83,7 +83,7 @@ export module EventModels {
         /**
          * The Content that you've tried to delete
          */
-        Content: SavedContent<Content>;
+        Content: SavedContent;
         /**
          * Indicates if you've tried to delete the Content permanently or just tried to move it to the Trash
          */
@@ -95,7 +95,7 @@ export module EventModels {
         Error: any;
     }
 
-    export class CustomActionExecuted<T extends Content> {
+    export class CustomActionExecuted<T extends IContent> {
         /**
          * The Action options
          */
@@ -110,7 +110,7 @@ export module EventModels {
         Result: any
     }
 
-    export class CustomActionFailed<T extends Content> {
+    export class CustomActionFailed<T extends IContent> {
         /**
          * The Action options
          */
@@ -141,7 +141,7 @@ export module EventModels {
         /**
          * The moved Content instance
          */
-        Content: SavedContent<Content>;
+        Content: SavedContent;
     }
 
     export class ContentMoveFailed {
@@ -156,7 +156,7 @@ export module EventModels {
         /**
          * The Content instance that you've tried to move
          */
-        Content: SavedContent<Content>;
+        Content: SavedContent;
         /**
          * The Error that caused the failure
          */
@@ -172,11 +172,11 @@ export class RepositoryEventHub {
     private readonly _onContentLoadedSubject = new Subject<EventModels.Loaded>();
     private readonly _onContentDeletedSubject = new Subject<EventModels.Deleted>();
     private readonly _onContentDeleteFailedSubject = new Subject<EventModels.DeleteFailed>();
-    private readonly _onCustomActionExecutedSubject = new Subject<EventModels.CustomActionExecuted<Content>>();
-    private readonly _onCustomActionFailedSubject = new Subject<EventModels.CustomActionFailed<Content>>();
+    private readonly _onCustomActionExecutedSubject = new Subject<EventModels.CustomActionExecuted<IContent>>();
+    private readonly _onCustomActionFailedSubject = new Subject<EventModels.CustomActionFailed<IContent>>();
     private readonly _onContentMovedSubject = new Subject<EventModels.ContentMoved>()
     private readonly _onContentMoveFailedSubject = new Subject<EventModels.ContentMoveFailed>()
-    private readonly _onUploadProgressSubject = new Subject<UploadProgressInfo<Content>>()
+    private readonly _onUploadProgressSubject = new Subject<UploadProgressInfo<IContent>>()
 
     /**
      * Method group for triggering Repository events
@@ -199,7 +199,7 @@ export class RepositoryEventHub {
         ContentMoved: (ev: EventModels.ContentMoved) => this._onContentMovedSubject.next(ev),
         ContentMoveFailed: (ev: EventModels.ContentMoveFailed) => this._onContentMoveFailedSubject.next(ev),
 
-        UploadProgress: (ev: UploadProgressInfo<Content>) => this._onUploadProgressSubject.next(ev)
+        UploadProgress: (ev: UploadProgressInfo<IContent>) => this._onUploadProgressSubject.next(ev)
     }
 
     /**

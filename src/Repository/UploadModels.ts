@@ -3,11 +3,11 @@
  * @module Content
  */ /** */
 
-import { Content } from '../Content';
+import { IContent, SavedContent } from '../Content';
 
-export type WithParentContent<T> = T & { Parent: Content & {Path: string} | {GetFullPath: () => string, Path: string} }
+export type WithParentContent<T> = T & { Parent: SavedContent }
 
-export class UploadOptions<T extends Content>{
+export class UploadOptions<T extends IContent>{
     /**
      * The type of the content to upload, usually should be 'File'
      */
@@ -26,14 +26,14 @@ export class UploadOptions<T extends Content>{
     Body?: any;
 }
 
-export class UploadFileOptions<T extends Content> extends UploadOptions<T>{
+export class UploadFileOptions<T extends IContent> extends UploadOptions<T>{
     /**
      * The File instance to be posted
      */
     File: File;
 }
 
-export class UploadTextOptions<T extends Content> extends UploadOptions<T>{
+export class UploadTextOptions<T extends IContent> extends UploadOptions<T>{
     /**
      * The text data that will be saved to the binary field
      */
@@ -44,7 +44,7 @@ export class UploadTextOptions<T extends Content> extends UploadOptions<T>{
     FileName: string;
 }
 
-export class UploadFromEventOptions<T extends Content> extends UploadOptions<T>{
+export class UploadFromEventOptions<T extends IContent> extends UploadOptions<T>{
     /**
      * The DragEvent to work with. File data will be extracted from it's 'dataTransfer' item.
      */
@@ -55,11 +55,11 @@ export class UploadFromEventOptions<T extends Content> extends UploadOptions<T>{
     CreateFolders: boolean;
 }
 
-export class UploadProgressInfo<T extends Content> {
+export class UploadProgressInfo<T extends IContent> {
     /**
      * Basic info about the created Content
      */
-    CreatedContent: T;
+    CreatedContent: SavedContent<T>;
     /**
      * Total chunks count
      */

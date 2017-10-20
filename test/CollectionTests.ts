@@ -1,14 +1,14 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 import { Collection } from '../src/Collection';
-import { Content } from '../src/Content';
+import { Content, ContentInternal } from '../src/Content';
 import { MockRepository } from './Mocks/MockRepository';
 import { LoginState } from '../src/Authentication/LoginState';
 import { Task } from '../src/ContentTypes';
 const expect = Chai.expect;
 
 export const CollectionTests = describe('Collection', () => {
-  let collection: Collection<Content>;
+  let collection: Collection<Task>;
   let children: Content[];
 
   let Repo: MockRepository;
@@ -20,12 +20,12 @@ export const CollectionTests = describe('Collection', () => {
         Id: 1,
         Name: 'test1',
         Path: '/'
-      }, Content),
+      }),
       Repo.HandleLoadedContent({
         Id: 2,
         Path: 'Root/Test',
         Name: 'test2'
-      }, Content)];
+      })];
 
 
     collection = new Collection(children, Repo);
@@ -44,7 +44,7 @@ export const CollectionTests = describe('Collection', () => {
   describe('#Item(id)', () => {
     it('should return an object with a given id', () => {
       const item = collection.Item(1);
-      expect(item).to.be.instanceof(Content);
+      expect(item).to.be.instanceof(ContentInternal);
       if (item && item.Id) {
         expect(item.Id).to.be.eq(1);
       } else {
@@ -61,15 +61,15 @@ export const CollectionTests = describe('Collection', () => {
   });
   describe('#Add()', () => {
     it('should return an observable', () => {
-      let content = Content.Create({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, Task, Repo);
-      expect(collection.Add(content.options)).to.be.instanceof(Observable);
+      let content = ContentInternal.Create<Task>({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, Repo);
+      expect(collection.Add(content)).to.be.instanceof(Observable);
     });
 
     it('Observable should be resolved', (done) => {
-      let content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, Task);
+      let content = Repo.HandleLoadedContent<Task>({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' });
       Repo.Authentication.StateSubject.next(LoginState.Authenticated);
       Repo.HttpProviderRef.AddResponse({ d: content.GetFields() });
-      collection.Add(content.options).subscribe(r => {
+      collection.Add(content).subscribe(r => {
         done()
       }, done)
     });

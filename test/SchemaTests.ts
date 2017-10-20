@@ -2,15 +2,15 @@ import { Schema, SchemaStore } from '../src/Schemas';
 import { NumberFieldSetting, BinaryFieldSetting, ChoiceFieldSetting, PasswordFieldSetting } from '../src/FieldSettings';
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { Content } from '../src/Content';
+import { GenericContent } from '../src/ContentTypes';
 
 @suite('Schemas Tests')
 export class SchemaTests {
 
     @test
     public 'Should be able to construct'() {
-        let schema: Schema<Content> = new Schema({
-            ContentType: Content,
+        let schema: Schema<GenericContent> = new Schema({
+            ContentType: GenericContent,
             FieldSettings: [
                 new NumberFieldSetting({
                     name: 'DisplayName'

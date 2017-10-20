@@ -23,7 +23,7 @@
  * ```
  */ /** */
 
-import { Content } from './Content';
+import { IContent, ContentInternal } from './Content';
 import * as FieldSettings from './FieldSettings';
 import { Schemas } from './SN';
 
@@ -31,7 +31,7 @@ export type ActionName = 'new' | 'edit' | 'view';
 
 export class ControlSchema<TControlBaseType, TClientControlSettings> {
     ContentTypeControl: {new(...args: any[]): TControlBaseType};
-    Schema: Schemas.Schema<Content>;
+    Schema: Schemas.Schema<IContent>;
     FieldMappings: {FieldSettings: FieldSettings.FieldSetting, ControlType: {new(...args: any[]): TControlBaseType}, ClientSettings: TClientControlSettings}[];
 }
 
@@ -50,8 +50,8 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param contentType The type of the content (e.g. ContentTypes.Task)
      * @param actionName The name of the action. Can be 'new' / 'view' / 'edit'
      */
-    private getTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema<TContentType> {
-        const schema = new Schemas.Schema<TContentType>(Content.GetSchema(contentType));
+    private getTypeSchema<TContentType extends IContent>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema<TContentType> {
+        const schema = new Schemas.Schema<TContentType>(ContentInternal.GetSchema(contentType));
 
         if (actionName) {
             schema.FieldSettings = schema.FieldSettings.filter(s => {
@@ -76,7 +76,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param control The Control for the content
      * @returns {ControlMapper}
      */
-    public MapContentTypeToControl(contentType: { new (...args: any[]): Content }, control: { new (...args: any[]): TControlBaseType }) {
+    public MapContentTypeToControl(contentType: { new (...args: any[]): IContent }, control: { new (...args: any[]): TControlBaseType }) {
         this._contentTypeControlMaps[contentType.name as any] = control;
         return this;
     }
@@ -86,7 +86,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param content The content to get the control for.
      * @returns {TControlBaseType} The mapped control, Default if nothing is mapped.
      */
-    public GetControlForContentType<TContentType extends Content>(contentType: { new (...args: any[]): TContentType }) {
+    public GetControlForContentType<TContentType extends IContent>(contentType: { new (...args: any[]): TContentType }) {
         return this._contentTypeControlMaps[contentType.name as any] || this._defaultControlType;
     }
 
@@ -127,7 +127,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param fieldSetting Optional type hint for the FieldSetting
      */
 
-    public SetupFieldSettingForControl<TFieldSettingType extends FieldSettings.FieldSetting, TContentType extends Content, TField extends keyof TContentType>(
+    public SetupFieldSettingForControl<TFieldSettingType extends FieldSettings.FieldSetting, TContentType extends IContent, TField extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
         fieldName: TField,
         setupControl: (fieldSetting: TFieldSettingType) => { new (...args: any[]): TControlBaseType },
@@ -146,7 +146,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns The assigned Control constructor or the default Field control
      */
-    public GetControlForContentField<TContentType extends Content, TField extends keyof TContentType>(
+    public GetControlForContentField<TContentType extends IContent, TField extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
         fieldName: TField,
         actionName: ActionName
@@ -190,7 +190,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns the fully created ControlSchema
      */
-    public GetFullSchemaForContentType<TContentType extends Content, K extends keyof TContentType>(
+    public GetFullSchemaForContentType<TContentType extends IContent, K extends keyof TContentType>(
         contentType: { new (...args: any[]): TContentType },
         actionName: ActionName):
         ControlSchema<TControlBaseType, TClientControlSettings> {
@@ -217,7 +217,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns the fully created ControlSchema
      */
-    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName: ActionName){
-        return this.GetFullSchemaForContentType(content.constructor as {new(...args: any[])}, actionName);
+    public GetFullSchemaForContent<TContentType extends IContent>(content: TContentType, actionName: ActionName){
+        return this.GetFullSchemaForContentType(content.constructor as {new(...args: any[]): TContentType}, actionName);
     }
 }

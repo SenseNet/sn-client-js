@@ -2,7 +2,7 @@
  * @module Content
  */ /** */
 
-import { Content, SavedContent } from './Content';
+import { SavedContent, IContent, ContentInternal } from './Content';
 import { MediaResourceObject } from './ComplexTypes';
 import { Observable } from '@reactivex/rxjs';
 import { UploadProgressInfo } from './Repository/UploadModels';
@@ -11,7 +11,7 @@ import { BinaryFieldSetting } from './FieldSettings';
 /**
  * Represents a binary field instance
  */
-export class BinaryField<T extends SavedContent<Content>> {
+export class BinaryField<T extends IContent> {
 
 
     /**
@@ -23,8 +23,8 @@ export class BinaryField<T extends SavedContent<Content>> {
     = (file: File) =>
 
         this._contentReference.GetRepository().UploadFile({
-            File: new File([file], this._contentReference.Name || file.name),
-            Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath},
+            File: new File([file], (this._contentReference as SavedContent).Name),
+            Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath} as SavedContent,
             PropertyName: this._fieldSettings.Name,
             ContentType: this._contentReference.constructor as { new(...args: any[]): T },
             Overwrite: true,
@@ -58,7 +58,7 @@ export class BinaryField<T extends SavedContent<Content>> {
      * @param {BinaryFieldSetting} _fieldSettings The corresponding fieldsettings
      */
     constructor(private readonly _mediaResourceObject: MediaResourceObject,
-        private readonly _contentReference: T,
+        private readonly _contentReference: ContentInternal<T>,
         private readonly _fieldSettings: BinaryFieldSetting) {
     }
 }

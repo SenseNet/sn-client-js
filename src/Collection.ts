@@ -10,11 +10,11 @@
 import { Observable } from '@reactivex/rxjs';
 import { CustomAction, IODataParams, IODataRequestOptions, ODataApi } from './ODataApi';
 import { ODataHelper } from './SN';
-import { Content } from './Content';
+import { Content, IContent } from './Content';
 import { BaseRepository } from './Repository/BaseRepository';
 import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
 
-export class Collection<T extends Content> {
+export class Collection<T extends IContent> {
     odata: ODataApi<BaseHttpProvider>;
     Path: string = '';
 
@@ -24,8 +24,7 @@ export class Collection<T extends Content> {
     * @param { IODataApi<any, any> } service The service to use as API Endpoint
     */
     constructor(private _items: T[],
-        private _repository: BaseRepository,
-        private readonly _contentType: { new(...args: any[]): T } = Content as { new(...args: any[]): any }) {
+        private _repository: BaseRepository) {
         this.odata = _repository.GetODataApi();
     }
 
@@ -80,10 +79,10 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Add(content: T['options']): Observable<T> {
-        const newcontent = this.odata.Post(this.Path, content, this._contentType)
+    public Add(content: Content<T>): Observable<Content<T>> {
+        const newcontent = this.odata.Post<T>(this.Path, content.GetFields())
             .map(resp => {
-                return this._repository.HandleLoadedContent(resp as any, this._contentType);
+                return this._repository.HandleLoadedContent<T>(resp as any);
             });
         newcontent
             .subscribe({
@@ -184,7 +183,8 @@ export class Collection<T extends Content> {
             path: path
         })
             .map(items => {
-                return items.d.results.map(c => this._repository.HandleLoadedContent(c as any, this._contentType));
+                return items.d.results.map(c =>
+                    this._repository.HandleLoadedContent<T>(c));
             });
         return children;
     }

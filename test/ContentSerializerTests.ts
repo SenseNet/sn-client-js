@@ -1,7 +1,8 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { MockRepository } from './Mocks/MockRepository';
-import { ContentTypes } from '../src/SN';
+import { Content } from '../src/SN';
+import { Task } from '../src/ContentTypes';
 
 
 const expect = Chai.expect;
@@ -9,9 +10,9 @@ const expect = Chai.expect;
 @suite('ContentSerializer')
 export class ContentSerializerTests {
 
-    private _content: ContentTypes.Task;
+    private _content: Content<Task>;
 
-    private _contentSerializedString = '{"Data":{"Id":3,"Path":"root/task1"},"Origin":"https://mock_repo_one/odata.svc/root/task1"}';
+    private _contentSerializedString = '{"Data":{"Id":3,"Name":"test","Path":"root/task1"},"Origin":"https://mock_repo_one/odata.svc/root/task1"}';
     private _repo: MockRepository;
     private _repo2: MockRepository;
 
@@ -26,7 +27,8 @@ export class ContentSerializerTests {
         this._content = this._repo.HandleLoadedContent({
             Id: 3,
             Path: 'root/task1',
-            Type: 'Task'
+            Type: 'Task',
+            Name: 'test'
         });
     }
 

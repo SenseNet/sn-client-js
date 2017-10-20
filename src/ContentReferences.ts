@@ -3,16 +3,16 @@
  */ /** */
 
 
-import { isDeferred, isContentOptions, Content, isContentOptionList, SavedContent } from './Content';
+import { isDeferred, IContent, SavedContent, isIContent } from './Content';
 import { DeferredObject } from './ComplexTypes'
 import { BaseRepository } from './Repository/BaseRepository';
 import { Observable } from '@reactivex/rxjs';
 import { IODataParams } from './ODataApi/ODataParams';
 import { ReferenceFieldSetting } from './FieldSettings';
 import { FinializedQuery } from './Query';
-import { ContentTypes } from './SN';
+import { ContentTypes, isIContentList } from './SN';
 
-export abstract class ReferenceAbstract<T extends Content> {
+export abstract class ReferenceAbstract<T extends IContent> {
     public readonly abstract FieldSetting: ReferenceFieldSetting;
     public readonly abstract Repository: BaseRepository;
 
@@ -81,7 +81,7 @@ export abstract class ReferenceAbstract<T extends Content> {
  * ```
  *
  */
-export class ContentReferenceField<T extends Content> extends ReferenceAbstract<T> {
+export class ContentReferenceField<T extends IContent> extends ReferenceAbstract<T> {
     private _contentReference: SavedContent<T>;
     private _referenceUrl: string;
 
@@ -105,7 +105,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract<
         }
         const request = this.Repository.GetODataApi().Get({ path: this._referenceUrl, params: odataOptions })
             .map(r => {
-                return r && r.d && this.Repository.HandleLoadedContent<T, T['options']>(r.d as any);
+                return r && r.d && this.Repository.HandleLoadedContent<T>(r.d as any);
             }).share();
         request.subscribe(c => {
             this._contentReference = c || null;
@@ -125,16 +125,16 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract<
      * Updates the reference URL in case of DeferredObject (not-expanded-fields) or populates the Content reference (for expanded fields) from an OData response's Field
      * @param {DeferredObject | T['options']} fieldData The DeferredObject or ContentOptions data that can be used
      */
-    public handleLoaded(fieldData: DeferredObject | T['options'] & {Id: number, Path: string}) {
+    public handleLoaded(fieldData: DeferredObject | SavedContent<T>) {
         if (isDeferred(fieldData)) {
             this._referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
-        } else if (isContentOptions(fieldData)) {
-            this._contentReference = this.Repository.HandleLoadedContent(fieldData);
+        } else if (isIContent(fieldData)) {
+            this._contentReference = this.Repository.HandleLoadedContent<T>(fieldData);
         }
         this._isDirty = false;
     }
 
-    constructor(fieldData: DeferredObject | T['options'] & {Id: number, Path: string},
+    constructor(fieldData: DeferredObject | SavedContent<T>,
         public readonly FieldSetting: ReferenceFieldSetting,
         public readonly Repository: BaseRepository) {
         super();
@@ -153,7 +153,7 @@ export class ContentReferenceField<T extends Content> extends ReferenceAbstract<
  * ```
  *
  */
-export class ContentListReferenceField<T extends Content> extends ReferenceAbstract<T> {
+export class ContentListReferenceField<T extends IContent> extends ReferenceAbstract<T> {
     private _contentReferences: SavedContent<T>[];
 
     private _referenceUrl: string;
@@ -178,11 +178,11 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
             return Observable.of(this._contentReferences);
         }
         //
-        const request = this.Repository.GetODataApi().Fetch({
+        const request = this.Repository.GetODataApi().Fetch<T>({
             path: this._referenceUrl,
             params: odataOptions
-        }, Content).map(resp => {
-            return resp && resp.d && resp.d.results.map(c => this.Repository.HandleLoadedContent<T, any>(c)) || [];
+        }).map(resp => {
+            return resp && resp.d && resp.d.results.map(c => this.Repository.HandleLoadedContent<T>(c)) || [];
         }).share();
 
         request.subscribe(c => {
@@ -205,17 +205,17 @@ export class ContentListReferenceField<T extends Content> extends ReferenceAbstr
      * Updates the reference URL in case of DeferredObject (not-expanded-fields) or populates the Content list references (for expanded fields) from an OData response's field
      * @param {DeferredObject | T['options'][]} fieldData The DeferredObject or ContentOptions data that can be used
      */
-    public handleLoaded(fieldData: DeferredObject | T['options'][]) {
+    public handleLoaded(fieldData: DeferredObject | T[]) {
         if (isDeferred(fieldData)) {
             this._referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
-        } else if (isContentOptionList(fieldData)) {
+        } else if (isIContentList(fieldData)) {
             this._contentReferences = fieldData.map(f => this.Repository.HandleLoadedContent(f as any));
         }
 
         this._isDirty = false;
     }
 
-    constructor(fieldData: DeferredObject | T['options'][],
+    constructor(fieldData: DeferredObject | T[],
         public readonly FieldSetting: ReferenceFieldSetting,
         public readonly Repository: BaseRepository) {
         super();

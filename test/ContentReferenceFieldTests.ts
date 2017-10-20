@@ -7,6 +7,7 @@ import { LoginState } from '../src/Authentication/LoginState';
 import { ReferenceFieldSetting } from '../src/FieldSettings';
 import { FinializedQuery } from '../src/Query/index';
 import { Task } from '../src/ContentTypes';
+import { ContentInternal } from '../src/Content';
 
 const expect = Chai.expect;
 
@@ -19,12 +20,14 @@ export class ContentReferenceFieldTests {
     before() {
         this._repo = new MockRepository();
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
-        this._loadedRef = new ContentReferenceField({
+
+        this._loadedRef = new ContentReferenceField(this._repo.HandleLoadedContent<Task>({
             Id: 1,
             Path: 'root/a/b',
             Name: 'Name',
-            Type: 'Task'
-        }, new ReferenceFieldSetting({}), this._repo);
+            Type: 'Task',
+            DueText: 'testDueText'
+        }), new ReferenceFieldSetting({}), this._repo);
         this._unloadedRef = new ContentReferenceField({
             __deferred: {
                 uri: 'a/b/c'
@@ -41,7 +44,8 @@ export class ContentReferenceFieldTests {
     @test
     public 'Should be able to construct ContentReferenceField from IContentOptions with loaded content reference'() {
         expect(this._loadedRef).to.be.instanceof(ContentReferenceField);
-        expect(this._loadedRef['_contentReference']).to.be.instanceOf(Task)
+        expect(this._loadedRef['_contentReference']).to.be.instanceOf(ContentInternal)
+        expect(this._loadedRef['_contentReference'].DueText).to.be.eq('testDueText');
     }
 
 

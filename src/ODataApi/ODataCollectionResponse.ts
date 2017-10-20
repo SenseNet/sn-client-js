@@ -5,11 +5,11 @@
 /**
  * Generic Class that represents a basic OData Response structure
  */
-import { IContentOptions } from '../Content';
+import { IContent, ISavedContent } from '../Content';
 
-export class ODataCollectionResponse<T extends IContentOptions>{
+export class ODataCollectionResponse<T extends IContent>{
     d: {
-        results: T[];
+        results: (T & ISavedContent)[];
         __count: number;
     }
 }

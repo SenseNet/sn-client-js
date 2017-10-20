@@ -2,10 +2,10 @@
  * @module ODataApi
  */ /** */
 
-import { Content } from '../Content';
+import { IContent } from '../Content';
 
-export type ODataFieldParameter<T extends Content> = (keyof T['options'])[] | keyof T['options'];
-export type ODataOrderParameter<T extends Content> = keyof T['options'] | (keyof T['options'] | [keyof T['options'], 'asc' | 'desc'])[];
+export type ODataFieldParameter<T extends IContent> = (keyof T)[] | keyof T;
+export type ODataOrderParameter<T extends IContent> = keyof T | (keyof T | [keyof T, 'asc' | 'desc'])[];
 
 export type ODataMetadataType = 'full' | 'minimal' | 'no';
 export type ODataFormatType = 'json' | 'verbosejson';
@@ -14,7 +14,7 @@ export type ODataInlineCountType = 'none' | 'allpages';
 /**
  * Model class to define specific OData Request parameters. See http://wiki.sensenet.com/OData_REST_API
  */
-export class IODataParams<T extends Content> {
+export class IODataParams<T extends IContent> {
     /**
      * The field(s) to be include in a $select list. Can be a field (e.g. 'DisplayName'), an array of fields (e.g. ['Name', 'Type']) or 'all'
      */

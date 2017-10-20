@@ -3,10 +3,10 @@
  */ /** */
 
 import { IODataParams } from './';
-import { Content } from '../Content';
+import { IContent } from '../Content';
 
 
-export class IODataRequestOptions<T extends Content> {
+export class IODataRequestOptions<T extends IContent> {
     path: string;
     params?: IODataParams<T>;
     async?: boolean;

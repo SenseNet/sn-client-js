@@ -2,7 +2,7 @@
  * @module Query
  * */ /** */
 
-import { Content } from '../Content';
+import { IContent } from '../Content';
 import { QuerySegment, QueryExpression, QueryResult } from '.';
 import { BaseRepository } from '../Repository/BaseRepository';
 import { IODataParams } from '../ODataApi';
@@ -16,7 +16,7 @@ import { Observable } from '@reactivex/rxjs';
  * console.log(query.toString());   // the content query expression
  * ```
  */
-export class Query<T extends Content = Content>{
+export class Query<T extends IContent = IContent>{
     private readonly _segments: QuerySegment<T>[] = [];
 
     /**
@@ -48,13 +48,13 @@ export class Query<T extends Content = Content>{
      */
     public Exec(repository: BaseRepository, path: string, odataParams: IODataParams<T> = {}): Observable<QueryResult<T>>{
         odataParams.query = this.toString();
-        return repository.GetODataApi().Fetch({
+        return repository.GetODataApi().Fetch<T>({
                 path,
                 params: odataParams
-            }, Content)
+            })
             .map(q => {
                 return {
-                    Result: q.d.results.map(c => repository.HandleLoadedContent<T, T['options']>(c as any)),
+                    Result: q.d.results.map(c => repository.HandleLoadedContent<T>(c)),
                     Count: q.d.__count
                 }
             });
@@ -64,8 +64,8 @@ export class Query<T extends Content = Content>{
 /**
  * Represents a finialized Query instance that has a Repository, path and OData Parameters set up
  */
-export class FinializedQuery<T extends Content = Content> extends Query<T>{
-    constructor(build: (first: QueryExpression<Content>) => void,
+export class FinializedQuery<T extends IContent = IContent> extends Query<T>{
+    constructor(build: (first: QueryExpression<IContent>) => void,
                         private readonly _repository: BaseRepository,
                         private readonly _path: string,
                         private readonly _odataParams: IODataParams<T> = {}) {
