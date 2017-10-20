@@ -2,7 +2,7 @@
  * @module Mocks
  */ /** */
 
-import { Observable, ReplaySubject, AjaxRequest } from '@reactivex/rxjs';
+import { AjaxRequest, Observable, ReplaySubject } from '@reactivex/rxjs';
 import { BaseHttpProvider } from '../../src/HttpProviders';
 
 /**
@@ -10,8 +10,8 @@ import { BaseHttpProvider } from '../../src/HttpProviders';
  */
 
 export class MockResponse {
-    IsError: boolean;
-    Response: any;
+    public IsError: boolean;
+    public Response: any;
 }
 
 export class MockHttpProvider extends BaseHttpProvider {
@@ -21,7 +21,7 @@ export class MockHttpProvider extends BaseHttpProvider {
     public readonly RequestLog: { Options: AjaxRequest, Response: MockResponse }[] = [];
     private _lastUploadOptions?: AjaxRequest & { url: string; };
     protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options?: (AjaxRequest & { url: string; })): Observable<T> {
-        let subject = new ReplaySubject<T>();
+        const subject = new ReplaySubject<T>();
         this.UseTimeout ? setTimeout(() => this.runMocks(subject, options as AjaxRequest)) : this.runMocks(subject, options as AjaxRequest);
         this._lastUploadOptions = options;
         return subject.asObservable();
@@ -44,7 +44,7 @@ export class MockHttpProvider extends BaseHttpProvider {
     public UseTimeout: boolean = true;
 
     private runMocks<T>(subject: ReplaySubject<T>, options: AjaxRequest) {
-        let response = this._responseQueue[0];
+        const response = this._responseQueue[0];
         if (response) {
             this.RequestLog.push({ Response: response, Options: options });
             if (response.IsError) {
@@ -61,7 +61,7 @@ export class MockHttpProvider extends BaseHttpProvider {
     }
 
     protected ajaxInner<T>(tReturnType: new (...args: any[]) => T, options: AjaxRequest): Observable<T> {
-        let subject = new ReplaySubject<T>();
+        const subject = new ReplaySubject<T>();
         this.UseTimeout ? setTimeout(() => this.runMocks(subject, options)) : this.runMocks(subject, options);
         return subject.asObservable();
     }

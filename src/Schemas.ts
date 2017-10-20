@@ -12,43 +12,43 @@
  * The ```Schema``` class represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
  */ /** */
 
-import { FieldSettings, ContentTypes, IContent } from './SN';
+import { ContentTypes, FieldSettings, IContent } from './SN';
 
-    /**
-     * Class that represents a Schema.
-     *
-     * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
-     */
-    export class Schema<TContentType extends IContent> {
-        ContentType: {new(...args: any[]): TContentType}
-        Icon: string;
-        DisplayName: string;
-        Description: string;
-        AllowIndexing: boolean;
-        AllowIncrementalNaming: boolean;
-        AllowedChildTypes: string[];
-        FieldSettings: FieldSettings.FieldSetting[];
+/**
+ * Class that represents a Schema.
+ *
+ * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
+ */
+export class Schema<TContentType extends IContent> {
+    public ContentType: { new(...args: any[]): TContentType };
+    public Icon: string;
+    public DisplayName: string;
+    public Description: string;
+    public AllowIndexing: boolean;
+    public AllowIncrementalNaming: boolean;
+    public AllowedChildTypes: string[];
+    public FieldSettings: FieldSettings.FieldSetting[];
 
-        constructor(schema: Partial<Schema<TContentType>>){
-            Object.assign(this, schema);
-        }
+    constructor(schema: Partial<Schema<TContentType>>) {
+        Object.assign(this, schema);
     }
+}
 
-    export const SchemaStore: Schema<IContent>[] = [
+export const SchemaStore: Schema<IContent>[] = [
 
     /**
      * Method that returns the Content Type Definition of the ContentType
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ContentType,
-            DisplayName: '$Ctd-ContentType,DisplayName',
-            Description: '$Ctd-ContentType,Description',
-            Icon: 'ContentType',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.ContentType,
+        DisplayName: '$Ctd-ContentType,DisplayName',
+        Description: '$Ctd-ContentType,Description',
+        Icon: 'ContentType',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.IntegerFieldSetting({
                 name: 'Id',
                 displayName: 'Id',
@@ -58,7 +58,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ParentId',
@@ -69,7 +69,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'VersionId',
@@ -78,7 +78,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Name',
@@ -88,7 +88,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'CreatedById',
@@ -97,7 +97,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ModifiedById',
@@ -106,7 +106,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Version',
@@ -117,7 +117,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Path',
@@ -128,7 +128,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Depth',
@@ -137,7 +137,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsSystemContent',
@@ -148,7 +148,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'HandlerName',
@@ -159,7 +159,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ParentTypeName',
@@ -170,7 +170,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DisplayName',
@@ -181,7 +181,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Description',
@@ -192,7 +192,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Icon',
@@ -203,7 +203,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.BinaryFieldSetting({
                 isText: true,
@@ -216,7 +216,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'CreatedBy',
@@ -227,7 +227,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -239,7 +239,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'ModifiedBy',
@@ -250,7 +250,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 name: 'ModificationDate',
@@ -261,7 +261,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableLifespan',
@@ -271,24 +271,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the GenericContent
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.GenericContent,
-            DisplayName: '$Ctd-GenericContent,DisplayName',
-            Description: '$Ctd-GenericContent,Description',
-            Icon: 'Content',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.GenericContent,
+        DisplayName: '$Ctd-GenericContent,DisplayName',
+        Description: '$Ctd-GenericContent,Description',
+        Icon: 'Content',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.IntegerFieldSetting({
                 name: 'Id',
                 displayName: 'Id',
@@ -298,7 +298,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ParentId',
@@ -309,7 +309,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'OwnerId',
@@ -320,7 +320,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'Owner',
@@ -331,7 +331,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'VersionId',
@@ -342,7 +342,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Icon',
@@ -353,7 +353,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Name',
@@ -365,7 +365,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:Name'
+                controlHint: 'sn:Name',
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'CreatedById',
@@ -376,7 +376,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'ModifiedById',
@@ -387,7 +387,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Version',
@@ -398,7 +398,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Path',
@@ -409,7 +409,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Depth',
@@ -420,7 +420,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsSystemContent',
@@ -431,7 +431,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsFolder',
@@ -442,7 +442,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DisplayName',
@@ -454,7 +454,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:DisplayName'
+                controlHint: 'sn:DisplayName',
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Description',
@@ -466,7 +466,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:RichText'
+                controlHint: 'sn:RichText',
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Hidden',
@@ -477,7 +477,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Index',
@@ -488,7 +488,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableLifespan',
@@ -499,7 +499,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -511,7 +511,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -523,7 +523,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'AllowedChildTypes',
@@ -534,7 +534,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'EffectiveAllowedChildTypes',
@@ -545,16 +545,16 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'None', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Major only', Enabled: true, Selected: false },
-                    {Value: '3', Text: 'Major and minor', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                    { Value: '1', Text: 'None', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'Major only', Enabled: true, Selected: false },
+                    { Value: '3', Text: 'Major and minor', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -566,16 +566,16 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'None', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Major only', Enabled: true, Selected: false },
-                    {Value: '3', Text: 'Major and minor', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                    { Value: '1', Text: 'None', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'Major only', Enabled: true, Selected: false },
+                    { Value: '3', Text: 'Major and minor', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -588,7 +588,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0,
-                controlHint: 'sn:VersioningModeChoice'
+                controlHint: 'sn:VersioningModeChoice',
             }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'CreatedBy',
@@ -599,7 +599,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -611,7 +611,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'ModifiedBy',
@@ -622,7 +622,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -634,15 +634,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'Off', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'On', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                    { Value: '1', Text: 'Off', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'On', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -654,15 +654,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'Off', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'On', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                    { Value: '1', Text: 'Off', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'On', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -675,7 +675,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0,
-                controlHint: 'sn:ApprovingModeChoice'
+                controlHint: 'sn:ApprovingModeChoice',
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Locked',
@@ -686,7 +686,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 name: 'CheckedOutTo',
@@ -697,7 +697,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'TrashDisabled',
@@ -709,16 +709,16 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Finalized', Enabled: true, Selected: false },
-                    {Value: '1', Text: 'Creating', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Modifying', Enabled: true, Selected: false },
-                    {Value: '3', Text: 'ModifyingLocked', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Finalized', Enabled: true, Selected: false },
+                    { Value: '1', Text: 'Creating', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'Modifying', Enabled: true, Selected: false },
+                    { Value: '3', Text: 'ModifyingLocked', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: 'SenseNet.ContentRepository.Storage.ContentSavingState',
@@ -730,7 +730,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'ExtensionData',
@@ -741,7 +741,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -753,7 +753,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Approvable',
@@ -764,7 +764,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsTaggable',
@@ -776,7 +776,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Tags',
@@ -788,7 +788,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
                 defaultOrder: 0,
-                controlHint: 'sn:TagList'
+                controlHint: 'sn:TagList',
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsRateable',
@@ -800,7 +800,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'RateStr',
@@ -811,7 +811,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NumberFieldSetting({
                 name: 'RateAvg',
@@ -822,7 +822,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'RateCount',
@@ -833,7 +833,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.RatingFieldSetting({
                 range: 5,
@@ -846,7 +846,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Publishable',
@@ -857,7 +857,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -869,7 +869,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'CheckInComments',
@@ -880,7 +880,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'RejectReason',
@@ -891,7 +891,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -904,7 +904,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'BrowseUrl',
@@ -915,24 +915,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ContentLink
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ContentLink,
-            DisplayName: '$Ctd-ContentLink,DisplayName',
-            Description: '$Ctd-ContentLink,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.ContentLink,
+        DisplayName: '$Ctd-ContentLink,DisplayName',
+        Description: '$Ctd-ContentLink,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 name: 'Link',
@@ -943,24 +943,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the File
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.File,
-            DisplayName: '$Ctd-File,DisplayName',
-            Description: '$Ctd-File,Description',
-            Icon: 'File',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.File,
+        DisplayName: '$Ctd-File,DisplayName',
+        Description: '$Ctd-File,Description',
+        Icon: 'File',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.BinaryFieldSetting({
                 name: 'Binary',
                 displayName: 'Binary',
@@ -970,7 +970,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NumberFieldSetting({
                 name: 'Size',
@@ -981,7 +981,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NumberFieldSetting({
                 name: 'FullSize',
@@ -992,7 +992,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'PageCount',
@@ -1004,7 +1004,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'MimeType',
@@ -1014,7 +1014,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'Shapes',
@@ -1025,7 +1025,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 name: 'PageAttributes',
@@ -1036,7 +1036,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Watermark',
@@ -1047,56 +1047,56 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the DynamicJsonContent
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.DynamicJsonContent,
-            DisplayName: 'Dynamic JSON content',
-            Description: '',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.DynamicJsonContent,
+        DisplayName: 'Dynamic JSON content',
+        Description: '',
+        Icon: 'Settings',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ExecutableFile
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ExecutableFile,
-            DisplayName: '$Ctd-ExecutableFile,DisplayName',
-            Description: '$Ctd-ExecutableFile,Description',
-            Icon: 'Application',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.ExecutableFile,
+        DisplayName: '$Ctd-ExecutableFile,DisplayName',
+        Description: '$Ctd-ExecutableFile,Description',
+        Icon: 'Application',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the HtmlTemplate
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.HtmlTemplate,
-            DisplayName: '$Ctd-HtmlTemplate,DisplayName',
-            Description: '$Ctd-HtmlTemplate,Description',
-            Icon: 'File',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.HtmlTemplate,
+        DisplayName: '$Ctd-HtmlTemplate,DisplayName',
+        Description: '$Ctd-HtmlTemplate,Description',
+        Icon: 'File',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'TemplateText',
                 displayName: 'Template text',
@@ -1106,24 +1106,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Image
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Image,
-            DisplayName: '$Ctd-Image,DisplayName',
-            Description: '$Ctd-Image,Description',
-            Icon: 'Image',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Image,
+        DisplayName: '$Ctd-Image,DisplayName',
+        Description: '$Ctd-Image,Description',
+        Icon: 'Image',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'Keywords',
                 displayName: 'Keywords',
@@ -1133,7 +1133,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -1145,7 +1145,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Width',
@@ -1155,7 +1155,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'Height',
@@ -1165,40 +1165,40 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the PreviewImage
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.PreviewImage,
-            DisplayName: '$Ctd-PreviewImage,DisplayName',
-            Description: '$Ctd-PreviewImage,Description',
-            Icon: 'Image',
-            AllowIndexing: false,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.PreviewImage,
+        DisplayName: '$Ctd-PreviewImage,DisplayName',
+        Description: '$Ctd-PreviewImage,Description',
+        Icon: 'Image',
+        AllowIndexing: false,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Settings
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Settings,
-            DisplayName: '$Ctd-Settings,DisplayName',
-            Description: '$Ctd-Settings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Settings,
+        DisplayName: '$Ctd-Settings,DisplayName',
+        Description: '$Ctd-Settings,Description',
+        Icon: 'Settings',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.NullFieldSetting({
                 name: 'GlobalOnly',
                 displayName: 'Global only',
@@ -1208,24 +1208,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the IndexingSettings
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.IndexingSettings,
-            DisplayName: '$Ctd-IndexingSettings,DisplayName',
-            Description: '$Ctd-IndexingSettings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.IndexingSettings,
+        DisplayName: '$Ctd-IndexingSettings,DisplayName',
+        Description: '$Ctd-IndexingSettings,Description',
+        Icon: 'Settings',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.NullFieldSetting({
                 name: 'TextExtractorInstances',
                 displayName: 'Text extractor instances',
@@ -1235,72 +1235,72 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the LoggingSettings
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.LoggingSettings,
-            DisplayName: '$Ctd-LoggingSettings,DisplayName',
-            Description: '$Ctd-LoggingSettings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.LoggingSettings,
+        DisplayName: '$Ctd-LoggingSettings,DisplayName',
+        Description: '$Ctd-LoggingSettings,Description',
+        Icon: 'Settings',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the PortalSettings
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.PortalSettings,
-            DisplayName: '$Ctd-PortalSettings,DisplayName',
-            Description: '$Ctd-PortalSettings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.PortalSettings,
+        DisplayName: '$Ctd-PortalSettings,DisplayName',
+        Description: '$Ctd-PortalSettings,Description',
+        Icon: 'Settings',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the SystemFile
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.SystemFile,
-            DisplayName: '$Ctd-SystemFile,DisplayName',
-            Description: '$Ctd-SystemFile,Description',
-            Icon: 'File',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.SystemFile,
+        DisplayName: '$Ctd-SystemFile,DisplayName',
+        Description: '$Ctd-SystemFile,Description',
+        Icon: 'File',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Resource
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Resource,
-            DisplayName: '$Ctd-Resource,DisplayName',
-            Description: '$Ctd-Resource,Description',
-            Icon: 'Resource',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Resource,
+        DisplayName: '$Ctd-Resource,DisplayName',
+        Description: '$Ctd-Resource,Description',
+        Icon: 'Resource',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.NumberFieldSetting({
                 name: 'Downloads',
                 displayName: 'Downloads',
@@ -1310,40 +1310,40 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Folder
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Folder,
-            DisplayName: '$Ctd-Folder,DisplayName',
-            Description: '$Ctd-Folder,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.Folder,
+        DisplayName: '$Ctd-Folder,DisplayName',
+        Description: '$Ctd-Folder,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ContentList
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ContentList,
-            DisplayName: '$Ctd-ContentList,DisplayName',
-            Description: '$Ctd-ContentList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.ContentList,
+        DisplayName: '$Ctd-ContentList,DisplayName',
+        Description: '$Ctd-ContentList,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'ContentListDefinition',
                 displayName: 'List Definition',
@@ -1353,7 +1353,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DefaultView',
@@ -1364,7 +1364,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -1377,7 +1377,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -1389,7 +1389,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -1401,7 +1401,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ListEmail',
@@ -1412,7 +1412,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ExchangeSubscriptionId',
@@ -1423,7 +1423,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'OverwriteFiles',
@@ -1434,16 +1434,16 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: 'email', Text: 'Save all attachments as children of separate Email content', Enabled: true, Selected: true },
-                    {Value: 'root', Text: 'Save all attachments in root', Enabled: true, Selected: false },
-                    {Value: 'subject', Text: 'Save all attachments in folders grouped by subject', Enabled: true, Selected: false },
-                    {Value: 'sender', Text: 'Save all attachments in folders grouped by sender', Enabled: true, Selected: false }
+                    { Value: 'email', Text: 'Save all attachments as children of separate Email content', Enabled: true, Selected: true },
+                    { Value: 'root', Text: 'Save all attachments in root', Enabled: true, Selected: false },
+                    { Value: 'subject', Text: 'Save all attachments in folders grouped by subject', Enabled: true, Selected: false },
+                    { Value: 'sender', Text: 'Save all attachments in folders grouped by sender', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -1455,7 +1455,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'SaveOriginalEmail',
@@ -1466,7 +1466,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -1480,7 +1480,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'OnlyFromLocalGroups',
@@ -1491,7 +1491,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'InboxFolder',
@@ -1502,7 +1502,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -1517,24 +1517,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Aspect
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Aspect,
-            DisplayName: '$Ctd-Aspect,DisplayName',
-            Description: '$Ctd-Aspect,Description',
-            Icon: 'Aspect',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Aspect,
+        DisplayName: '$Ctd-Aspect,DisplayName',
+        Description: '$Ctd-Aspect,Description',
+        Icon: 'Aspect',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'AspectDefinition',
                 displayName: 'Aspect definition',
@@ -1544,120 +1544,120 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ItemList
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ItemList,
-            DisplayName: '$Ctd-ItemList,DisplayName',
-            Description: '$Ctd-ItemList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.ItemList,
+        DisplayName: '$Ctd-ItemList,DisplayName',
+        Description: '$Ctd-ItemList,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the CustomList
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.CustomList,
-            DisplayName: '$Ctd-CustomList,DisplayName',
-            Description: '$Ctd-CustomList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['ListItem'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.CustomList,
+        DisplayName: '$Ctd-CustomList,DisplayName',
+        Description: '$Ctd-CustomList,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['ListItem'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the MemoList
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.MemoList,
-            DisplayName: '$Ctd-MemoList,DisplayName',
-            Description: '$Ctd-MemoList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Memo'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.MemoList,
+        DisplayName: '$Ctd-MemoList,DisplayName',
+        Description: '$Ctd-MemoList,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Memo'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the TaskList
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.TaskList,
-            DisplayName: '$Ctd-TaskList,DisplayName',
-            Description: '$Ctd-TaskList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Task'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.TaskList,
+        DisplayName: '$Ctd-TaskList,DisplayName',
+        Description: '$Ctd-TaskList,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Task'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Library
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Library,
-            DisplayName: '$Ctd-Library,DisplayName',
-            Description: '$Ctd-Library,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.Library,
+        DisplayName: '$Ctd-Library,DisplayName',
+        Description: '$Ctd-Library,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the DocumentLibrary
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.DocumentLibrary,
-            DisplayName: '$Ctd-DocumentLibrary,DisplayName',
-            Description: '$Ctd-DocumentLibrary,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'File'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.DocumentLibrary,
+        DisplayName: '$Ctd-DocumentLibrary,DisplayName',
+        Description: '$Ctd-DocumentLibrary,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Folder', 'File'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ImageLibrary
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ImageLibrary,
-            DisplayName: '$Ctd-ImageLibrary,DisplayName',
-            Description: '$Ctd-ImageLibrary,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'Image'],
-            FieldSettings: [
+        ContentType: ContentTypes.ImageLibrary,
+        DisplayName: '$Ctd-ImageLibrary,DisplayName',
+        Description: '$Ctd-ImageLibrary,Description',
+        Icon: 'ContentList',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Folder', 'Image'],
+        FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['Image'],
@@ -1669,24 +1669,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Device
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Device,
-            DisplayName: '$Ctd-Device,DisplayName',
-            Description: '$Ctd-Device,Description',
-            Icon: 'Device',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Device,
+        DisplayName: '$Ctd-Device,DisplayName',
+        Description: '$Ctd-Device,Description',
+        Icon: 'Device',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'UserAgentPattern',
                 displayName: 'User agent string',
@@ -1696,24 +1696,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Domain
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Domain,
-            DisplayName: '$Ctd-Domain,DisplayName',
-            Description: '$Ctd-Domain,Description',
-            Icon: 'Domain',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
-            FieldSettings: [
+        ContentType: ContentTypes.Domain,
+        DisplayName: '$Ctd-Domain,DisplayName',
+        Description: '$Ctd-Domain,Description',
+        Icon: 'Domain',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
+        FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
                 displayName: 'SyncGuid',
@@ -1723,7 +1723,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -1735,40 +1735,40 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Domains
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Domains,
-            DisplayName: '$Ctd-Domains,DisplayName',
-            Description: '$Ctd-Domains,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Domain'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.Domains,
+        DisplayName: '$Ctd-Domains,DisplayName',
+        Description: '$Ctd-Domains,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Domain'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Email
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Email,
-            DisplayName: '$Ctd-Email,DisplayName',
-            Description: '$Ctd-Email,Description',
-            Icon: 'Document',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: ['File'],
-            FieldSettings: [
+        ContentType: ContentTypes.Email,
+        DisplayName: '$Ctd-Email,DisplayName',
+        Description: '$Ctd-Email,Description',
+        Icon: 'Document',
+        AllowIndexing: true,
+        AllowIncrementalNaming: true,
+        AllowedChildTypes: ['File'],
+        FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'From',
                 displayName: 'From',
@@ -1778,7 +1778,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 textType: FieldSettings.TextType.RichText,
@@ -1791,7 +1791,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:RichText'
+                controlHint: 'sn:RichText',
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -1803,24 +1803,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the OrganizationalUnit
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.OrganizationalUnit,
-            DisplayName: '$Ctd-OrganizationalUnit,DisplayName',
-            Description: '$Ctd-OrganizationalUnit,Description',
-            Icon: 'OrgUnit',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
-            FieldSettings: [
+        ContentType: ContentTypes.OrganizationalUnit,
+        DisplayName: '$Ctd-OrganizationalUnit,DisplayName',
+        Description: '$Ctd-OrganizationalUnit,Description',
+        Icon: 'OrgUnit',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
+        FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
                 displayName: 'SyncGuid',
@@ -1830,7 +1830,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -1842,104 +1842,104 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the PortalRoot
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.PortalRoot,
-            DisplayName: '$Ctd-PortalRoot,DisplayName',
-            Description: '$Ctd-PortalRoot,Description',
-            Icon: 'PortalRoot',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'SystemFolder', 'TrashBin', 'ContentList', 'CustomList', 'Sites', 'Domains', 'Profiles', 'Resources', 'Workspace'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.PortalRoot,
+        DisplayName: '$Ctd-PortalRoot,DisplayName',
+        Description: '$Ctd-PortalRoot,Description',
+        Icon: 'PortalRoot',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Folder', 'SystemFolder', 'TrashBin', 'ContentList', 'CustomList', 'Sites', 'Domains', 'Profiles', 'Resources', 'Workspace'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ProfileDomain
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ProfileDomain,
-            DisplayName: '$Ctd-ProfileDomain,DisplayName',
-            Description: '$Ctd-ProfileDomain,Description',
-            Icon: 'Domain',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['UserProfile'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.ProfileDomain,
+        DisplayName: '$Ctd-ProfileDomain,DisplayName',
+        Description: '$Ctd-ProfileDomain,Description',
+        Icon: 'Domain',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['UserProfile'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Profiles
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Profiles,
-            DisplayName: '$Ctd-Profiles,DisplayName',
-            Description: '$Ctd-Profiles,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['ProfileDomain'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.Profiles,
+        DisplayName: '$Ctd-Profiles,DisplayName',
+        Description: '$Ctd-Profiles,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['ProfileDomain'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the RuntimeContentContainer
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.RuntimeContentContainer,
-            DisplayName: '$Ctd-RuntimeContentContainer,DisplayName',
-            Description: '$Ctd-RuntimeContentContainer,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.RuntimeContentContainer,
+        DisplayName: '$Ctd-RuntimeContentContainer,DisplayName',
+        Description: '$Ctd-RuntimeContentContainer,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Sites
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Sites,
-            DisplayName: '$Ctd-Sites,DisplayName',
-            Description: '$Ctd-Sites,Description',
-            Icon: 'Site',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Site'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.Sites,
+        DisplayName: '$Ctd-Sites,DisplayName',
+        Description: '$Ctd-Sites,Description',
+        Icon: 'Site',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Site'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the SmartFolder
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.SmartFolder,
-            DisplayName: '$Ctd-SmartFolder,DisplayName',
-            Description: '$Ctd-SmartFolder,Description',
-            Icon: 'SmartFolder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.SmartFolder,
+        DisplayName: '$Ctd-SmartFolder,DisplayName',
+        Description: '$Ctd-SmartFolder,Description',
+        Icon: 'SmartFolder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'Query',
                 displayName: 'Query',
@@ -1950,15 +1950,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:QueryBuilder'
+                controlHint: 'sn:QueryBuilder',
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Default', Enabled: true, Selected: false },
-                    {Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Disabled', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Default', Enabled: true, Selected: false },
+                    { Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'Disabled', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: 'SenseNet.Search.FilterStatus',
@@ -1970,15 +1970,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '0', Text: 'Default', Enabled: true, Selected: false },
-                    {Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Disabled', Enabled: true, Selected: false }
+                    { Value: '0', Text: 'Default', Enabled: true, Selected: false },
+                    { Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'Disabled', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: 'SenseNet.Search.FilterStatus',
@@ -1990,56 +1990,56 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the SystemFolder
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.SystemFolder,
-            DisplayName: '$Ctd-SystemFolder,DisplayName',
-            Description: '$Ctd-SystemFolder,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.SystemFolder,
+        DisplayName: '$Ctd-SystemFolder,DisplayName',
+        Description: '$Ctd-SystemFolder,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Resources
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Resources,
-            DisplayName: '$Ctd-Resources,DisplayName',
-            Description: '$Ctd-Resources,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Resource'],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.Resources,
+        DisplayName: '$Ctd-Resources,DisplayName',
+        Description: '$Ctd-Resources,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Resource'],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the TrashBag
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.TrashBag,
-            DisplayName: '$Ctd-TrashBag,DisplayName',
-            Description: '$Ctd-TrashBag,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.TrashBag,
+        DisplayName: '$Ctd-TrashBag,DisplayName',
+        Description: '$Ctd-TrashBag,Description',
+        Icon: 'Folder',
+        AllowIndexing: true,
+        AllowIncrementalNaming: true,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.DateTimeFieldSetting({
                 name: 'KeepUntil',
                 displayName: 'Keep until',
@@ -2049,7 +2049,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'OriginalPath',
@@ -2060,7 +2060,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'WorkspaceRelativePath',
@@ -2071,7 +2071,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'WorkspaceId',
@@ -2082,7 +2082,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2094,24 +2094,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Workspace
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Workspace,
-            DisplayName: '$Ctd-Workspace,DisplayName',
-            Description: '$Ctd-Workspace,Description',
-            Icon: 'Workspace',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'Workspace'],
-            FieldSettings: [
+        ContentType: ContentTypes.Workspace,
+        DisplayName: '$Ctd-Workspace,DisplayName',
+        Description: '$Ctd-Workspace,Description',
+        Icon: 'Workspace',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Folder', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'Workspace'],
+        FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
@@ -2124,7 +2124,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -2135,7 +2135,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsActive',
@@ -2147,7 +2147,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2160,7 +2160,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsCritical',
@@ -2171,7 +2171,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsWallContainer',
@@ -2182,7 +2182,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'IsFollowed',
@@ -2191,30 +2191,30 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Site
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Site,
-            DisplayName: '$Ctd-Site,DisplayName',
-            Description: '$Ctd-Site,Description',
-            Icon: 'Site',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'Workspace', 'Profiles', 'Image', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'SmartFolder'],
-            FieldSettings: [
+        ContentType: ContentTypes.Site,
+        DisplayName: '$Ctd-Site,DisplayName',
+        Description: '$Ctd-Site,Description',
+        Icon: 'Site',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Folder', 'Workspace', 'Profiles', 'Image', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'SmartFolder'],
+        FieldSettings: [
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: 'en', Text: 'English', Enabled: true, Selected: true },
-                    {Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false }
+                    { Value: 'en', Text: 'English', Enabled: true, Selected: true },
+                    { Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -2226,7 +2226,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableClientBasedCulture',
@@ -2237,7 +2237,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'EnableUserBasedCulture',
@@ -2248,7 +2248,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'UrlList',
@@ -2259,7 +2259,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2272,7 +2272,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2285,7 +2285,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2299,7 +2299,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'DenyCrossSiteAccess',
@@ -2310,24 +2310,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the TrashBin
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.TrashBin,
-            DisplayName: '$Ctd-TrashBin,DisplayName',
-            Description: '$Ctd-TrashBin,Description',
-            Icon: 'trash',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['TrashBag'],
-            FieldSettings: [
+        ContentType: ContentTypes.TrashBin,
+        DisplayName: '$Ctd-TrashBin,DisplayName',
+        Description: '$Ctd-TrashBin,Description',
+        Icon: 'trash',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['TrashBag'],
+        FieldSettings: [
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
                 name: 'MinRetentionTime',
@@ -2338,7 +2338,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
@@ -2350,7 +2350,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
@@ -2363,24 +2363,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the UserProfile
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.UserProfile,
-            DisplayName: '$Ctd-UserProfile,DisplayName',
-            Description: '$Ctd-UserProfile,Description',
-            Icon: 'UserProfile',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['DocumentLibrary', 'MemoList', 'TaskList', 'ImageLibrary', 'CustomList'],
-            FieldSettings: [
+        ContentType: ContentTypes.UserProfile,
+        DisplayName: '$Ctd-UserProfile,DisplayName',
+        Description: '$Ctd-UserProfile,Description',
+        Icon: 'UserProfile',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['DocumentLibrary', 'MemoList', 'TaskList', 'ImageLibrary', 'CustomList'],
+        FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
                 allowedTypes: ['User'],
@@ -2392,24 +2392,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Group
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Group,
-            DisplayName: '$Ctd-Group,DisplayName',
-            Description: '$Ctd-Group,Description',
-            Icon: 'Group',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Group,
+        DisplayName: '$Ctd-Group,DisplayName',
+        Description: '$Ctd-Group,Description',
+        Icon: 'Group',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
                 allowedTypes: ['User', 'Group'],
@@ -2422,7 +2422,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
@@ -2433,7 +2433,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -2445,40 +2445,40 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the ListItem
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.ListItem,
-            DisplayName: '$Ctd-ListItem,DisplayName',
-            Description: '$Ctd-ListItem,Description',
-            Icon: 'FormItem',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+        ContentType: ContentTypes.ListItem,
+        DisplayName: '$Ctd-ListItem,DisplayName',
+        Description: '$Ctd-ListItem,Description',
+        Icon: 'FormItem',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the CustomListItem
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.CustomListItem,
-            DisplayName: '$Ctd-CustomListItem,DisplayName',
-            Description: '$Ctd-CustomListItem,Description',
-            Icon: 'FormItem',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.CustomListItem,
+        DisplayName: '$Ctd-CustomListItem,DisplayName',
+        Description: '$Ctd-CustomListItem,Description',
+        Icon: 'FormItem',
+        AllowIndexing: true,
+        AllowIncrementalNaming: true,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.NullFieldSetting({
                 name: 'WorkflowsRunning',
                 readOnly: false,
@@ -2486,24 +2486,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Memo
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Memo,
-            DisplayName: '$Ctd-Memo,DisplayName',
-            Description: '$Ctd-Memo,Description',
-            Icon: 'Document',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Memo,
+        DisplayName: '$Ctd-Memo,DisplayName',
+        Description: '$Ctd-Memo,Description',
+        Icon: 'Document',
+        AllowIndexing: true,
+        AllowIncrementalNaming: true,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'Date',
@@ -2515,15 +2515,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: true,
                 allowMultiple: false,
                 options: [
-                    {Value: 'generic', Text: 'Generic', Enabled: true, Selected: true },
-                    {Value: 'iso', Text: 'ISO', Enabled: true, Selected: false },
-                    {Value: 'iaudit', Text: 'Internal audit', Enabled: true, Selected: false }
+                    { Value: 'generic', Text: 'Generic', Enabled: true, Selected: true },
+                    { Value: 'iso', Text: 'ISO', Enabled: true, Selected: false },
+                    { Value: 'iaudit', Text: 'Internal audit', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -2535,7 +2535,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -2547,24 +2547,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Task
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Task,
-            DisplayName: '$Ctd-Task,DisplayName',
-            Description: '$Ctd-Task,Description',
-            Icon: 'FormItem',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Task,
+        DisplayName: '$Ctd-Task,DisplayName',
+        Description: '$Ctd-Task,Description',
+        Icon: 'FormItem',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
                 name: 'StartDate',
@@ -2574,7 +2574,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -2585,7 +2585,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -2599,15 +2599,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '1', Text: 'Urgent', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Normal', Enabled: true, Selected: true },
-                    {Value: '3', Text: 'Not urgent', Enabled: true, Selected: false }
+                    { Value: '1', Text: 'Urgent', Enabled: true, Selected: false },
+                    { Value: '2', Text: 'Normal', Enabled: true, Selected: true },
+                    { Value: '3', Text: 'Not urgent', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -2618,17 +2618,17 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: 'pending', Text: 'Pending', Enabled: true, Selected: false },
-                    {Value: 'active', Text: 'Active', Enabled: true, Selected: true },
-                    {Value: 'completed', Text: 'Completed', Enabled: true, Selected: false },
-                    {Value: 'deferred', Text: 'Deferred', Enabled: true, Selected: false },
-                    {Value: 'waiting', Text: 'Waiting', Enabled: true, Selected: false }
+                    { Value: 'pending', Text: 'Pending', Enabled: true, Selected: false },
+                    { Value: 'active', Text: 'Active', Enabled: true, Selected: true },
+                    { Value: 'completed', Text: 'Completed', Enabled: true, Selected: false },
+                    { Value: 'deferred', Text: 'Deferred', Enabled: true, Selected: false },
+                    { Value: 'waiting', Text: 'Waiting', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -2639,7 +2639,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 minValue: 0,
@@ -2653,7 +2653,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.IntegerFieldSetting({
                 name: 'RemainingDays',
@@ -2664,7 +2664,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DueText',
@@ -2674,7 +2674,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'DueCssClass',
@@ -2685,24 +2685,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the Query
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.Query,
-            DisplayName: '$Ctd-Query,DisplayName',
-            Description: '$Ctd-Query,Description',
-            Icon: 'Query',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
+        ContentType: ContentTypes.Query,
+        DisplayName: '$Ctd-Query,DisplayName',
+        Description: '$Ctd-Query,Description',
+        Icon: 'Query',
+        AllowIndexing: true,
+        AllowIncrementalNaming: true,
+        AllowedChildTypes: [],
+        FieldSettings: [
             new FieldSettings.LongTextFieldSetting({
                 name: 'Query',
                 displayName: 'Query',
@@ -2713,14 +2713,14 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:QueryBuilder'
+                controlHint: 'sn:QueryBuilder',
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: 'Public', Text: 'Public', Enabled: true, Selected: true },
-                    {Value: 'Private', Text: 'Private', Enabled: true, Selected: false }
+                    { Value: 'Public', Text: 'Public', Enabled: true, Selected: true },
+                    { Value: 'Private', Text: 'Private', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.RadioButtons,
                 enumTypeName: '',
@@ -2732,24 +2732,24 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
     /**
      * Method that returns the Content Type Definition of the User
      * @returns {Schema}
      */
     new Schema({
-            ContentType: ContentTypes.User,
-            DisplayName: '$Ctd-User,DisplayName',
-            Description: '$Ctd-User,Description',
-            Icon: 'User',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Image'],
-            FieldSettings: [
+        ContentType: ContentTypes.User,
+        DisplayName: '$Ctd-User,DisplayName',
+        Description: '$Ctd-User,Description',
+        Icon: 'User',
+        AllowIndexing: true,
+        AllowIncrementalNaming: false,
+        AllowedChildTypes: ['Image'],
+        FieldSettings: [
             new FieldSettings.ShortTextFieldSetting({
                 maxLength: 100,
                 name: 'LoginName',
@@ -2760,7 +2760,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'JobTitle',
@@ -2771,7 +2771,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Enabled',
@@ -2782,7 +2782,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Domain',
@@ -2793,7 +2793,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 regex: '^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
@@ -2805,7 +2805,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 regex: '[^<]+',
@@ -2817,7 +2817,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2828,7 +2828,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.BinaryFieldSetting({
                 name: 'ImageData',
@@ -2838,7 +2838,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.NullFieldSetting({
                 name: 'Avatar',
@@ -2850,7 +2850,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
                 defaultOrder: 0,
-                controlHint: 'sn:Image'
+                controlHint: 'sn:Image',
             }),
             new FieldSettings.PasswordFieldSetting({
                 reenterTitle: 'Re-enter password',
@@ -2864,7 +2864,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'SyncGuid',
@@ -2875,7 +2875,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
@@ -2887,7 +2887,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.CaptchaFieldSetting({
                 name: 'Captcha',
@@ -2898,7 +2898,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: false,
@@ -2912,7 +2912,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Department',
@@ -2923,7 +2923,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'Languages',
@@ -2934,7 +2934,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 regex: '(^\\d*([-\\s\\+\\(\\)]\\d*)*$)?',
@@ -2946,15 +2946,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '...', Text: '...', Enabled: true, Selected: false },
-                    {Value: 'Female', Text: 'Female', Enabled: true, Selected: false },
-                    {Value: 'Male', Text: 'Male', Enabled: true, Selected: false }
+                    { Value: '...', Text: '...', Enabled: true, Selected: false },
+                    { Value: 'Female', Text: 'Female', Enabled: true, Selected: false },
+                    { Value: 'Male', Text: 'Male', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -2966,15 +2966,15 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: '...', Text: '...', Enabled: true, Selected: false },
-                    {Value: 'Single', Text: 'Single', Enabled: true, Selected: false },
-                    {Value: 'Married', Text: 'Married', Enabled: true, Selected: false }
+                    { Value: '...', Text: '...', Enabled: true, Selected: false },
+                    { Value: 'Single', Text: 'Single', Enabled: true, Selected: false },
+                    { Value: 'Married', Text: 'Married', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -2986,7 +2986,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.DateTimeFieldSetting({
                 dateTimeMode: FieldSettings.DateTimeMode.Date,
@@ -2997,7 +2997,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.LongTextFieldSetting({
                 textType: FieldSettings.TextType.LongText,
@@ -3010,7 +3010,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
                 defaultOrder: 0,
-                controlHint: 'sn:EducationEditor'
+                controlHint: 'sn:EducationEditor',
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'TwitterAccount',
@@ -3020,7 +3020,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'FacebookURL',
@@ -3031,7 +3031,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'LinkedInURL',
@@ -3042,14 +3042,14 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ChoiceFieldSetting({
                 allowExtraValue: false,
                 allowMultiple: false,
                 options: [
-                    {Value: 'en', Text: 'English', Enabled: true, Selected: true },
-                    {Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false }
+                    { Value: 'en', Text: 'English', Enabled: true, Selected: true },
+                    { Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false },
                 ],
                 displayChoice: FieldSettings.DisplayChoice.DropDown,
                 enumTypeName: '',
@@ -3061,7 +3061,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Show,
                 visibleEdit: FieldSettings.FieldVisibility.Show,
                 visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ReferenceFieldSetting({
                 allowMultiple: true,
@@ -3074,7 +3074,7 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Advanced,
                 visibleEdit: FieldSettings.FieldVisibility.Advanced,
                 visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
             new FieldSettings.ShortTextFieldSetting({
                 name: 'ProfilePath',
@@ -3085,9 +3085,9 @@ import { FieldSettings, ContentTypes, IContent } from './SN';
                 visibleBrowse: FieldSettings.FieldVisibility.Hide,
                 visibleEdit: FieldSettings.FieldVisibility.Hide,
                 visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
+                defaultOrder: 0,
             }),
-        ]
-        }),
+        ],
+    }),
 
-]
+];

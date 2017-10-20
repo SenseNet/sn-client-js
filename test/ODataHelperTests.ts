@@ -1,5 +1,5 @@
-import { ODataHelper } from '../src/SN'
 import * as Chai from 'chai';
+import { ODataHelper } from '../src/SN';
 import { MockRepository } from './Mocks/MockRepository';
 const expect = Chai.expect;
 
@@ -17,7 +17,7 @@ describe('ODataHelper', () => {
     describe('#getContentUrlbyId()', () => {
         it('should return a proper item path by the given id', () => {
             const contentUrl = ODataHelper.getContentUrlbyId(1);
-            expect(contentUrl).to.be.eq('/content(1)')
+            expect(contentUrl).to.be.eq('/content(1)');
         });
     });
     describe('#getContentURLbyPath()', () => {
@@ -31,10 +31,10 @@ describe('ODataHelper', () => {
         });
         it('should return an error message if the given argument is an empty string', () => {
             expect(() => {ODataHelper.getContentURLbyPath(''); })
-                .to.throws()
+                .to.throws();
         });
         it('should return a proper item path for Root only', () => {
-            let path = ODataHelper.getContentURLbyPath('/Root');
+            const path = ODataHelper.getContentURLbyPath('/Root');
             expect(path).to.be.eq("/('Root')");
         });
     });
@@ -107,20 +107,19 @@ describe('#buildUrlParamString()', () => {
     });
 });
 
-
 describe('#joinPaths', () => {
     it('should join with slashes', () => {
-        let joined = ODataHelper.joinPaths('path1', 'path2', 'path3');
+        const joined = ODataHelper.joinPaths('path1', 'path2', 'path3');
         expect(joined).to.be.eq('path1/path2/path3');
     });
 
     it('should remove slashes from the beginning of the segments', () => {
-        let joined = ODataHelper.joinPaths('/path1', 'path2', '/path3');
+        const joined = ODataHelper.joinPaths('/path1', 'path2', '/path3');
         expect(joined).to.be.eq('path1/path2/path3');
     });
 
     it('should remove slashes from the end of the segments', () => {
-        let joined = ODataHelper.joinPaths('path1', 'path2/', 'path3/');
+        const joined = ODataHelper.joinPaths('path1', 'path2/', 'path3/');
         expect(joined).to.be.eq('path1/path2/path3');
     });
 });

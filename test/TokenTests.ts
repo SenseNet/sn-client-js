@@ -10,14 +10,13 @@ export class TokenTests {
     private _head = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9';
     private _payload = 'eyJpc3MiOiJzZW5zZW5ldCIsInN1YiI6ImF1dGgiLCJhdWQiOiJjbGllbnQiLCJleHAiOjE0OTMyODQ1NDYsImlhdCI6MTQ5MzI4NDQ4NiwibmJmIjoxNDkzMjg0NDg2LCJuYW1lIjoiQnVpbHRJblxcQWRtaW4ifQ';
 
-    private createTestToken(){
+    private createTestToken() {
         return Token.FromHeadAndPayload(`${this._head}.${this._payload}`);
     }
 
-
     @test
-    public 'Construct token from encoded head and payload has valid serialized values'(){
-        let t = this.createTestToken();
+    public 'Construct token from encoded head and payload has valid serialized values'() {
+        const t = this.createTestToken();
 
         expect(t.Username).to.be.eq('BuiltIn\\Admin');
 
@@ -27,15 +26,15 @@ export class TokenTests {
     }
 
     @test
-    public 'Create empty token'(){
-        let t = Token.CreateEmpty();
-        expect(t.Username).to.be.eq('')
+    public 'Create empty token'() {
+        const t = Token.CreateEmpty();
+        expect(t.Username).to.be.eq('');
         expect(t.IsValid()).to.be.eq(false);
     }
 
     @test
-    public 'toString should return the original head and payload'(){
-        let t = this.createTestToken();
+    public 'toString should return the original head and payload'() {
+        const t = this.createTestToken();
         expect(t.toString()).to.be.eq(`${this._head}.${this._payload}`);
     }
 }

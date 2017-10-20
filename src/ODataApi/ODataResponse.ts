@@ -7,6 +7,7 @@
  */
 import { ISavedContent } from '../Content';
 
-export class ODataResponse<T extends ISavedContent>{
-    d: T;
+export class ODataResponse<T extends ISavedContent> {
+    // tslint:disable-next-line:naming-convention
+    public d: T;
 }

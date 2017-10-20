@@ -2,6 +2,8 @@
  * @module ODataApi
  */ /** */
 
+ // tslint:disable:naming-convention
+
 import { IContent } from '../Content';
 
 export type ODataFieldParameter<T extends IContent> = (keyof T)[] | keyof T;
@@ -18,11 +20,11 @@ export class IODataParams<T extends IContent> {
     /**
      * The field(s) to be include in a $select list. Can be a field (e.g. 'DisplayName'), an array of fields (e.g. ['Name', 'Type']) or 'all'
      */
-    select?: ODataFieldParameter<T> | 'all';
+    public select?: ODataFieldParameter<T> | 'all';
     /**
      * The field(s) to be include in an $expand list. Can be a reference field (e.g. 'Owner') or an array of fields (e.g. ['CreatedBy', 'ModifiecBy'])
      */
-    expand?: ODataFieldParameter<T>;
+    public expand?: ODataFieldParameter<T>;
 
     /**
      * Sets the OData $orderby parameter. Usage example
@@ -45,46 +47,46 @@ export class IODataParams<T extends IContent> {
      *
      * ```
      */
-    orderby?: ODataOrderParameter<T>;
+    public orderby?: ODataOrderParameter<T>;
     /**
      * Sets the OData $top parameter
      */
-    top?: number;
+    public top?: number;
 
     /**
      * Sets the OData $skip parameter
      */
-    skip?: number;
+    public skip?: number;
 
     /**
      * Sets the OData $filter parameter
      */
-    filter?: string;
+    public filter?: string;
 
     /**
      * Sets the OData $format parameter. Can be 'json' or 'verbosejson'
      */
-    format?: ODataFormatType;
+    public format?: ODataFormatType;
 
     /**
      * Sets the OData $format parameter. Can be 'json' or 'verbosejson'
      */
-    inlinecount?: ODataInlineCountType;
+    public inlinecount?: ODataInlineCountType;
 
     /**
      * Sets the OData 'query' parameter. Can be a Content Query
      */
-    query?: string;
+    public query?: string;
     /**
      * Sets the OData metadata parameter. Can be 'full', 'minimal' or 'no'
      */
-    metadata?: ODataMetadataType;
+    public metadata?: ODataMetadataType;
     /**
      * Sets the OData post data object
      */
-    data?: Object;
+    public data?: any;
     /**
      * Sets the OData Scenario parameter
      */
-    scenario?: string;
+    public scenario?: string;
 }

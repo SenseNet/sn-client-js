@@ -1,6 +1,6 @@
 import { IContent } from './IContent';
-import { ISavedContent } from './ISavedContent';
 import { ContentInternal } from './index';
+import { ISavedContent } from './ISavedContent';
 
 export type Content<T extends IContent = IContent> = ContentInternal<T> & T;
 

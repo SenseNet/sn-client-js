@@ -2,12 +2,12 @@
  * @module ODataApi
  */ /** */
 
-import { BaseHttpProvider } from '../HttpProviders';
-import { IODataParams, CustomAction, ODataResponse, ICustomActionOptions, ODataCollectionResponse, IODataRequestOptions } from './';
-import { ODataHelper } from '../SN';
 import { Observable } from '@reactivex/rxjs';
-import { BaseRepository } from '../Repository/BaseRepository';
 import { IContent, ISavedContent, SavedContent } from '../Content';
+import { BaseHttpProvider } from '../HttpProviders';
+import { BaseRepository } from '../Repository/BaseRepository';
+import { ODataHelper } from '../SN';
+import { CustomAction, ICustomActionOptions, IODataParams, IODataRequestOptions, ODataCollectionResponse, ODataResponse } from './';
 
 /**
  * This class contains methods and classes for sending requests and getting responses from the Content Repository through OData REST API.
@@ -15,7 +15,7 @@ import { IContent, ISavedContent, SavedContent } from '../Content';
  * Following methods return Rxjs Observables which are made from the ajax requests' promises. Action methods like Delete or Rename on Content calls this methods,
  * gets their responses as Observables and returns them so that you can subscribe them in your code.
  */
-export class ODataApi<THttpProvider extends BaseHttpProvider>{
+export class ODataApi<THttpProvider extends BaseHttpProvider> {
 
     /**
      * The HTTP provider instance for making AJAX calls.
@@ -101,7 +101,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         contentBody: T): Observable<SavedContent<T>> {
         return this._repository
             .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', ODataResponse, JSON.stringify(contentBody))
-            .map(resp => resp.d)
+            .map((resp) => resp.d)
             .share();
     }
 
@@ -113,8 +113,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * @returns {Observable} Returns an observable that you can subscribe of in your code.
      */
     public Delete = (id: number, permanent?: boolean): Observable<any> =>
-        this._repository.Ajax(`/content(${id})`, 'DELETE', Object, { 'permanent': permanent }).share();
-
+        this._repository.Ajax(`/content(${id})`, 'DELETE', Object, { permanent }).share()
 
     /**
      * Method to modify a single or multiple fields of a Content through OData REST API.
@@ -135,11 +134,10 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      */
     public Patch<T extends IContent>(id: number, fields: T): Observable<T & ISavedContent> {
 
-        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T & ISavedContent> };
+        const contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<T & ISavedContent> };
         return this._repository.Ajax(`/content(${id})`, 'PATCH', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
-            .map(result => result.d);
+            .map((result) => result.d);
     }
-
 
     /**
      * Method to set multiple fields of a Content and clear the rest through OData REST API.
@@ -160,34 +158,33 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
      * ```
      */
     public Put<T extends IContent>(id: number, fields: T): Observable<SavedContent<T>> {
-        let contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<SavedContent<T>> };
+        const contentTypeWithResponse = ODataResponse as { new(...args: any[]): ODataResponse<SavedContent<T>> };
         return this._repository.Ajax(`/content(${id})`, 'PUT', contentTypeWithResponse, `models=[${JSON.stringify(fields)}]`)
-            .map(result => result.d);
+            .map((result) => result.d);
     }
 
     /**
-      * Creates a wrapper function for a callable custom OData action.
-      *
-      * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
-      * @param {ICustomActionOptions} actionOptions A CustomAction configuration object.
-      * @param {IODataParams} options An object that holds the config of the ajax request like urlparameters or data.
-      * @param {new(...args): TReturnType} returns Th type that the action should return
-      * @returns {Observable<TReturnType>} Returns an Rxjs observable whitch will be resolved with TReturnType that you can subscribe of in your code.
-      */
+     * Creates a wrapper function for a callable custom OData action.
+     *
+     * This method creates an Observable, sends an ajax request to the server and convert the reponse to promise which will be the argument of the Observable.
+     * @param {ICustomActionOptions} actionOptions A CustomAction configuration object.
+     * @param {IODataParams} options An object that holds the config of the ajax request like urlparameters or data.
+     * @param {new(...args): TReturnType} returns Th type that the action should return
+     * @returns {Observable<TReturnType>} Returns an Rxjs observable whitch will be resolved with TReturnType that you can subscribe of in your code.
+     */
     public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams<any>, returns?: { new(...args: any[]): TReturnType }): Observable<TReturnType> {
         if (!returns) {
             returns = Object as { new(...args: any[]): any };
         }
-        let action = new CustomAction(actionOptions);
-        let cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
+        const action = new CustomAction(actionOptions);
+        const cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
         if (typeof action.id !== 'undefined') {
             path = ODataHelper.joinPaths(ODataHelper.getContentUrlbyId(action.id), action.name);
-        }
-        else if (action.path) {
+        } else if (action.path) {
             path = ODataHelper.joinPaths(ODataHelper.getContentURLbyPath(action.path), action.name);
         } else {
-            const error = new Error('No Id or Path provided.')
+            const error = new Error('No Id or Path provided.');
             this._repository.Events.Trigger.CustomActionFailed({
                 ActionOptions: actionOptions,
                 ODataParams: options,
@@ -197,7 +194,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
             throw error;
         }
         if (cacheParam.length > 0) {
-            path = `${path}?${cacheParam}`
+            path = `${path}?${cacheParam}`;
         }
 
         if (path.indexOf('OData.svc(') > -1) {
@@ -207,7 +204,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
             const ajax = this._repository.Ajax(path, 'GET', returns).share();
-            ajax.subscribe(resp => {
+            ajax.subscribe((resp) => {
                 this._repository.Events.Trigger.CustomActionExecuted({
                     ActionOptions: actionOptions,
                     ODataParams: options,
@@ -222,11 +219,10 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
                 });
             });
             return ajax;
-        }
-        else {
+        } else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
                 const ajax = this._repository.Ajax(path, 'POST', returns, JSON.stringify(options.data)).share();
-                ajax.subscribe(resp => {
+                ajax.subscribe((resp) => {
                     this._repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
                         ODataParams: options,
@@ -241,10 +237,9 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
                     });
                 });
                 return ajax;
-            }
-            else {
+            } else {
                 const ajax = this._repository.Ajax(path, 'POST', returns).share();
-                ajax.subscribe(resp => {
+                ajax.subscribe((resp) => {
                     this._repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
                         ODataParams: options,
@@ -263,12 +258,11 @@ export class ODataApi<THttpProvider extends BaseHttpProvider>{
         }
     }
 
-    public Upload = (path: string, data: Object, creation: boolean): Observable<Object> => {
+    public Upload = (path: string, data: any, creation: boolean): Observable<any> => {
         let url = `${ODataHelper.getContentURLbyPath(path)}/Upload`;
         if (creation) {
             url = `${url}?create=1`;
-        }
-        else {
+        } else {
             url = url;
         }
         return this._repository.Ajax(url, 'POST', Object, data);

@@ -19,13 +19,13 @@ export class Token {
                 iss: '',
                 name: '',
                 nbf: 0,
-                sub: ''
-            }
+                sub: '',
+            };
         }
-    };
+    }
 
     private fromEpoch(epoch: number): Date {
-        let d = new Date(0);
+        const d = new Date(0);
         d.setUTCSeconds(epoch);
         return d;
     }
@@ -35,7 +35,7 @@ export class Token {
      */
     public get Username(): string {
         return this._tokenPayload.name;
-    };
+    }
 
     /**
      * The current Token full Payload
@@ -62,7 +62,7 @@ export class Token {
      * Indicates if the Token is valid based on it's ExpirationTime and NotBefore values.
      */
     public IsValid(): boolean {
-        let now = new Date();
+        const now = new Date();
         return this._tokenPayload && this.ExpirationTime > now && this.NotBefore < now;
     }
 
@@ -76,10 +76,10 @@ export class Token {
     /**
      * Returns the Token in string format (in a base64 encoded, dot separated header and payload)
      */
+    // tslint:disable-next-line:naming-convention
     public toString() {
         return `${this._headerEncoded}.${this._payloadEncoded}`;
     }
-
 
     /**
      * Factory method to create a token from a sense NET specific base64 encoded header and payload string, e.g.:
@@ -89,8 +89,8 @@ export class Token {
      * @constructs Token
      */
     public static FromHeadAndPayload(headAndPayload: string): Token {
-        let [head, payload] = headAndPayload.split('.');
-        return new Token(head, payload)
+        const [head, payload] = headAndPayload.split('.');
+        return new Token(head, payload);
     }
 
     /**

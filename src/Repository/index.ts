@@ -10,4 +10,4 @@ export * from './UploadModels';
 export * from './SnRepository';
 export * from './RepositoryEventHub';
 export * from './VersionInfoModels';
-export * from './ActionModel'
+export * from './ActionModel';

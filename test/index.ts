@@ -21,9 +21,11 @@ export * from './TokenStoreTests';
 
 export *  from './QueryTests';
 
+// tslint:disable:naming-convention
+
 (global as any).File = class {
-    slice(from: number, size: number) {
-        return ''
+    public slice(from: number, size: number) {
+        return '';
     }
 
     constructor(fileData: any, public readonly name: string) {

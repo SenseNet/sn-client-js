@@ -1,8 +1,8 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { File as SnFile } from '../src/ContentTypes';
 import { BinaryField } from '../src/BinaryField';
 import { SavedContent } from '../src/Content';
+import { File as SnFile } from '../src/ContentTypes';
 import { BinaryFieldSetting } from '../src/FieldSettings';
 import { UploadFileOptions, WithParentContent } from '../src/Repository/UploadModels';
 import { MockRepository } from './Mocks';
@@ -15,7 +15,8 @@ export class BinaryFieldTests {
     private _file: SavedContent<SnFile>;
 
     private _repo: MockRepository;
-    before() {
+    // tslint:disable-next-line:naming-convention
+    public before() {
 
         this._repo = new MockRepository();
 
@@ -32,10 +33,10 @@ export class BinaryFieldTests {
                     media_src: 'https://google.com'
                 }
             }
-        } as any)
+        } as any);
     }
 
-    private createField(): BinaryField<SnFile>{
+    private createField(): BinaryField<SnFile> {
         return this._file.Binary as BinaryField<SnFile>;
     }
 
@@ -61,14 +62,14 @@ export class BinaryFieldTests {
 
     @test
     public 'Parent.GetFullPath() should return the ParentContentPath'(done: MochaDone) {
-        (this._file as any)['GetRepository'] = () => {
+        (this._file as any).GetRepository = () => {
             return {
                 UploadFile: (options: WithParentContent<UploadFileOptions<SnFile>>) => {
                     expect(options.Parent.GetFullPath()).to.be.eq(this._file.ParentContentPath);
                     expect(options).to.be.instanceof(Object);
                     done();
                 }
-            }
+            };
         };
 
         const field = this.createField();
@@ -77,7 +78,7 @@ export class BinaryFieldTests {
 
     @test
     public 'SaveBinaryFile() should trigger an upload request'(done: MochaDone) {
-        (this._file as any)['GetRepository'] = () => {
+        (this._file as any).GetRepository = () => {
             return {
                 UploadFile: (options: UploadFileOptions<SnFile>) => {
                     expect(options.Overwrite).to.be.eq(true);
@@ -85,7 +86,7 @@ export class BinaryFieldTests {
                     expect(options).to.be.instanceof(Object);
                     done();
                 }
-            }
+            };
         };
 
         const field = this.createField();
@@ -94,13 +95,13 @@ export class BinaryFieldTests {
 
     @test
     public 'SaveBinaryText() should trigger an upload request'(done: MochaDone) {
-        (this._file as any)['GetRepository'] = () => {
+        (this._file as any).GetRepository = () => {
             return {
                 UploadFile: (options: UploadFileOptions<SnFile>) => {
                     expect(options).to.be.instanceof(Object);
                     done();
                 }
-            }
+            };
         };
 
         const field = this.createField();

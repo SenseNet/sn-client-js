@@ -14,38 +14,39 @@
  * types or check the required ones.
  *
  *//** */
- import { Enums, ComplexTypes } from './SN';
- import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
-import { BinaryField } from './BinaryField';
 
+// tslint:disable:naming-convention
 
+  import { BinaryField } from './BinaryField';
+  import { ContentListReferenceField, ContentReferenceField } from './ContentReferences';
+  import { ComplexTypes, Enums } from './SN';
 
  /**
   * Class representing a ContentType
   * @class ContentType
   */
- export class ContentType {
-     Id?: number;
-     ParentId?: number;
-     VersionId?: number;
-     Name?: string;
-     CreatedById?: number;
-     ModifiedById?: number;
-     Version?: string;
-     Path?: string;
-     Depth?: number;
-     IsSystemContent?: boolean;
-     HandlerName?: string;
-     ParentTypeName?: string;
-     DisplayName?: string;
-     Description?: string;
-     Icon?: string;
-     Binary?: ComplexTypes.DeferredObject;
-     CreatedBy?: ContentReferenceField<GenericContent>;
-     CreationDate?: string;
-     ModifiedBy?: ContentReferenceField<GenericContent>;
-     ModificationDate?: string;
-     EnableLifespan?: boolean;
+  export class ContentType {
+     public Id?: number;
+     public ParentId?: number;
+     public VersionId?: number;
+     public Name?: string;
+     public CreatedById?: number;
+     public ModifiedById?: number;
+     public Version?: string;
+     public Path?: string;
+     public Depth?: number;
+     public IsSystemContent?: boolean;
+     public HandlerName?: string;
+     public ParentTypeName?: string;
+     public DisplayName?: string;
+     public Description?: string;
+     public Icon?: string;
+     public Binary?: ComplexTypes.DeferredObject;
+     public CreatedBy?: ContentReferenceField<GenericContent>;
+     public CreationDate?: string;
+     public ModifiedBy?: ContentReferenceField<GenericContent>;
+     public ModificationDate?: string;
+     public EnableLifespan?: boolean;
 
  }
 
@@ -53,59 +54,59 @@ import { BinaryField } from './BinaryField';
   * Class representing a GenericContent
   * @class GenericContent
   */
- export class GenericContent {
-     Id?: number;
-     ParentId?: number;
-     OwnerId?: number;
-     Owner?: ContentReferenceField<GenericContent>;
-     VersionId?: number;
-     Icon?: string;
-     Name?: string;
-     CreatedById?: number;
-     ModifiedById?: number;
-     Version?: string;
-     Path?: string;
-     Depth?: number;
-     IsSystemContent?: boolean;
-     IsFolder?: boolean;
-     DisplayName?: string;
-     Description?: string;
-     Hidden?: boolean;
-     Index?: number;
-     EnableLifespan?: boolean;
-     ValidFrom?: string;
-     ValidTill?: string;
-     AllowedChildTypes?: string;
-     EffectiveAllowedChildTypes?: string;
-     VersioningMode?: Enums.VersioningMode;
-     InheritableVersioningMode?: Enums.InheritableVersioningMode;
-     CreatedBy?: ContentReferenceField<GenericContent>;
-     CreationDate?: string;
-     ModifiedBy?: ContentReferenceField<GenericContent>;
-     ModificationDate?: string;
-     ApprovingMode?: Enums.ApprovingMode;
-     InheritableApprovingMode?: Enums.InheritableApprovingMode;
-     Locked?: boolean;
-     CheckedOutTo?: ContentReferenceField<GenericContent>;
-     TrashDisabled?: boolean;
-     SavingState?: Enums.SavingState;
-     ExtensionData?: string;
-     BrowseApplication?: ContentReferenceField<GenericContent>;
-     Approvable?: boolean;
-     IsTaggable?: boolean;
-     Tags?: string;
-     IsRateable?: boolean;
-     RateStr?: string;
-     RateAvg?: number;
-     RateCount?: number;
-     Rate?: string;
-     Publishable?: boolean;
-     Versions?: ContentListReferenceField<GenericContent>;
-     CheckInComments?: string;
-     RejectReason?: string;
-     Workspace?: ContentReferenceField<Workspace>;
-     BrowseUrl?: string;
-     Type?: string;
+  export class GenericContent {
+     public Id?: number;
+     public ParentId?: number;
+     public OwnerId?: number;
+     public Owner?: ContentReferenceField<GenericContent>;
+     public VersionId?: number;
+     public Icon?: string;
+     public Name?: string;
+     public CreatedById?: number;
+     public ModifiedById?: number;
+     public Version?: string;
+     public Path?: string;
+     public Depth?: number;
+     public IsSystemContent?: boolean;
+     public IsFolder?: boolean;
+     public DisplayName?: string;
+     public Description?: string;
+     public Hidden?: boolean;
+     public Index?: number;
+     public EnableLifespan?: boolean;
+     public ValidFrom?: string;
+     public ValidTill?: string;
+     public AllowedChildTypes?: string;
+     public EffectiveAllowedChildTypes?: string;
+     public VersioningMode?: Enums.VersioningMode;
+     public InheritableVersioningMode?: Enums.InheritableVersioningMode;
+     public CreatedBy?: ContentReferenceField<GenericContent>;
+     public CreationDate?: string;
+     public ModifiedBy?: ContentReferenceField<GenericContent>;
+     public ModificationDate?: string;
+     public ApprovingMode?: Enums.ApprovingMode;
+     public InheritableApprovingMode?: Enums.InheritableApprovingMode;
+     public Locked?: boolean;
+     public CheckedOutTo?: ContentReferenceField<GenericContent>;
+     public TrashDisabled?: boolean;
+     public SavingState?: Enums.SavingState;
+     public ExtensionData?: string;
+     public BrowseApplication?: ContentReferenceField<GenericContent>;
+     public Approvable?: boolean;
+     public IsTaggable?: boolean;
+     public Tags?: string;
+     public IsRateable?: boolean;
+     public RateStr?: string;
+     public RateAvg?: number;
+     public RateCount?: number;
+     public Rate?: string;
+     public Publishable?: boolean;
+     public Versions?: ContentListReferenceField<GenericContent>;
+     public CheckInComments?: string;
+     public RejectReason?: string;
+     public Workspace?: ContentReferenceField<Workspace>;
+     public BrowseUrl?: string;
+     public Type?: string;
 
  }
 
@@ -114,8 +115,8 @@ import { BinaryField } from './BinaryField';
   * @class ContentLink
   * @extends {@link GenericContent}
   */
- export class ContentLink extends GenericContent {
-     Link?: ContentReferenceField<GenericContent>;
+  export class ContentLink extends GenericContent {
+     public Link?: ContentReferenceField<GenericContent>;
 
  }
 
@@ -124,15 +125,15 @@ import { BinaryField } from './BinaryField';
   * @class File
   * @extends {@link GenericContent}
   */
- export class File extends GenericContent {
-     Binary?: BinaryField<this>;
-     Size?: number;
-     FullSize?: number;
-     PageCount?: number;
-     MimeType?: string;
-     Shapes?: string;
-     PageAttributes?: string;
-     Watermark?: string;
+  export class File extends GenericContent {
+     public Binary?: BinaryField<this>;
+     public Size?: number;
+     public FullSize?: number;
+     public PageCount?: number;
+     public MimeType?: string;
+     public Shapes?: string;
+     public PageAttributes?: string;
+     public Watermark?: string;
 
  }
 
@@ -141,7 +142,7 @@ import { BinaryField } from './BinaryField';
   * @class DynamicJsonContent
   * @extends {@link File}
   */
- export class DynamicJsonContent extends File {
+  export class DynamicJsonContent extends File {
 
  }
 
@@ -150,7 +151,7 @@ import { BinaryField } from './BinaryField';
   * @class ExecutableFile
   * @extends {@link File}
   */
- export class ExecutableFile extends File {
+  export class ExecutableFile extends File {
 
  }
 
@@ -159,8 +160,8 @@ import { BinaryField } from './BinaryField';
   * @class HtmlTemplate
   * @extends {@link File}
   */
- export class HtmlTemplate extends File {
-     TemplateText?: string;
+  export class HtmlTemplate extends File {
+     public TemplateText?: string;
 
  }
 
@@ -169,11 +170,11 @@ import { BinaryField } from './BinaryField';
   * @class Image
   * @extends {@link File}
   */
- export class Image extends File {
-     Keywords?: string;
-     DateTaken?: string;
-     Width?: number;
-     Height?: number;
+  export class Image extends File {
+     public Keywords?: string;
+     public DateTaken?: string;
+     public Width?: number;
+     public Height?: number;
 
  }
 
@@ -182,7 +183,7 @@ import { BinaryField } from './BinaryField';
   * @class PreviewImage
   * @extends {@link Image}
   */
- export class PreviewImage extends Image {
+  export class PreviewImage extends Image {
 
  }
 
@@ -191,8 +192,8 @@ import { BinaryField } from './BinaryField';
   * @class Settings
   * @extends {@link File}
   */
- export class Settings extends File {
-     GlobalOnly?: boolean;
+  export class Settings extends File {
+     public GlobalOnly?: boolean;
 
  }
 
@@ -201,8 +202,8 @@ import { BinaryField } from './BinaryField';
   * @class IndexingSettings
   * @extends {@link Settings}
   */
- export class IndexingSettings extends Settings {
-     TextExtractorInstances?: string;
+  export class IndexingSettings extends Settings {
+     public TextExtractorInstances?: string;
 
  }
 
@@ -211,7 +212,7 @@ import { BinaryField } from './BinaryField';
   * @class LoggingSettings
   * @extends {@link Settings}
   */
- export class LoggingSettings extends Settings {
+  export class LoggingSettings extends Settings {
 
  }
 
@@ -220,7 +221,7 @@ import { BinaryField } from './BinaryField';
   * @class PortalSettings
   * @extends {@link Settings}
   */
- export class PortalSettings extends Settings {
+  export class PortalSettings extends Settings {
 
  }
 
@@ -229,7 +230,7 @@ import { BinaryField } from './BinaryField';
   * @class SystemFile
   * @extends {@link File}
   */
- export class SystemFile extends File {
+  export class SystemFile extends File {
 
  }
 
@@ -238,8 +239,8 @@ import { BinaryField } from './BinaryField';
   * @class Resource
   * @extends {@link SystemFile}
   */
- export class Resource extends SystemFile {
-     Downloads?: number;
+  export class Resource extends SystemFile {
+     public Downloads?: number;
 
  }
 
@@ -248,7 +249,7 @@ import { BinaryField } from './BinaryField';
   * @class Folder
   * @extends {@link GenericContent}
   */
- export class Folder extends GenericContent {
+  export class Folder extends GenericContent {
 
  }
 
@@ -257,21 +258,21 @@ import { BinaryField } from './BinaryField';
   * @class ContentList
   * @extends {@link Folder}
   */
- export class ContentList extends Folder {
-     ContentListDefinition?: string;
-     DefaultView?: string;
+  export class ContentList extends Folder {
+     public ContentListDefinition?: string;
+     public DefaultView?: string;
     //  AvailableViews?: ContentListReferenceField<ListView>;
     //  FieldSettingContents?: ContentListReferenceField<FieldSettingContent>;
     //  AvailableContentTypeFields?: ContentListReferenceField<FieldSettingContent>;
-     ListEmail?: string;
-     ExchangeSubscriptionId?: string;
-     OverwriteFiles?: boolean;
-     GroupAttachments?: Enums.GroupAttachments;
-     SaveOriginalEmail?: boolean;
-     IncomingEmailWorkflow?: ContentReferenceField<GenericContent>;
-     OnlyFromLocalGroups?: boolean;
-     InboxFolder?: string;
-     OwnerWhenVisitor?: ContentReferenceField<User>;
+     public ListEmail?: string;
+     public ExchangeSubscriptionId?: string;
+     public OverwriteFiles?: boolean;
+     public GroupAttachments?: Enums.GroupAttachments;
+     public SaveOriginalEmail?: boolean;
+     public IncomingEmailWorkflow?: ContentReferenceField<GenericContent>;
+     public OnlyFromLocalGroups?: boolean;
+     public InboxFolder?: string;
+     public OwnerWhenVisitor?: ContentReferenceField<User>;
 
  }
 
@@ -280,8 +281,8 @@ import { BinaryField } from './BinaryField';
   * @class Aspect
   * @extends {@link ContentList}
   */
- export class Aspect extends ContentList {
-     AspectDefinition?: string;
+  export class Aspect extends ContentList {
+     public AspectDefinition?: string;
 
  }
 
@@ -290,7 +291,7 @@ import { BinaryField } from './BinaryField';
   * @class ItemList
   * @extends {@link ContentList}
   */
- export class ItemList extends ContentList {
+  export class ItemList extends ContentList {
 
  }
 
@@ -299,7 +300,7 @@ import { BinaryField } from './BinaryField';
   * @class CustomList
   * @extends {@link ItemList}
   */
- export class CustomList extends ItemList {
+  export class CustomList extends ItemList {
 
  }
 
@@ -308,7 +309,7 @@ import { BinaryField } from './BinaryField';
   * @class MemoList
   * @extends {@link ItemList}
   */
- export class MemoList extends ItemList {
+  export class MemoList extends ItemList {
 
  }
 
@@ -317,7 +318,7 @@ import { BinaryField } from './BinaryField';
   * @class TaskList
   * @extends {@link ItemList}
   */
- export class TaskList extends ItemList {
+  export class TaskList extends ItemList {
 
  }
 
@@ -326,7 +327,7 @@ import { BinaryField } from './BinaryField';
   * @class Library
   * @extends {@link ContentList}
   */
- export class Library extends ContentList {
+  export class Library extends ContentList {
 
  }
 
@@ -335,7 +336,7 @@ import { BinaryField } from './BinaryField';
   * @class DocumentLibrary
   * @extends {@link Library}
   */
- export class DocumentLibrary extends Library {
+  export class DocumentLibrary extends Library {
 
  }
 
@@ -344,8 +345,8 @@ import { BinaryField } from './BinaryField';
   * @class ImageLibrary
   * @extends {@link Library}
   */
- export class ImageLibrary extends Library {
-     CoverImage?: ContentReferenceField<Image>;
+  export class ImageLibrary extends Library {
+     public CoverImage?: ContentReferenceField<Image>;
 
  }
 
@@ -354,8 +355,8 @@ import { BinaryField } from './BinaryField';
   * @class Device
   * @extends {@link Folder}
   */
- export class Device extends Folder {
-     UserAgentPattern?: string;
+  export class Device extends Folder {
+     public UserAgentPattern?: string;
 
  }
 
@@ -364,9 +365,9 @@ import { BinaryField } from './BinaryField';
   * @class Domain
   * @extends {@link Folder}
   */
- export class Domain extends Folder {
-     SyncGuid?: string;
-     LastSync?: string;
+  export class Domain extends Folder {
+     public SyncGuid?: string;
+     public LastSync?: string;
 
  }
 
@@ -375,7 +376,7 @@ import { BinaryField } from './BinaryField';
   * @class Domains
   * @extends {@link Folder}
   */
- export class Domains extends Folder {
+  export class Domains extends Folder {
 
  }
 
@@ -384,10 +385,10 @@ import { BinaryField } from './BinaryField';
   * @class Email
   * @extends {@link Folder}
   */
- export class Email extends Folder {
-     From?: string;
-     Body?: string;
-     Sent?: string;
+  export class Email extends Folder {
+     public From?: string;
+     public Body?: string;
+     public Sent?: string;
 
  }
 
@@ -396,9 +397,9 @@ import { BinaryField } from './BinaryField';
   * @class OrganizationalUnit
   * @extends {@link Folder}
   */
- export class OrganizationalUnit extends Folder {
-     SyncGuid?: string;
-     LastSync?: string;
+  export class OrganizationalUnit extends Folder {
+     public SyncGuid?: string;
+     public LastSync?: string;
 
  }
 
@@ -407,7 +408,7 @@ import { BinaryField } from './BinaryField';
   * @class PortalRoot
   * @extends {@link Folder}
   */
- export class PortalRoot extends Folder {
+  export class PortalRoot extends Folder {
 
  }
 
@@ -416,7 +417,7 @@ import { BinaryField } from './BinaryField';
   * @class ProfileDomain
   * @extends {@link Folder}
   */
- export class ProfileDomain extends Folder {
+  export class ProfileDomain extends Folder {
 
  }
 
@@ -425,7 +426,7 @@ import { BinaryField } from './BinaryField';
   * @class Profiles
   * @extends {@link Folder}
   */
- export class Profiles extends Folder {
+  export class Profiles extends Folder {
 
  }
 
@@ -434,7 +435,7 @@ import { BinaryField } from './BinaryField';
   * @class RuntimeContentContainer
   * @extends {@link Folder}
   */
- export class RuntimeContentContainer extends Folder {
+  export class RuntimeContentContainer extends Folder {
 
  }
 
@@ -443,7 +444,7 @@ import { BinaryField } from './BinaryField';
   * @class Sites
   * @extends {@link Folder}
   */
- export class Sites extends Folder {
+  export class Sites extends Folder {
 
  }
 
@@ -452,10 +453,10 @@ import { BinaryField } from './BinaryField';
   * @class SmartFolder
   * @extends {@link Folder}
   */
- export class SmartFolder extends Folder {
-     Query?: string;
-     EnableAutofilters?: Enums.EnableAutofilters;
-     EnableLifespanFilter?: Enums.EnableLifespanFilter;
+  export class SmartFolder extends Folder {
+     public Query?: string;
+     public EnableAutofilters?: Enums.EnableAutofilters;
+     public EnableLifespanFilter?: Enums.EnableLifespanFilter;
 
  }
 
@@ -464,7 +465,7 @@ import { BinaryField } from './BinaryField';
   * @class SystemFolder
   * @extends {@link Folder}
   */
- export class SystemFolder extends Folder {
+  export class SystemFolder extends Folder {
 
  }
 
@@ -473,7 +474,7 @@ import { BinaryField } from './BinaryField';
   * @class Resources
   * @extends {@link SystemFolder}
   */
- export class Resources extends SystemFolder {
+  export class Resources extends SystemFolder {
 
  }
 
@@ -482,12 +483,12 @@ import { BinaryField } from './BinaryField';
   * @class TrashBag
   * @extends {@link Folder}
   */
- export class TrashBag extends Folder {
-     KeepUntil?: string;
-     OriginalPath?: string;
-     WorkspaceRelativePath?: string;
-     WorkspaceId?: number;
-     DeletedContent?: ContentReferenceField<GenericContent>;
+  export class TrashBag extends Folder {
+     public KeepUntil?: string;
+     public OriginalPath?: string;
+     public WorkspaceRelativePath?: string;
+     public WorkspaceId?: number;
+     public DeletedContent?: ContentReferenceField<GenericContent>;
 
  }
 
@@ -496,14 +497,14 @@ import { BinaryField } from './BinaryField';
   * @class Workspace
   * @extends {@link Folder}
   */
- export class Workspace extends Folder {
-     Manager?: ContentReferenceField<User>;
-     Deadline?: string;
-     IsActive?: boolean;
+  export class Workspace extends Folder {
+     public Manager?: ContentReferenceField<User>;
+     public Deadline?: string;
+     public IsActive?: boolean;
      // WorkspaceSkin?: ContentReferenceField<Skin>;
-     IsCritical?: boolean;
-     IsWallContainer?: boolean;
-     IsFollowed?: boolean;
+     public IsCritical?: boolean;
+     public IsWallContainer?: boolean;
+     public IsFollowed?: boolean;
 
  }
 
@@ -512,15 +513,15 @@ import { BinaryField } from './BinaryField';
   * @class Site
   * @extends {@link Workspace}
   */
- export class Site extends Workspace {
-     Language?: Enums.Language;
-     EnableClientBasedCulture?: boolean;
-     EnableUserBasedCulture?: boolean;
-     UrlList?: string;
-     StartPage?: ContentReferenceField<GenericContent>;
-     LoginPage?: ContentReferenceField<GenericContent>;
+  export class Site extends Workspace {
+     public Language?: Enums.Language;
+     public EnableClientBasedCulture?: boolean;
+     public EnableUserBasedCulture?: boolean;
+     public UrlList?: string;
+     public StartPage?: ContentReferenceField<GenericContent>;
+     public LoginPage?: ContentReferenceField<GenericContent>;
      // SiteSkin?: ContentReferenceField<Skin>;
-     DenyCrossSiteAccess?: boolean;
+     public DenyCrossSiteAccess?: boolean;
 
  }
 
@@ -529,10 +530,10 @@ import { BinaryField } from './BinaryField';
   * @class TrashBin
   * @extends {@link Workspace}
   */
- export class TrashBin extends Workspace {
-     MinRetentionTime?: number;
-     SizeQuota?: number;
-     BagCapacity?: number;
+  export class TrashBin extends Workspace {
+     public MinRetentionTime?: number;
+     public SizeQuota?: number;
+     public BagCapacity?: number;
 
  }
 
@@ -541,8 +542,8 @@ import { BinaryField } from './BinaryField';
   * @class UserProfile
   * @extends {@link Workspace}
   */
- export class UserProfile extends Workspace {
-     User?: ContentReferenceField<User>;
+  export class UserProfile extends Workspace {
+     public User?: ContentReferenceField<User>;
 
  }
 
@@ -551,10 +552,10 @@ import { BinaryField } from './BinaryField';
   * @class Group
   * @extends {@link GenericContent}
   */
- export class Group extends GenericContent {
-     Members?: ContentListReferenceField<User | Group>;
-     SyncGuid?: string;
-     LastSync?: string;
+  export class Group extends GenericContent {
+     public Members?: ContentListReferenceField<User | Group>;
+     public SyncGuid?: string;
+     public LastSync?: string;
 
  }
 
@@ -563,7 +564,7 @@ import { BinaryField } from './BinaryField';
   * @class ListItem
   * @extends {@link GenericContent}
   */
- export class ListItem extends GenericContent {
+  export class ListItem extends GenericContent {
 
  }
 
@@ -572,8 +573,8 @@ import { BinaryField } from './BinaryField';
   * @class CustomListItem
   * @extends {@link ListItem}
   */
- export class CustomListItem extends ListItem {
-     WorkflowsRunning?: boolean;
+  export class CustomListItem extends ListItem {
+     public WorkflowsRunning?: boolean;
 
  }
 
@@ -582,10 +583,10 @@ import { BinaryField } from './BinaryField';
   * @class Memo
   * @extends {@link ListItem}
   */
- export class Memo extends ListItem {
-     Date?: string;
-     MemoType?: Enums.MemoType;
-     SeeAlso?: ContentListReferenceField<GenericContent>;
+  export class Memo extends ListItem {
+     public Date?: string;
+     public MemoType?: Enums.MemoType;
+     public SeeAlso?: ContentListReferenceField<GenericContent>;
 
  }
 
@@ -594,16 +595,16 @@ import { BinaryField } from './BinaryField';
   * @class Task
   * @extends {@link ListItem}
   */
- export class Task extends ListItem {
-     StartDate?: string;
-     DueDate?: string;
-     AssignedTo?: ContentListReferenceField<User>;
-     Priority?: Enums.Priority;
-     Status?: Enums.Status;
-     TaskCompletion?: number;
-     RemainingDays?: number;
-     DueText?: string;
-     DueCssClass?: string;
+  export class Task extends ListItem {
+     public StartDate?: string;
+     public DueDate?: string;
+     public AssignedTo?: ContentListReferenceField<User>;
+     public Priority?: Enums.Priority;
+     public Status?: Enums.Status;
+     public TaskCompletion?: number;
+     public RemainingDays?: number;
+     public DueText?: string;
+     public DueCssClass?: string;
 
  }
 
@@ -612,9 +613,9 @@ import { BinaryField } from './BinaryField';
   * @class Query
   * @extends {@link GenericContent}
   */
- export class Query extends GenericContent {
-     Query?: string;
-     QueryType?: Enums.QueryType;
+  export class Query extends GenericContent {
+     public Query?: string;
+     public QueryType?: Enums.QueryType;
 
  }
 
@@ -623,34 +624,33 @@ import { BinaryField } from './BinaryField';
   * @class User
   * @extends {@link GenericContent}
   */
- export class User extends GenericContent {
-     LoginName?: string;
-     JobTitle?: string;
-     Enabled?: boolean;
-     Domain?: string;
-     Email?: string;
-     FullName?: string;
-     ImageRef?: ContentReferenceField<GenericContent>;
-     ImageData?: ComplexTypes.DeferredObject;
-     Avatar?: ComplexTypes.DeferredObject;
-     Password?: string;
-     SyncGuid?: string;
-     LastSync?: string;
-     Captcha?: string;
-     Manager?: ContentReferenceField<User>;
-     Department?: string;
-     Languages?: string;
-     Phone?: string;
-     Gender?: Enums.Gender;
-     MaritalStatus?: Enums.MaritalStatus;
-     BirthDate?: string;
-     Education?: string;
-     TwitterAccount?: string;
-     FacebookURL?: string;
-     LinkedInURL?: string;
-     Language?: Enums.Language;
-     FollowedWorkspaces?: ContentListReferenceField<Workspace>;
-     ProfilePath?: string;
+  export class User extends GenericContent {
+     public LoginName?: string;
+     public JobTitle?: string;
+     public Enabled?: boolean;
+     public Domain?: string;
+     public Email?: string;
+     public FullName?: string;
+     public ImageRef?: ContentReferenceField<GenericContent>;
+     public ImageData?: ComplexTypes.DeferredObject;
+     public Avatar?: ComplexTypes.DeferredObject;
+     public Password?: string;
+     public SyncGuid?: string;
+     public LastSync?: string;
+     public Captcha?: string;
+     public Manager?: ContentReferenceField<User>;
+     public Department?: string;
+     public Languages?: string;
+     public Phone?: string;
+     public Gender?: Enums.Gender;
+     public MaritalStatus?: Enums.MaritalStatus;
+     public BirthDate?: string;
+     public Education?: string;
+     public TwitterAccount?: string;
+     public FacebookURL?: string;
+     public LinkedInURL?: string;
+     public Language?: Enums.Language;
+     public FollowedWorkspaces?: ContentListReferenceField<Workspace>;
+     public ProfilePath?: string;
 
  }
-

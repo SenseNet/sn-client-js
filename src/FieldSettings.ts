@@ -17,47 +17,47 @@ import { ComplexTypes } from './SN';
     /**
      * Enum for Field visibility values.
      */
-    export enum FieldVisibility { Show, Hide, Advanced }
+export enum FieldVisibility { Show, Hide, Advanced }
     /**
      * Enum for Field output method values.
      */
-    export enum OutputMethod { Default, Raw, Text, Html }
+export enum OutputMethod { Default, Raw, Text, Html }
     /**
      * Enum for Choice Field control values.
      */
-    export enum DisplayChoice { DropDown, RadioButtons, CheckBoxes }
+export enum DisplayChoice { DropDown, RadioButtons, CheckBoxes }
     /**
      * Enum for DateTime Field mode values.
      */
-    export enum DateTimeMode { None, Date, DateAndTime }
+export enum DateTimeMode { None, Date, DateAndTime }
     /**
      * Enum for DateTime Field precision values.
      */
-    export enum DateTimePrecision { Millisecond, Second, Minute, Hour, Day }
+export enum DateTimePrecision { Millisecond, Second, Minute, Hour, Day }
     /**
      * Enum for LongText field editor values.
      */
-    export enum TextType { LongText, RichText, AdvancedRichText }
+export enum TextType { LongText, RichText, AdvancedRichText }
     /**
      * Enum for HyperLink field href values.
      */
-    export enum UrlFormat { Hyperlink, Picture }
+export enum UrlFormat { Hyperlink, Picture }
 
-    export class FieldSetting {
-        Name: string;
-        DisplayName?: string;
-        Description?: string;
-        Icon?: string;
-        ReadOnly?: boolean;
-        Compulsory?: boolean;
-        DefaultValue?: string;
-        OutputMethod?: OutputMethod;
-        VisibleBrowse?: FieldVisibility;
-        VisibleNew?: FieldVisibility;
-        VisibleEdit?: FieldVisibility;
-        FieldIndex?: number;
-        DefaultOrder?: number;
-        ControlHint?: string;
+export class FieldSetting {
+        public Name: string;
+        public DisplayName?: string;
+        public Description?: string;
+        public Icon?: string;
+        public ReadOnly?: boolean;
+        public Compulsory?: boolean;
+        public DefaultValue?: string;
+        public OutputMethod?: OutputMethod;
+        public VisibleBrowse?: FieldVisibility;
+        public VisibleNew?: FieldVisibility;
+        public VisibleEdit?: FieldVisibility;
+        public FieldIndex?: number;
+        public DefaultOrder?: number;
+        public ControlHint?: string;
 
         constructor(options: IFieldSettingOptions) {
             this.Name = options.name || 'Content';
@@ -77,7 +77,7 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IFieldSettingOptions {
+export interface IFieldSettingOptions {
         name?: string;
         displayName?: string;
         description?: string;
@@ -94,13 +94,12 @@ import { ComplexTypes } from './SN';
         controlHint?: string;
     }
 
-
     // Used in ContentType, GenericContent, File, Image, TrashBag, TrashBin, Task
-    export class IntegerFieldSetting extends FieldSetting {
-        MinValue?: number;
-        MaxValue?: number;
-        ShowAsPercentage?: boolean;
-        Step?: number;
+export class IntegerFieldSetting extends FieldSetting {
+        public MinValue?: number;
+        public MaxValue?: number;
+        public ShowAsPercentage?: boolean;
+        public Step?: number;
 
         constructor(options: IIntegerFieldSettingOptions) {
             super(options);
@@ -111,7 +110,7 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IIntegerFieldSettingOptions extends IFieldSettingOptions {
+export interface IIntegerFieldSettingOptions extends IFieldSettingOptions {
         minValue?: number;
         maxValue?: number;
         showAsPercentage?: boolean;
@@ -119,9 +118,9 @@ import { ComplexTypes } from './SN';
     }
 
     //
-    export class TextFieldSetting extends FieldSetting {
-        MinLength?: number;
-        MaxLength?: number;
+export class TextFieldSetting extends FieldSetting {
+        public MinLength?: number;
+        public MaxLength?: number;
 
         constructor(options: ITextFieldSettingOptions) {
             super(options);
@@ -130,14 +129,14 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface ITextFieldSettingOptions extends IFieldSettingOptions {
+export interface ITextFieldSettingOptions extends IFieldSettingOptions {
         minLength?: number;
         maxLength?: number;
     }
 
     // Used in ContentType, GenericContent, File, ContentList, Device, Domain, Email, OrganizationalUnit, TrashBag, Group, Task, User
-    export class ShortTextFieldSetting extends TextFieldSetting {
-        Regex?: string;
+export class ShortTextFieldSetting extends TextFieldSetting {
+        public Regex?: string;
 
         constructor(options: IShortTextFieldSettingOptions) {
             super(options);
@@ -145,26 +144,27 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IShortTextFieldSettingOptions extends ITextFieldSettingOptions {
+export interface IShortTextFieldSettingOptions extends ITextFieldSettingOptions {
         regex?: string;
     }
 
     // Used in ContentType, GenericContent, Settings, IndexingSettings, ContentList, Workspace, Site, CustomListItem, User
-    export class NullFieldSetting extends FieldSetting {
+export class NullFieldSetting extends FieldSetting {
 
         constructor(options: INullFieldSettingOptions) {
             super(options);
         }
     }
 
-    export interface INullFieldSettingOptions extends IFieldSettingOptions {
+// tslint:disable-next-line:no-empty-interface
+export interface INullFieldSettingOptions extends IFieldSettingOptions {
     }
 
     // Used in ContentType, GenericContent, File, HtmlTemplate, Image, ContentList, Aspect, Email, SmartFolder, Query, User
-    export class LongTextFieldSetting extends TextFieldSetting {
-        Rows?: number;
-        TextType?: TextType;
-        AppendModifications?: boolean;
+export class LongTextFieldSetting extends TextFieldSetting {
+        public Rows?: number;
+        public TextType?: TextType;
+        public AppendModifications?: boolean;
 
         constructor(options: ILongTextFieldSettingOptions) {
             super(options);
@@ -174,15 +174,15 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface ILongTextFieldSettingOptions extends ITextFieldSettingOptions {
+export interface ILongTextFieldSettingOptions extends ITextFieldSettingOptions {
         rows?: number;
         textType?: TextType;
         appendModifications?: boolean;
     }
 
     // Used in ContentType, File, User
-    export class BinaryFieldSetting extends FieldSetting {
-        IsText?: boolean;
+export class BinaryFieldSetting extends FieldSetting {
+        public IsText?: boolean;
 
         constructor(options: IBinaryFieldSettingOptions) {
             super(options);
@@ -190,17 +190,17 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IBinaryFieldSettingOptions extends IFieldSettingOptions {
+export interface IBinaryFieldSettingOptions extends IFieldSettingOptions {
         isText?: boolean;
     }
 
     // Used in ContentType, GenericContent, ContentLink, ContentList, ImageLibrary, TrashBag, Workspace, Site, UserProfile, Group, Memo, Task, User
-    export class ReferenceFieldSetting extends FieldSetting {
-        AllowMultiple?: boolean;
-        AllowedTypes?: string[];
-        SelectionRoots?: string[];
-        Query?: string;
-        FieldName?: string;
+export class ReferenceFieldSetting extends FieldSetting {
+        public AllowMultiple?: boolean;
+        public AllowedTypes?: string[];
+        public SelectionRoots?: string[];
+        public Query?: string;
+        public FieldName?: string;
 
         constructor(options: IReferenceFieldSettingOptions) {
             super(options);
@@ -212,7 +212,7 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IReferenceFieldSettingOptions extends IFieldSettingOptions {
+export interface IReferenceFieldSettingOptions extends IFieldSettingOptions {
         allowMultiple?: boolean;
         allowedTypes?: string[];
         selectionRoots?: string[];
@@ -221,9 +221,9 @@ import { ComplexTypes } from './SN';
     }
 
     // Used in ContentType, GenericContent, Image, Domain, Email, OrganizationalUnit, TrashBag, Workspace, Group, Memo, Task, User
-    export class DateTimeFieldSetting extends FieldSetting {
-        DateTimeMode?: DateTimeMode;
-        Precision?: DateTimePrecision;
+export class DateTimeFieldSetting extends FieldSetting {
+        public DateTimeMode?: DateTimeMode;
+        public Precision?: DateTimePrecision;
 
         constructor(options: IDateTimeFieldSettingOptions) {
             super(options);
@@ -232,18 +232,18 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IDateTimeFieldSettingOptions extends IFieldSettingOptions {
+export interface IDateTimeFieldSettingOptions extends IFieldSettingOptions {
         dateTimeMode?: DateTimeMode;
         precision?: DateTimePrecision;
     }
 
     // Used in GenericContent, ContentList, SmartFolder, Site, Memo, Task, Query, User
-    export class ChoiceFieldSetting extends ShortTextFieldSetting {
-        AllowExtraValue?: boolean;
-        AllowMultiple?: boolean;
-        Options?: ComplexTypes.ChoiceOption[];
-        DisplayChoice?: DisplayChoice;
-        EnumTypeName?: string;
+export class ChoiceFieldSetting extends ShortTextFieldSetting {
+        public AllowExtraValue?: boolean;
+        public AllowMultiple?: boolean;
+        public Options?: ComplexTypes.ChoiceOption[];
+        public DisplayChoice?: DisplayChoice;
+        public EnumTypeName?: string;
 
         constructor(options: IChoiceFieldSettingOptions) {
             super(options);
@@ -255,7 +255,7 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IChoiceFieldSettingOptions extends IShortTextFieldSettingOptions {
+export interface IChoiceFieldSettingOptions extends IShortTextFieldSettingOptions {
         allowExtraValue?: boolean;
         allowMultiple?: boolean;
         options?: ComplexTypes.ChoiceOption[];
@@ -264,12 +264,12 @@ import { ComplexTypes } from './SN';
     }
 
     // Used in GenericContent, File, Resource
-    export class NumberFieldSetting extends FieldSetting {
-        MinValue?: number;
-        MaxValue?: number;
-        Digits?: number;
-        ShowAsPercentage?: boolean;
-        Step?: number;
+export class NumberFieldSetting extends FieldSetting {
+        public MinValue?: number;
+        public MaxValue?: number;
+        public Digits?: number;
+        public ShowAsPercentage?: boolean;
+        public Step?: number;
 
         constructor(options: INumberFieldSettingOptions) {
             super(options);
@@ -281,7 +281,7 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface INumberFieldSettingOptions extends IFieldSettingOptions {
+export interface INumberFieldSettingOptions extends IFieldSettingOptions {
         minValue?: number;
         maxValue?: number;
         digits?: number;
@@ -290,9 +290,9 @@ import { ComplexTypes } from './SN';
     }
 
     // Used in GenericContent
-    export class RatingFieldSetting extends ShortTextFieldSetting {
-        Range?: number;
-        Split?: number;
+export class RatingFieldSetting extends ShortTextFieldSetting {
+        public Range?: number;
+        public Split?: number;
 
         constructor(options: IRatingFieldSettingOptions) {
             super(options);
@@ -301,16 +301,16 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IRatingFieldSettingOptions extends IShortTextFieldSettingOptions {
+export interface IRatingFieldSettingOptions extends IShortTextFieldSettingOptions {
         range?: number;
         split?: number;
     }
 
     // Used in User
-    export class PasswordFieldSetting extends ShortTextFieldSetting {
-        ReenterTitle?: string;
-        ReenterDescription?: string;
-        PasswordHistoryLength?: number;
+export class PasswordFieldSetting extends ShortTextFieldSetting {
+        public ReenterTitle?: string;
+        public ReenterDescription?: string;
+        public PasswordHistoryLength?: number;
 
         constructor(options: IPasswordFieldSettingOptions) {
             super(options);
@@ -320,19 +320,20 @@ import { ComplexTypes } from './SN';
         }
     }
 
-    export interface IPasswordFieldSettingOptions extends IShortTextFieldSettingOptions {
+export interface IPasswordFieldSettingOptions extends IShortTextFieldSettingOptions {
         reenterTitle?: string;
         reenterDescription?: string;
         passwordHistoryLength?: number;
     }
 
     // Used in User
-    export class CaptchaFieldSetting extends FieldSetting {
+export class CaptchaFieldSetting extends FieldSetting {
 
         constructor(options: ICaptchaFieldSettingOptions) {
             super(options);
         }
     }
 
-    export interface ICaptchaFieldSettingOptions extends IFieldSettingOptions {
+// tslint:disable-next-line:no-empty-interface
+export interface ICaptchaFieldSettingOptions extends IFieldSettingOptions {
     }

@@ -1,21 +1,21 @@
 /**
  * @module Query
- * */ /** */
+ */ /** */
 
 import { Query } from '.';
-import { SavedContent, IContent } from '../Content';
+import { IContent, SavedContent } from '../Content';
 
 /**
  * Represents a query expression segment
  */
-export class QuerySegment<TReturns extends IContent>{
+export class QuerySegment<TReturns extends IContent> {
 
     /**
      * Escapes a String value (except '?' and '*' characters for wildcards)
      * @param {string} value The String value to be escaped
      * @returns {string} The escaped value
      */
-    protected escapeValue(value: string): string{
+    protected escapeValue(value: string): string {
         return typeof value === 'string' ? value.replace(/([\!\+\&\|\(\)\[\]\{\}\^\~\:\"])/g, '\\$1') : value;
     }
 
@@ -26,7 +26,7 @@ export class QuerySegment<TReturns extends IContent>{
      * @param {K} field The name of the field
      * @param {boolean} reverse Sort in reverse order, false by default
      */
-    public Sort<K extends keyof TReturns>(field: K, reverse: boolean = false){
+    public Sort<K extends keyof TReturns>(field: K, reverse: boolean = false) {
         this._stringValue = ` .${reverse ? 'REVERSESORT' : 'SORT'}:'${field}'`;
         return this.finializeSegment();
     }
@@ -35,7 +35,7 @@ export class QuerySegment<TReturns extends IContent>{
      * A '.TOP' Content Query segment
      * @param {number} topCount The TOP item count
      */
-    public Top(topCount: number){
+    public Top(topCount: number) {
         this._stringValue = ` .TOP:${topCount}`;
         return this.finializeSegment();
     }
@@ -45,7 +45,7 @@ export class QuerySegment<TReturns extends IContent>{
      * @param {number} skipCount Items to skip
      */
 
-    public Skip(skipCount: number){
+    public Skip(skipCount: number) {
         this._stringValue = ` .SKIP:${skipCount}`;
         return this.finializeSegment();
     }
@@ -53,7 +53,8 @@ export class QuerySegment<TReturns extends IContent>{
     /**
      * @returns {string} a segment string value
      */
-    public toString(){
+    // tslint:disable-next-line:naming-convention
+    public toString() {
         return this._stringValue;
     }
 
@@ -78,7 +79,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param {string} term The Query term
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */
-    Term(term: string){
+    public Term(term: string) {
         this._stringValue = term;
         return this.finialize();
     }
@@ -88,8 +89,8 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param {string | Content } path The path string or content that will be used as a root
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */
-    InTree(path: string | SavedContent){
-        const pathValue = this.escapeValue((path as SavedContent).Path ? (path as SavedContent).Path : path.toString())
+    public InTree(path: string | SavedContent) {
+        const pathValue = this.escapeValue((path as SavedContent).Path ? (path as SavedContent).Path : path.toString());
         this._stringValue = `InTree:"${pathValue}"`;
         return this.finialize();
     }
@@ -99,8 +100,8 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param {string | Content } path The path string or content that will be used as a root
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */
-    InFolder(path: string | SavedContent){
-        const pathValue = this.escapeValue((path as SavedContent).Path ? (path as SavedContent).Path : path.toString())
+    public InFolder(path: string | SavedContent) {
+        const pathValue = this.escapeValue((path as SavedContent).Path ? (path as SavedContent).Path : path.toString());
         this._stringValue = `InFolder:"${pathValue}"`;
         return this.finialize();
     }
@@ -111,9 +112,9 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @returns { QueryOperator<TNewType> } The Next query operator (fluent)
      */
 
-    Type<TNewType extends IContent = IContent>(newTypeAssertion: { new(...args: any[]): TNewType }) {
+    public Type<TNewType extends IContent = IContent>(newTypeAssertion: { new(...args: any[]): TNewType }) {
         this._stringValue = `Type:${newTypeAssertion.name}`;
-        return this.finialize<TNewType>()
+        return this.finialize<TNewType>();
     }
 
     /**
@@ -121,9 +122,9 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param {{ new(...args: any[]): TNewType }} newTypeAssertion The path string or content that will be used as a root
      * @returns { QueryOperator<TNewType> } The Next query operator (fluent)
      */
-    TypeIs<TNewType extends IContent = IContent>(newTypeAssertion: { new(...args: any[]): TNewType }) {
+    public TypeIs<TNewType extends IContent = IContent>(newTypeAssertion: { new(...args: any[]): TNewType }) {
         this._stringValue = `TypeIs:${newTypeAssertion.name}`;
-        return this.finialize<TNewType>()
+        return this.finialize<TNewType>();
     }
 
     /**
@@ -132,7 +133,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param { TReturns[K] } value The value that will be checked. You can use '?' and '*' wildcards
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */
-    Equals<K extends keyof TReturns>(fieldName: K | '_Text', value: TReturns[K]){
+    public Equals<K extends keyof TReturns>(fieldName: K | '_Text', value: TReturns[K]) {
         this._stringValue = `${fieldName}:'${this.escapeValue(value)}'`;
         return this.finialize();
     }
@@ -144,7 +145,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @returns { QueryOperator<TReturns> } The Next query operator (fluent)
      */
 
-    NotEquals<K extends keyof TReturns>(fieldName: K, value: TReturns[K]){
+    public NotEquals<K extends keyof TReturns>(fieldName: K, value: TReturns[K]) {
         this._stringValue = `NOT(${fieldName}:'${this.escapeValue(value)}')`;
         return this.finialize();
     }
@@ -157,11 +158,10 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param { boolean } minimumInclusive Lower limit will be inclusive / exclusive
      * @param { boolean } maximumInclusive Upper limit will be inclusive / exclusive
      */
-    Between<K extends keyof TReturns>(fieldName: K, minValue: TReturns[K], maxValue: TReturns[K], minimumInclusive: boolean = false, maximumInclusive: boolean = false){
+    public Between<K extends keyof TReturns>(fieldName: K, minValue: TReturns[K], maxValue: TReturns[K], minimumInclusive: boolean = false, maximumInclusive: boolean = false) {
         this._stringValue = `${fieldName}:${minimumInclusive ? '[' : '{'}'${this.escapeValue(minValue)}' TO '${this.escapeValue(maxValue)}'${maximumInclusive ? ']' : '}'}`;
         return this.finialize();
     }
-
 
     /**
      * Greather than query expression (+FieldName:>'value')
@@ -169,11 +169,10 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param { TReturns[K] } minValue The minimum allowed value
      * @param { boolean } minimumInclusive Lower limit will be inclusive / exclusive
      */
-    GreatherThan<K extends keyof TReturns>(fieldName: K, minValue: TReturns[K], minimumInclusive: boolean = false){
+    public GreatherThan<K extends keyof TReturns>(fieldName: K, minValue: TReturns[K], minimumInclusive: boolean = false) {
         this._stringValue = `${fieldName}:>${minimumInclusive ? '=' : ''}'${this.escapeValue(minValue)}'`;
         return this.finialize();
     }
-
 
     /**
      * Less than query expression (+FieldName:<'value')
@@ -181,7 +180,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * @param { TReturns[K] } maxValue The maximum allowed value
      * @param { boolean } maximumInclusive Upper limit will be inclusive / exclusive
      */
-    LessThan<K extends keyof TReturns>(fieldName: K, maxValue: TReturns[K], maximumInclusive: boolean = false){
+    public LessThan<K extends keyof TReturns>(fieldName: K, maxValue: TReturns[K], maximumInclusive: boolean = false) {
         this._stringValue = `${fieldName}:<${maximumInclusive ? '=' : ''}'${this.escapeValue(maxValue)}'`;
         return this.finialize();
     }
@@ -190,7 +189,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * A Nested query expression
      * @param {(first: QueryExpression<TReturns>) => QuerySegment<TReturns>)} build The Expression builder method
      */
-    Query(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>){
+    public Query(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>) {
         const innerQuery = new Query(build);
         this._stringValue = `(${innerQuery.toString()})`;
         return this.finialize();
@@ -200,7 +199,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
      * A Nested NOT query expression
      * @param {(first: QueryExpression<TReturns>) => QuerySegment<TReturns>)} build The Expression builder method
      */
-    Not(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>){
+    public Not(build: (first: QueryExpression<TReturns>) => QuerySegment<TReturns>) {
         const innerQuery = new Query(build);
         this._stringValue = `NOT(${innerQuery.toString()})`;
         return this.finialize();
@@ -213,7 +212,7 @@ export class QueryExpression<TReturns extends IContent> extends QuerySegment<TRe
 }
 
 // And, Or, Etc...
-export class QueryOperators<TReturns extends IContent> extends QuerySegment<TReturns>{
+export class QueryOperators<TReturns extends IContent> extends QuerySegment<TReturns> {
 
     /**
      * AND Content Query operator
@@ -222,7 +221,6 @@ export class QueryOperators<TReturns extends IContent> extends QuerySegment<TRet
         this._stringValue = ' AND ';
         return this.finialize();
     }
-
 
     /**
      * OR Content Query operator

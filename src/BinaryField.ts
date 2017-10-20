@@ -2,17 +2,16 @@
  * @module Content
  */ /** */
 
-import { SavedContent, IContent, ContentInternal } from './Content';
-import { MediaResourceObject } from './ComplexTypes';
 import { Observable } from '@reactivex/rxjs';
-import { UploadProgressInfo } from './Repository/UploadModels';
+import { MediaResourceObject } from './ComplexTypes';
+import { ContentInternal, IContent, SavedContent } from './Content';
 import { BinaryFieldSetting } from './FieldSettings';
+import { UploadProgressInfo } from './Repository/UploadModels';
 
 /**
  * Represents a binary field instance
  */
 export class BinaryField<T extends IContent> {
-
 
     /**
      * Saves a File object instance (from a form input or drop event) into the binary field
@@ -58,7 +57,7 @@ export class BinaryField<T extends IContent> {
      * @param {BinaryFieldSetting} _fieldSettings The corresponding fieldsettings
      */
     constructor(private readonly _mediaResourceObject: MediaResourceObject,
-        private readonly _contentReference: ContentInternal<T>,
-        private readonly _fieldSettings: BinaryFieldSetting) {
+                private readonly _contentReference: ContentInternal<T>,
+                private readonly _fieldSettings: BinaryFieldSetting) {
     }
 }

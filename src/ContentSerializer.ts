@@ -3,7 +3,7 @@
  * @preferred
  * @description Utility to serialize and deserialize Content instances.
  *
- * */ /** */
+ */ /** */
 
 import { IContent, SavedContent } from './Content';
 import { ODataHelper } from './SN';
@@ -11,15 +11,15 @@ import { ODataHelper } from './SN';
 /**
  * Represents a serialized Content instance wich can be stringified using JSON.stringify()
  */
-export class SerializedContent<T extends IContent>{
+export class SerializedContent<T extends IContent> {
     /**
      * The original content's field data
      */
-    Data: T;
+    public Data: T;
     /**
      * The full original Path for the original Content (e.g.: 'https://my.sensenet.com/OData.svc/Root/Temp/MyContent)
      */
-    Origin: string;
+    public Origin: string;
 }
 
 export class ContentSerializer {
@@ -37,7 +37,7 @@ export class ContentSerializer {
         return {
             Data: content.GetFields(true),
             Origin: ODataHelper.joinPaths(`${repoUrl}`, content.Path)
-        }
+        };
     }
 
     /**

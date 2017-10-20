@@ -1,5 +1,5 @@
-import { FieldSettings } from '../src/SN'
 import * as Chai from 'chai';
+import * as  FieldSettings from '../src/FieldSettings';
 const expect = Chai.expect;
 
 describe('FieldSettings', () => {
@@ -17,7 +17,7 @@ describe('FieldSettings', () => {
             expect(fieldSetting.Name).to.be.eq('ShortText');
         });
         it('should return null as the Icon of the FieldSetting object', () => {
-            let inst = new FieldSettings.FieldSetting({ name: 'ShortText' });
+            const inst = new FieldSettings.FieldSetting({ name: 'ShortText' });
             expect(inst.Icon).to.be.eq(undefined);
         });
         it('returns the name', () => {
@@ -28,17 +28,17 @@ describe('FieldSettings', () => {
             expect(fieldSetting.Name).to.be.equal('Number');
         });
         it('should return a FieldSetting object with a name ShortText', () => {
-            let obj1 = JSON.stringify({ Name: 'ShortText' });
-            let obj2 = new FieldSettings.FieldSetting({
+            const obj1 = JSON.stringify({ Name: 'ShortText' });
+            const obj2 = new FieldSettings.FieldSetting({
                 name: 'ShortText',
             });
             expect(obj1).to.be.eq(JSON.stringify(obj2));
         });
         it('should return a FieldSetting object with a name ShortText2', () => {
 
-            const fieldSetting = new FieldSettings.FieldSetting({ name: 'ShortText2', displayName: 'AAA' });
-            let obj1 = JSON.stringify({ Name: 'ShortText2', DisplayName: 'AAA' });
-            expect(JSON.stringify(fieldSetting)).to.be.eq(obj1);
+            const setting = new FieldSettings.FieldSetting({ name: 'ShortText2', displayName: 'AAA' });
+            const obj1 = JSON.stringify({ Name: 'ShortText2', DisplayName: 'AAA' });
+            expect(JSON.stringify(setting)).to.be.eq(obj1);
         });
     });
     describe('#TextFieldSetting constructor', () => {
@@ -51,11 +51,11 @@ describe('FieldSettings', () => {
         });
         it('should return a TextFieldSetting object with the given params', () => {
             const obj1 = JSON.stringify(fieldSetting);
-            const obj2 = JSON.stringify({ Name: 'ShortText', DisplayName: 'ShortText', MinLength: 0, MaxLength: 2 })
+            const obj2 = JSON.stringify({ Name: 'ShortText', DisplayName: 'ShortText', MinLength: 0, MaxLength: 2 });
             expect(obj1).to.be.eq(obj2);
         });
         it('should return null as the Icon of the TextFieldSetting object', () => {
-            let inst = new FieldSettings.TextFieldSetting({ name: 'ShortText' });
+            const inst = new FieldSettings.TextFieldSetting({ name: 'ShortText' });
             expect(inst.Icon).to.be.eq(undefined);
         });
     });
@@ -78,7 +78,7 @@ describe('FieldSettings', () => {
         });
     });
     describe('#Captcha', () => {
-        const captcha = new FieldSettings.CaptchaFieldSetting({ 'displayName': 'Captcha' });
+        const captcha = new FieldSettings.CaptchaFieldSetting({ displayName: 'Captcha' });
         it('should return a Captcha fieldSetting object', () => {
             expect(captcha).to.be.an.instanceof(FieldSettings.CaptchaFieldSetting);
         });

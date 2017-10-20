@@ -1,18 +1,17 @@
-import { ContentTypes, ContentInternal } from '../src/SN';
 import * as Chai from 'chai';
+import { Aspect, ContentLink, ContentList, ContentType, CustomList, CustomListItem, Device, DocumentLibrary,
+    Domain, Domains, DynamicJsonContent, Email, ExecutableFile, File as SnFile, Folder, GenericContent,
+    Group, HtmlTemplate, Image, ImageLibrary, IndexingSettings, ItemList, Library, ListItem,
+    LoggingSettings, Memo, MemoList, OrganizationalUnit, PortalRoot, PortalSettings, PreviewImage, ProfileDomain, Profiles,
+    Query, Resource, Resources, RuntimeContentContainer, Settings, Site, Sites, SmartFolder,
+    SystemFile, SystemFolder, Task, TaskList, TrashBag, TrashBin, User, UserProfile, Workspace } from '../src/ContentTypes';
+import { ContentInternal, ContentTypes } from '../src/SN';
 import { MockRepository } from './Mocks/MockRepository';
-import { Memo, ContentType, GenericContent, Folder, ContentList, Aspect, ItemList, CustomList,
-    MemoList, TaskList, Library, DocumentLibrary, ImageLibrary, Workspace, Site, TrashBin,
-    SmartFolder, Device, Domain, Domains, Email, OrganizationalUnit, PortalRoot, SystemFolder,
-    Resource, Resources, ProfileDomain, Profiles, User, Query, Group, ContentLink, CustomListItem,
-    Task, ListItem, UserProfile, PreviewImage, Image, HtmlTemplate, ExecutableFile, DynamicJsonContent,
-    SystemFile, RuntimeContentContainer, Sites, TrashBag, File as SnFile, Settings, IndexingSettings, LoggingSettings, PortalSettings } from '../src/ContentTypes';
 const expect = Chai.expect;
 
 describe('ContentTypes', () => {
 
-
-    let repo = new MockRepository();
+    const repo = new MockRepository();
 
     describe('#ContentType', () => {
         const gc = new ContentInternal<ContentType>({ Id: 1, Name: '' }, repo);

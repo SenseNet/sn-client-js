@@ -1,18 +1,18 @@
 /**
  * @module Query
- * */ /** */
-import { SavedContent, IContent } from '../Content';
+ */ /** */
+import { IContent, SavedContent } from '../Content';
 
 /**
  * Represents a Content Query result
  */
-export class QueryResult<T extends IContent = IContent>{
+export class QueryResult<T extends IContent = IContent> {
     /**
      * The result yielded by the Query
      */
-    Result: SavedContent<T>[];
+    public Result: SavedContent<T>[];
     /**
      * The item count
      */
-    Count: number;
+    public Count: number;
 }

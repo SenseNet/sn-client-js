@@ -21,13 +21,13 @@ export class SnConfigFieldModelStore {
      * @throws error if a field with the same name already exists
      */
     public static Add(newModel: SnConfigFieldModel) {
-        if (!newModel.StoreKey){
+        if (!newModel.StoreKey) {
             throw Error('No Store key defined');
         }
         if (this.Contains(newModel.StoreKey)) {
             throw new Error(`Field ${newModel.StoreKey} for configuration model already in the store!`);
         }
-        this._store[newModel.StoreKey] = newModel;
+        (this._store as any)[newModel.StoreKey] = newModel;
     }
 
     /**
