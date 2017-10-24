@@ -632,7 +632,7 @@
      public Email?: string;
      public FullName?: string;
      public ImageRef?: ContentReferenceField<GenericContent>;
-     public ImageData?: ComplexTypes.DeferredObject;
+     public ImageData?: ComplexTypes.MediaResourceObject;
      public Avatar?: ComplexTypes.DeferredObject;
      public Password?: string;
      public SyncGuid?: string;
