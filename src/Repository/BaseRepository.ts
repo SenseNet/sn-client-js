@@ -539,8 +539,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
     public DeleteBatch(contentList: (Content & ISavedContent)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
-        const contentFields = contentList.map((c) => c.GetFields());
-        const action = this._odataApi.CreateCustomAction({
+        const action = this._odataApi.CreateCustomAction<ODataBatchResponse>({
             name: 'DeleteBatch',
             path: rootContent.Path,
             isAction: true,
@@ -553,13 +552,17 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             });
 
         action.subscribe((result) => {
-            contentFields.forEach((contentData) => {
-                this.Events.Trigger.ContentDeleted({ ContentData: contentData, Permanently: permanently });
-            });
+            if (result.d.__count) {
+                result.d.results.forEach((deleted) => {
+                    this.Events.Trigger.ContentDeleted({ContentData: deleted, Permanently: permanently});
+                });
+
+                result.d.errors.forEach((error) => {
+                    this.Events.Trigger.ContentDeleteFailed({Content: this.HandleLoadedContent(error.content), Error: error.error, Permanently: permanently});
+                });
+            }
         }, (error) => {
-            contentList.forEach((content) => {
-                this.Events.Trigger.ContentDeleteFailed({ Content: content, Error: error, Permanently: permanently });
-            });
+            // Whole batch operation failed
         });
         return action;
     }
@@ -612,7 +615,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 });
             }
         }, (error) => {
-            // ToDo: Batch operation failed
+            // Whole batch operation failed
         });
         return action;
     }
@@ -656,7 +659,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 });
             }
         }, (error) => {
-            // ToDo: Batch operation failed
+            // Whole batch operation failed
         });
         return action;
     }
