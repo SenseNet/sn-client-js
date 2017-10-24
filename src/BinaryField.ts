@@ -40,6 +40,9 @@ export class BinaryField<T extends IContent> {
      * Returns the download URL for the binary
      */
     public GetDownloadUrl(): string {
+        if (!this._mediaResourceObject || typeof this._mediaResourceObject !== 'object') {
+            return `/binaryhandler.ashx?nodeid=${this._contentReference.Id}&propertyname=${this._fieldSettings.Name}`;
+        }
         return this._mediaResourceObject.__mediaresource.media_src;
     }
 
