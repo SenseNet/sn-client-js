@@ -241,8 +241,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     File: f as any,
                     ...options
                 })
-                .skipWhile((progress) => !progress.Completed)
-                .subscribe(
+                    .skipWhile((progress) => !progress.Completed)
+                    .subscribe(
                     (progress) => resolve(progress),
                     (err) => reject(err));
             }, (err) => reject(err));
@@ -405,7 +405,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public HandleLoadedContent<T extends IContent>(opt: T & ISavedContent, contentType?: {new(...args: any[]): T}): SavedContent<T> {
+    public HandleLoadedContent<T extends IContent>(opt: T & ISavedContent, contentType?: { new(...args: any[]): T }): SavedContent<T> {
         let instance: Content<T>;
 
         const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Folder) as { new(...args: any[]): T };
@@ -471,9 +471,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Shortcut to Content.Create
      */
-    public CreateContent: <TContentType extends IContent = IContent>(options: TContentType, contentType: {new(...args: any[]): TContentType}) => Content<TContentType> =
-        <TContentType>(options: TContentType, contentType: {new(...args: any[]): TContentType} ) =>
-            ContentInternal.Create<TContentType>(options, contentType, this)
+    public CreateContent: <TContentType extends IContent = IContent>(options: TContentType, contentType: { new(...args: any[]): TContentType }) => Content<TContentType> =
+    <TContentType>(options: TContentType, contentType: { new(...args: any[]): TContentType }) =>
+        ContentInternal.Create<TContentType>(options, contentType, this)
 
     /**
      * Parses a Content instance from a stringified SerializedContent<T> instance
@@ -538,27 +538,28 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {boolean} permanently Option to delete the content permanently or just move it to the trash
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public DeleteBatch(contentList: (Content & ISavedContent)[], permanently: boolean = false, rootContent = this._staticContent.PortalRoot) {
+    public DeleteBatch(contentList: (Content & ISavedContent)[], permanent: boolean = false, rootContent = this._staticContent.PortalRoot) {
         const action = this._odataApi.CreateCustomAction<ODataBatchResponse>({
             name: 'DeleteBatch',
             path: rootContent.Path,
             isAction: true,
             requiredParams: ['paths']
         }, {
-                data: [
-                    { paths: contentList.map((c) => c.Id || c.Path).filter((c) => c !== undefined) },
-                    { permanently }
-                ]
+                data: {
+                    paths: contentList.map((c) => c.Id || c.Path).filter((c) => c !== undefined),
+                    permanent
+                }
+
             });
 
         action.subscribe((result) => {
             if (result.d.__count) {
                 result.d.results.forEach((deleted) => {
-                    this.Events.Trigger.ContentDeleted({ContentData: deleted, Permanently: permanently});
+                    this.Events.Trigger.ContentDeleted({ ContentData: deleted, Permanently: permanent });
                 });
 
                 result.d.errors.forEach((error) => {
-                    this.Events.Trigger.ContentDeleteFailed({Content: this.HandleLoadedContent(error.content), Error: error.error, Permanently: permanently});
+                    this.Events.Trigger.ContentDeleteFailed({ Content: this.HandleLoadedContent(error.content), Error: error.error, Permanently: permanent });
                 });
             }
         }, (error) => {
@@ -601,7 +602,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     this.Events.Trigger.ContentMoved({
                         From: from && from.Path || '',
                         Content: this.HandleLoadedContent(moved),
-                        To: targetPath });
+                        To: targetPath
+                    });
                 });
 
                 result.d.errors.forEach((error) => {
