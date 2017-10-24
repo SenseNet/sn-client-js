@@ -3,7 +3,6 @@ export * from './BinaryFieldTests';
 export * from './JwtServiceTests';
 export * from './CollectionTests';
 export * from './ContentTests';
-export * from './ContentTypeTests';
 export * from './ContentReferenceFieldTests';
 export * from './ContentListReferenceFieldTests';
 export * from './ContentSerializerTests';
