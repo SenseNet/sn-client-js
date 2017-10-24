@@ -630,8 +630,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
     public CopyBatch(contentList: (SavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
-        const contentFields = contentList.map((c) => c.GetFields());
-        const action = this._odataApi.CreateCustomAction({
+        const action = this._odataApi.CreateCustomAction<ODataBatchResponse>({
             name: 'CopyBatch',
             path: rootContent.Path,
             isAction: true,
@@ -647,17 +646,17 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             });
 
         action.subscribe((result) => {
-            contentFields.forEach((contentData, index) => {
-                // ToDo: Update from CopyBatch response
-                const created = this.HandleLoadedContent(contentData as any);
-                created.Path = ODataHelper.joinPaths(targetPath, created.Name || '');
-                (created as any).Id = undefined;
-                this.Events.Trigger.ContentCreated({ Content: created });
-            });
+            if (result.d.__count) {
+                result.d.results.forEach((created) => {
+                    this.Events.Trigger.ContentCreated({ Content: this.HandleLoadedContent(created) });
+                });
+
+                result.d.errors.forEach((error) => {
+                    this.Events.Trigger.ContentCreateFailed({ Content: error.content, Error: error.error });
+                });
+            }
         }, (error) => {
-            contentList.forEach((contentData, index) => {
-                this.Events.Trigger.ContentCreateFailed({ Error: error, Content: contentData });
-            });
+            // ToDo: Batch operation failed
         });
         return action;
     }
