@@ -60,12 +60,12 @@ export const CollectionTests = describe('Collection', () => {
   });
   describe('#Add()', () => {
     it('should return an observable', () => {
-      const content = ContentInternal.Create<Task>({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, Repo);
+      const content = ContentInternal.Create({ DueDate: '2017-06-27T11:11:11Z', Name: '' }, Task, Repo);
       expect(collection.Add(content)).to.be.instanceof(Observable);
     });
 
     it('Observable should be resolved', (done) => {
-      const content = Repo.HandleLoadedContent<Task>({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' });
+      const content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' });
       Repo.Authentication.StateSubject.next(LoginState.Authenticated);
       Repo.HttpProviderRef.AddResponse({ d: content.GetFields() });
       collection.Add(content).subscribe((r) => {

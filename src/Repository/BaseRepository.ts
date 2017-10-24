@@ -255,7 +255,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 Name: Directory.name,
                 Path: Scope.Path,
                 DisplayName: Directory.name
-            }).Save().subscribe(async (c) => {
+            }, Folder).Save().subscribe(async (c) => {
                 const dirReader = Directory.createReader();
                 await new Promise((res) => {
                     dirReader.readEntries(async (items) => {
@@ -405,20 +405,23 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public HandleLoadedContent<T extends IContent>(opt: T & ISavedContent): SavedContent<T> {
+    public HandleLoadedContent<T extends IContent>(opt: T & ISavedContent, contentType?: {new(...args: any[]): T}): SavedContent<T> {
         let instance: Content<T>;
+
+        const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Folder) as { new(...args: any[]): T };
+
         if (opt.Id) {
             if (this._loadedContentReferenceCache[opt.Id]) {
                 instance = this._loadedContentReferenceCache[opt.Id] as Content<T>;
                 // tslint:disable-next-line:no-string-literal
                 instance['updateLastSavedFields'](opt);
             } else {
-                instance = ContentInternal.Create<T>(opt, this);
+                instance = ContentInternal.Create<T>(opt, realContentType, this);
                 this._loadedContentReferenceCache[opt.Id] = instance as SavedContent<T>;
             }
 
         } else {
-            instance = ContentInternal.Create<T>(opt, this);
+            instance = ContentInternal.Create<T>(opt, realContentType, this);
         }
         // tslint:disable-next-line:no-string-literal
         instance['_isSaved'] = true;
@@ -468,8 +471,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Shortcut to Content.Create
      */
-    public CreateContent: <TContentType extends IContent = IContent>(options: TContentType) => Content<TContentType> =
-        <TContentType>(options: TContentType) => ContentInternal.Create<TContentType>(options, this)
+    public CreateContent: <TContentType extends IContent = IContent>(options: TContentType, contentType: {new(...args: any[]): TContentType}) => Content<TContentType> =
+        <TContentType>(options: TContentType, contentType: {new(...args: any[]): TContentType} ) =>
+            ContentInternal.Create<TContentType>(options, contentType, this)
 
     /**
      * Parses a Content instance from a stringified SerializedContent<T> instance

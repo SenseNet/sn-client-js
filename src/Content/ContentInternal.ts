@@ -138,6 +138,8 @@ export class ContentInternal<T extends IContent = IContent> {
                     if (currentField.IsDirty) {
                         changedFields[field] = currentField.GetValue();
                     }
+                } else if (currentField instanceof BinaryField) {
+                    /* skip, binaries cannot be compared */
                 } else {
                     changedFields[field] = (this as any)[field];
                 }
@@ -152,9 +154,14 @@ export class ContentInternal<T extends IContent = IContent> {
     public GetFields(skipEmpties?: boolean): T {
         const fieldsToPost = {} as T;
         this.GetSchema().FieldSettings.forEach((s) => {
-            const value = (this as any)[s.Name] && (this as any)[s.Name].GetValue
-                ? (this as any)[s.Name].GetValue()
-                : (this as any)[s.Name];
+            let value = (this as any)[s.Name];
+            if ((this as any)[s.Name] && (this as any)[s.Name].GetValue) {
+                value = (this as any)[s.Name].GetValue();
+            }
+
+            if ((this as any)[s.Name] && ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl) {
+                value = ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl();
+            }
 
             if ((!skipEmpties && value !== undefined) || (skipEmpties && value)) {
                 (fieldsToPost as any)[s.Name] = value;
@@ -217,7 +224,7 @@ export class ContentInternal<T extends IContent = IContent> {
         if (isSavedContent<T>(this)) {
             return this as SavedContent<T>;
         }
-        throw new Error('Contnt is not saved.');
+        throw new Error('Contnet is not saved.');
     }
 
     /**
@@ -363,7 +370,7 @@ export class ContentInternal<T extends IContent = IContent> {
                 throw err;
             }
 
-            const request = this._odata.Post<T>(this.Path, this.GetFields(true))
+            const request = this._odata.Post<T>(this.Path, Object.assign({Type: this.Type}, this.GetFields(true)))
                 .map((resp) => {
                     if (!resp.Id) {
                         throw Error('Error: No content Id in response!');
@@ -1044,8 +1051,12 @@ export class ContentInternal<T extends IContent = IContent> {
     //     return constructed;
     // }
 
-    public static Create<T extends IContent = IContent>(options: T, repository: BaseRepository): Content<T> & T {
-        return new ContentInternal(options, repository) as Content<T>;
+    public static Create<T extends IContent = IContent>(options: T, newContent: {new(...args: any[]): T}, repository: BaseRepository): Content<T> & T {
+        const created = new ContentInternal(options, repository) as Content<T>;
+        if (newContent) {
+            created.Type = newContent.name;
+        }
+        return created;
     }
 
     /**

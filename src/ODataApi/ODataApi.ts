@@ -99,6 +99,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
     public Post<T extends IContent>(
         path: string,
         contentBody: T): Observable<SavedContent<T>> {
+        (contentBody as any).__ContentType = contentBody.Type;
         return this._repository
             .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', ODataResponse, JSON.stringify(contentBody))
             .map((resp) => resp.d)

@@ -154,7 +154,7 @@ export class RepositoryTests {
 
     @test public 'Should be able to create content using repository.CreateContent() '() {
         const snRepo = new SnRepository();
-        const exampleTask = snRepo.CreateContent<Task>({ DueText: 'testDueText' });
+        const exampleTask = snRepo.CreateContent({ DueText: 'testDueText' }, Task);
         expect(exampleTask).to.be.instanceOf(ContentInternal);
         expect(exampleTask.DueText).to.be.eq('testDueText');
     }

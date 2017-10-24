@@ -31,7 +31,7 @@ export const contentTests = describe('Content', () => {
             DisplayName: '',
             Type: CONTENT_TYPE
         };
-        content = repo.CreateContent<Task>(options);
+        content = repo.CreateContent(options, Task);
         contentSaved = repo.HandleLoadedContent<Task>(options);
         repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
@@ -108,7 +108,7 @@ export const contentTests = describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            const newContent = repo.CreateContent({});
+            const newContent = repo.CreateContent({}, null as any);
             expect(newContent.Type).to.be.eq('Content');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
@@ -224,7 +224,7 @@ export const contentTests = describe('Content', () => {
 
     describe('#IsValid', () => {
         it('should return false if there are missing fields', () => {
-            const emptyContent = ContentInternal.Create<Task>({}, repo);
+            const emptyContent = ContentInternal.Create({}, Task, repo);
             expect(emptyContent.IsValid).to.be.eq(false);
         });
         it('should return true all complusory fields are filled', () => {
@@ -256,7 +256,7 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should return an Observable on not saved content', () => {
-            const unsavedContent = ContentInternal.Create<Task>({}, repo);
+            const unsavedContent = ContentInternal.Create({}, Task, repo);
             expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
         });
     });
@@ -281,12 +281,12 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw an error if no ID provided', () => {
-            const newContent = ContentInternal.Create<Task>({}, repo);
+            const newContent = ContentInternal.Create({}, Task, repo);
             expect(() => { newContent.Rename('aaa', 'bbb'); }).to.throw();
         });
 
         it('should throw an error if trying to rename an unsaved content with Id', () => {
-            const newContent = ContentInternal.Create<Task>({ Id: 3 }, repo);
+            const newContent = ContentInternal.Create({ Id: 3 }, Task, repo);
             expect(() => { newContent.Rename('aaa', 'bbb'); }).to.throw();
         });
     });
@@ -308,7 +308,7 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const emptyContent = ContentInternal.Create<Task>({}, repo);
+            const emptyContent = ContentInternal.Create({}, Task, repo);
             expect(() => {
                 const obs = emptyContent.Save({ DisplayName: 'new' });
                 obs.subscribe(() => {
@@ -389,7 +389,7 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw error when triggering Save on an unsaved Content without path', () => {
-            const c = ContentInternal.Create<Task>({}, repo);
+            const c = ContentInternal.Create({}, Task, repo);
             expect(() => { c.Save(); }).to.throw();
         });
 
@@ -1081,7 +1081,7 @@ export const contentTests = describe('Content', () => {
         });
         it('should return GenericContent Schema if no Schema found', () => {
             class ContentWithoutSchema extends Task { }
-            const contentInstance = ContentInternal.Create<ContentWithoutSchema>({}, repo);
+            const contentInstance = ContentInternal.Create({}, ContentWithoutSchema, repo);
             const genericSchema = ContentInternal.GetSchema(GenericContent);
             expect(contentInstance.GetSchema()).to.be.eq(genericSchema);
         });
