@@ -10,7 +10,7 @@ import { Content, ContentInternal, IContent, ISavedContent, SavedContent } from 
 import { ContentSerializer } from '../ContentSerializer';
 import { ContentType, Folder, PortalRoot, User } from '../ContentTypes';
 import { BaseHttpProvider } from '../HttpProviders';
-import { IODataParams, ODataApi, ODataCollectionResponse } from '../ODataApi';
+import { IODataParams, ODataApi, ODataBatchResponse, ODataCollectionResponse } from '../ODataApi';
 import { FinializedQuery, QueryExpression, QuerySegment } from '../Query';
 import { Authentication, ContentTypes, ODataHelper } from '../SN';
 import { RepositoryEventHub, UploadFileOptions, UploadFromEventOptions, UploadOptions, UploadProgressInfo, UploadResponse, UploadTextOptions, VersionInfo, WithParentContent } from './';
@@ -576,9 +576,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public MoveBatch(contentList: (Content & ISavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
-        const contentPathList: string[] = contentList.map((c) => c.Path);
-        const action = this._odataApi.CreateCustomAction({
+    public MoveBatch(contentList: (SavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+        const action = this._odataApi.CreateCustomAction<ODataBatchResponse<ISavedContent>>({
             name: 'MoveBatch',
             path: rootContent.Path,
             isAction: true,
@@ -592,15 +591,28 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                 ]
             });
-
         action.subscribe((result) => {
-            contentPathList.forEach((path, index) => {
-                this.Events.Trigger.ContentMoved({ From: path, Content: contentList[index], To: targetPath });
-            });
+            if (result.d.__count) {
+                result.d.results.forEach((moved) => {
+                    const from = contentList.find((a) => a.Id === moved.Id);
+                    this.Events.Trigger.ContentMoved({
+                        From: from && from.Path || '',
+                        Content: this.HandleLoadedContent(moved),
+                        To: targetPath });
+                });
+
+                result.d.errors.forEach((error) => {
+                    const from = contentList.find((a) => a.Id === error.content.Id);
+                    this.Events.Trigger.ContentMoveFailed({
+                        From: from && from.Path || '',
+                        Content: this.HandleLoadedContent(error.content),
+                        To: targetPath,
+                        Error: error.error
+                    });
+                });
+            }
         }, (error) => {
-            contentList.forEach((contentData, index) => {
-                this.Events.Trigger.ContentMoveFailed({ From: contentData.Path, Content: contentList[index], To: targetPath, Error: error });
-            });
+            // ToDo: Batch operation failed
         });
         return action;
     }
@@ -617,7 +629,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public CopyBatch(contentList: (Content & ISavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+    public CopyBatch(contentList: (SavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const contentFields = contentList.map((c) => c.GetFields());
         const action = this._odataApi.CreateCustomAction({
             name: 'CopyBatch',

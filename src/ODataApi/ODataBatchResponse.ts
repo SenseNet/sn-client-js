@@ -3,9 +3,11 @@ import { ISavedContent } from '../Content';
 // tslint:disable:naming-convention
 export class ODataBatchResponse<T extends ISavedContent = ISavedContent> {
 
-    public __count: number;
-    public results: T[];
+    public d: {
+        __count: number,
+        results: T[],
 
-    public errors: {content: T, error: any}[];
+        errors: { content: T, error: any }[],
+    };
 
 }
