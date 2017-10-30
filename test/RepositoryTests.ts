@@ -5,7 +5,7 @@ import { LoginState } from '../src/Authentication';
 import { SnConfigModel } from '../src/Config';
 import { Content, ContentInternal } from '../src/Content';
 import { ContentType, File as SnFile, Task, User } from '../src/ContentTypes';
-import { ODataApi, ODataCollectionResponse } from '../src/ODataApi';
+import { ODataApi, ODataBatchResponse, ODataCollectionResponse } from '../src/ODataApi';
 import { SnRepository, UploadProgressInfo, UploadResponse, VersionInfo } from '../src/Repository';
 import { MockHttpProvider, MockRepository } from './Mocks';
 
@@ -160,26 +160,28 @@ export class RepositoryTests {
     }
 
     @test public 'DeleteBatch() should fire a DeleteBatch request'(done: MochaDone) {
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({ d: { __count: 0, errors: [], results: [] } } as ODataBatchResponse);
         const testContent = this._repo.HandleLoadedContent<Task>({
             Id: 12345, Path: 'Root/Test', Name: 'Task'
         });
         this._repo.DeleteBatch([testContent]).subscribe((r) => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
-            expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('[{"paths":[12345]},{"permanently":false}]');
+            expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('{"paths":[12345],"permanent":false}');
             expect(this._repo.HttpProviderRef.LastOptions.method).to.be.eq('POST');
             done();
 
-        }, (err) => done(err));
+        }, (err) => {
+            done(err);
+        });
 
     }
 
     @test public 'DeleteBatch() should fire a DeleteBatch request by path'(done: MochaDone) {
         const testContentWithoutId = this._repo.HandleLoadedContent({ Path: 'Root/Test2' } as any);
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({ d: { __count: 0, errors: [], results: [] } } as ODataBatchResponse);
         this._repo.DeleteBatch([testContentWithoutId]).subscribe((res) => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/DeleteBatch");
-            expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('[{"paths":["Root/Test2"]},{"permanently":false}]');
+            expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('{"paths":["Root/Test2"],"permanent":false}');
             expect(this._repo.HttpProviderRef.LastOptions.method).to.be.eq('POST');
             done();
         }, (err) => done(err));
@@ -191,25 +193,46 @@ export class RepositoryTests {
             expect(c.ContentData.Id).to.be.eq(testContent.Id);
             done();
         });
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({ d: { __count: 1, errors: [], results: [{ Id: 12345, Path: 'Root/Test', Name: 'Task' }] } } as ODataBatchResponse);
         const action = this._repo.DeleteBatch([testContent]);
         expect(action).to.be.instanceof(Observable);
     }
 
-    @test public 'DeleteBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone) {
+    @test public 'DeleteBatch() should trigger ContentDeleteFailed event on errored operations'(done: MochaDone) {
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'Task' });
         this._repo.Events.OnContentDeleteFailed.subscribe((c) => {
             expect(c.Content).to.be.eq(testContent);
             done();
-        });
-        this._repo.HttpProviderRef.AddError({ message: ':(' });
+        }, (err) => done(err));
+        this._repo.HttpProviderRef.AddResponse({
+            d: {
+                __count: 1,
+                results: [],
+                errors: [
+                    {
+                        content: { Id: 12345, Path: 'Root/Test', Name: 'Task' },
+                        error: { message: '' }
+                    }
+                ]
+            }
+        } as ODataBatchResponse);
         const action = this._repo.DeleteBatch([testContent]);
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test public 'DeleteBatch() should return error on fail'(done: MochaDone) {
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'Task' });
+        this._repo.HttpProviderRef.AddError(Error(':(' ));
+        const action = this._repo.DeleteBatch([testContent]);
+        action.subscribe(() => {
+            done('This shouldn\'t be triggered');
+        }, (err) => done());
         expect(action).to.be.instanceof(Observable);
     }
 
     @test public 'MoveBatch() should fire a MoveBatch request'(done: MochaDone) {
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'Task' });
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({d: { __count: 0}} as ODataBatchResponse);
         this._repo.MoveBatch([testContent], 'Root/Test2').subscribe((r) => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/MoveBatch");
             expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
@@ -228,25 +251,46 @@ export class RepositoryTests {
             expect(c.To).to.be.eq('Root/Test2');
             done();
         });
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({d: { __count: 1, errors: [], results: [{
+            Id: 12345,
+            Path: 'Root/Test2',
+            Name: 'Task'
+        }]}} as ODataBatchResponse);
         const action = this._repo.MoveBatch([testContent], 'Root/Test2');
         expect(action).to.be.instanceof(Observable);
     }
 
-    @test public 'MoveBatch() should trigger ContentDeleteFailed event after failure'(done: MochaDone) {
+    @test public 'MoveBatch() should trigger ContentMoveFailed event after failure'(done: MochaDone) {
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnContentMoveFailed.subscribe((c) => {
             expect(c.Content).to.be.eq(testContent);
             done();
         });
+        this._repo.HttpProviderRef.AddResponse({d: { __count: 1, results: [], errors: [{
+            content: {
+                Id: 12345,
+                Path: 'Root/Test2',
+                Name: 'Task'
+            },
+            error: ':('
+        }]}} as ODataBatchResponse);
+        const action = this._repo.MoveBatch([testContent], 'Root/Test2');
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test public 'MoveBatch() should trigger fail on request error'(done: MochaDone) {
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.HttpProviderRef.AddError({ message: ':(' });
         const action = this._repo.MoveBatch([testContent], 'Root/Test2');
+        action.subscribe(() => {
+            done('Should fail');
+        }, (err) => done());
         expect(action).to.be.instanceof(Observable);
     }
 
     @test public 'CopyBatch() should fire a CopyBatch request'(done: MochaDone) {
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({d: { __count: 0}} as ODataBatchResponse);
         this._repo.CopyBatch([testContent], 'Root/Test2').subscribe((r) => {
             expect(this._repo.HttpProviderRef.LastOptions.url).to.contains("https://localhost/odata.svc/('Root')/CopyBatch");
             expect(this._repo.HttpProviderRef.LastOptions.body).to.be.eq('[{"paths":["Root/Test"],"targetPath":"Root/Test2"}]');
@@ -261,7 +305,11 @@ export class RepositoryTests {
             expect(c.Content.Id).to.be.eq(testContent.Id);
             done();
         });
-        this._repo.HttpProviderRef.AddResponse({});
+        this._repo.HttpProviderRef.AddResponse({d: { __count: 1, errors: [], results: [{
+            Id: 12345,
+            Path: 'Root/Test2',
+            Name: 'Task'
+        }]}} as ODataBatchResponse);
         const action = this._repo.CopyBatch([testContent], 'Root/Test2');
         expect(action).to.be.instanceof(Observable);
     }
@@ -269,11 +317,30 @@ export class RepositoryTests {
     @test public 'CopyBatch() should trigger ContentCreateFailed event after failure'(done: MochaDone) {
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         this._repo.Events.OnContentCreateFailed.subscribe((c) => {
-            expect(c.Content).to.be.eq(testContent);
+            expect(c.Content.Id).to.be.eq(testContent.Id);
             done();
         });
-        this._repo.HttpProviderRef.AddError({ message: ':(' });
+        this._repo.HttpProviderRef.AddResponse({d: { __count: 1, results: [], errors: [{
+            content: {
+                Id: 12345,
+                Path: 'Root/Test2',
+                Name: 'Task'
+            },
+            error: ':('
+        }]}} as ODataBatchResponse);
         const action = this._repo.CopyBatch([testContent], 'Root/Test2');
+        expect(action).to.be.instanceof(Observable);
+    }
+
+    @test public 'CopyBatch() should fail on request error'(done: MochaDone) {
+        const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
+        this._repo.HttpProviderRef.AddError({message: ':('});
+        const action = this._repo.CopyBatch([testContent], 'Root/Test2');
+        action.subscribe((a) => {
+            done('Should fail');
+        }, (err) => {
+            done();
+        });
         expect(action).to.be.instanceof(Observable);
     }
 
