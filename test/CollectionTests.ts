@@ -27,7 +27,7 @@ export const CollectionTests = describe('Collection', () => {
         Name: 'test2'
       })];
 
-    collection = new Collection(children, Repo);
+    collection = new Collection(children, Repo, Task);
     collection.Path = 'https://daily.demo.sensenet.com/lorem';
   });
   describe('#Items()', () => {

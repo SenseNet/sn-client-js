@@ -25,8 +25,10 @@ export class Collection<T extends IContent> {
      * @param {T[]} items An array that holds items.
      * @param { IODataApi<any, any> } service The service to use as API Endpoint
      */
-    constructor(private _items: T[],
-                private _repository: BaseRepository) {
+    constructor(private _items: Content<T>[],
+                private _repository: BaseRepository,
+                contentType: { new(...args: any[]): T }
+            ) {
     }
 
     /**
