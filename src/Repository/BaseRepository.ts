@@ -666,8 +666,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return action;
     }
 
-    private readonly _currentUserSubject = new BehaviorSubject<ContentTypes.User>(this._staticContent.VisitorUser);
-    public GetCurrentUser: () => Observable<ContentTypes.User> = () => {
+    private readonly _currentUserSubject = new BehaviorSubject<SavedContent<User>>(this._staticContent.VisitorUser);
+    public GetCurrentUser: () => Observable<SavedContent<User>> = () => {
         return this._currentUserSubject
             .distinctUntilChanged()
             .filter((u) => {
