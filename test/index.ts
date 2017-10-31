@@ -13,7 +13,6 @@ export * from './ODataApiTests';
 export * from './ODataHelperTests';
 export * from './RepositoryTests';
 export * from './RetrierTests';
-export * from './SchemaTests';
 export * from './SnConfigTests';
 export * from './TokenTests';
 export * from './TokenStoreTests';
