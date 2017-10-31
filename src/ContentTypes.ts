@@ -41,7 +41,7 @@
      public DisplayName?: string;
      public Description?: string;
      public Icon?: string;
-     public Binary?: ComplexTypes.DeferredObject;
+     public Binary?: ComplexTypes.MediaResourceObject;
      public CreatedBy?: ContentReferenceField<GenericContent>;
      public CreationDate?: string;
      public ModifiedBy?: ContentReferenceField<GenericContent>;
