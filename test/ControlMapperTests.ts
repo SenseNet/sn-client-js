@@ -63,7 +63,7 @@ export class ControlMapperTests {
 
     @test
     public 'Should return correct Default Control for FieldSettings'() {
-        const fs = new ChoiceFieldSetting({});
+        const fs = {} as ChoiceFieldSetting;
         const controlType = this._mapper.GetControlForFieldSetting(fs);
         Chai.expect(controlType).to.be.eq(ExampleDefaultFieldControl);
     }
@@ -78,11 +78,11 @@ export class ControlMapperTests {
             return ExampleDefaultFieldControl;
         });
 
-        const fs = new ChoiceFieldSetting({ compulsory: true });
+        const fs = { Compulsory: true, Type: 'ChoiceFieldSetting' } as ChoiceFieldSetting;
         const controlType = this._mapper.GetControlForFieldSetting(fs);
         Chai.expect(controlType).to.be.eq(ExampleModifiedControl);
 
-        const fs2 = new ChoiceFieldSetting({ compulsory: false });
+        const fs2 = { Compulsory: false, Type: 'ChoiceFieldSetting' } as ChoiceFieldSetting;
         const controlType2 = this._mapper.GetControlForFieldSetting(fs2);
         Chai.expect(controlType2).to.be.eq(ExampleDefaultFieldControl);
     }
@@ -123,14 +123,14 @@ export class ControlMapperTests {
 
     @test
     public 'CreateClientSetting should run with defult factory method by default'() {
-        const fieldSetting = new ShortTextFieldSetting({ displayName: 'TestField' });
+        const fieldSetting = { DisplayName: 'TestField' } as ShortTextFieldSetting;
         const clientSetting = this._mapper.CreateClientSetting(fieldSetting);
         Chai.expect(clientSetting.Setting.DisplayName).to.be.eq(fieldSetting.DisplayName);
     }
 
     @test
     public 'CreateClientSetting should be able to run with an overridden factory method'() {
-        const fieldSetting = new ShortTextFieldSetting({ displayName: 'TestField' });
+        const fieldSetting = { DisplayName: 'TestField', Type: 'ShortTextFieldSetting' } as ShortTextFieldSetting;
         this._mapper.SetClientControlFactory(ShortTextFieldSetting, ((setting) => {
             setting.DisplayName = (setting.DisplayName || '').toUpperCase();
             return new ExampleClientSetting(setting);

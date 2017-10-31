@@ -20,9 +20,9 @@ export class BinaryFieldTests {
 
         this._repo = new MockRepository();
 
-        this._fieldSetting = new BinaryFieldSetting({
+        this._fieldSetting = {
             name: 'Binary'
-        });
+        } as any as BinaryFieldSetting;
         this._file = this._repo.HandleLoadedContent<SnFile>({
             Id: 123,
             Path: 'Root/Examples/ExampleFile',

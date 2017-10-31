@@ -6,7 +6,7 @@ import { ContentReferenceField } from '../src/ContentReferences';
 import { GenericContent, Task, User, Workspace } from '../src/ContentTypes';
 import { QueryType } from '../src/Enums';
 import { joinPaths } from '../src/ODataHelper';
-import { Schema } from '../src/Schemas';
+import { isSchema } from '../src/Schemas';
 import { IdentityKind, Inheritance, PermissionLevel, PermissionValues } from '../src/Security';
 import { MockRepository } from './Mocks';
 const expect = Chai.expect;
@@ -108,15 +108,15 @@ export const contentTests = describe('Content', () => {
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            const newContent = repo.CreateContent({}, null as any);
-            expect(newContent.Type).to.be.eq('Content');
+            const newContent = repo.CreateContent({}, GenericContent);
+            expect(newContent.Type).to.be.eq('GenericContent');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
-            const newContent = new ContentInternal({}, repo);
-            expect(newContent.Type).to.be.eq('Content');
+            const newContent = new ContentInternal({}, repo, Task);
+            expect(newContent.Type).to.be.eq('Task');
         });
         it('shoul respect the type field, if provided from settings', () => {
-            const newContent = new ContentInternal({Type: 'Task'}, repo);
+            const newContent = new ContentInternal({Type: 'Task'}, repo, Task);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         });
@@ -1073,7 +1073,7 @@ export const contentTests = describe('Content', () => {
 
     describe('#GetSchema()', () => {
         it('should return a Schema object', () => {
-            expect(content.GetSchema()).to.be.instanceof(Schema);
+            expect(isSchema(content.GetSchema())).to.be.eq(true);
         });
         it('should return a Task', () => {
             const schema = content.GetSchema();
@@ -1089,19 +1089,10 @@ export const contentTests = describe('Content', () => {
     });
     describe('#static GetSchema()', () => {
         it('should return a Schema object', () => {
-            expect(ContentInternal.GetSchema(Task)).to.be.instanceof(Schema);
+            expect(isSchema(ContentInternal.GetSchema(Task))).to.be.eq(true);
         });
         it('should return a Schema object', () => {
             const schema = ContentInternal.GetSchema(Task);
-            expect(schema.Icon).to.eq('FormItem');
-        });
-    });
-    describe('#Schema()', () => {
-        it('should return a Schema object', () => {
-            expect(content.GetSchema()).to.be.instanceof(Schema);
-        });
-        it('should return a Schema object', () => {
-            const schema = content.GetSchema();
             expect(schema.Icon).to.eq('FormItem');
         });
     });

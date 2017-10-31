@@ -64,7 +64,7 @@ export class ContentInternal<T extends IContent = IContent> {
         return this._repository.GetODataApi();
     }
 
-    private _type: string = 'Content';
+    private _type: string = this.contentType.name;
     /**
      * Type of the Content, e.g.: 'Task' or 'User'
      */
@@ -199,8 +199,8 @@ export class ContentInternal<T extends IContent = IContent> {
 
     private _fieldHandlerCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = [];
     private updateReferenceFields() {
-        const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => f instanceof FieldSettings.ReferenceFieldSetting);
-        referenceSettings.push(...[{ Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, { Name: 'AllowedChildTypes', AllowMultiple: true }]);
+        const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting));
+        referenceSettings.push(...[{ Type: 'ReferenceFieldSetting', Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, { Type: 'ReferenceFieldSetting', Name: 'AllowedChildTypes', AllowMultiple: true }]);
         referenceSettings.forEach((f) => {
 
             if (!this._fieldHandlerCache[f.Name]) {
@@ -210,7 +210,7 @@ export class ContentInternal<T extends IContent = IContent> {
             }
             this[f.Name] = this._fieldHandlerCache[f.Name];
         });
-        const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => f instanceof FieldSettings.BinaryFieldSetting);
+        const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.BinaryFieldSetting));
 
         binarySettings.forEach((s) => {
             if (!(this[s.Name] instanceof BinaryField)) {
@@ -232,7 +232,7 @@ export class ContentInternal<T extends IContent = IContent> {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(_options: T, private _repository: BaseRepository) {
+    constructor(_options: T, private _repository: BaseRepository, private readonly contentType: {new(...args): T}) {
         Object.assign(this, _options);
         Object.assign(this._lastSavedFields, _options);
         this.updateReferenceFields();
@@ -466,7 +466,7 @@ export class ContentInternal<T extends IContent = IContent> {
                     || actionName === 'view' && f.VisibleBrowse;
             });
             selectFields = fieldSettings.map((f) => f.Name) as ODataFieldParameter<T>;
-            expandFields = fieldSettings.filter((f) => f instanceof FieldSettings.ReferenceFieldSetting)
+            expandFields = fieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting))
                 .map((f) => f.Name) as ODataFieldParameter<T>;
         }
 
@@ -491,7 +491,7 @@ export class ContentInternal<T extends IContent = IContent> {
             throw new Error('Content Id or Path has to be provided');
         }
 
-        const toExpand = this.GetSchema().FieldSettings.filter((f) => fields.indexOf(f.Name as any) >= 0 && f instanceof FieldSettings.ReferenceFieldSetting)
+        const toExpand = this.GetSchema().FieldSettings.filter((f) => fields.indexOf(f.Name as any) >= 0 && FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting))
             .map((f) => f.Name) as ODataFieldParameter<T>;
         return this._repository.Load<T>(this.Id || this.Path as any, {
             select: fields,
@@ -996,7 +996,7 @@ export class ContentInternal<T extends IContent = IContent> {
             { data: { contentTypes } });
     }
 
-    private static _schemaCache: Schemas.Schema<IContent>[] = [];
+    private static _schemaCache: Map<string, Schemas.Schema> = new Map<string, Schemas.Schema>();
     /**
      * Returns the Content Type Schema of the given Content Type;
      * @param type {string} The name of the Content Type;
@@ -1005,22 +1005,22 @@ export class ContentInternal<T extends IContent = IContent> {
      * var genericContentSchema = SenseNet.Content.getSchema(Content);
      * ```
      */
-    public static GetSchema<TType extends IContent>(currentType: { new(...args: any[]): TType }): Schemas.Schema<TType> {
-        if (this._schemaCache[currentType.name as any]) {
-            return this._schemaCache[currentType.name as any] as Schemas.Schema<TType>;
+    public static GetSchema<TType extends IContent>(currentType: { new(...args: any[]): TType }): Schemas.Schema {
+        if (this._schemaCache.get(currentType.name)) {
+            return this._schemaCache.get(currentType.name) as Schemas.Schema;
         }
-        const schema = Schemas.SchemaStore.find((s) => s.ContentType === currentType) as Schemas.Schema<TType>;
+        const schema = Schemas.SchemaStore.find((s) => s.ContentTypeName === currentType.name);
         if (!schema) {
-            return ContentInternal.GetSchema<TType>(GenericContent as any) as Schemas.Schema<TType>;
+            return ContentInternal.GetSchema<TType>(GenericContent as any);
         }
         const parent = Object.getPrototypeOf(currentType);
-        const parentSchema = parent && Schemas.SchemaStore.find((s) => s.ContentType === parent);
+        const parentSchema = parent && Schemas.SchemaStore.find((s) => s.ContentTypeName === parent.name);
 
         if (parentSchema) {
             const newParentSchema = ContentInternal.GetSchema(parent);
             schema.FieldSettings = schema.FieldSettings.concat(newParentSchema.FieldSettings);
         }
-        this._schemaCache[currentType.name as any] = schema;
+        this._schemaCache.set(currentType.name, schema);
         return schema;
     }
 
@@ -1031,9 +1031,8 @@ export class ContentInternal<T extends IContent = IContent> {
      * let schema = SenseNet.Content.GetSchema(Content);
      * ```
      */
-    public GetSchema(): Schemas.Schema<T> {
-        const contentType = (ContentTypes as any)[this.Type] as { new(...args: any[]): T };
-        return ContentInternal.GetSchema(contentType || this.constructor as { new(...args: any[]): any });
+    public GetSchema(): Schemas.Schema {
+        return ContentInternal.GetSchema(this.contentType as { new(...args: any[]): any });
     }
 
     /**
@@ -1052,7 +1051,7 @@ export class ContentInternal<T extends IContent = IContent> {
     // }
 
     public static Create<T extends IContent = IContent>(options: T, newContent: {new(...args: any[]): T}, repository: BaseRepository): Content<T> & T {
-        const created = new ContentInternal(options, repository) as Content<T>;
+        const created = new ContentInternal(options, repository, newContent) as Content<T>;
         if (newContent) {
             created.Type = newContent.name;
         }

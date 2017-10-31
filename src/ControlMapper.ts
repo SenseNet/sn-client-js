@@ -31,7 +31,7 @@ export type ActionName = 'new' | 'edit' | 'view';
 
 export class ControlSchema<TControlBaseType, TClientControlSettings> {
     public ContentTypeControl: {new(...args: any[]): TControlBaseType};
-    public Schema: Schemas.Schema<IContent>;
+    public Schema: Schemas.Schema;
     public FieldMappings: {FieldSettings: FieldSettings.FieldSetting, ControlType: {new(...args: any[]): TControlBaseType}, ClientSettings: TClientControlSettings}[];
 }
 
@@ -50,8 +50,8 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param contentType The type of the content (e.g. ContentTypes.Task)
      * @param actionName The name of the action. Can be 'new' / 'view' / 'edit'
      */
-    private getTypeSchema<TContentType extends IContent>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema<TContentType> {
-        const schema = new Schemas.Schema<TContentType>(ContentInternal.GetSchema(contentType));
+    private getTypeSchema<TContentType extends IContent>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema {
+        const schema = ContentInternal.GetSchema(contentType);
 
         if (actionName) {
             schema.FieldSettings = schema.FieldSettings.filter((s) => {
@@ -111,7 +111,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param fieldSetting The FieldSetting to get the control class.
      */
     public GetControlForFieldSetting<TFieldSettingType extends FieldSettings.FieldSetting>(fieldSetting: TFieldSettingType): { new (...args: any[]): TControlBaseType } {
-        const fieldSettingSetup = this._fieldSettingDefaults[fieldSetting.constructor.name as any];
+        const fieldSettingSetup = this._fieldSettingDefaults[fieldSetting.Type as any];
         return fieldSettingSetup && fieldSettingSetup(fieldSetting) || this._defaultFieldSettingControlType;
     }
 
@@ -176,7 +176,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns the created or transformed Client Setting
      */
     public CreateClientSetting<TFieldSetting extends FieldSettings.FieldSetting>(fieldSetting: TFieldSetting) {
-        const factoryMethod = this._fieldSettingBoundClientSettingFactories[fieldSetting.constructor.name as any] || this._clientControlSettingsFactory;
+        const factoryMethod = this._fieldSettingBoundClientSettingFactories[fieldSetting.Type as any] || this._clientControlSettingsFactory;
         return factoryMethod(fieldSetting);
     }
 

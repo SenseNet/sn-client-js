@@ -29,12 +29,12 @@ export class ContentReferenceFieldTests {
             Name: 'Name',
             Type: 'Task',
             DueText: 'testDueText'
-        }), new ReferenceFieldSetting({}), this._repo);
+        }), {} as ReferenceFieldSetting, this._repo);
         this._unloadedRef = new ContentReferenceField({
             __deferred: {
                 uri: 'a/b/c'
             }
-        } as DeferredObject, new ReferenceFieldSetting({}), this._repo);
+        } as DeferredObject, {} as ReferenceFieldSetting, this._repo);
     }
 
     @test

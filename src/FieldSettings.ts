@@ -43,8 +43,13 @@ export enum TextType { LongText, RichText, AdvancedRichText }
      */
 export enum UrlFormat { Hyperlink, Picture }
 
+export const isFieldSettingOfType: <T extends FieldSetting>(setting: FieldSetting, type: {new(): T}) => boolean = <T extends FieldSetting>(setting: FieldSetting, type: {new(): T}): setting is T => {
+    return setting.Type === type.name;
+};
+
 export class FieldSetting {
         public Name: string;
+        public Type: string;
         public DisplayName?: string;
         public Description?: string;
         public Icon?: string;
@@ -59,39 +64,6 @@ export class FieldSetting {
         public DefaultOrder?: number;
         public ControlHint?: string;
 
-        constructor(options: IFieldSettingOptions) {
-            this.Name = options.name || 'Content';
-            this.DisplayName = options.displayName;
-            this.Icon = options.icon;
-            this.ReadOnly = options.readOnly;
-            this.Compulsory = options.compulsory;
-            this.DefaultValue = options.defaultValue;
-            this.OutputMethod = options.outputMethod;
-            this.VisibleBrowse = options.visibleBrowse;
-            this.VisibleEdit = options.visibleEdit;
-            this.VisibleNew = options.visibleNew;
-            this.FieldIndex = options.fieldIndex;
-            this.DefaultOrder = options.defaultOrder;
-            this.ControlHint = options.controlHint;
-
-        }
-    }
-
-export interface IFieldSettingOptions {
-        name?: string;
-        displayName?: string;
-        description?: string;
-        icon?: string;
-        readOnly?: boolean;
-        compulsory?: boolean;
-        defaultValue?: string;
-        outputMethod?: OutputMethod;
-        visibleBrowse?: FieldVisibility;
-        visibleNew?: FieldVisibility;
-        visibleEdit?: FieldVisibility;
-        fieldIndex?: number;
-        defaultOrder?: number;
-        controlHint?: string;
     }
 
     // Used in ContentType, GenericContent, File, Image, TrashBag, TrashBin, Task
@@ -100,64 +72,21 @@ export class IntegerFieldSetting extends FieldSetting {
         public MaxValue?: number;
         public ShowAsPercentage?: boolean;
         public Step?: number;
-
-        constructor(options: IIntegerFieldSettingOptions) {
-            super(options);
-            this.MinValue = options.minValue;
-            this.MaxValue = options.maxValue;
-            this.ShowAsPercentage = options.showAsPercentage;
-            this.Step = options.step;
-        }
-    }
-
-export interface IIntegerFieldSettingOptions extends IFieldSettingOptions {
-        minValue?: number;
-        maxValue?: number;
-        showAsPercentage?: boolean;
-        step?: number;
     }
 
     //
 export class TextFieldSetting extends FieldSetting {
         public MinLength?: number;
         public MaxLength?: number;
-
-        constructor(options: ITextFieldSettingOptions) {
-            super(options);
-            this.MinLength = options.minLength;
-            this.MaxLength = options.maxLength;
-        }
-    }
-
-export interface ITextFieldSettingOptions extends IFieldSettingOptions {
-        minLength?: number;
-        maxLength?: number;
     }
 
     // Used in ContentType, GenericContent, File, ContentList, Device, Domain, Email, OrganizationalUnit, TrashBag, Group, Task, User
 export class ShortTextFieldSetting extends TextFieldSetting {
         public Regex?: string;
-
-        constructor(options: IShortTextFieldSettingOptions) {
-            super(options);
-            this.Regex = options.regex;
-        }
-    }
-
-export interface IShortTextFieldSettingOptions extends ITextFieldSettingOptions {
-        regex?: string;
     }
 
     // Used in ContentType, GenericContent, Settings, IndexingSettings, ContentList, Workspace, Site, CustomListItem, User
 export class NullFieldSetting extends FieldSetting {
-
-        constructor(options: INullFieldSettingOptions) {
-            super(options);
-        }
-    }
-
-// tslint:disable-next-line:no-empty-interface
-export interface INullFieldSettingOptions extends IFieldSettingOptions {
     }
 
     // Used in ContentType, GenericContent, File, HtmlTemplate, Image, ContentList, Aspect, Email, SmartFolder, Query, User
@@ -165,33 +94,11 @@ export class LongTextFieldSetting extends TextFieldSetting {
         public Rows?: number;
         public TextType?: TextType;
         public AppendModifications?: boolean;
-
-        constructor(options: ILongTextFieldSettingOptions) {
-            super(options);
-            this.Rows = options.rows;
-            this.TextType = options.textType;
-            this.AppendModifications = options.appendModifications;
-        }
-    }
-
-export interface ILongTextFieldSettingOptions extends ITextFieldSettingOptions {
-        rows?: number;
-        textType?: TextType;
-        appendModifications?: boolean;
     }
 
     // Used in ContentType, File, User
 export class BinaryFieldSetting extends FieldSetting {
         public IsText?: boolean;
-
-        constructor(options: IBinaryFieldSettingOptions) {
-            super(options);
-            this.IsText = options.isText;
-        }
-    }
-
-export interface IBinaryFieldSettingOptions extends IFieldSettingOptions {
-        isText?: boolean;
     }
 
     // Used in ContentType, GenericContent, ContentLink, ContentList, ImageLibrary, TrashBag, Workspace, Site, UserProfile, Group, Memo, Task, User
@@ -202,39 +109,12 @@ export class ReferenceFieldSetting extends FieldSetting {
         public Query?: string;
         public FieldName?: string;
 
-        constructor(options: IReferenceFieldSettingOptions) {
-            super(options);
-            this.AllowMultiple = options.allowMultiple;
-            this.AllowedTypes = options.allowedTypes;
-            this.SelectionRoots = options.selectionRoots;
-            this.Query = options.query;
-            this.FieldName = options.fieldName;
-        }
-    }
-
-export interface IReferenceFieldSettingOptions extends IFieldSettingOptions {
-        allowMultiple?: boolean;
-        allowedTypes?: string[];
-        selectionRoots?: string[];
-        query?: string;
-        fieldName?: string;
     }
 
     // Used in ContentType, GenericContent, Image, Domain, Email, OrganizationalUnit, TrashBag, Workspace, Group, Memo, Task, User
 export class DateTimeFieldSetting extends FieldSetting {
         public DateTimeMode?: DateTimeMode;
         public Precision?: DateTimePrecision;
-
-        constructor(options: IDateTimeFieldSettingOptions) {
-            super(options);
-            this.DateTimeMode = options.dateTimeMode;
-            this.Precision = options.precision;
-        }
-    }
-
-export interface IDateTimeFieldSettingOptions extends IFieldSettingOptions {
-        dateTimeMode?: DateTimeMode;
-        precision?: DateTimePrecision;
     }
 
     // Used in GenericContent, ContentList, SmartFolder, Site, Memo, Task, Query, User
@@ -245,22 +125,6 @@ export class ChoiceFieldSetting extends ShortTextFieldSetting {
         public DisplayChoice?: DisplayChoice;
         public EnumTypeName?: string;
 
-        constructor(options: IChoiceFieldSettingOptions) {
-            super(options);
-            this.AllowExtraValue = options.allowExtraValue;
-            this.AllowMultiple = options.allowMultiple;
-            this.Options = options.options;
-            this.DisplayChoice = options.displayChoice;
-            this.EnumTypeName = options.enumTypeName;
-        }
-    }
-
-export interface IChoiceFieldSettingOptions extends IShortTextFieldSettingOptions {
-        allowExtraValue?: boolean;
-        allowMultiple?: boolean;
-        options?: ComplexTypes.ChoiceOption[];
-        displayChoice?: DisplayChoice;
-        enumTypeName?: string;
     }
 
     // Used in GenericContent, File, Resource
@@ -271,22 +135,6 @@ export class NumberFieldSetting extends FieldSetting {
         public ShowAsPercentage?: boolean;
         public Step?: number;
 
-        constructor(options: INumberFieldSettingOptions) {
-            super(options);
-            this.MinValue = options.minValue;
-            this.MaxValue = options.maxValue;
-            this.Digits = options.digits;
-            this.ShowAsPercentage = options.showAsPercentage;
-            this.Step = options.step;
-        }
-    }
-
-export interface INumberFieldSettingOptions extends IFieldSettingOptions {
-        minValue?: number;
-        maxValue?: number;
-        digits?: number;
-        showAsPercentage?: boolean;
-        step?: number;
     }
 
     // Used in GenericContent
@@ -294,16 +142,6 @@ export class RatingFieldSetting extends ShortTextFieldSetting {
         public Range?: number;
         public Split?: number;
 
-        constructor(options: IRatingFieldSettingOptions) {
-            super(options);
-            this.Range = options.range;
-            this.Split = options.split;
-        }
-    }
-
-export interface IRatingFieldSettingOptions extends IShortTextFieldSettingOptions {
-        range?: number;
-        split?: number;
     }
 
     // Used in User
@@ -312,28 +150,9 @@ export class PasswordFieldSetting extends ShortTextFieldSetting {
         public ReenterDescription?: string;
         public PasswordHistoryLength?: number;
 
-        constructor(options: IPasswordFieldSettingOptions) {
-            super(options);
-            this.ReenterTitle = options.reenterTitle;
-            this.ReenterDescription = options.reenterDescription;
-            this.PasswordHistoryLength = options.passwordHistoryLength;
-        }
-    }
-
-export interface IPasswordFieldSettingOptions extends IShortTextFieldSettingOptions {
-        reenterTitle?: string;
-        reenterDescription?: string;
-        passwordHistoryLength?: number;
     }
 
     // Used in User
 export class CaptchaFieldSetting extends FieldSetting {
 
-        constructor(options: ICaptchaFieldSettingOptions) {
-            super(options);
-        }
-    }
-
-// tslint:disable-next-line:no-empty-interface
-export interface ICaptchaFieldSettingOptions extends IFieldSettingOptions {
     }
