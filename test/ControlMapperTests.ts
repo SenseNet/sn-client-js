@@ -26,9 +26,11 @@ class ExampleClientSetting {
 @suite('ControlMapper')
 export class ControlMapperTests {
     private _mapper: ControlMapper<ExampleControlBase, ExampleClientSetting>;
+    private _repository: MockRepository;
     // tslint:disable-next-line:naming-convention
     public before() {
-        this._mapper = new ControlMapper(ExampleControlBase, (setting) => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
+        this._repository = new MockRepository();
+        this._mapper = new ControlMapper(this._repository, ExampleControlBase, (setting) => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
     }
 
     @test
@@ -38,13 +40,13 @@ export class ControlMapperTests {
 
     @test
     public 'Should be able to construct with BaseType and ClientControlSettingsFactory'() {
-        const mapper = new ControlMapper(ExampleControlBase, (setting) => new ExampleClientSetting(setting));
+        const mapper = new ControlMapper(this._repository, ExampleControlBase, (setting) => new ExampleClientSetting(setting));
         Chai.expect(mapper).to.be.instanceof(ControlMapper);
     }
 
     @test
     public 'Should be able to construct with all parameters'() {
-        const mapper = new ControlMapper(ExampleControlBase, (setting) => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
+        const mapper = new ControlMapper(this._repository, ExampleControlBase, (setting) => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
         Chai.expect(mapper).to.be.instanceof(ControlMapper);
     }
 

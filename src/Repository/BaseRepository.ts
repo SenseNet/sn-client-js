@@ -8,10 +8,11 @@ import { IAuthenticationService, LoginState } from '../Authentication/';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { Content, ContentInternal, IContent, ISavedContent, SavedContent } from '../Content';
 import { ContentSerializer } from '../ContentSerializer';
-import { ContentType, Folder, PortalRoot, User } from '../ContentTypes';
+import { ContentType, Folder, GenericContent, PortalRoot, User } from '../ContentTypes';
 import { BaseHttpProvider } from '../HttpProviders';
 import { IODataParams, ODataApi, ODataBatchResponse, ODataCollectionResponse } from '../ODataApi';
 import { FinializedQuery, QueryExpression, QuerySegment } from '../Query';
+import { Schema, SchemaStore } from '../Schemas';
 import { Authentication, ContentTypes, ODataHelper } from '../SN';
 import { RepositoryEventHub, UploadFileOptions, UploadFromEventOptions, UploadOptions, UploadProgressInfo, UploadResponse, UploadTextOptions, VersionInfo, WithParentContent } from './';
 
@@ -708,6 +709,46 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                 }
             });
+    }
+
+    private _schemaCache: Map<string, Schema>;
+    private _schemaStore: Schema[];
+    /**
+     * Returns the Content Type Schema of the given Content Type;
+     * @param type {string} The name of the Content Type;
+     * @returns {Schemas.Schema}
+     * ```ts
+     * var genericContentSchema = SenseNet.Content.getSchema(Content);
+     * ```
+     */
+    public GetSchema<TType extends IContent>(currentType: { new(...args: any[]): TType }): Schema {
+        return this.GetSchemaByName(currentType.name);
+    }
+
+    public GetSchemaByName(schemaName: string) {
+        if (!this._schemaCache) {
+            this._schemaCache = new Map<string, Schema>();
+        }
+
+        if (!this._schemaStore) {
+            this._schemaStore = SchemaStore.map((s) => s);
+        }
+
+        if (this._schemaCache.has(schemaName)) {
+            return Object.assign({}, this._schemaCache.get(schemaName)) as Schema;
+        }
+        let schema = this._schemaStore.find((s) => s.ContentTypeName === schemaName) as Schema;
+        if (!schema) {
+            return this.GetSchema(GenericContent);
+        }
+        schema = Object.assign({}, schema);
+        const parentSchema = schema.ParentTypeName && this.GetSchemaByName(schema.ParentTypeName);
+
+        if (parentSchema) {
+            schema.FieldSettings = [...schema.FieldSettings, ...parentSchema.FieldSettings];
+        }
+        this._schemaCache.set(schemaName, schema);
+        return schema;
     }
 
 }

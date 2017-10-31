@@ -1082,19 +1082,10 @@ export const contentTests = describe('Content', () => {
         it('should return GenericContent Schema if no Schema found', () => {
             class ContentWithoutSchema extends Task { }
             const contentInstance = ContentInternal.Create({}, ContentWithoutSchema, repo);
-            const genericSchema = ContentInternal.GetSchema(GenericContent);
-            expect(contentInstance.GetSchema()).to.be.eq(genericSchema);
+            const genericSchema = repo.GetSchema(GenericContent);
+            expect(contentInstance.GetSchema()).to.be.deep.eq(genericSchema);
         });
 
-    });
-    describe('#static GetSchema()', () => {
-        it('should return a Schema object', () => {
-            expect(isSchema(ContentInternal.GetSchema(Task))).to.be.eq(true);
-        });
-        it('should return a Schema object', () => {
-            const schema = ContentInternal.GetSchema(Task);
-            expect(schema.Icon).to.eq('FormItem');
-        });
     });
 
     describe('#ParentPath', () => {

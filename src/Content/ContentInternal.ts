@@ -45,7 +45,7 @@ import { Observable } from '@reactivex/rxjs';
 import { BinaryField } from '../BinaryField';
 import { ContentListReferenceField, ContentReferenceField } from '../ContentReferences';
 import { ContentSerializer } from '../ContentSerializer';
-import { ContentType, GenericContent, Group, User, Workspace } from '../ContentTypes';
+import { ContentType, Group, User, Workspace } from '../ContentTypes';
 import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
 import { IODataParams, ODataApi, ODataFieldParameter } from '../ODataApi';
 import { FinializedQuery, QueryExpression, QuerySegment } from '../Query';
@@ -996,34 +996,6 @@ export class ContentInternal<T extends IContent = IContent> {
             { data: { contentTypes } });
     }
 
-    private static _schemaCache: Map<string, Schemas.Schema> = new Map<string, Schemas.Schema>();
-    /**
-     * Returns the Content Type Schema of the given Content Type;
-     * @param type {string} The name of the Content Type;
-     * @returns {Schemas.Schema}
-     * ```ts
-     * var genericContentSchema = SenseNet.Content.getSchema(Content);
-     * ```
-     */
-    public static GetSchema<TType extends IContent>(currentType: { new(...args: any[]): TType }): Schemas.Schema {
-        if (this._schemaCache.get(currentType.name)) {
-            return this._schemaCache.get(currentType.name) as Schemas.Schema;
-        }
-        const schema = Schemas.SchemaStore.find((s) => s.ContentTypeName === currentType.name);
-        if (!schema) {
-            return ContentInternal.GetSchema<TType>(GenericContent as any);
-        }
-        const parent = Object.getPrototypeOf(currentType);
-        const parentSchema = parent && Schemas.SchemaStore.find((s) => s.ContentTypeName === parent.name);
-
-        if (parentSchema) {
-            const newParentSchema = ContentInternal.GetSchema(parent);
-            schema.FieldSettings = schema.FieldSettings.concat(newParentSchema.FieldSettings);
-        }
-        this._schemaCache.set(currentType.name, schema);
-        return schema;
-    }
-
     /**
      * Returns the Content Type Schema of the Content.
      * @returns {Schemas.Schema} Array of fieldsettings.
@@ -1032,7 +1004,7 @@ export class ContentInternal<T extends IContent = IContent> {
      * ```
      */
     public GetSchema(): Schemas.Schema {
-        return ContentInternal.GetSchema(this.contentType as { new(...args: any[]): any });
+        return this._repository.GetSchema(this.contentType);
     }
 
     /**

@@ -43,9 +43,10 @@ export enum TextType { LongText, RichText, AdvancedRichText }
      */
 export enum UrlFormat { Hyperlink, Picture }
 
-export const isFieldSettingOfType: <T extends FieldSetting>(setting: FieldSetting, type: {new(): T}) => boolean = <T extends FieldSetting>(setting: FieldSetting, type: {new(): T}): setting is T => {
+// tslint:disable-next-line:only-arrow-functions
+export function isFieldSettingOfType<T extends FieldSetting>(setting: FieldSetting, type: {new(): T}): setting is T {
     return setting.Type === type.name;
-};
+}
 
 export class FieldSetting {
         public Name: string;

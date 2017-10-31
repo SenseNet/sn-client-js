@@ -23,8 +23,9 @@
  * ```
  */ /** */
 
-import { ContentInternal, IContent } from './Content';
+import { IContent } from './Content';
 import * as FieldSettings from './FieldSettings';
+import { BaseRepository } from './Repository/index';
 import { Schemas } from './SN';
 
 export type ActionName = 'new' | 'edit' | 'view';
@@ -38,6 +39,7 @@ export class ControlSchema<TControlBaseType, TClientControlSettings> {
 export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     constructor(
+        private readonly _repository: BaseRepository,
         public readonly ControlBaseType: { new (...args: any[]): TControlBaseType },
         private readonly _clientControlSettingsFactory: (fieldSetting: FieldSettings.FieldSetting) => TClientControlSettings,
         private readonly _defaultControlType?: { new (...args: any[]): TControlBaseType },
@@ -51,7 +53,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the action. Can be 'new' / 'view' / 'edit'
      */
     private getTypeSchema<TContentType extends IContent>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema {
-        const schema = ContentInternal.GetSchema(contentType);
+        const schema = this._repository.GetSchema(contentType);
 
         if (actionName) {
             schema.FieldSettings = schema.FieldSettings.filter((s) => {
