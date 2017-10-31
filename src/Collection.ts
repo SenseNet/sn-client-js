@@ -85,7 +85,7 @@ export class Collection<T extends IContent> {
     public Add(content: Content<T>): Observable<Content<T>> {
         const newcontent = this._odata.Post<T>(this.Path, content.GetFields())
             .map((resp) => {
-                return this._repository.HandleLoadedContent<T>(resp as any);
+                return this._repository.HandleLoadedContent<T>(resp);
             });
         newcontent
             .subscribe({
