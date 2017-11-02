@@ -9,7 +9,7 @@ const expect = Chai.expect;
 
 export const CollectionTests = describe('Collection', () => {
   let collection: Collection<Task>;
-  let children: Content[];
+  let children: Content<any>[];
 
   let Repo: MockRepository;
 
@@ -65,7 +65,7 @@ export const CollectionTests = describe('Collection', () => {
     });
 
     it('Observable should be resolved', (done) => {
-      const content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' });
+      const content = Repo.HandleLoadedContent({ DueDate: '2017-06-27T11:11:11Z', Name: '', Id: 231876, Path: 'Root/Test' }, Task);
       Repo.Authentication.StateSubject.next(LoginState.Authenticated);
       Repo.HttpProviderRef.AddResponse({ d: content.GetFields() });
       collection.Add(content).subscribe((r) => {

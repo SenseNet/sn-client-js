@@ -18,7 +18,7 @@ export class BinaryFieldTests {
 
         this._repo = new MockRepository();
 
-        this._file = this._repo.HandleLoadedContent<SnFile>({
+        this._file = this._repo.HandleLoadedContent({
             Id: 123,
             Path: 'Root/Examples/ExampleFile',
             Name: 'test',
@@ -28,7 +28,7 @@ export class BinaryFieldTests {
                     media_src: 'https://google.com'
                 }
             }
-        } as any);
+        } as any, SnFile);
     }
 
     private createField(): BinaryField<SnFile> {

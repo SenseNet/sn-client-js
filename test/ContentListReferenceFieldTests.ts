@@ -29,7 +29,7 @@ export class ContentListReferenceFieldTests {
                 Name: 'Name',
                 Type: 'Task',
                 DueText: 'testDueText'
-            }], {} as ReferenceFieldSetting, this._repo);
+            } as Task], {} as ReferenceFieldSetting, this._repo);
         this._unloadedRef = new ContentListReferenceField({
             __deferred: {
                 uri: 'a/b/c'

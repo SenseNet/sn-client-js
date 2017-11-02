@@ -1,6 +1,6 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { Content } from '../src/Content';
+import { SavedContent } from '../src/Content';
 import { Task } from '../src/ContentTypes';
 import { MockRepository } from './Mocks/MockRepository';
 
@@ -9,7 +9,7 @@ const expect = Chai.expect;
 @suite('ContentSerializer')
 export class ContentSerializerTests {
 
-    private _content: Content<Task>;
+    private _content: SavedContent;
 
     private _contentSerializedString = '{"Data":{"Id":3,"Name":"test","Path":"root/task1"},"Origin":"https://mock_repo_one/odata.svc/root/task1"}';
     private _repo: MockRepository;
@@ -29,7 +29,7 @@ export class ContentSerializerTests {
             Path: 'root/task1',
             Type: 'Task',
             Name: 'test'
-        });
+        }, Task);
     }
 
     @test
