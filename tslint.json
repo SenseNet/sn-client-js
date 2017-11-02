@@ -17,6 +17,9 @@
                 "allow-fast-null-checks"
             ]
         },
+        "forin": [
+            false
+        ],
         "no-bitwise": false,
         "trailing-comma": false,
         "object-literal-sort-keys": false,
