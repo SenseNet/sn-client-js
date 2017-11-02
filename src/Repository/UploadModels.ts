@@ -5,7 +5,7 @@
 
 import { IContent, SavedContent } from '../Content';
 
-export type WithParentContent<T> = T & { Parent: SavedContent };
+export type WithParentContent<T> = T & { Parent: SavedContent<any> };
 
 export class UploadOptions<T extends IContent> {
     /**
