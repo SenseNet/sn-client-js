@@ -14,7 +14,7 @@ export namespace EventModels {
         /**
          * The created Content instance
          */
-        public Content: SavedContent;
+        public Content: SavedContent<any>;
     }
 
     export class CreateFailed {
@@ -33,7 +33,7 @@ export namespace EventModels {
         /**
          * The Content instance that has been modified.
          */
-        public Content: SavedContent;
+        public Content: SavedContent<any>;
 
         /**
          * The original fields
@@ -49,7 +49,7 @@ export namespace EventModels {
         /**
          * The Content instance that has been failed to modify
          */
-        public Content: SavedContent;
+        public Content: SavedContent<any>;
         /**
          * The Fields that you've been tried to modify
          */
@@ -82,7 +82,7 @@ export namespace EventModels {
         /**
          * The Content that you've tried to delete
          */
-        public Content: SavedContent;
+        public Content: SavedContent<any>;
         /**
          * Indicates if you've tried to delete the Content permanently or just tried to move it to the Trash
          */
@@ -142,7 +142,7 @@ export namespace EventModels {
         /**
          * The moved Content instance
          */
-        public Content: SavedContent;
+        public Content: SavedContent<any>;
     }
 
     export class ContentMoveFailed {
@@ -157,7 +157,7 @@ export namespace EventModels {
         /**
          * The Content instance that you've tried to move
          */
-        public Content: SavedContent;
+        public Content: SavedContent<any>;
         /**
          * The Error that caused the failure
          */
