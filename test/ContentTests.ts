@@ -1,7 +1,7 @@
 import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 import { LoginState } from '../src/Authentication/LoginState';
-import { Content, ContentInternal, ISavedContent, isDeferred, isIContent, isIContentList, SavedContent } from '../src/Content';
+import { Content, ContentInternal, ISavedContent, isContent, isDeferred, isIContent, isIContentList, SavedContent } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';
 import { GenericContent, Task, User, Workspace } from '../src/ContentTypes';
 import { QueryType } from '../src/Enums';
@@ -54,7 +54,7 @@ export const contentTests = describe('Content', () => {
             });
         });
 
-        describe('#isContentOptions ', () => {
+        describe('#isIContent ', () => {
             it('should return true if an object Id, Path and Type', () => {
                 const isContentOptionsValue = isIContent({ Id: 1, Path: 'a/b', Type: 'Task' });
                 expect(isContentOptionsValue).to.be.eq(true);
@@ -73,7 +73,7 @@ export const contentTests = describe('Content', () => {
             });
         });
 
-        describe('#isContentOptionList  ', () => {
+        describe('#isIContentList  ', () => {
             it('should return true if a list contains only values that have an object Id, Path and Type', () => {
                 const isContentOptionListValue = isIContentList([
                     { Id: 1, Path: 'a/b', Type: 'Task' },
@@ -89,6 +89,27 @@ export const contentTests = describe('Content', () => {
             it('should return false if an object is not array-like', () => {
                 const isContentOptionListValue = isIContentList({ Path: 'a/b', Type: 'Task' } as any);
                 expect(isContentOptionListValue).to.be.eq(false);
+            });
+        });
+
+        describe('#isIContentList  ', () => {
+            it('should return false if an object is null or undefined', () => {
+                expect(isContent(null)).to.be.eq(false);
+            });
+            it('should return false if an object Id is null or undefined', () => {
+                expect(isContent({Id: null})).to.be.eq(false);
+            });
+            it('should return false if an object Path is null or undefined', () => {
+                expect(isContent({Path: null})).to.be.eq(false);
+            });
+            it('should return false if an object Type is null or undefined', () => {
+                expect(isContent({Type: null})).to.be.eq(false);
+            });
+            it('should return false if an object Type is zero-legth', () => {
+                expect(isContent({Type: ''})).to.be.eq(false);
+            });
+            it('should return true for Content instances', () => {
+                expect(isContent(content)).to.be.eq(true);
             });
         });
 
