@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/tslint --project tsconfig.json --type-check",
     "clean": "rimraf dist",
-    "precommit": "npm run lint",
+    "precommit": "npm run lint",    
     "commit": "git-cz",
     "pretest": "npm run build",
     "test": "nyc mocha -p tsconfig.json dist/test/index.js",
@@ -59,9 +59,9 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "^5.4.2",
-    "sensenet-kfi-cz-conventional-changelog": "^1.0.0",
-    "nyc": "^11.0.2"
+    "@reactivex/rxjs": "^5.5.2",
+    "nyc": "^11.0.2",
+    "sensenet-kfi-cz-conventional-changelog": "^1.0.0"
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",
@@ -78,7 +78,7 @@
     "tslint-consistent-codestyle": "^1.8.0",
     "typedoc": "^0.9.0",
     "typedoc-plugin-external-module-name": "^1.0.9",
-    "typescript": "2.5.3"
+    "typescript": "^2.6.1"
   },
   "config": {
     "commitizen": {
