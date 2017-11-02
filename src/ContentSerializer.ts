@@ -30,9 +30,6 @@ export class ContentSerializer {
      * @returns {SerializedContent} the SerializedContent instance
      */
     public static Serialize<T extends IContent>(content: SavedContent<T>): SerializedContent<T> {
-        if (!content.Path) {
-            throw new Error('Content Path required!');
-        }
         const repoUrl = content.GetRepository().ODataBaseUrl;
         return {
             Data: content.GetFields(true),
