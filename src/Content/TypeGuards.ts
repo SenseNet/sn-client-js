@@ -24,7 +24,7 @@ export const isIContent = (object: any): object is IContent => {
  * @param object The object that needs to be checked
  */
 export const isContent = <T extends IContent = IContent>(object: any): object is ContentInternal<T> => {
-    return object && object.Id && object.Path && object.Type && object.Type.length > 0 && object.options && isIContent(object.options) || false;
+    return object instanceof ContentInternal;
 };
 
 /**
@@ -36,5 +36,5 @@ export const isIContentList = (objectList: any[]): objectList is IContent[] => {
 };
 
 export const isSavedContent = <T extends IContent>(c: ContentInternal<T>): c is SavedContent<T> => {
-    return c && c.Id && c.Path && c.Path.length && c.Name && c.Name.length > 0 || false;
+    return c && isContent(c) && c.Id && c.Path && c.Path.length && c.Name && c.Name.length > 0 || false;
 };
