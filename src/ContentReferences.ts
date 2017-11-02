@@ -35,7 +35,7 @@ export abstract class ReferenceAbstract<T extends IContent> {
      * });
      * ```
      */
-    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams<T> = {}): FinializedQuery {
+    public Search(term: string, top: number = 10, skip: number = 0, odataParams: IODataParams<T> = {}): FinializedQuery<T> {
         return new FinializedQuery((q) => {
             let query = q.Equals('_Text', `*${term}*`);
             if (this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.length) {
