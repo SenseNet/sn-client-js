@@ -4,7 +4,7 @@
 
 import { Observable } from '@reactivex/rxjs';
 import { MediaResourceObject } from './ComplexTypes';
-import { ContentInternal, IContent, SavedContent } from './Content';
+import { IContent, SavedContent } from './Content';
 import { BinaryFieldSetting } from './FieldSettings';
 import { UploadProgressInfo } from './Repository/UploadModels';
 
@@ -22,7 +22,7 @@ export class BinaryField<T extends IContent> {
     = (file: File) =>
 
         this._contentReference.GetRepository().UploadFile({
-            File: new File([file], (this._contentReference as SavedContent).Name),
+            File: new File([file], this._contentReference.Name),
             Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath} as SavedContent,
             PropertyName: this._fieldSettings.Name,
             ContentType: this._contentReference.constructor as { new(...args: any[]): T },
@@ -60,7 +60,7 @@ export class BinaryField<T extends IContent> {
      * @param {BinaryFieldSetting} _fieldSettings The corresponding fieldsettings
      */
     constructor(private readonly _mediaResourceObject: MediaResourceObject,
-                private readonly _contentReference: ContentInternal<T>,
+                private readonly _contentReference: SavedContent<T>,
                 private readonly _fieldSettings: BinaryFieldSetting) {
     }
 }
