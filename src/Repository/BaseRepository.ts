@@ -238,7 +238,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     private async webkitFileHandler<T extends IContent>(FileEntry: WebKitFileEntry, Scope: Content, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
             FileEntry.file((f) => {
-                Scope.UploadFile<T>({
+                Scope.UploadFile({
                     File: f as any,
                     ...options
                 })
@@ -395,7 +395,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             });
     }
 
-    private _loadedContentReferenceCache: Map<number, SavedContent<any>> = new Map();
+    private _loadedContentReferenceCache: Map<number, SavedContent> = new Map();
 
     /**
      * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
@@ -427,7 +427,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
         // tslint:disable-next-line:no-string-literal
         instance['_isSaved'] = true;
-        this.Events.Trigger.ContentLoaded({ Content: instance as SavedContent<any> });
+        this.Events.Trigger.ContentLoaded({ Content: instance as SavedContent });
         return instance as SavedContent<T>;
     }
 
