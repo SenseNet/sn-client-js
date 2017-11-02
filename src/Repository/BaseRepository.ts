@@ -395,7 +395,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             });
     }
 
-    private _loadedContentReferenceCache: (Content & ISavedContent)[] = [];
+    private _loadedContentReferenceCache: Map<number, SavedContent<any>> = new Map();
 
     /**
      * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
@@ -412,13 +412,14 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Folder) as { new(...args: any[]): T };
 
         if (opt.Id) {
-            if (this._loadedContentReferenceCache[opt.Id]) {
-                instance = this._loadedContentReferenceCache[opt.Id] as Content<T>;
+            const cached = this._loadedContentReferenceCache.get(opt.Id);
+            if (cached) {
+                instance = cached as Content<T>;
                 // tslint:disable-next-line:no-string-literal
                 instance['updateLastSavedFields'](opt);
             } else {
                 instance = ContentInternal.Create<T>(opt, realContentType, this);
-                this._loadedContentReferenceCache[opt.Id] = instance as SavedContent<T>;
+                this._loadedContentReferenceCache.set(opt.Id, instance as SavedContent<T>);
             }
 
         } else {
@@ -426,7 +427,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
         // tslint:disable-next-line:no-string-literal
         instance['_isSaved'] = true;
-        this.Events.Trigger.ContentLoaded({ Content: instance as SavedContent });
+        this.Events.Trigger.ContentLoaded({ Content: instance as SavedContent<any> });
         return instance as SavedContent<T>;
     }
 
