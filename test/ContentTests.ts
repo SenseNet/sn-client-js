@@ -113,6 +113,28 @@ export const contentTests = describe('Content', () => {
             });
         });
 
+        describe('#isSchema  ', () => {
+            it('should return false for null / undefined', () => {
+                expect(isSchema(null as any)).to.be.eq(false);
+            });
+            it('should return false for empty objects', () => {
+                expect(isSchema({} as any)).to.be.eq(false);
+            });
+            it('should return false if ContentTypeName is missing', () => {
+                expect(isSchema({ContentTypeName: null} as any)).to.be.eq(false);
+            });
+            it('should return false if FieldSettings are missing', () => {
+                expect(isSchema({ContentTypeName: 'Schema'} as any)).to.be.eq(false);
+            });
+            it('should return false if FieldSettings are not array-like', () => {
+                expect(isSchema({ContentTypeName: 'Schema', FieldSettings: 1} as any)).to.be.eq(false);
+            });
+            it('should return true for valid FieldSettings', () => {
+                expect(isSchema({ContentTypeName: 'Schema', FieldSettings: []} as any)).to.be.eq(true);
+            });
+
+        });
+
     });
 
     describe('#Create()', () => {

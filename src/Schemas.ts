@@ -15,7 +15,7 @@
  import * as FieldSettings from './FieldSettings';
 
  export const isSchema: (schema: Schema) => boolean = (schema: Schema): schema is Schema => {
-    return schema.ContentTypeName && schema.FieldSettings && schema.FieldSettings instanceof Array || false;
+    return schema && schema.ContentTypeName && schema.FieldSettings && schema.FieldSettings instanceof Array || false;
 };
 
  /**
