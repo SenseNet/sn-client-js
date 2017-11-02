@@ -200,7 +200,7 @@ export class RepositoryEventHub {
         ContentMoved: (ev: EventModels.ContentMoved) => this._onContentMovedSubject.next(ev),
         ContentMoveFailed: (ev: EventModels.ContentMoveFailed) => this._onContentMoveFailedSubject.next(ev),
 
-        UploadProgress: (ev: UploadProgressInfo<IContent>) => this._onUploadProgressSubject.next(ev)
+        UploadProgress: (ev: UploadProgressInfo<any>) => this._onUploadProgressSubject.next(ev)
     };
 
     /**
