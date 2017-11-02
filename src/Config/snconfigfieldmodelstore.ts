@@ -27,7 +27,7 @@ export class SnConfigFieldModelStore {
         if (this.Contains(newModel.StoreKey)) {
             throw new Error(`Field ${newModel.StoreKey} for configuration model already in the store!`);
         }
-        (this._store as any)[newModel.StoreKey] = newModel;
+        this._store[newModel.StoreKey] = newModel;
     }
 
     /**

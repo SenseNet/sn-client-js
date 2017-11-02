@@ -64,7 +64,7 @@ export class ContentInternal<T extends IContent = IContent> {
         return this._repository.GetODataApi();
     }
 
-    private _type: string = this.contentType.name;
+    private _type: string = this._contentType.name;
     /**
      * Type of the Content, e.g.: 'Task' or 'User'
      */
@@ -127,7 +127,7 @@ export class ContentInternal<T extends IContent = IContent> {
 
         // tslint:disable-next-line:forin
         for (const field in this.GetFields()) {
-            const currentField = (this as any)[field];
+            const currentField = this[field as any];
             if (currentField !== this._lastSavedFields[field]) {
 
                 if (currentField instanceof ContentReferenceField) {
@@ -141,7 +141,7 @@ export class ContentInternal<T extends IContent = IContent> {
                 } else if (currentField instanceof BinaryField) {
                     /* skip, binaries cannot be compared */
                 } else {
-                    changedFields[field] = (this as any)[field];
+                    changedFields[field] = this[field as any];
                 }
             }
         }
@@ -154,17 +154,17 @@ export class ContentInternal<T extends IContent = IContent> {
     public GetFields(skipEmpties?: boolean): T {
         const fieldsToPost = {} as T;
         this.GetSchema().FieldSettings.forEach((s) => {
-            let value = (this as any)[s.Name];
-            if ((this as any)[s.Name] && (this as any)[s.Name].GetValue) {
-                value = (this as any)[s.Name].GetValue();
+            let value = this[s.Name];
+            if (this[s.Name] && this[s.Name].GetValue) {
+                value = this[s.Name].GetValue();
             }
 
-            if ((this as any)[s.Name] && ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl) {
-                value = ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl();
+            if (this[s.Name] && (this[s.Name] as BinaryField<any>).GetDownloadUrl) {
+                value = (this[s.Name] as BinaryField<any>).GetDownloadUrl();
             }
 
             if ((!skipEmpties && value !== undefined) || (skipEmpties && value)) {
-                (fieldsToPost as any)[s.Name] = value;
+                fieldsToPost[s.Name] = value;
             }
         });
         return fieldsToPost;
@@ -232,7 +232,7 @@ export class ContentInternal<T extends IContent = IContent> {
      * @param {IContentOptions} options An object implementing IContentOptions interface
      * @param {IRepository} repository The Repoitory instance
      */
-    constructor(_options: T, private _repository: BaseRepository, private readonly contentType: {new(...args): T}) {
+    constructor(_options: T, private _repository: BaseRepository, private readonly _contentType: {new(...args): T}) {
         Object.assign(this, _options);
         Object.assign(this._lastSavedFields, _options);
         this.updateReferenceFields();
@@ -522,7 +522,7 @@ export class ContentInternal<T extends IContent = IContent> {
             }
         })
             .map((resp) => {
-                return (resp.d as any).Actions as ActionModel[];
+                return (resp.d).Actions as ActionModel[];
             });
     }
     /**
@@ -662,7 +662,7 @@ export class ContentInternal<T extends IContent = IContent> {
             path: this.Path,
             params: options
         }).map((resp) => {
-            return resp.d.results.map((c) => this._repository.HandleLoadedContent(c as any));
+            return resp.d.results.map((c) => this._repository.HandleLoadedContent(c));
         });
     }
     /**
@@ -1004,7 +1004,7 @@ export class ContentInternal<T extends IContent = IContent> {
      * ```
      */
     public GetSchema(): Schemas.Schema {
-        return this._repository.GetSchema(this.contentType);
+        return this._repository.GetSchema(this._contentType);
     }
 
     /**
@@ -1644,7 +1644,7 @@ export class ContentInternal<T extends IContent = IContent> {
         const uploadCreation = this._odata.Upload(this.Path, data, true);
         uploadCreation.subscribe({
             next: (response) => {
-                return this._odata.Upload(this.Path as any, {
+                return this._odata.Upload(this.Path as string, {
                     ContentType: contentType,
                     FileName: fileName,
                     Overwrite: overwrite,

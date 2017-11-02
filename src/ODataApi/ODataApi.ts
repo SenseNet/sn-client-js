@@ -95,7 +95,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
     public Post<T extends IContent>(
         path: string,
         contentBody: T): Observable<SavedContent<T>> {
-        (contentBody as any).__ContentType = contentBody.Type;
+        (contentBody as T & {'__ContentType': string | undefined}).__ContentType = contentBody.Type;
         return this._repository
             .Ajax(ODataHelper.getContentURLbyPath(path), 'POST', ODataResponse, JSON.stringify(contentBody))
             .map((resp) => resp.d)
@@ -170,9 +170,8 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
      * @returns {Observable<TReturnType>} Returns an Rxjs observable whitch will be resolved with TReturnType that you can subscribe of in your code.
      */
     public CreateCustomAction<TReturnType>(actionOptions: ICustomActionOptions, options?: IODataParams<any>, returns?: { new(...args: any[]): TReturnType }): Observable<TReturnType> {
-        if (!returns) {
-            returns = Object as { new(...args: any[]): any };
-        }
+
+        const returnsType = returns || Object as { new(...args: any[]): any };
         const action = new CustomAction(actionOptions);
         const cacheParam = (action.noCache) ? '' : '&nocache=' + new Date().getTime();
         let path = '';
@@ -185,7 +184,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
             this._repository.Events.Trigger.CustomActionFailed({
                 ActionOptions: actionOptions,
                 ODataParams: options,
-                ResultType: returns,
+                ResultType: returnsType,
                 Error: error
             });
             throw error;
@@ -200,7 +199,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
         }
 
         if (typeof action.isAction === 'undefined' || !action.isAction) {
-            const ajax = this._repository.Ajax(path, 'GET', returns).share();
+            const ajax = this._repository.Ajax(path, 'GET', returnsType).share();
             ajax.subscribe((resp) => {
                 this._repository.Events.Trigger.CustomActionExecuted({
                     ActionOptions: actionOptions,
@@ -211,14 +210,14 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
                 this._repository.Events.Trigger.CustomActionFailed({
                     ActionOptions: actionOptions,
                     ODataParams: options,
-                    ResultType: returns as any,
+                    ResultType: returnsType,
                     Error: err
                 });
             });
             return ajax;
         } else {
             if (typeof options !== 'undefined' && typeof options.data !== 'undefined') {
-                const ajax = this._repository.Ajax(path, 'POST', returns, JSON.stringify(options.data)).share();
+                const ajax = this._repository.Ajax(path, 'POST', returnsType, JSON.stringify(options.data)).share();
                 ajax.subscribe((resp) => {
                     this._repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
@@ -229,13 +228,13 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
                     this._repository.Events.Trigger.CustomActionFailed({
                         ActionOptions: actionOptions,
                         ODataParams: options,
-                        ResultType: returns as any,
+                        ResultType: returnsType,
                         Error: err
                     });
                 });
                 return ajax;
             } else {
-                const ajax = this._repository.Ajax(path, 'POST', returns).share();
+                const ajax = this._repository.Ajax(path, 'POST', returnsType).share();
                 ajax.subscribe((resp) => {
                     this._repository.Events.Trigger.CustomActionExecuted({
                         ActionOptions: actionOptions,
@@ -246,7 +245,7 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
                     this._repository.Events.Trigger.CustomActionFailed({
                         ActionOptions: actionOptions,
                         ODataParams: options,
-                        ResultType: returns as any,
+                        ResultType: returnsType,
                         Error: err
                     });
                 });

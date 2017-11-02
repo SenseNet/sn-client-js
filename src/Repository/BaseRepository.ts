@@ -391,7 +391,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             undefined,
             ODataCollectionResponse)
             .map((resp) => {
-                return resp.d.results.map((c) => this.HandleLoadedContent<ContentType>(c as any));
+                return resp.d.results.map((c) => this.HandleLoadedContent<ContentType>(c));
             });
     }
 
@@ -488,7 +488,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         if (serializedContent.Origin.indexOf(this.ODataBaseUrl) !== 0) {
             throw new Error('Content belongs to a different Repository.');
         }
-        return this.HandleLoadedContent(serializedContent.Data as any);
+        return this.HandleLoadedContent(serializedContent.Data);
     }
 
     private readonly _staticContent = {

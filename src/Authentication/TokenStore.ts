@@ -84,7 +84,7 @@ export class TokenStore {
         try {
             switch (this.TokenStoreType) {
                 case TokenStoreType.InMemory:
-                    return Token.FromHeadAndPayload(this._innerStore[storeKey as any]);
+                    return Token.FromHeadAndPayload(this._innerStore[storeKey]);
                 case TokenStoreType.LocalStorage:
                     return Token.FromHeadAndPayload((this._localStorageRef as any).getItem(storeKey));
                 case TokenStoreType.SessionStorage:
@@ -109,7 +109,7 @@ export class TokenStore {
         const dtaString = token.toString();
         switch (this.TokenStoreType) {
             case TokenStoreType.InMemory:
-                this._innerStore[storeKey as any] = dtaString;
+                this._innerStore[storeKey] = dtaString;
                 break;
             case TokenStoreType.LocalStorage:
                 (this._localStorageRef as Storage).setItem(storeKey, dtaString);

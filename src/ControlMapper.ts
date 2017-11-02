@@ -79,7 +79,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns {ControlMapper}
      */
     public MapContentTypeToControl(contentType: { new(...args: any[]): IContent }, control: { new(...args: any[]): TControlBaseType }) {
-        this._contentTypeControlMaps[contentType.name as any] = control;
+        this._contentTypeControlMaps[contentType.name] = control;
         return this;
     }
 
@@ -89,7 +89,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns {TControlBaseType} The mapped control, Default if nothing is mapped.
      */
     public GetControlForContentType<TContentType extends IContent>(contentType: { new(...args: any[]): TContentType }) {
-        return this._contentTypeControlMaps[contentType.name as any] || this._defaultControlType;
+        return this._contentTypeControlMaps[contentType.name] || this._defaultControlType;
     }
 
     private _fieldSettingDefaults: Map<string, ((fieldSetting: FieldSettings.FieldSetting) => { new(...args: any[]): TControlBaseType })> = new Map();

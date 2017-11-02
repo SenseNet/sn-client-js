@@ -40,7 +40,6 @@ export abstract class ReferenceAbstract<T extends IContent> {
             let query = q.Equals('_Text', `*${term}*`);
             if (this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.length) {
                 query = query.And.Query((innerTree) => {
-                    // tslint:disable-next-line:no-unused-expression
                     this.FieldSetting.SelectionRoots && this.FieldSetting.SelectionRoots.forEach((root, index, thisArray) => {
                         (innerTree as any) = innerTree.InTree(root);
                         if (index < thisArray.length - 1) {
@@ -107,7 +106,7 @@ export class ContentReferenceField<T extends IContent> extends ReferenceAbstract
         }
         const request = this.Repository.GetODataApi().Get({ path: this._referenceUrl, params: odataOptions })
             .map((r) => {
-                return r && r.d && this.Repository.HandleLoadedContent<T>(r.d as any);
+                return r && r.d && this.Repository.HandleLoadedContent<T>(r.d);
             }).share();
         request.subscribe((c) => {
             this._contentReference = c || null;
@@ -210,7 +209,7 @@ export class ContentListReferenceField<T extends IContent> extends ReferenceAbst
         if (isDeferred(fieldData)) {
             this._referenceUrl = fieldData.__deferred.uri.replace(this.Repository.Config.ODataToken, '');
         } else if (isIContentList(fieldData)) {
-            this._contentReferences = fieldData.map((f) => this.Repository.HandleLoadedContent(f as any));
+            this._contentReferences = fieldData.map((f) => this.Repository.HandleLoadedContent(f as SavedContent));
         }
 
         this._isDirty = false;

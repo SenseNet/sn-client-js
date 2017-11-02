@@ -14,7 +14,7 @@
         "no-unused-expression": {
             "severity": "warn",
             "options": [
-                "allow-null-check"
+                "allow-fast-null-checks"
             ]
         },
         "no-bitwise": false,
