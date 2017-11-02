@@ -19,11 +19,9 @@ export class MockHttpProvider extends BaseHttpProvider {
     private _responseQueue: MockResponse[] = [];
 
     public readonly RequestLog: { Options: AjaxRequest, Response: MockResponse }[] = [];
-    private _lastUploadOptions?: AjaxRequest & { url: string; };
     protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options?: (AjaxRequest & { url: string; })): Observable<T> {
         const subject = new ReplaySubject<T>();
         this.UseTimeout ? setTimeout(() => this.runMocks(subject, options as AjaxRequest)) : this.runMocks(subject, options as AjaxRequest);
-        this._lastUploadOptions = options;
         return subject.asObservable();
     }
 
