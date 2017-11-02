@@ -61,7 +61,16 @@ export class HttpProviderTests {
         const p = new RxAjaxHttpProvider();
         (global as any).XMLHttpRequest = class {
             public open() { /* */ }
-            public send() { this.readyState = 4; this.status = 200; this.response = {}; this.onreadystatechange(); }
+            public send() {
+                this.readyState = 1;
+                // Shouldn't resolve for now
+                this.onreadystatechange();
+
+                this.readyState = 4;
+                this.status = 200;
+                this.response = {};
+                this.onreadystatechange();
+            }
             public setRequestHeader() { /**/ }
             public onreadystatechange: () => void;
             public readyState: number;
@@ -77,7 +86,12 @@ export class HttpProviderTests {
         (global as any).XMLHttpRequest = class {
             public open() { /**/ } public send() {
                 setTimeout(() => {
-                    this.readyState = 4; this.status = 200; this.response = '{"success": "true"}'; this.onreadystatechange();
+                    this.readyState = 1;
+                    this.onreadystatechange();  // Should be skipped
+                    this.readyState = 4;
+                    this.status = 200;
+                    this.response = '{"success": "true"}';
+                    this.onreadystatechange();
                 }, 10);
             } public setRequestHeader() { /**/ } public onreadystatechange: () => void; public readyState: number; public status: number; public response: any;
         };

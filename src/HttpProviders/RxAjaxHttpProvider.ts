@@ -10,27 +10,21 @@ import { BaseHttpProvider } from './';
  * This is the default RxJs-Ajax based Http calls.
  */
 export class RxAjaxHttpProvider extends BaseHttpProvider {
-    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & { url: string }): Observable<T> {
+    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & { url: string, headers: string[], body: any}): Observable<T> {
         const subject = new Subject<T>();
         const formData = new FormData();
-        formData.append(File.name || 'File', File);
+        formData.append(File.name, File);
 
-        if (options.body) {
-            // tslint:disable-next-line:forin
-            for (const index in options.body) {
-                formData.append(index, options.body[index]);
-            }
+        for (const index in options.body) {
+            formData.append(index, options.body[index]);
         }
 
         const request = new XMLHttpRequest();
         request.withCredentials = this.isCrossDomain(options.url);
         request.open('POST', options.url);
 
-        if (options.headers) {
-            // tslint:disable-next-line:forin
-            for (const header in options.headers) {
-                request.setRequestHeader(header, (options.headers as any)[header]);
-            }
+        for (const header in options.headers) {
+            request.setRequestHeader(header, (options.headers as any)[header]);
         }
 
         request.onreadystatechange = () => {
