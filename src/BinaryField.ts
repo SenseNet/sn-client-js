@@ -34,7 +34,7 @@ export class BinaryField<T extends IContent> {
      * @param {string} text The text to be saved
      * @returns {Observable<UploadProgressInfo<T>>} An observable that will update with the upload progress
      */
-    public SaveBinaryText: (text: string) => Observable<UploadProgressInfo<T>> = (text: string) => this.SaveBinaryFile(new File([text], this._contentReference.Name || 'File'));
+    public SaveBinaryText: (text: string) => Observable<UploadProgressInfo<T>> = (text: string) => this.SaveBinaryFile(new File([text], this._contentReference.Name));
 
     /**
      * Returns the download URL for the binary
