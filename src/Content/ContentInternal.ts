@@ -212,12 +212,14 @@ export class ContentInternal<T extends IContent = IContent> {
         });
         const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.BinaryFieldSetting));
 
-        binarySettings.forEach((s) => {
-            if (!(this[s.Name] instanceof BinaryField)) {
-                const mediaResourceObject = this[s.Name];
-                this[s.Name] = new BinaryField<T>(mediaResourceObject, this, s);
-            }
-        });
+        if (this._isSaved) {
+            binarySettings.forEach((s) => {
+                if (!(this[s.Name] instanceof BinaryField)) {
+                    const mediaResourceObject = this[s.Name];
+                    this[s.Name] = new BinaryField<T>(mediaResourceObject, this.tryGetAsSaved(), s);
+                }
+            });
+        }
     }
 
     private tryGetAsSaved() {
@@ -1683,7 +1685,7 @@ export class ContentInternal<T extends IContent = IContent> {
      * @param {UploadFromEventOptions<T>} uploadOptions The options to the Upload request
      */
     public UploadFromDropEvent<TFileType extends Content>(uploadOptions: UploadFromEventOptions<TFileType>) {
-        const Parent = this.tryGetAsSaved();
+        const Parent = this.tryGetAsSaved() as SavedContent<any>;
         return this._repository.UploadFromDropEvent({
             ...uploadOptions,
             Parent
@@ -1719,7 +1721,7 @@ export class ContentInternal<T extends IContent = IContent> {
     /**
      * Indicates if the current Content is the parent a specified Content
      */
-    public IsParentOf(childContent: Content): boolean {
+    public IsParentOf(childContent: SavedContent<any>): boolean {
         return this._repository === childContent.GetRepository() && this.IsSaved &&
             (this.Id && childContent.ParentId === this.Id
                 || childContent.ParentPath === this.Path);
@@ -1728,7 +1730,7 @@ export class ContentInternal<T extends IContent = IContent> {
     /**
      * Indicates if the current Content is a child of a specified Content
      */
-    public IsChildOf(parentContent: Content): boolean {
+    public IsChildOf(parentContent: SavedContent<any>): boolean {
         return this._repository === parentContent.GetRepository() && parentContent.IsSaved &&
             (parentContent.Id && this.ParentId === parentContent.Id
                 || this.ParentPath === parentContent.Path);
@@ -1737,7 +1739,7 @@ export class ContentInternal<T extends IContent = IContent> {
     /**
      * Indicates if the current Content is an ancestor of a specified Content
      */
-    public IsAncestorOf(descendantContent: Content): boolean {
+    public IsAncestorOf(descendantContent: SavedContent<any>): boolean {
         if (!descendantContent.Path || !this.Path) {
             throw Error('No path provided');
         }
@@ -1747,7 +1749,7 @@ export class ContentInternal<T extends IContent = IContent> {
     /**
      * Indicates if the current Content is a descendant of a specified Content
      */
-    public IsDescendantOf(ancestorContent: Content): boolean {
+    public IsDescendantOf(ancestorContent: SavedContent<any>): boolean {
         if (!ancestorContent.Path || !this.Path) {
             throw Error('No path provided');
         }
