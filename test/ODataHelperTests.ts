@@ -3,7 +3,7 @@ import { ODataHelper } from '../src/SN';
 import { MockRepository } from './Mocks/MockRepository';
 const expect = Chai.expect;
 
-describe('ODataHelper', () => {
+export const tests = describe('ODataHelper', () => {
     describe('#IsItemPath()', () => {
         it('should return true if the given path is a path of an item', () => {
             const isAnItem = ODataHelper.isItemPath("/workspace('project')");
@@ -114,7 +114,7 @@ describe('#joinPaths', () => {
     });
 
     it('should remove slashes from the beginning of the segments', () => {
-        const joined = ODataHelper.joinPaths('/path1', 'path2', '/path3');
+        const joined = ODataHelper.joinPaths('/path1', 'path2/', '/path3');
         expect(joined).to.be.eq('path1/path2/path3');
     });
 
