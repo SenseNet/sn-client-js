@@ -56,6 +56,12 @@ export class BinaryFieldTests {
     }
 
     @test
+    public 'DownloadUrl should be available without MediaResourceObject'() {
+        const field = new BinaryField(null as any, this._file, {Name: 'Binary'} as any);
+        expect(field.GetDownloadUrl()).to.be.eq('/binaryhandler.ashx?nodeid=123&propertyname=Binary');
+    }
+
+    @test
     public 'Parent.GetFullPath() should return the ParentContentPath'(done: MochaDone) {
         (this._file as any).GetRepository = () => {
             return {
