@@ -20,17 +20,13 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
     /**
      * The HTTP provider instance for making AJAX calls.
      */
-    private readonly _httpProvider: THttpProvider;
 
     /**
-     * @param {THttpProvider} providerRef Reference to a specifed HTTP Provider to make Ajax calls
      * @param {BaseRepository} repository Reference to a Repository instance
      */
     constructor(
-        providerRef: { new(): THttpProvider },
         private readonly _repository: BaseRepository<THttpProvider>,
     ) {
-        this._httpProvider = new providerRef();
     }
 
     /**

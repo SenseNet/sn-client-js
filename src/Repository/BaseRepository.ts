@@ -345,7 +345,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
         // warning: Authentication constructor parameterization is not type-safe
         this.Authentication = new authentication(this.HttpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
-        this._odataApi = new ODataApi(_httpProviderType, this);
+        this._odataApi = new ODataApi(this);
 
         this.initUserUpdate();
     }
