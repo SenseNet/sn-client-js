@@ -3,7 +3,6 @@ import { suite, test } from 'mocha-typescript';
 import { BinaryField } from '../src/BinaryField';
 import { SavedContent } from '../src/Content';
 import { File as SnFile } from '../src/ContentTypes';
-import { BinaryFieldSetting } from '../src/FieldSettings';
 import { UploadFileOptions, WithParentContent } from '../src/Repository/UploadModels';
 import { MockRepository } from './Mocks';
 
@@ -11,7 +10,6 @@ const expect = Chai.expect;
 
 @suite('BinaryField')
 export class BinaryFieldTests {
-    private _fieldSetting: BinaryFieldSetting;
     private _file: SavedContent<SnFile>;
 
     private _repo: MockRepository;
@@ -20,9 +18,6 @@ export class BinaryFieldTests {
 
         this._repo = new MockRepository();
 
-        this._fieldSetting = {
-            name: 'Binary'
-        } as any as BinaryFieldSetting;
         this._file = this._repo.HandleLoadedContent<SnFile>({
             Id: 123,
             Path: 'Root/Examples/ExampleFile',
