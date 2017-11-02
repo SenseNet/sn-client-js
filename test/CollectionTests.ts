@@ -3,6 +3,7 @@ import * as Chai from 'chai';
 import { LoginState } from '../src/Authentication/LoginState';
 import { Collection } from '../src/Collection';
 import { Content, ContentInternal } from '../src/Content';
+import { File as SnFile } from '../src/ContentTypes';
 import { Task } from '../src/ContentTypes';
 import { MockRepository } from './Mocks/MockRepository';
 const expect = Chai.expect;
@@ -78,19 +79,20 @@ export const CollectionTests = describe('Collection', () => {
     it('should return an observable', () => {
       expect(collection.Remove(1, true)).to.be.instanceof(Observable);
     });
-  });
-  describe('#Remove()', () => {
+
     it('should return an observable', () => {
       expect(collection.Remove(1)).to.be.instanceof(Observable);
     });
-  });
-  describe('#Remove()', () => {
+
+    it('should return an observable', () => {
+      expect(collection.Remove(999)).to.be.instanceof(Observable);
+    });
+
     it('should return an observable', () => {
       collection.Path = '/workspaces/project';
       expect(collection.Remove([0, 1], true)).to.be.instanceof(Observable);
     });
-  });
-  describe('#Remove()', () => {
+
     it('should return an observable', () => {
       collection.Path = '/workspaces/project';
       expect(collection.Remove([0, 1])).to.be.instanceof(Observable);
@@ -133,7 +135,7 @@ export const CollectionTests = describe('Collection', () => {
   describe('#Upload()', () => {
     it('should return an observable', () => {
       collection.Path = '/workspaces/project';
-      expect(collection.Upload('Task', 'task.docx')).to.be.instanceof(Observable);
+      expect(collection.Upload({Text: 'alma', FileName: 'alma.txt', Parent: collection.Items[0], PropertyName: 'Binary', ContentType: SnFile, Body: {}, Overwrite: true})).to.be.instanceof(Observable);
     });
   });
   describe('#Read()', () => {

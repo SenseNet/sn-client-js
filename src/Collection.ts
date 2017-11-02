@@ -11,6 +11,7 @@ import { Observable } from '@reactivex/rxjs';
 import { Content, IContent } from './Content';
 import { CustomAction, IODataParams, IODataRequestOptions } from './ODataApi';
 import { BaseRepository } from './Repository/BaseRepository';
+import { UploadProgressInfo, UploadTextOptions, WithParentContent } from './Repository/UploadModels';
 import { ODataHelper } from './SN';
 
 export class Collection<T extends IContent> {
@@ -323,30 +324,11 @@ export class Collection<T extends IContent> {
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
-    public Upload(contentType: string, fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName?: string, fileText?: string): Observable<any> {
-        const data: any = {
-            ContentType: contentType,
-            FileName: fileName,
-            Overwrite: overwrite,
-            UseChunk: useChunk
-        };
-        if (typeof propertyName !== 'undefined') {
-            data.PropertyName = propertyName;
-        }
-        if (typeof fileText !== 'undefined') {
-            data.FileText = fileText;
-        }
-        const uploadCreation = this._odata.Upload(this.Path, data, true);
-        uploadCreation.subscribe({
-            next: (response) => {
-                return this._odata.Upload(this.Path, {
-                    ContentType: contentType,
-                    FileName: fileName,
-                    Overwrite: overwrite,
-                    ChunkToken: response
-                }, false);
-            }
+    public Upload(options: WithParentContent<UploadTextOptions<T>> ) {
+        const uploadRequest = this._repository.UploadTextAsFile(options);
+        uploadRequest.first().subscribe((progress) => {
+            this._items.push((progress as UploadProgressInfo<T>).CreatedContent);
         });
-        return uploadCreation;
+        return uploadRequest;
     }
 }
