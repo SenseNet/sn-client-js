@@ -34,7 +34,7 @@ export const combineODataFieldParameters: <T extends IContent>(...params: ODataF
  * @param {IODataOptions} options Represents an ODataOptions obejct based through the IODataOptions interface. Holds the possible url parameters as properties.
  * @returns {string} String with the url params in the correct format e.g. '$select=DisplayName,Index'&$top=2&metadata=no'.
  */
-export const buildUrlParamString: <T extends IContent = IContent>(config: Partial<SnConfigModel>, options?: IODataParams<T>) => string =
+export const buildUrlParamString: <T extends IContent = IContent>(config: SnConfigModel, options?: IODataParams<T>) => string =
     <T extends IContent>(config: SnConfigModel, options?: IODataParams<T>): string => {
         if (!options) {
             return '';
