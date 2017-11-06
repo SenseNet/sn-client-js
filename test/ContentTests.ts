@@ -1,9 +1,10 @@
 import * as Chai from 'chai';
 import { Observable } from 'rxjs/Observable';
 import { LoginState } from '../src/Authentication/LoginState';
+import { MediaResourceObject } from '../src/ComplexTypes';
 import { Content, ContentInternal, ISavedContent, isContent, isDeferred, isIContent, isIContentList, SavedContent } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';
-import { GenericContent, Task, User, Workspace } from '../src/ContentTypes';
+import { File as SnFile, GenericContent, Task, User, Workspace } from '../src/ContentTypes';
 import { QueryType } from '../src/Enums';
 import { joinPaths } from '../src/ODataHelper';
 import { isSchema } from '../src/Schemas';
@@ -262,6 +263,18 @@ export const contentTests = describe('Content', () => {
 
                 done();
             }, (err) => done);
+        });
+
+        it('should return a DownloadUrl for binary fields', () => {
+            const file = repo.HandleLoadedContent({
+                Binary: {
+                    __mediaresource: {
+                        media_src: '/binaryhandler.ashx/test'
+                    }
+                } as MediaResourceObject,
+            } as any, SnFile);
+
+            expect(file.GetFields().Binary).to.be.eq('/binaryhandler.ashx/test');
         });
     });
 
