@@ -8,6 +8,7 @@ import { Content, ContentInternal } from '../src/Content';
 import { ContentType, File as SnFile, Task, User } from '../src/ContentTypes';
 import { ODataApi, ODataBatchResponse, ODataCollectionResponse } from '../src/ODataApi';
 import { SnRepository, UploadProgressInfo, UploadResponse, VersionInfo } from '../src/Repository';
+import { Schema, SchemaStore } from '../src/Schemas';
 import { MockHttpProvider, MockRepository } from './Mocks';
 
 const expect = Chai.expect;
@@ -798,6 +799,20 @@ export class RepositoryTests {
             }
         });
         repo.Authentication.StateSubject.next(LoginState.Authenticated);
+    }
+
+    @test public 'SchemaStore should be the generated SchemaStore by default'() {
+        const localRepo = new MockRepository();
+        // tslint:disable-next-line:no-string-literal
+        expect(localRepo['_schemaStore']).to.be.deep.eq(SchemaStore);
+    }
+
+    @test public 'Schould be able to update Schemas with SetSchemas()'() {
+        const localRepo = new MockRepository();
+        const newSchemaStore = [{} as Schema];
+        localRepo.SetSchemas(newSchemaStore);
+        // tslint:disable-next-line:no-string-literal
+        expect(localRepo['_schemaStore']).to.be.deep.eq(newSchemaStore);
     }
 
 }
