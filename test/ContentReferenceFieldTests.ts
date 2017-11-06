@@ -120,4 +120,11 @@ export class ContentReferenceFieldTests {
         const search = this._unloadedRef.Search('test-term');
         expect(search.toString()).to.be.eq('_Text:\'*test-term*\' AND (Type:Task OR Type:Folder) .TOP:10 .SKIP:0');
     }
+
+    @test
+    public 'Search query should not add type filter if not defined'() {
+        this._unloadedRef.FieldSetting.AllowedTypes = [];
+        const search = this._unloadedRef.Search('test-term');
+        expect(search.toString()).to.be.eq('_Text:\'*test-term*\' .TOP:10 .SKIP:0');
+    }
 }

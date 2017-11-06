@@ -109,7 +109,7 @@ export class ContentReferenceField<T extends IContent> extends ReferenceAbstract
                 return r && r.d && this.Repository.HandleLoadedContent<T>(r.d);
             }).share();
         request.subscribe((c) => {
-            this._contentReference = c || null;
+            this._contentReference = c;
         });
 
         return request;
