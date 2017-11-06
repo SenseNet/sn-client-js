@@ -126,7 +126,7 @@
   * @extends {@link GenericContent}
   */
   export class File extends GenericContent {
-     public Binary?: BinaryField<this>;
+     public Binary: BinaryField<this>;
      public Size?: number;
      public FullSize?: number;
      public PageCount?: number;
