@@ -209,6 +209,12 @@ export const contentTests = describe('Content', () => {
             content.Name = 'Modified DisplayName';
             expect(content.IsDirty).to.be.eq(true);
         });
+
+        it('should skip binary fields', () => {
+            const file = repo.HandleLoadedContent({Id: 71253, Path: 'asas', Name: 'Asdasdasd', Binary: null as any}, SnFile);
+            file.Binary.SaveBinaryText('alma');
+            expect(file.IsDirty).to.be.eq(false);
+        });
     });
 
     describe('#GetChanges', () => {

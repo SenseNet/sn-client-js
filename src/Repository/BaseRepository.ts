@@ -610,9 +610,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 });
 
                 result.d.errors.forEach((error) => {
-                    const from = contentList.find((a) => a.Id === error.content.Id);
                     this.Events.Trigger.ContentMoveFailed({
-                        From: from && from.Path || '',
+                        From: (contentList.find((a) => a.Id === error.content.Id) as SavedContent).Path,
                         Content: this.HandleLoadedContent(error.content),
                         To: targetPath,
                         Error: error.error

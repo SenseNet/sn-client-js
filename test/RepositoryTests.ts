@@ -574,7 +574,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }, SnFile)
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd', Binary: null as any }, SnFile)
         }).then((result) => {
             done();
         }).catch((err) => done(err));
@@ -606,7 +606,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }, SnFile)
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd', Binary: null as any }, SnFile)
         }).then((result) => {
             done('This shouldn\'t be called on error');
         }).catch((err) => done());
@@ -639,7 +639,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }, SnFile)
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd', Binary: null as any }, SnFile)
         }).then((result) => {
             done('This shouldn\'t be called on error');
         }).catch((err) => done());
@@ -690,7 +690,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: true,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }, SnFile)
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd', Binary: null as any }, SnFile)
         }).then((result) => {
             done();
         }).catch((err) => done(err));
