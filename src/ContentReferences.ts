@@ -16,7 +16,7 @@ export abstract class ReferenceAbstract<T extends IContent> {
     public readonly abstract Repository: BaseRepository;
 
     protected _isDirty: boolean = false;
-    public get IsDirty(): boolean{
+    public get IsDirty(): boolean {
         return this._isDirty;
     }
 

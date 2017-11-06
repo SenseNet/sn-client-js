@@ -18,11 +18,11 @@ export class MockAuthService implements IAuthenticationService {
     public ValidUserName: string;
     public ValidPassword: string;
 
-    public get State(): Observable<LoginState>{
+    public get State(): Observable<LoginState> {
         return this.StateSubject.asObservable();
     }
 
-    public get CurrentState(): LoginState{
+    public get CurrentState(): LoginState {
         return this.StateSubject.value;
     }
     public CheckForUpdate() {

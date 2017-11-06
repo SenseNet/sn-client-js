@@ -27,7 +27,7 @@ export class JwtService implements IAuthenticationService {
      * This subject indicates the current state of the service
      * @default LoginState.Pending
      */
-    public get State(): Observable<LoginState>{
+    public get State(): Observable<LoginState> {
         return this._stateSubject.distinctUntilChanged();
     }
 
@@ -35,7 +35,7 @@ export class JwtService implements IAuthenticationService {
      * Gets the current state of the service
      * @default LoginState.Pending
      */
-    public get CurrentState(): LoginState{
+    public get CurrentState(): LoginState {
         return this._stateSubject.getValue();
     }
 
