@@ -12,3082 +12,3115 @@
  * The ```Schema``` class represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
  */ /** */
 
-import { FieldSettings, Content, ContentTypes } from './SN';
+ import * as FieldSettings from './FieldSettings';
 
-    /**
-     * Class that represents a Schema.
-     *
-     * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
-     */
-    export class Schema<TContentType extends Content> {
-        ContentType: {new(...args: any[]): TContentType}
-        Icon: string;
-        DisplayName: string;
-        Description: string;
-        AllowIndexing: boolean;
-        AllowIncrementalNaming: boolean;
-        AllowedChildTypes: string[];
-        FieldSettings: FieldSettings.FieldSetting[];
+ export const isSchema: (schema: Schema) => boolean = (schema: Schema): schema is Schema => {
+    return schema && schema.ContentTypeName && schema.FieldSettings && schema.FieldSettings instanceof Array || false;
+};
 
-        constructor(schema: Partial<Schema<TContentType>>){
-            Object.assign(this, schema);
-        }
-    }
+ /**
+  * Class that represents a Schema.
+  *
+  * It represents an object that holds the basic information about the Content Type (name, icon, ect.) and an array of its ```FieldSettings``` and their full configuration.
+  */
+ export class Schema {
+     public ContentTypeName: string;
+     public ParentTypeName?: string;
 
-    export const SchemaStore: Schema<Content>[] = [
+     public Icon: string;
+     public DisplayName: string;
+     public Description: string;
+     public AllowIndexing: boolean;
+     public AllowIncrementalNaming: boolean;
+     public AllowedChildTypes: string[];
+     public FieldSettings: FieldSettings.FieldSetting[];
+ }
 
-    /**
-     * Method that returns the Content Type Definition of the ContentType
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ContentType,
-            DisplayName: '$Ctd-ContentType,DisplayName',
-            Description: '$Ctd-ContentType,Description',
-            Icon: 'ContentType',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Id',
-                displayName: 'Id',
-                description: 'A unique ID for the Content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'ParentId',
-                displayName: 'Id',
-                description: 'A unique ID for the Content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'VersionId',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Name',
-                displayName: 'Uri name',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'CreatedById',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'ModifiedById',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Version',
-                displayName: 'Version',
-                description: 'Latest version number.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Path',
-                displayName: 'Path',
-                description: 'Content type path.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Depth',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsSystemContent',
-                displayName: 'System Content',
-                description: 'This field is true if content is in a system folder/trash or the content is a system folder/file.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'HandlerName',
-                displayName: 'Handler Name',
-                description: 'Fully Qualified Name.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'ParentTypeName',
-                displayName: 'Parent Type Name',
-                description: 'Name of the parent content type.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'DisplayName',
-                displayName: 'Name',
-                description: 'User friendly name of the content type.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Description',
-                displayName: 'Description',
-                description: 'Longer description of the content type.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Icon',
-                displayName: 'Icon',
-                description: 'Content type icon.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.BinaryFieldSetting({
-                isText: true,
-                name: 'Binary',
-                displayName: 'Binary',
-                description: 'The content type definition in XML format.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: '<?xml version="1.0" encoding="utf-8"?>\<ContentType name="MyType" parentType="GenericContent" handler="SenseNet.ContentRepository.GenericContent" xmlns="http://schemas.sensenet.com/SenseNet/ContentRepository/ContentTypeDefinition">\  <DisplayName>MyType</DisplayName>\  <Description></Description>\  <Icon>Content</Icon>\  <AllowIncrementalNaming>true</AllowIncrementalNaming>\  <AllowedChildTypes>ContentTypeName1,ContentTypeName2</AllowedChildTypes>\  <Fields>\    <Field name="ShortTextField" type="ShortText">\      <DisplayName>ShortTextField</DisplayName>\      <Description></Description>\      <Configuration>\        <MaxLength>100</MaxLength>\        <MinLength>0</MinLength>\        <Regex>[a-zA-Z0-9]*$</Regex>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="LongTextField" type="LongText">\      <DisplayName>LongTextField</DisplayName>\      <Description></Description>\      <Configuration>\        <MaxLength>100</MaxLength>\        <MinLength>0</MinLength>\        <TextType>LongText|RichText|AdvancedRichText</TextType>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="NumberField" type="Number">\      <DisplayName>NumberField</DisplayName>\      <Description></Description>\      <Configuration>\        <MinValue>0</MinValue>\        <MaxValue>100.5</MaxValue>\        <Digits>2</Digits>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="IntegerField" type="Integer">\      <DisplayName>IntegerField</DisplayName>\      <Description></Description>\      <Configuration>\        <MinValue>0</MinValue>\        <MaxValue>100</MaxValue>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="BooleanField" type="Boolean">\      <DisplayName>BooleanField</DisplayName>\      <Description></Description>\      <Configuration>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="ChoiceField" type="Choice">\      <DisplayName>ChoiceField</DisplayName>\      <Description></Description>\      <Configuration>\        <AllowMultiple>false</AllowMultiple>\        <AllowExtraValue>false</AllowExtraValue>\        <Options>\          <Option selected="true">1</Option>\          <Option>2</Option>\        </Options>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="DateTimeField" type="DateTime">\      <DisplayName>DateTimeField</DisplayName>\      <Description></Description>\      <Configuration>\        <DateTimeMode>DateAndTime</DateTimeMode>\        <Precision>Second</Precision>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="ReferenceField" type="Reference">\      <DisplayName>ReferenceField</DisplayName>\      <Description></Description>\      <Configuration>\        <AllowMultiple>true</AllowMultiple>\        <AllowedTypes>\          <Type>Type1</Type>\          <Type>Type2</Type>\        </AllowedTypes>\        <SelectionRoot>\          <Path>/Root/Path1</Path>\          <Path>/Root/Path2</Path>\        </SelectionRoot>\        <DefaultValue>/Root/Path1,/Root/Path2</DefaultValue>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="BinaryField" type="Binary">\      <DisplayName>BinaryField</DisplayName>\      <Description></Description>\      <Configuration>\        <IsText>true</IsText>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\  </Fields>\</ContentType>',
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                name: 'CreatedBy',
-                displayName: 'Created by',
-                description: 'Content creator.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'CreationDate',
-                displayName: 'Creation date',
-                description: 'Content creation date.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                name: 'ModifiedBy',
-                displayName: 'Modified by',
-                description: 'Content was last modified by the given user.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                name: 'ModificationDate',
-                displayName: 'Modification date',
-                description: 'Content was last modified on the given date.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'EnableLifespan',
-                displayName: 'Enable Lifespan handling',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+ export const SchemaStore: Schema[] = [
+     {
+         ContentTypeName: 'ContentType',
+         DisplayName: '$Ctd-ContentType,DisplayName',
+         Description: '$Ctd-ContentType,Description',
+         Icon: 'ContentType',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Id',
+                 DisplayName: 'Id',
+                 Description: 'A unique ID for the Content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'ParentId',
+                 DisplayName: 'Id',
+                 Description: 'A unique ID for the Content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'VersionId',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Name',
+                 DisplayName: 'Uri name',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'CreatedById',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'ModifiedById',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Version',
+                 DisplayName: 'Version',
+                 Description: 'Latest version number.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Path',
+                 DisplayName: 'Path',
+                 Description: 'Content type path.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Depth',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsSystemContent',
+                 DisplayName: 'System Content',
+                 Description: 'This field is true if content is in a system folder/trash or the content is a system folder/file.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'HandlerName',
+                 DisplayName: 'Handler Name',
+                 Description: 'Fully Qualified Name.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'ParentTypeName',
+                 DisplayName: 'Parent Type Name',
+                 Description: 'Name of the parent content type.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'DisplayName',
+                 DisplayName: 'Name',
+                 Description: 'User friendly name of the content type.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Description',
+                 DisplayName: 'Description',
+                 Description: 'Longer description of the content type.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Icon',
+                 DisplayName: 'Icon',
+                 Description: 'Content type icon.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'BinaryFieldSetting',
+                 IsText: true,
+                 Name: 'Binary',
+                 DisplayName: 'Binary',
+                 Description: 'The content type definition in XML format.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: '<?xml version="1.0" encoding="utf-8"?>\<ContentType name="MyType" parentType="GenericContent" handler="SenseNet.ContentRepository.GenericContent" xmlns="http://schemas.sensenet.com/SenseNet/ContentRepository/ContentTypeDefinition">\  <DisplayName>MyType</DisplayName>\  <Description></Description>\  <Icon>Content</Icon>\  <AllowIncrementalNaming>true</AllowIncrementalNaming>\  <AllowedChildTypes>ContentTypeName1,ContentTypeName2</AllowedChildTypes>\  <Fields>\    <Field name="ShortTextField" type="ShortText">\      <DisplayName>ShortTextField</DisplayName>\      <Description></Description>\      <Configuration>\        <MaxLength>100</MaxLength>\        <MinLength>0</MinLength>\        <Regex>[a-zA-Z0-9]*$</Regex>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="LongTextField" type="LongText">\      <DisplayName>LongTextField</DisplayName>\      <Description></Description>\      <Configuration>\        <MaxLength>100</MaxLength>\        <MinLength>0</MinLength>\        <TextType>LongText|RichText|AdvancedRichText</TextType>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="NumberField" type="Number">\      <DisplayName>NumberField</DisplayName>\      <Description></Description>\      <Configuration>\        <MinValue>0</MinValue>\        <MaxValue>100.5</MaxValue>\        <Digits>2</Digits>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="IntegerField" type="Integer">\      <DisplayName>IntegerField</DisplayName>\      <Description></Description>\      <Configuration>\        <MinValue>0</MinValue>\        <MaxValue>100</MaxValue>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="BooleanField" type="Boolean">\      <DisplayName>BooleanField</DisplayName>\      <Description></Description>\      <Configuration>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="ChoiceField" type="Choice">\      <DisplayName>ChoiceField</DisplayName>\      <Description></Description>\      <Configuration>\        <AllowMultiple>false</AllowMultiple>\        <AllowExtraValue>false</AllowExtraValue>\        <Options>\          <Option selected="true">1</Option>\          <Option>2</Option>\        </Options>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="DateTimeField" type="DateTime">\      <DisplayName>DateTimeField</DisplayName>\      <Description></Description>\      <Configuration>\        <DateTimeMode>DateAndTime</DateTimeMode>\        <Precision>Second</Precision>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="ReferenceField" type="Reference">\      <DisplayName>ReferenceField</DisplayName>\      <Description></Description>\      <Configuration>\        <AllowMultiple>true</AllowMultiple>\        <AllowedTypes>\          <Type>Type1</Type>\          <Type>Type2</Type>\        </AllowedTypes>\        <SelectionRoot>\          <Path>/Root/Path1</Path>\          <Path>/Root/Path2</Path>\        </SelectionRoot>\        <DefaultValue>/Root/Path1,/Root/Path2</DefaultValue>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\    <Field name="BinaryField" type="Binary">\      <DisplayName>BinaryField</DisplayName>\      <Description></Description>\      <Configuration>\        <IsText>true</IsText>\        <ReadOnly>false</ReadOnly>\        <Compulsory>false</Compulsory>\        <DefaultValue></DefaultValue>\        <VisibleBrowse>Show|Hide|Advanced</VisibleBrowse>\        <VisibleEdit>Show|Hide|Advanced</VisibleEdit>\        <VisibleNew>Show|Hide|Advanced</VisibleNew>\      </Configuration>\    </Field>\  </Fields>\</ContentType>',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.BinaryFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 Name: 'CreatedBy',
+                 DisplayName: 'Created by',
+                 Description: 'Content creator.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'CreationDate',
+                 DisplayName: 'Creation date',
+                 Description: 'Content creation date.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 Name: 'ModifiedBy',
+                 DisplayName: 'Modified by',
+                 Description: 'Content was last modified by the given user.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 Name: 'ModificationDate',
+                 DisplayName: 'Modification date',
+                 Description: 'Content was last modified on the given date.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'EnableLifespan',
+                 DisplayName: 'Enable Lifespan handling',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the GenericContent
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.GenericContent,
-            DisplayName: '$Ctd-GenericContent,DisplayName',
-            Description: '$Ctd-GenericContent,Description',
-            Icon: 'Content',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Id',
-                displayName: 'Id',
-                description: 'Unique Id for the content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'ParentId',
-                displayName: 'Parent Id',
-                description: 'Id of the parent content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'OwnerId',
-                displayName: 'Owner Id',
-                description: 'Id of the owner.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                name: 'Owner',
-                displayName: 'Owner',
-                description: 'Content owner.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'VersionId',
-                displayName: 'Version Id',
-                description: 'Database row Id of current version.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Icon',
-                displayName: 'Icon',
-                description: 'Icon',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Name',
-                displayName: 'Name',
-                description: 'Specify a name that will appear in the address bar of the browser.',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:Name'
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'CreatedById',
-                displayName: 'Created By (Id)',
-                description: 'Id of creator.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'ModifiedById',
-                displayName: 'Last Modified By (Id)',
-                description: 'Id of last modifier.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Version',
-                displayName: 'Version',
-                description: 'Version number.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Path',
-                displayName: 'Path',
-                description: 'Content path in the repository.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Depth',
-                displayName: 'Tree Depth',
-                description: 'Content level in the tree. Root level is 0.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsSystemContent',
-                displayName: 'System Content',
-                description: 'This field is true if content is in a system folder/trash or the content is a system folder/file.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsFolder',
-                displayName: 'Folder',
-                description: 'This field is true if content can contain other content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'DisplayName',
-                displayName: 'Display Name',
-                description: 'Content name. You can set any name you prefer without any restrictions.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:DisplayName'
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Description',
-                displayName: 'Description',
-                description: 'Description of the content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:RichText'
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Hidden',
-                displayName: 'Hidden',
-                description: 'If checked, content will not show up in navigation.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Index',
-                displayName: 'Index',
-                description: 'Content order in navigation. Numbers closer to 0 will appear first.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'EnableLifespan',
-                displayName: 'Enable Lifespan',
-                description: 'Specify whether you want to define starting and end date for the validity of this content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'ValidFrom',
-                displayName: 'Valid From',
-                description: 'This content will appear on the date you set if lifespan handling is enabled for this content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'ValidTill',
-                displayName: 'Valid Till',
-                description: 'This content will disappear on the date you set if lifespan handling is enabled for this content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'AllowedChildTypes',
-                displayName: 'Allowed child types',
-                description: 'You can get and set which content types are explicitly allowed to be created under this content. It is a local setting.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'EffectiveAllowedChildTypes',
-                displayName: 'Effective allowed child types',
-                description: 'You can get which content types are effective allowed to be created under this content. If there is no local setting, the global setting takes effect.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'None', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Major only', Enabled: true, Selected: false },
-                    {Value: '3', Text: 'Major and minor', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'VersioningMode',
-                displayName: 'Versioning Mode For Current Content',
-                description: 'It shows the versioning mode of the current content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'None', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Major only', Enabled: true, Selected: false },
-                    {Value: '3', Text: 'Major and minor', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'InheritableVersioningMode',
-                displayName: 'Version history',
-                description: 'Specify whether the system should create a new version whenever you create or modify a content below this content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0,
-                controlHint: 'sn:VersioningModeChoice'
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                name: 'CreatedBy',
-                displayName: 'Created by',
-                description: 'Content creator.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'CreationDate',
-                displayName: 'Creation date',
-                description: 'Content creation date.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                name: 'ModifiedBy',
-                displayName: 'Modified By',
-                description: 'Content was last modified by this user.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'ModificationDate',
-                displayName: 'Modification Date',
-                description: 'Content was last modified on this date.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'Off', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'On', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'ApprovingMode',
-                displayName: 'Content Approval For Current Content',
-                description: 'It shows the approval mode of the current content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
-                    {Value: '1', Text: 'Off', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'On', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'InheritableApprovingMode',
-                displayName: 'Content approval',
-                description: 'Specify whether new or changed content below the current one should remain in a draft state until they have been approved.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0,
-                controlHint: 'sn:ApprovingModeChoice'
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Locked',
-                displayName: 'Locked',
-                description: 'It shows whether the content is checked out or not.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                name: 'CheckedOutTo',
-                displayName: 'Checked Out To',
-                description: 'The user currently locking the content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'TrashDisabled',
-                displayName: 'Disable Trash',
-                description: 'You can disable trash for this content and its children. If set, you can not restore deleted content.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: 'false',
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Finalized', Enabled: true, Selected: false },
-                    {Value: '1', Text: 'Creating', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Modifying', Enabled: true, Selected: false },
-                    {Value: '3', Text: 'ModifyingLocked', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: 'SenseNet.ContentRepository.Storage.ContentSavingState',
-                name: 'SavingState',
-                displayName: 'Saving state',
-                description: 'State of multi-step saving.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'ExtensionData',
-                displayName: 'Extension data',
-                description: 'You can set extra data in this field which is useful when extending a content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                name: 'BrowseApplication',
-                displayName: 'Reference To Browse Application',
-                description: 'Set this, if you would like to override the default browse application.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Approvable',
-                displayName: 'Approvable By Current User',
-                description: 'This fileld is true if the content is in \'pending\' state and can be approved by the current user.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsTaggable',
-                displayName: 'Enable Tagging',
-                description: 'Specify whether you would like to enable tagging capability for this content.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: 'false',
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Tags',
-                displayName: 'Tags',
-                description: 'List of tags and creators of them separated by commas.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0,
-                controlHint: 'sn:TagList'
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsRateable',
-                displayName: 'Enable Rating',
-                description: 'Specify whether you would like to enable rating capability for this content.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: 'false',
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'RateStr',
-                displayName: 'Raw value of rating',
-                description: '',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NumberFieldSetting({
-                name: 'RateAvg',
-                displayName: 'Average rate',
-                description: 'Average rate of the content.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'RateCount',
-                displayName: 'Rate count',
-                description: 'Count of rates.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.RatingFieldSetting({
-                range: 5,
-                split: 1,
-                name: 'Rate',
-                displayName: 'Rate',
-                description: '',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Publishable',
-                displayName: 'Publishable By Current User',
-                description: 'This fileld is true if the content can be published by the current user.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                name: 'Versions',
-                displayName: 'Versions',
-                description: 'Content version history.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'CheckInComments',
-                displayName: 'Checkin comments',
-                description: 'Comments for a new version.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'RejectReason',
-                displayName: 'Reject reason',
-                description: 'The reason why the content was rejected.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['Workspace'],
-                name: 'Workspace',
-                displayName: 'Workspace',
-                description: 'The container workspace of the content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'BrowseUrl',
-                displayName: 'Browse url',
-                description: '',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-GenericContent,DisplayName',
+         Description: '$Ctd-GenericContent,Description',
+         Icon: 'Content',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Id',
+                 DisplayName: 'Id',
+                 Description: 'Unique Id for the content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'ParentId',
+                 DisplayName: 'Parent Id',
+                 Description: 'Id of the parent content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'OwnerId',
+                 DisplayName: 'Owner Id',
+                 Description: 'Id of the owner.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 Name: 'Owner',
+                 DisplayName: 'Owner',
+                 Description: 'Content owner.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'VersionId',
+                 DisplayName: 'Version Id',
+                 Description: 'Database row Id of current version.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Icon',
+                 DisplayName: 'Icon',
+                 Description: 'Icon',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Name',
+                 DisplayName: 'Name',
+                 Description: 'Specify a name that will appear in the address bar of the browser.',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:Name'
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'CreatedById',
+                 DisplayName: 'Created By (Id)',
+                 Description: 'Id of creator.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'ModifiedById',
+                 DisplayName: 'Last Modified By (Id)',
+                 Description: 'Id of last modifier.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Version',
+                 DisplayName: 'Version',
+                 Description: 'Version number.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Path',
+                 DisplayName: 'Path',
+                 Description: 'Content path in the repository.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Depth',
+                 DisplayName: 'Tree Depth',
+                 Description: 'Content level in the tree. Root level is 0.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsSystemContent',
+                 DisplayName: 'System Content',
+                 Description: 'This field is true if content is in a system folder/trash or the content is a system folder/file.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsFolder',
+                 DisplayName: 'Folder',
+                 Description: 'This field is true if content can contain other content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'DisplayName',
+                 DisplayName: 'Display Name',
+                 Description: 'Content name. You can set any name you prefer without any restrictions.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:DisplayName'
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Description',
+                 DisplayName: 'Description',
+                 Description: 'Description of the content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:RichText'
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Hidden',
+                 DisplayName: 'Hidden',
+                 Description: 'If checked, content will not show up in navigation.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Index',
+                 DisplayName: 'Index',
+                 Description: 'Content order in navigation. Numbers closer to 0 will appear first.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'EnableLifespan',
+                 DisplayName: 'Enable Lifespan',
+                 Description: 'Specify whether you want to define starting and end date for the validity of this content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'ValidFrom',
+                 DisplayName: 'Valid From',
+                 Description: 'This content will appear on the date you set if lifespan handling is enabled for this content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'ValidTill',
+                 DisplayName: 'Valid Till',
+                 Description: 'This content will disappear on the date you set if lifespan handling is enabled for this content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'AllowedChildTypes',
+                 DisplayName: 'Allowed child types',
+                 Description: 'You can get and set which content types are explicitly allowed to be created under this content. It is a local setting.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'EffectiveAllowedChildTypes',
+                 DisplayName: 'Effective allowed child types',
+                 Description: 'You can get which content types are effective allowed to be created under this content. If there is no local setting, the global setting takes effect.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                     {Value: '1', Text: 'None', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'Major only', Enabled: true, Selected: false },
+                     {Value: '3', Text: 'Major and minor', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'VersioningMode',
+                 DisplayName: 'Versioning Mode For Current Content',
+                 Description: 'It shows the versioning mode of the current content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                     {Value: '1', Text: 'None', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'Major only', Enabled: true, Selected: false },
+                     {Value: '3', Text: 'Major and minor', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'InheritableVersioningMode',
+                 DisplayName: 'Version history',
+                 Description: 'Specify whether the system should create a new version whenever you create or modify a content below this content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:VersioningModeChoice'
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 Name: 'CreatedBy',
+                 DisplayName: 'Created by',
+                 Description: 'Content creator.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'CreationDate',
+                 DisplayName: 'Creation date',
+                 Description: 'Content creation date.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 Name: 'ModifiedBy',
+                 DisplayName: 'Modified By',
+                 Description: 'Content was last modified by this user.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'ModificationDate',
+                 DisplayName: 'Modification Date',
+                 Description: 'Content was last modified on this date.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                     {Value: '1', Text: 'Off', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'On', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'ApprovingMode',
+                 DisplayName: 'Content Approval For Current Content',
+                 Description: 'It shows the approval mode of the current content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Inherited', Enabled: true, Selected: true },
+                     {Value: '1', Text: 'Off', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'On', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'InheritableApprovingMode',
+                 DisplayName: 'Content approval',
+                 Description: 'Specify whether new or changed content below the current one should remain in a draft state until they have been approved.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:ApprovingModeChoice'
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Locked',
+                 DisplayName: 'Locked',
+                 Description: 'It shows whether the content is checked out or not.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 Name: 'CheckedOutTo',
+                 DisplayName: 'Checked Out To',
+                 Description: 'The user currently locking the content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'TrashDisabled',
+                 DisplayName: 'Disable Trash',
+                 Description: 'You can disable trash for this content and its children. If set, you can not restore deleted content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: 'false',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Finalized', Enabled: true, Selected: false },
+                     {Value: '1', Text: 'Creating', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'Modifying', Enabled: true, Selected: false },
+                     {Value: '3', Text: 'ModifyingLocked', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: 'SenseNet.ContentRepository.Storage.ContentSavingState',
+                 Name: 'SavingState',
+                 DisplayName: 'Saving state',
+                 Description: 'State of multi-step saving.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'ExtensionData',
+                 DisplayName: 'Extension data',
+                 Description: 'You can set extra data in this field which is useful when extending a content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 Name: 'BrowseApplication',
+                 DisplayName: 'Reference To Browse Application',
+                 Description: 'Set this, if you would like to override the default browse application.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Approvable',
+                 DisplayName: 'Approvable By Current User',
+                 Description: 'This fileld is true if the content is in \'pending\' state and can be approved by the current user.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsTaggable',
+                 DisplayName: 'Enable Tagging',
+                 Description: 'Specify whether you would like to enable tagging capability for this content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: 'false',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Tags',
+                 DisplayName: 'Tags',
+                 Description: 'List of tags and creators of them separated by commas.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:TagList'
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsRateable',
+                 DisplayName: 'Enable Rating',
+                 Description: 'Specify whether you would like to enable rating capability for this content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: 'false',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'RateStr',
+                 DisplayName: 'Raw value of rating',
+                 Description: '',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'NumberFieldSetting',
+                 Name: 'RateAvg',
+                 DisplayName: 'Average rate',
+                 Description: 'Average rate of the content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NumberFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'RateCount',
+                 DisplayName: 'Rate count',
+                 Description: 'Count of rates.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'RatingFieldSetting',
+                 Range: 5,
+                 Split: 1,
+                 Name: 'Rate',
+                 DisplayName: 'Rate',
+                 Description: '',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.RatingFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Publishable',
+                 DisplayName: 'Publishable By Current User',
+                 Description: 'This fileld is true if the content can be published by the current user.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 Name: 'Versions',
+                 DisplayName: 'Versions',
+                 Description: 'Content version history.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'CheckInComments',
+                 DisplayName: 'Checkin comments',
+                 Description: 'Comments for a new version.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'RejectReason',
+                 DisplayName: 'Reject reason',
+                 Description: 'The reason why the content was rejected.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['Workspace'],
+                 Name: 'Workspace',
+                 DisplayName: 'Workspace',
+                 Description: 'The container workspace of the content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'BrowseUrl',
+                 DisplayName: 'Browse url',
+                 Description: '',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ContentLink
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ContentLink,
-            DisplayName: '$Ctd-ContentLink,DisplayName',
-            Description: '$Ctd-ContentLink,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                name: 'Link',
-                displayName: 'Linked content',
-                description: 'Set this reference to the Content to link.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'ContentLink',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-ContentLink,DisplayName',
+         Description: '$Ctd-ContentLink,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 Name: 'Link',
+                 DisplayName: 'Linked content',
+                 Description: 'Set this reference to the Content to link.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the File
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.File,
-            DisplayName: '$Ctd-File,DisplayName',
-            Description: '$Ctd-File,Description',
-            Icon: 'File',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.BinaryFieldSetting({
-                name: 'Binary',
-                displayName: 'Binary',
-                description: 'The binary content of the document.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NumberFieldSetting({
-                name: 'Size',
-                displayName: 'Size',
-                description: 'Size of the binary document.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NumberFieldSetting({
-                name: 'FullSize',
-                displayName: 'Full size',
-                description: 'The total amount of space the Document occupies, counting all versions.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'PageCount',
-                displayName: 'Page count',
-                description: 'Read-only field for storing the number of pages in the document. It is filled by the document preview generator.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: '-4',
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'MimeType',
-                displayName: 'Document MIME type',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Shapes',
-                displayName: 'Shapes',
-                description: 'Stores data used for document preview (redaction, highlight, annotation shapes). This value can be modified by the document preview plugin.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                name: 'PageAttributes',
-                displayName: 'Page attributes',
-                description: 'Stores data used for document preview (for example page rotation). This value can be modified by the document preview plugin.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Watermark',
-                displayName: 'Watermark',
-                description: 'The text that is displayed as a watermark on the document preview. The format can be set by modifying the Document Preview settings.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'File',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-File,DisplayName',
+         Description: '$Ctd-File,Description',
+         Icon: 'File',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'BinaryFieldSetting',
+                 Name: 'Binary',
+                 DisplayName: 'Binary',
+                 Description: 'The binary content of the document.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.BinaryFieldSetting,
+             {
+                 Type: 'NumberFieldSetting',
+                 Name: 'Size',
+                 DisplayName: 'Size',
+                 Description: 'Size of the binary document.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NumberFieldSetting,
+             {
+                 Type: 'NumberFieldSetting',
+                 Name: 'FullSize',
+                 DisplayName: 'Full size',
+                 Description: 'The total amount of space the Document occupies, counting all versions.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NumberFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'PageCount',
+                 DisplayName: 'Page count',
+                 Description: 'Read-only field for storing the number of pages in the document. It is filled by the document preview generator.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: '-4',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'MimeType',
+                 DisplayName: 'Document MIME type',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Shapes',
+                 DisplayName: 'Shapes',
+                 Description: 'Stores data used for document preview (redaction, highlight, annotation shapes). This value can be modified by the document preview plugin.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'PageAttributes',
+                 DisplayName: 'Page attributes',
+                 Description: 'Stores data used for document preview (for example page rotation). This value can be modified by the document preview plugin.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Watermark',
+                 DisplayName: 'Watermark',
+                 Description: 'The text that is displayed as a watermark on the document preview. The format can be set by modifying the Document Preview settings.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the DynamicJsonContent
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.DynamicJsonContent,
-            DisplayName: 'Dynamic JSON content',
-            Description: '',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'DynamicJsonContent',
+         ParentTypeName: 'File',
+         DisplayName: 'Dynamic JSON content',
+         Description: '',
+         Icon: 'Settings',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ExecutableFile
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ExecutableFile,
-            DisplayName: '$Ctd-ExecutableFile,DisplayName',
-            Description: '$Ctd-ExecutableFile,Description',
-            Icon: 'Application',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'ExecutableFile',
+         ParentTypeName: 'File',
+         DisplayName: '$Ctd-ExecutableFile,DisplayName',
+         Description: '$Ctd-ExecutableFile,Description',
+         Icon: 'Application',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the HtmlTemplate
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.HtmlTemplate,
-            DisplayName: '$Ctd-HtmlTemplate,DisplayName',
-            Description: '$Ctd-HtmlTemplate,Description',
-            Icon: 'File',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.LongTextFieldSetting({
-                name: 'TemplateText',
-                displayName: 'Template text',
-                description: 'Shows the contents of the html file as a text.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'HtmlTemplate',
+         ParentTypeName: 'File',
+         DisplayName: '$Ctd-HtmlTemplate,DisplayName',
+         Description: '$Ctd-HtmlTemplate,Description',
+         Icon: 'File',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'TemplateText',
+                 DisplayName: 'Template text',
+                 Description: 'Shows the contents of the html file as a text.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Image
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Image,
-            DisplayName: '$Ctd-Image,DisplayName',
-            Description: '$Ctd-Image,Description',
-            Icon: 'Image',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Keywords',
-                displayName: 'Keywords',
-                description: 'Keywords describing the image.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'DateTaken',
-                displayName: 'Date taken',
-                description: 'Date the photo was taken, if applicable.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Width',
-                displayName: 'Width',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'Height',
-                displayName: 'Height',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Image',
+         ParentTypeName: 'File',
+         DisplayName: '$Ctd-Image,DisplayName',
+         Description: '$Ctd-Image,Description',
+         Icon: 'Image',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Keywords',
+                 DisplayName: 'Keywords',
+                 Description: 'Keywords describing the image.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'DateTaken',
+                 DisplayName: 'Date taken',
+                 Description: 'Date the photo was taken, if applicable.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Width',
+                 DisplayName: 'Width',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'Height',
+                 DisplayName: 'Height',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the PreviewImage
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.PreviewImage,
-            DisplayName: '$Ctd-PreviewImage,DisplayName',
-            Description: '$Ctd-PreviewImage,Description',
-            Icon: 'Image',
-            AllowIndexing: false,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'PreviewImage',
+         ParentTypeName: 'Image',
+         DisplayName: '$Ctd-PreviewImage,DisplayName',
+         Description: '$Ctd-PreviewImage,Description',
+         Icon: 'Image',
+         AllowIndexing: false,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Settings
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Settings,
-            DisplayName: '$Ctd-Settings,DisplayName',
-            Description: '$Ctd-Settings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.NullFieldSetting({
-                name: 'GlobalOnly',
-                displayName: 'Global only',
-                description: 'Switching this ON will prevent the creation of local settings with the same name preventing others to gain access to the contents of this settings file through inheritance.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Settings',
+         ParentTypeName: 'File',
+         DisplayName: '$Ctd-Settings,DisplayName',
+         Description: '$Ctd-Settings,Description',
+         Icon: 'Settings',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'GlobalOnly',
+                 DisplayName: 'Global only',
+                 Description: 'Switching this ON will prevent the creation of local settings with the same name preventing others to gain access to the contents of this settings file through inheritance.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the IndexingSettings
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.IndexingSettings,
-            DisplayName: '$Ctd-IndexingSettings,DisplayName',
-            Description: '$Ctd-IndexingSettings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.NullFieldSetting({
-                name: 'TextExtractorInstances',
-                displayName: 'Text extractor instances',
-                description: 'Dynamically generated text extractor instance collection.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'IndexingSettings',
+         ParentTypeName: 'Settings',
+         DisplayName: '$Ctd-IndexingSettings,DisplayName',
+         Description: '$Ctd-IndexingSettings,Description',
+         Icon: 'Settings',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'TextExtractorInstances',
+                 DisplayName: 'Text extractor instances',
+                 Description: 'Dynamically generated text extractor instance collection.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the LoggingSettings
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.LoggingSettings,
-            DisplayName: '$Ctd-LoggingSettings,DisplayName',
-            Description: '$Ctd-LoggingSettings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'LoggingSettings',
+         ParentTypeName: 'Settings',
+         DisplayName: '$Ctd-LoggingSettings,DisplayName',
+         Description: '$Ctd-LoggingSettings,Description',
+         Icon: 'Settings',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the PortalSettings
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.PortalSettings,
-            DisplayName: '$Ctd-PortalSettings,DisplayName',
-            Description: '$Ctd-PortalSettings,Description',
-            Icon: 'Settings',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'PortalSettings',
+         ParentTypeName: 'Settings',
+         DisplayName: '$Ctd-PortalSettings,DisplayName',
+         Description: '$Ctd-PortalSettings,Description',
+         Icon: 'Settings',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the SystemFile
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.SystemFile,
-            DisplayName: '$Ctd-SystemFile,DisplayName',
-            Description: '$Ctd-SystemFile,Description',
-            Icon: 'File',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'SystemFile',
+         ParentTypeName: 'File',
+         DisplayName: '$Ctd-SystemFile,DisplayName',
+         Description: '$Ctd-SystemFile,Description',
+         Icon: 'File',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Resource
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Resource,
-            DisplayName: '$Ctd-Resource,DisplayName',
-            Description: '$Ctd-Resource,Description',
-            Icon: 'Resource',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.NumberFieldSetting({
-                name: 'Downloads',
-                displayName: 'Downloads',
-                description: 'The number of downloads.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Resource',
+         ParentTypeName: 'SystemFile',
+         DisplayName: '$Ctd-Resource,DisplayName',
+         Description: '$Ctd-Resource,Description',
+         Icon: 'Resource',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'NumberFieldSetting',
+                 Name: 'Downloads',
+                 DisplayName: 'Downloads',
+                 Description: 'The number of downloads.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NumberFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Folder
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Folder,
-            DisplayName: '$Ctd-Folder,DisplayName',
-            Description: '$Ctd-Folder,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'Folder',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-Folder,DisplayName',
+         Description: '$Ctd-Folder,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ContentList
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ContentList,
-            DisplayName: '$Ctd-ContentList,DisplayName',
-            Description: '$Ctd-ContentList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.LongTextFieldSetting({
-                name: 'ContentListDefinition',
-                displayName: 'List Definition',
-                description: 'XML definition for additional fields.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'DefaultView',
-                displayName: 'Default view',
-                description: 'The default View to use.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                allowedTypes: ['ListView'],
-                name: 'AvailableViews',
-                displayName: 'Available views',
-                description: 'Select global content list views here that you want to offer users to choose from.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                allowedTypes: ['FieldSettingContent'],
-                name: 'FieldSettingContents',
-                displayName: 'FieldSetting content',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                allowedTypes: ['FieldSettingContent'],
-                name: 'AvailableContentTypeFields',
-                displayName: 'Available ContentType Field content.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'ListEmail',
-                displayName: 'Email address of Content List',
-                description: 'Emails sent to this address will be imported as Email content into the Document Library.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'ExchangeSubscriptionId',
-                displayName: 'Exchange Subscription Id',
-                description: 'Ctd-ContentListen-USExchangeSubscriptionId-Descriptione',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'OverwriteFiles',
-                displayName: 'Overwrite files with same name',
-                description: 'If checked new emails and attachments with the same name will overwrite existing items in list. Otherwise increment suffix is used in the name of new mail items.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: 'email', Text: 'Save all attachments as children of separate Email content', Enabled: true, Selected: true },
-                    {Value: 'root', Text: 'Save all attachments in root', Enabled: true, Selected: false },
-                    {Value: 'subject', Text: 'Save all attachments in folders grouped by subject', Enabled: true, Selected: false },
-                    {Value: 'sender', Text: 'Save all attachments in folders grouped by sender', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'GroupAttachments',
-                displayName: 'Group attachments',
-                description: 'Select the appropriate option to group attachment files under folders or email content or not.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'SaveOriginalEmail',
-                displayName: 'Save original email',
-                description: 'A separate .eml file will be created for every incoming email.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                selectionRoots: ['/Root/System/Schema/ContentTypes/GenericContent/Workflow/MailProcessorWorkflow'],
-                name: 'IncomingEmailWorkflow',
-                displayName: 'Incoming email workflow',
-                description: 'Select the workflow to be executed on every incoming email.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: '/Root/System/Schema/ContentTypes/GenericContent/Workflow/MailProcessorWorkflow',
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'OnlyFromLocalGroups',
-                displayName: 'Accept e-mails only from users in local groups',
-                description: 'If set, only users that are members of any local group are able to send e-mails to this library.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'InboxFolder',
-                displayName: 'Inbox folder',
-                description: 'A relative path of a folder to store incoming e-mails.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS'],
-                name: 'OwnerWhenVisitor',
-                displayName: 'Owner of items created by visitor',
-                description: 'If a Visitor adds content to this list, this user will be set as the creator instead of the Visitor. This prevents visitors see each others\' content.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: '/Root/IMS/BuiltIn/Portal/Admin',
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'ContentList',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-ContentList,DisplayName',
+         Description: '$Ctd-ContentList,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'ContentListDefinition',
+                 DisplayName: 'List Definition',
+                 Description: 'XML definition for additional fields.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'DefaultView',
+                 DisplayName: 'Default view',
+                 Description: 'The default View to use.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 AllowedTypes: ['ListView'],
+                 Name: 'AvailableViews',
+                 DisplayName: 'Available views',
+                 Description: 'Select global content list views here that you want to offer users to choose from.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 AllowedTypes: ['FieldSettingContent'],
+                 Name: 'FieldSettingContents',
+                 DisplayName: 'FieldSetting content',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 AllowedTypes: ['FieldSettingContent'],
+                 Name: 'AvailableContentTypeFields',
+                 DisplayName: 'Available ContentType Field content.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'ListEmail',
+                 DisplayName: 'Email address of Content List',
+                 Description: 'Emails sent to this address will be imported as Email content into the Document Library.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'ExchangeSubscriptionId',
+                 DisplayName: 'Exchange Subscription Id',
+                 Description: 'Ctd-ContentListen-USExchangeSubscriptionId-Descriptione',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'OverwriteFiles',
+                 DisplayName: 'Overwrite files with same name',
+                 Description: 'If checked new emails and attachments with the same name will overwrite existing items in list. Otherwise increment suffix is used in the name of new mail items.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: 'email', Text: 'Save all attachments as children of separate Email content', Enabled: true, Selected: true },
+                     {Value: 'root', Text: 'Save all attachments in root', Enabled: true, Selected: false },
+                     {Value: 'subject', Text: 'Save all attachments in folders grouped by subject', Enabled: true, Selected: false },
+                     {Value: 'sender', Text: 'Save all attachments in folders grouped by sender', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'GroupAttachments',
+                 DisplayName: 'Group attachments',
+                 Description: 'Select the appropriate option to group attachment files under folders or email content or not.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'SaveOriginalEmail',
+                 DisplayName: 'Save original email',
+                 Description: 'A separate .eml file will be created for every incoming email.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 SelectionRoots: ['/Root/System/Schema/ContentTypes/GenericContent/Workflow/MailProcessorWorkflow'],
+                 Name: 'IncomingEmailWorkflow',
+                 DisplayName: 'Incoming email workflow',
+                 Description: 'Select the workflow to be executed on every incoming email.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: '/Root/System/Schema/ContentTypes/GenericContent/Workflow/MailProcessorWorkflow',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'OnlyFromLocalGroups',
+                 DisplayName: 'Accept e-mails only from users in local groups',
+                 Description: 'If set, only users that are members of any local group are able to send e-mails to this library.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'InboxFolder',
+                 DisplayName: 'Inbox folder',
+                 Description: 'A relative path of a folder to store incoming e-mails.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['User'],
+                 SelectionRoots: ['/Root/IMS'],
+                 Name: 'OwnerWhenVisitor',
+                 DisplayName: 'Owner of items created by visitor',
+                 Description: 'If a Visitor adds content to this list, this user will be set as the creator instead of the Visitor. This prevents visitors see each others\' content.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: '/Root/IMS/BuiltIn/Portal/Admin',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Aspect
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Aspect,
-            DisplayName: '$Ctd-Aspect,DisplayName',
-            Description: '$Ctd-Aspect,Description',
-            Icon: 'Aspect',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.LongTextFieldSetting({
-                name: 'AspectDefinition',
-                displayName: 'Aspect definition',
-                description: 'Definition of the extension in XML format.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Aspect',
+         ParentTypeName: 'ContentList',
+         DisplayName: '$Ctd-Aspect,DisplayName',
+         Description: '$Ctd-Aspect,Description',
+         Icon: 'Aspect',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'AspectDefinition',
+                 DisplayName: 'Aspect definition',
+                 Description: 'Definition of the extension in XML format.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.LongTextFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ItemList
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ItemList,
-            DisplayName: '$Ctd-ItemList,DisplayName',
-            Description: '$Ctd-ItemList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'ItemList',
+         ParentTypeName: 'ContentList',
+         DisplayName: '$Ctd-ItemList,DisplayName',
+         Description: '$Ctd-ItemList,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the CustomList
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.CustomList,
-            DisplayName: '$Ctd-CustomList,DisplayName',
-            Description: '$Ctd-CustomList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['ListItem'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'CustomList',
+         ParentTypeName: 'ItemList',
+         DisplayName: '$Ctd-CustomList,DisplayName',
+         Description: '$Ctd-CustomList,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['ListItem'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the MemoList
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.MemoList,
-            DisplayName: '$Ctd-MemoList,DisplayName',
-            Description: '$Ctd-MemoList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Memo'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'MemoList',
+         ParentTypeName: 'ItemList',
+         DisplayName: '$Ctd-MemoList,DisplayName',
+         Description: '$Ctd-MemoList,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Memo'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the TaskList
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.TaskList,
-            DisplayName: '$Ctd-TaskList,DisplayName',
-            Description: '$Ctd-TaskList,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Task'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'TaskList',
+         ParentTypeName: 'ItemList',
+         DisplayName: '$Ctd-TaskList,DisplayName',
+         Description: '$Ctd-TaskList,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Task'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Library
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Library,
-            DisplayName: '$Ctd-Library,DisplayName',
-            Description: '$Ctd-Library,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'Library',
+         ParentTypeName: 'ContentList',
+         DisplayName: '$Ctd-Library,DisplayName',
+         Description: '$Ctd-Library,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the DocumentLibrary
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.DocumentLibrary,
-            DisplayName: '$Ctd-DocumentLibrary,DisplayName',
-            Description: '$Ctd-DocumentLibrary,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'File'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'DocumentLibrary',
+         ParentTypeName: 'Library',
+         DisplayName: '$Ctd-DocumentLibrary,DisplayName',
+         Description: '$Ctd-DocumentLibrary,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Folder', 'File'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ImageLibrary
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ImageLibrary,
-            DisplayName: '$Ctd-ImageLibrary,DisplayName',
-            Description: '$Ctd-ImageLibrary,Description',
-            Icon: 'ContentList',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'Image'],
-            FieldSettings: [
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['Image'],
-                name: 'CoverImage',
-                displayName: 'Cover image',
-                description: 'Select cover image',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'ImageLibrary',
+         ParentTypeName: 'Library',
+         DisplayName: '$Ctd-ImageLibrary,DisplayName',
+         Description: '$Ctd-ImageLibrary,Description',
+         Icon: 'ContentList',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Folder', 'Image'],
+         FieldSettings: [
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['Image'],
+                 Name: 'CoverImage',
+                 DisplayName: 'Cover image',
+                 Description: 'Select cover image',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Device
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Device,
-            DisplayName: '$Ctd-Device,DisplayName',
-            Description: '$Ctd-Device,Description',
-            Icon: 'Device',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'UserAgentPattern',
-                displayName: 'User agent string',
-                description: 'A regular expression to match the user agent string of the browser.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Device',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Device,DisplayName',
+         Description: '$Ctd-Device,Description',
+         Icon: 'Device',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'UserAgentPattern',
+                 DisplayName: 'User agent string',
+                 Description: 'A regular expression to match the user agent string of the browser.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Domain
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Domain,
-            DisplayName: '$Ctd-Domain,DisplayName',
-            Description: '$Ctd-Domain,Description',
-            Icon: 'Domain',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
-            FieldSettings: [
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'SyncGuid',
-                displayName: 'SyncGuid',
-                description: 'GUID of corresponding AD object.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'LastSync',
-                displayName: 'LastSync',
-                description: 'Date of last synchronization.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Domain',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Domain,DisplayName',
+         Description: '$Ctd-Domain,Description',
+         Icon: 'Domain',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
+         FieldSettings: [
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'SyncGuid',
+                 DisplayName: 'SyncGuid',
+                 Description: 'GUID of corresponding AD object.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'LastSync',
+                 DisplayName: 'LastSync',
+                 Description: 'Date of last synchronization.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Domains
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Domains,
-            DisplayName: '$Ctd-Domains,DisplayName',
-            Description: '$Ctd-Domains,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Domain'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'Domains',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Domains,DisplayName',
+         Description: '$Ctd-Domains,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Domain'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Email
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Email,
-            DisplayName: '$Ctd-Email,DisplayName',
-            Description: '$Ctd-Email,Description',
-            Icon: 'Document',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: ['File'],
-            FieldSettings: [
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'From',
-                displayName: 'From',
-                description: 'Sender name and address.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                textType: FieldSettings.TextType.RichText,
-                name: 'Body',
-                displayName: 'Body',
-                description: 'Body of email.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:RichText'
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'Sent',
-                displayName: 'Sent',
-                description: 'Date of sending.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Email',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Email,DisplayName',
+         Description: '$Ctd-Email,Description',
+         Icon: 'Document',
+         AllowIndexing: true,
+         AllowIncrementalNaming: true,
+         AllowedChildTypes: ['File'],
+         FieldSettings: [
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'From',
+                 DisplayName: 'From',
+                 Description: 'Sender name and address.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 TextType: FieldSettings.TextType.RichText,
+                 Name: 'Body',
+                 DisplayName: 'Body',
+                 Description: 'Body of email.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:RichText'
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'Sent',
+                 DisplayName: 'Sent',
+                 Description: 'Date of sending.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the OrganizationalUnit
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.OrganizationalUnit,
-            DisplayName: '$Ctd-OrganizationalUnit,DisplayName',
-            Description: '$Ctd-OrganizationalUnit,Description',
-            Icon: 'OrgUnit',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
-            FieldSettings: [
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'SyncGuid',
-                displayName: 'SyncGuid',
-                description: 'GUID of corresponding AD object.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'LastSync',
-                displayName: 'LastSync',
-                description: 'Date of last synchronization.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'OrganizationalUnit',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-OrganizationalUnit,DisplayName',
+         Description: '$Ctd-OrganizationalUnit,Description',
+         Icon: 'OrgUnit',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['User', 'Group', 'OrganizationalUnit'],
+         FieldSettings: [
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'SyncGuid',
+                 DisplayName: 'SyncGuid',
+                 Description: 'GUID of corresponding AD object.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'LastSync',
+                 DisplayName: 'LastSync',
+                 Description: 'Date of last synchronization.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the PortalRoot
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.PortalRoot,
-            DisplayName: '$Ctd-PortalRoot,DisplayName',
-            Description: '$Ctd-PortalRoot,Description',
-            Icon: 'PortalRoot',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'SystemFolder', 'TrashBin', 'ContentList', 'CustomList', 'Sites', 'Domains', 'Profiles', 'Resources', 'Workspace'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'PortalRoot',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-PortalRoot,DisplayName',
+         Description: '$Ctd-PortalRoot,Description',
+         Icon: 'PortalRoot',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Folder', 'SystemFolder', 'TrashBin', 'ContentList', 'CustomList', 'Sites', 'Domains', 'Profiles', 'Resources', 'Workspace'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ProfileDomain
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ProfileDomain,
-            DisplayName: '$Ctd-ProfileDomain,DisplayName',
-            Description: '$Ctd-ProfileDomain,Description',
-            Icon: 'Domain',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['UserProfile'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'ProfileDomain',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-ProfileDomain,DisplayName',
+         Description: '$Ctd-ProfileDomain,Description',
+         Icon: 'Domain',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['UserProfile'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Profiles
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Profiles,
-            DisplayName: '$Ctd-Profiles,DisplayName',
-            Description: '$Ctd-Profiles,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['ProfileDomain'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'Profiles',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Profiles,DisplayName',
+         Description: '$Ctd-Profiles,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['ProfileDomain'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the RuntimeContentContainer
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.RuntimeContentContainer,
-            DisplayName: '$Ctd-RuntimeContentContainer,DisplayName',
-            Description: '$Ctd-RuntimeContentContainer,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'RuntimeContentContainer',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-RuntimeContentContainer,DisplayName',
+         Description: '$Ctd-RuntimeContentContainer,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Sites
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Sites,
-            DisplayName: '$Ctd-Sites,DisplayName',
-            Description: '$Ctd-Sites,Description',
-            Icon: 'Site',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Site'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'Sites',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Sites,DisplayName',
+         Description: '$Ctd-Sites,Description',
+         Icon: 'Site',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Site'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the SmartFolder
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.SmartFolder,
-            DisplayName: '$Ctd-SmartFolder,DisplayName',
-            Description: '$Ctd-SmartFolder,Description',
-            Icon: 'SmartFolder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Query',
-                displayName: 'Query',
-                description: 'Please give a query here that you want to use for collecting the children of this smart folder.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:QueryBuilder'
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Default', Enabled: true, Selected: false },
-                    {Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Disabled', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: 'SenseNet.Search.FilterStatus',
-                name: 'EnableAutofilters',
-                displayName: 'Enable autofilters',
-                description: 'If autofilters are enabled, system content will be filtered from the query.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '0', Text: 'Default', Enabled: true, Selected: false },
-                    {Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Disabled', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: 'SenseNet.Search.FilterStatus',
-                name: 'EnableLifespanFilter',
-                displayName: 'Enable lifespan filter',
-                description: 'If lifespan filter is enabled, only valid content will be in the result.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'SmartFolder',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-SmartFolder,DisplayName',
+         Description: '$Ctd-SmartFolder,Description',
+         Icon: 'SmartFolder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Query',
+                 DisplayName: 'Query',
+                 Description: 'Please give a query here that you want to use for collecting the children of this smart folder.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:QueryBuilder'
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Default', Enabled: true, Selected: false },
+                     {Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'Disabled', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: 'SenseNet.Search.FilterStatus',
+                 Name: 'EnableAutofilters',
+                 DisplayName: 'Enable autofilters',
+                 Description: 'If autofilters are enabled, system content will be filtered from the query.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '0', Text: 'Default', Enabled: true, Selected: false },
+                     {Value: '1', Text: 'Enabled', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'Disabled', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: 'SenseNet.Search.FilterStatus',
+                 Name: 'EnableLifespanFilter',
+                 DisplayName: 'Enable lifespan filter',
+                 Description: 'If lifespan filter is enabled, only valid content will be in the result.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the SystemFolder
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.SystemFolder,
-            DisplayName: '$Ctd-SystemFolder,DisplayName',
-            Description: '$Ctd-SystemFolder,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'SystemFolder',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-SystemFolder,DisplayName',
+         Description: '$Ctd-SystemFolder,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Resources
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Resources,
-            DisplayName: '$Ctd-Resources,DisplayName',
-            Description: '$Ctd-Resources,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Resource'],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'Resources',
+         ParentTypeName: 'SystemFolder',
+         DisplayName: '$Ctd-Resources,DisplayName',
+         Description: '$Ctd-Resources,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Resource'],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the TrashBag
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.TrashBag,
-            DisplayName: '$Ctd-TrashBag,DisplayName',
-            Description: '$Ctd-TrashBag,Description',
-            Icon: 'Folder',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.DateTimeFieldSetting({
-                name: 'KeepUntil',
-                displayName: 'Keep until',
-                description: 'The bag must be kept until this date.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'OriginalPath',
-                displayName: 'Original path',
-                description: 'The path where the bag content were deleted from.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'WorkspaceRelativePath',
-                displayName: 'Ctd-TrashBagen-USWorkspaceRelativePath-DisplayName',
-                description: 'Ctd-TrashBagen-USWorkspaceRelativePath-Description',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'WorkspaceId',
-                displayName: 'Ctd-TrashBagen-USWorkspaceId-DisplayName',
-                description: 'Ctd-TrashBagen-USWorkspaceId-Description',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                name: 'DeletedContent',
-                displayName: 'Deleted content',
-                description: 'The actual deleted content inside this trash bag.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'TrashBag',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-TrashBag,DisplayName',
+         Description: '$Ctd-TrashBag,Description',
+         Icon: 'Folder',
+         AllowIndexing: true,
+         AllowIncrementalNaming: true,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'DateTimeFieldSetting',
+                 Name: 'KeepUntil',
+                 DisplayName: 'Keep until',
+                 Description: 'The bag must be kept until this date.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'OriginalPath',
+                 DisplayName: 'Original path',
+                 Description: 'The path where the bag content were deleted from.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'WorkspaceRelativePath',
+                 DisplayName: 'Ctd-TrashBagen-USWorkspaceRelativePath-DisplayName',
+                 Description: 'Ctd-TrashBagen-USWorkspaceRelativePath-Description',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'WorkspaceId',
+                 DisplayName: 'Ctd-TrashBagen-USWorkspaceId-DisplayName',
+                 Description: 'Ctd-TrashBagen-USWorkspaceId-Description',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 Name: 'DeletedContent',
+                 DisplayName: 'Deleted content',
+                 Description: 'The actual deleted content inside this trash bag.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Workspace
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Workspace,
-            DisplayName: '$Ctd-Workspace,DisplayName',
-            Description: '$Ctd-Workspace,Description',
-            Icon: 'Workspace',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'Workspace'],
-            FieldSettings: [
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS', '/Root'],
-                name: 'Manager',
-                displayName: 'Project manager',
-                description: 'The person responsible for the project.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'Deadline',
-                displayName: 'Project deadline',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsActive',
-                displayName: 'Active',
-                description: 'This workspace is currently active.',
-                readOnly: false,
-                compulsory: true,
-                defaultValue: 'true',
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['Skin'],
-                selectionRoots: ['/Root/Skins'],
-                name: 'WorkspaceSkin',
-                displayName: 'Skin',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsCritical',
-                displayName: 'Is critical',
-                description: 'This workspace is currently in a critical status.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsWallContainer',
-                displayName: 'Wall Container',
-                description: 'This workspace is configured to contain a wall - this indicates that posts are created under this workspace if Content are shared anywhere below this path.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'IsFollowed',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Workspace',
+         ParentTypeName: 'Folder',
+         DisplayName: '$Ctd-Workspace,DisplayName',
+         Description: '$Ctd-Workspace,Description',
+         Icon: 'Workspace',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Folder', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'Workspace'],
+         FieldSettings: [
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['User'],
+                 SelectionRoots: ['/Root/IMS', '/Root'],
+                 Name: 'Manager',
+                 DisplayName: 'Project manager',
+                 Description: 'The person responsible for the project.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'Deadline',
+                 DisplayName: 'Project deadline',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsActive',
+                 DisplayName: 'Active',
+                 Description: 'This workspace is currently active.',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 DefaultValue: 'true',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['Skin'],
+                 SelectionRoots: ['/Root/Skins'],
+                 Name: 'WorkspaceSkin',
+                 DisplayName: 'Skin',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsCritical',
+                 DisplayName: 'Is critical',
+                 Description: 'This workspace is currently in a critical status.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsWallContainer',
+                 DisplayName: 'Wall Container',
+                 Description: 'This workspace is configured to contain a wall - this indicates that posts are created under this workspace if Content are shared anywhere below this path.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'IsFollowed',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Site
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Site,
-            DisplayName: '$Ctd-Site,DisplayName',
-            Description: '$Ctd-Site,Description',
-            Icon: 'Site',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Folder', 'Workspace', 'Profiles', 'Image', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'SmartFolder'],
-            FieldSettings: [
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: 'en', Text: 'English', Enabled: true, Selected: true },
-                    {Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'Language',
-                displayName: 'Language',
-                description: 'Please define the default language of this site.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'EnableClientBasedCulture',
-                displayName: 'Enable client-based culture',
-                description: 'Enable this to allow user browser settings override default site language settings.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'EnableUserBasedCulture',
-                displayName: 'Enable user-based culture',
-                description: 'Enable this to allow user language settings override default site language settings.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'UrlList',
-                displayName: 'URL list',
-                description: 'Select the URLs to associate with this Site.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                selectionRoots: ['.'],
-                name: 'StartPage',
-                displayName: 'Alternative start page',
-                description: 'If set, the site will use this start page instead of the default.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                selectionRoots: ['.'],
-                name: 'LoginPage',
-                displayName: 'Login page',
-                description: 'The login page to display when a user tries to access restricted Content (Forms authentication only).',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['Skin'],
-                selectionRoots: ['/Root/Skins'],
-                name: 'SiteSkin',
-                displayName: 'Skin',
-                description: '',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'DenyCrossSiteAccess',
-                displayName: 'Deny cross-site access',
-                description: 'If set, content under this site can only be accessed via this site and not via other sites using a Root relative path.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Site',
+         ParentTypeName: 'Workspace',
+         DisplayName: '$Ctd-Site,DisplayName',
+         Description: '$Ctd-Site,Description',
+         Icon: 'Site',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Folder', 'Workspace', 'Profiles', 'Image', 'DocumentLibrary', 'ImageLibrary', 'MemoList', 'TaskList', 'CustomList', 'SmartFolder'],
+         FieldSettings: [
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: 'en', Text: 'English', Enabled: true, Selected: true },
+                     {Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'Language',
+                 DisplayName: 'Language',
+                 Description: 'Please define the default language of this site.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'EnableClientBasedCulture',
+                 DisplayName: 'Enable client-based culture',
+                 Description: 'Enable this to allow user browser settings override default site language settings.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'EnableUserBasedCulture',
+                 DisplayName: 'Enable user-based culture',
+                 Description: 'Enable this to allow user language settings override default site language settings.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'UrlList',
+                 DisplayName: 'URL list',
+                 Description: 'Select the URLs to associate with this Site.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 SelectionRoots: ['.'],
+                 Name: 'StartPage',
+                 DisplayName: 'Alternative start page',
+                 Description: 'If set, the site will use this start page instead of the default.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 SelectionRoots: ['.'],
+                 Name: 'LoginPage',
+                 DisplayName: 'Login page',
+                 Description: 'The login page to display when a user tries to access restricted Content (Forms authentication only).',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['Skin'],
+                 SelectionRoots: ['/Root/Skins'],
+                 Name: 'SiteSkin',
+                 DisplayName: 'Skin',
+                 Description: '',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'DenyCrossSiteAccess',
+                 DisplayName: 'Deny cross-site access',
+                 Description: 'If set, content under this site can only be accessed via this site and not via other sites using a Root relative path.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the TrashBin
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.TrashBin,
-            DisplayName: '$Ctd-TrashBin,DisplayName',
-            Description: '$Ctd-TrashBin,Description',
-            Icon: 'trash',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['TrashBag'],
-            FieldSettings: [
-            new FieldSettings.IntegerFieldSetting({
-                minValue: 0,
-                name: 'MinRetentionTime',
-                displayName: 'Minimum retention time (in days)',
-                description: '',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                minValue: 0,
-                name: 'SizeQuota',
-                displayName: 'Size quota',
-                description: 'Set the size quote for the trash bin (Megabytes).',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                minValue: 0,
-                name: 'BagCapacity',
-                displayName: 'Trashbag capacity',
-                description: 'The maximum number of nodes accepted for trash in a single operation.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: '100',
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'TrashBin',
+         ParentTypeName: 'Workspace',
+         DisplayName: '$Ctd-TrashBin,DisplayName',
+         Description: '$Ctd-TrashBin,Description',
+         Icon: 'trash',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['TrashBag'],
+         FieldSettings: [
+             {
+                 Type: 'IntegerFieldSetting',
+                 MinValue: 0,
+                 Name: 'MinRetentionTime',
+                 DisplayName: 'Minimum retention time (in days)',
+                 Description: '',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 MinValue: 0,
+                 Name: 'SizeQuota',
+                 DisplayName: 'Size quota',
+                 Description: 'Set the size quote for the trash bin (Megabytes).',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 MinValue: 0,
+                 Name: 'BagCapacity',
+                 DisplayName: 'Trashbag capacity',
+                 Description: 'The maximum number of nodes accepted for trash in a single operation.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: '100',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the UserProfile
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.UserProfile,
-            DisplayName: '$Ctd-UserProfile,DisplayName',
-            Description: '$Ctd-UserProfile,Description',
-            Icon: 'UserProfile',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['DocumentLibrary', 'MemoList', 'TaskList', 'ImageLibrary', 'CustomList'],
-            FieldSettings: [
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS'],
-                name: 'User',
-                displayName: 'User',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'UserProfile',
+         ParentTypeName: 'Workspace',
+         DisplayName: '$Ctd-UserProfile,DisplayName',
+         Description: '$Ctd-UserProfile,Description',
+         Icon: 'UserProfile',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['DocumentLibrary', 'MemoList', 'TaskList', 'ImageLibrary', 'CustomList'],
+         FieldSettings: [
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['User'],
+                 SelectionRoots: ['/Root/IMS'],
+                 Name: 'User',
+                 DisplayName: 'User',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Group
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Group,
-            DisplayName: '$Ctd-Group,DisplayName',
-            Description: '$Ctd-Group,Description',
-            Icon: 'Group',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                allowedTypes: ['User', 'Group'],
-                selectionRoots: ['/Root/IMS', '/Root'],
-                name: 'Members',
-                displayName: 'Members',
-                description: 'The members of this group.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'SyncGuid',
-                displayName: 'Sync Guid',
-                description: 'GUID of corresponding AD object.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'LastSync',
-                displayName: 'Last synchronization',
-                description: 'Date of last synchronization.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Group',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-Group,DisplayName',
+         Description: '$Ctd-Group,Description',
+         Icon: 'Group',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 AllowedTypes: ['User', 'Group'],
+                 SelectionRoots: ['/Root/IMS', '/Root'],
+                 Name: 'Members',
+                 DisplayName: 'Members',
+                 Description: 'The members of this group.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'SyncGuid',
+                 DisplayName: 'Sync Guid',
+                 Description: 'GUID of corresponding AD object.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'LastSync',
+                 DisplayName: 'Last synchronization',
+                 Description: 'Date of last synchronization.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the ListItem
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.ListItem,
-            DisplayName: '$Ctd-ListItem,DisplayName',
-            Description: '$Ctd-ListItem,Description',
-            Icon: 'FormItem',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-        ]
-        }),
+     {
+         ContentTypeName: 'ListItem',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-ListItem,DisplayName',
+         Description: '$Ctd-ListItem,Description',
+         Icon: 'FormItem',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the CustomListItem
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.CustomListItem,
-            DisplayName: '$Ctd-CustomListItem,DisplayName',
-            Description: '$Ctd-CustomListItem,Description',
-            Icon: 'FormItem',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.NullFieldSetting({
-                name: 'WorkflowsRunning',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'CustomListItem',
+         ParentTypeName: 'ListItem',
+         DisplayName: '$Ctd-CustomListItem,DisplayName',
+         Description: '$Ctd-CustomListItem,Description',
+         Icon: 'FormItem',
+         AllowIndexing: true,
+         AllowIncrementalNaming: true,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'WorkflowsRunning',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Memo
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Memo,
-            DisplayName: '$Ctd-Memo,DisplayName',
-            Description: '$Ctd-Memo,Description',
-            Icon: 'Document',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'Date',
-                displayName: 'Date',
-                description: 'Please set the due date of the memo.',
-                readOnly: false,
-                compulsory: false,
-                defaultValue: '[Script:jScript] DateTime.UtcNow; [/Script]',
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: true,
-                allowMultiple: false,
-                options: [
-                    {Value: 'generic', Text: 'Generic', Enabled: true, Selected: true },
-                    {Value: 'iso', Text: 'ISO', Enabled: true, Selected: false },
-                    {Value: 'iaudit', Text: 'Internal audit', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'MemoType',
-                displayName: 'Memo type',
-                description: 'Type of the memo.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                name: 'SeeAlso',
-                displayName: 'See also...',
-                description: 'A list of content this memo pertains to.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Memo',
+         ParentTypeName: 'ListItem',
+         DisplayName: '$Ctd-Memo,DisplayName',
+         Description: '$Ctd-Memo,Description',
+         Icon: 'Document',
+         AllowIndexing: true,
+         AllowIncrementalNaming: true,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'Date',
+                 DisplayName: 'Date',
+                 Description: 'Please set the due date of the memo.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 DefaultValue: '[Script:jScript] DateTime.UtcNow; [/Script]',
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: true,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: 'generic', Text: 'Generic', Enabled: true, Selected: true },
+                     {Value: 'iso', Text: 'ISO', Enabled: true, Selected: false },
+                     {Value: 'iaudit', Text: 'Internal audit', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'MemoType',
+                 DisplayName: 'Memo type',
+                 Description: 'Type of the memo.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 Name: 'SeeAlso',
+                 DisplayName: 'See also...',
+                 Description: 'A list of content this memo pertains to.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Task
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Task,
-            DisplayName: '$Ctd-Task,DisplayName',
-            Description: '$Ctd-Task,Description',
-            Icon: 'FormItem',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'StartDate',
-                displayName: 'Start date',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'DueDate',
-                displayName: 'Due date',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS', '/Root'],
-                name: 'AssignedTo',
-                displayName: 'Assigned to',
-                description: 'List of internal stakeholders.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '1', Text: 'Urgent', Enabled: true, Selected: false },
-                    {Value: '2', Text: 'Normal', Enabled: true, Selected: true },
-                    {Value: '3', Text: 'Not urgent', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'Priority',
-                displayName: 'Priority',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: 'pending', Text: 'Pending', Enabled: true, Selected: false },
-                    {Value: 'active', Text: 'Active', Enabled: true, Selected: true },
-                    {Value: 'completed', Text: 'Completed', Enabled: true, Selected: false },
-                    {Value: 'deferred', Text: 'Deferred', Enabled: true, Selected: false },
-                    {Value: 'waiting', Text: 'Waiting', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'Status',
-                displayName: 'Status',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                minValue: 0,
-                maxValue: 100,
-                showAsPercentage: true,
-                name: 'TaskCompletion',
-                displayName: 'Completion',
-                description: 'Completion percentage of the task.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.IntegerFieldSetting({
-                name: 'RemainingDays',
-                displayName: 'Remaining days',
-                description: 'Number of remaining days.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'DueText',
-                displayName: 'DueText',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'DueCssClass',
-                displayName: 'Due style',
-                description: 'Css class',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Task',
+         ParentTypeName: 'ListItem',
+         DisplayName: '$Ctd-Task,DisplayName',
+         Description: '$Ctd-Task,Description',
+         Icon: 'FormItem',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'StartDate',
+                 DisplayName: 'Start date',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'DueDate',
+                 DisplayName: 'Due date',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 AllowedTypes: ['User'],
+                 SelectionRoots: ['/Root/IMS', '/Root'],
+                 Name: 'AssignedTo',
+                 DisplayName: 'Assigned to',
+                 Description: 'List of internal stakeholders.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '1', Text: 'Urgent', Enabled: true, Selected: false },
+                     {Value: '2', Text: 'Normal', Enabled: true, Selected: true },
+                     {Value: '3', Text: 'Not urgent', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'Priority',
+                 DisplayName: 'Priority',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: 'pending', Text: 'Pending', Enabled: true, Selected: false },
+                     {Value: 'active', Text: 'Active', Enabled: true, Selected: true },
+                     {Value: 'completed', Text: 'Completed', Enabled: true, Selected: false },
+                     {Value: 'deferred', Text: 'Deferred', Enabled: true, Selected: false },
+                     {Value: 'waiting', Text: 'Waiting', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'Status',
+                 DisplayName: 'Status',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 MinValue: 0,
+                 MaxValue: 100,
+                 ShowAsPercentage: true,
+                 Name: 'TaskCompletion',
+                 DisplayName: 'Completion',
+                 Description: 'Completion percentage of the task.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'IntegerFieldSetting',
+                 Name: 'RemainingDays',
+                 DisplayName: 'Remaining days',
+                 Description: 'Number of remaining days.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.IntegerFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'DueText',
+                 DisplayName: 'DueText',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'DueCssClass',
+                 DisplayName: 'Due style',
+                 Description: 'Css class',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the Query
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.Query,
-            DisplayName: '$Ctd-Query,DisplayName',
-            Description: '$Ctd-Query,Description',
-            Icon: 'Query',
-            AllowIndexing: true,
-            AllowIncrementalNaming: true,
-            AllowedChildTypes: [],
-            FieldSettings: [
-            new FieldSettings.LongTextFieldSetting({
-                name: 'Query',
-                displayName: 'Query',
-                description: 'Query text.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:QueryBuilder'
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: 'Public', Text: 'Public', Enabled: true, Selected: true },
-                    {Value: 'Private', Text: 'Private', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.RadioButtons,
-                enumTypeName: '',
-                name: 'QueryType',
-                displayName: 'Query type',
-                description: 'Public queries are stored under the workspace, private queries are stored under the user profile.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-        ]
-        }),
+     {
+         ContentTypeName: 'Query',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-Query,DisplayName',
+         Description: '$Ctd-Query,Description',
+         Icon: 'Query',
+         AllowIndexing: true,
+         AllowIncrementalNaming: true,
+         AllowedChildTypes: [],
+         FieldSettings: [
+             {
+                 Type: 'LongTextFieldSetting',
+                 Name: 'Query',
+                 DisplayName: 'Query',
+                 Description: 'Query text.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:QueryBuilder'
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: 'Public', Text: 'Public', Enabled: true, Selected: true },
+                     {Value: 'Private', Text: 'Private', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.RadioButtons,
+                 EnumTypeName: '',
+                 Name: 'QueryType',
+                 DisplayName: 'Query type',
+                 Description: 'Public queries are stored under the workspace, private queries are stored under the user profile.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+         ]
+         },
 
-    /**
-     * Method that returns the Content Type Definition of the User
-     * @returns {Schema}
-     */
-    new Schema({
-            ContentType: ContentTypes.User,
-            DisplayName: '$Ctd-User,DisplayName',
-            Description: '$Ctd-User,Description',
-            Icon: 'User',
-            AllowIndexing: true,
-            AllowIncrementalNaming: false,
-            AllowedChildTypes: ['Image'],
-            FieldSettings: [
-            new FieldSettings.ShortTextFieldSetting({
-                maxLength: 100,
-                name: 'LoginName',
-                displayName: 'Login name',
-                description: 'The name that the user has to type in on login forms (in some cases along with the domain name). It has to be unique under a domain.',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'JobTitle',
-                displayName: 'Job title',
-                description: '',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Enabled',
-                displayName: 'Enabled',
-                description: 'User account is enabled.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Domain',
-                displayName: 'Domain',
-                description: 'The domain of the user.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                regex: '^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
-                name: 'Email',
-                displayName: 'E-mail',
-                description: 'The e-mail of the user.',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                regex: '[^<]+',
-                name: 'FullName',
-                displayName: 'Full name',
-                description: 'Full name of the user (e.g. John Smith).',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                name: 'ImageRef',
-                displayName: 'Cover image (reference)',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.BinaryFieldSetting({
-                name: 'ImageData',
-                displayName: 'Cover image (binarydata)',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.NullFieldSetting({
-                name: 'Avatar',
-                displayName: 'Avatar',
-                description: 'Avatar image of user.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0,
-                controlHint: 'sn:Image'
-            }),
-            new FieldSettings.PasswordFieldSetting({
-                reenterTitle: 'Re-enter password',
-                reenterDescription: 'Re-enter password.',
-                passwordHistoryLength: 0,
-                name: 'Password',
-                displayName: 'Password',
-                description: 'User password.',
-                readOnly: false,
-                compulsory: true,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'SyncGuid',
-                displayName: 'SyncGuid',
-                description: 'GUID of corresponding AD object.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
-                name: 'LastSync',
-                displayName: 'LastSync',
-                description: 'Date of last synchronization.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.CaptchaFieldSetting({
-                name: 'Captcha',
-                displayName: 'Captcha text',
-                description: 'Captcha text entered by the user.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: false,
-                allowedTypes: ['User'],
-                selectionRoots: ['/Root/IMS'],
-                name: 'Manager',
-                displayName: 'Manager',
-                description: 'Manager of the user.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Department',
-                displayName: 'Department',
-                description: 'Department of employee.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'Languages',
-                displayName: 'Languages',
-                description: 'Spoken languages.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                regex: '(^\\d*([-\\s\\+\\(\\)]\\d*)*$)?',
-                name: 'Phone',
-                displayName: 'Phone',
-                description: 'Phone number. (e.g. +123456789 or 1234).',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '...', Text: '...', Enabled: true, Selected: false },
-                    {Value: 'Female', Text: 'Female', Enabled: true, Selected: false },
-                    {Value: 'Male', Text: 'Male', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'Gender',
-                displayName: 'Gender',
-                description: 'Select one.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: '...', Text: '...', Enabled: true, Selected: false },
-                    {Value: 'Single', Text: 'Single', Enabled: true, Selected: false },
-                    {Value: 'Married', Text: 'Married', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'MaritalStatus',
-                displayName: 'Marital status',
-                description: 'Select one.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.DateTimeFieldSetting({
-                dateTimeMode: FieldSettings.DateTimeMode.Date,
-                name: 'BirthDate',
-                displayName: 'Birth date',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.LongTextFieldSetting({
-                textType: FieldSettings.TextType.LongText,
-                name: 'Education',
-                displayName: 'Education',
-                description: 'List of educations - e.g. high school, university.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0,
-                controlHint: 'sn:EducationEditor'
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'TwitterAccount',
-                displayName: 'Twitter account',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'FacebookURL',
-                displayName: 'Facebook URL',
-                description: 'http://www.facebook.com/USERNAME.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'LinkedInURL',
-                displayName: 'LinkedIn URL',
-                description: 'http://www.linkedin.com/USERNAME.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ChoiceFieldSetting({
-                allowExtraValue: false,
-                allowMultiple: false,
-                options: [
-                    {Value: 'en', Text: 'English', Enabled: true, Selected: true },
-                    {Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false }
-                ],
-                displayChoice: FieldSettings.DisplayChoice.DropDown,
-                enumTypeName: '',
-                name: 'Language',
-                displayName: 'Selected language',
-                description: 'Language used to display texts on the site, if it is available.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Show,
-                visibleEdit: FieldSettings.FieldVisibility.Show,
-                visibleNew: FieldSettings.FieldVisibility.Show,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ReferenceFieldSetting({
-                allowMultiple: true,
-                allowedTypes: ['Workspace'],
-                name: 'FollowedWorkspaces',
-                displayName: 'Followed workspaces',
-                description: 'List of workspaces followed by the user.',
-                readOnly: false,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Advanced,
-                visibleEdit: FieldSettings.FieldVisibility.Advanced,
-                visibleNew: FieldSettings.FieldVisibility.Advanced,
-                defaultOrder: 0
-            }),
-            new FieldSettings.ShortTextFieldSetting({
-                name: 'ProfilePath',
-                displayName: 'Profile path',
-                description: 'Path of the user\'s personal workspace.',
-                readOnly: true,
-                compulsory: false,
-                visibleBrowse: FieldSettings.FieldVisibility.Hide,
-                visibleEdit: FieldSettings.FieldVisibility.Hide,
-                visibleNew: FieldSettings.FieldVisibility.Hide,
-                defaultOrder: 0
-            }),
-        ]
-        }),
-
-]
+     {
+         ContentTypeName: 'User',
+         ParentTypeName: 'GenericContent',
+         DisplayName: '$Ctd-User,DisplayName',
+         Description: '$Ctd-User,Description',
+         Icon: 'User',
+         AllowIndexing: true,
+         AllowIncrementalNaming: false,
+         AllowedChildTypes: ['Image'],
+         FieldSettings: [
+             {
+                 Type: 'ShortTextFieldSetting',
+                 MaxLength: 100,
+                 Name: 'LoginName',
+                 DisplayName: 'Login name',
+                 Description: 'The name that the user has to type in on login forms (in some cases along with the domain name). It has to be unique under a domain.',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'JobTitle',
+                 DisplayName: 'Job title',
+                 Description: '',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Enabled',
+                 DisplayName: 'Enabled',
+                 Description: 'User account is enabled.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Domain',
+                 DisplayName: 'Domain',
+                 Description: 'The domain of the user.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Regex: '^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
+                 Name: 'Email',
+                 DisplayName: 'E-mail',
+                 Description: 'The e-mail of the user.',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Regex: '[^<]+',
+                 Name: 'FullName',
+                 DisplayName: 'Full name',
+                 Description: 'Full name of the user (e.g. John Smith).',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 Name: 'ImageRef',
+                 DisplayName: 'Cover image (reference)',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'BinaryFieldSetting',
+                 Name: 'ImageData',
+                 DisplayName: 'Cover image (binarydata)',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.BinaryFieldSetting,
+             {
+                 Type: 'NullFieldSetting',
+                 Name: 'Avatar',
+                 DisplayName: 'Avatar',
+                 Description: 'Avatar image of user.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:Image'
+             } as FieldSettings.NullFieldSetting,
+             {
+                 Type: 'PasswordFieldSetting',
+                 ReenterTitle: 'Re-enter password',
+                 ReenterDescription: 'Re-enter password.',
+                 PasswordHistoryLength: 0,
+                 Name: 'Password',
+                 DisplayName: 'Password',
+                 Description: 'User password.',
+                 ReadOnly: false,
+                 Compulsory: true,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.PasswordFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'SyncGuid',
+                 DisplayName: 'SyncGuid',
+                 Description: 'GUID of corresponding AD object.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.DateAndTime,
+                 Name: 'LastSync',
+                 DisplayName: 'LastSync',
+                 Description: 'Date of last synchronization.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'CaptchaFieldSetting',
+                 Name: 'Captcha',
+                 DisplayName: 'Captcha text',
+                 Description: 'Captcha text entered by the user.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.CaptchaFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: false,
+                 AllowedTypes: ['User'],
+                 SelectionRoots: ['/Root/IMS'],
+                 Name: 'Manager',
+                 DisplayName: 'Manager',
+                 Description: 'Manager of the user.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Department',
+                 DisplayName: 'Department',
+                 Description: 'Department of employee.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'Languages',
+                 DisplayName: 'Languages',
+                 Description: 'Spoken languages.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Regex: '(^\\d*([-\\s\\+\\(\\)]\\d*)*$)?',
+                 Name: 'Phone',
+                 DisplayName: 'Phone',
+                 Description: 'Phone number. (e.g. +123456789 or 1234).',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '...', Text: '...', Enabled: true, Selected: false },
+                     {Value: 'Female', Text: 'Female', Enabled: true, Selected: false },
+                     {Value: 'Male', Text: 'Male', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'Gender',
+                 DisplayName: 'Gender',
+                 Description: 'Select one.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: '...', Text: '...', Enabled: true, Selected: false },
+                     {Value: 'Single', Text: 'Single', Enabled: true, Selected: false },
+                     {Value: 'Married', Text: 'Married', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'MaritalStatus',
+                 DisplayName: 'Marital status',
+                 Description: 'Select one.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'DateTimeFieldSetting',
+                 DateTimeMode: FieldSettings.DateTimeMode.Date,
+                 Name: 'BirthDate',
+                 DisplayName: 'Birth date',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.DateTimeFieldSetting,
+             {
+                 Type: 'LongTextFieldSetting',
+                 TextType: FieldSettings.TextType.LongText,
+                 Name: 'Education',
+                 DisplayName: 'Education',
+                 Description: 'List of educations - e.g. high school, university.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0,
+                 ControlHint: 'sn:EducationEditor'
+             } as FieldSettings.LongTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'TwitterAccount',
+                 DisplayName: 'Twitter account',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'FacebookURL',
+                 DisplayName: 'Facebook URL',
+                 Description: 'http://www.facebook.com/USERNAME.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'LinkedInURL',
+                 DisplayName: 'LinkedIn URL',
+                 Description: 'http://www.linkedin.com/USERNAME.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+             {
+                 Type: 'ChoiceFieldSetting',
+                 AllowExtraValue: false,
+                 AllowMultiple: false,
+                 Options: [
+                     {Value: 'en', Text: 'English', Enabled: true, Selected: true },
+                     {Value: 'hu', Text: 'Hungarian', Enabled: true, Selected: false }
+                 ],
+                 DisplayChoice: FieldSettings.DisplayChoice.DropDown,
+                 EnumTypeName: '',
+                 Name: 'Language',
+                 DisplayName: 'Selected language',
+                 Description: 'Language used to display texts on the site, if it is available.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Show,
+                 VisibleEdit: FieldSettings.FieldVisibility.Show,
+                 VisibleNew: FieldSettings.FieldVisibility.Show,
+                 DefaultOrder: 0
+             } as FieldSettings.ChoiceFieldSetting,
+             {
+                 Type: 'ReferenceFieldSetting',
+                 AllowMultiple: true,
+                 AllowedTypes: ['Workspace'],
+                 Name: 'FollowedWorkspaces',
+                 DisplayName: 'Followed workspaces',
+                 Description: 'List of workspaces followed by the user.',
+                 ReadOnly: false,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Advanced,
+                 VisibleEdit: FieldSettings.FieldVisibility.Advanced,
+                 VisibleNew: FieldSettings.FieldVisibility.Advanced,
+                 DefaultOrder: 0
+             } as FieldSettings.ReferenceFieldSetting,
+             {
+                 Type: 'ShortTextFieldSetting',
+                 Name: 'ProfilePath',
+                 DisplayName: 'Profile path',
+                 Description: 'Path of the user\'s personal workspace.',
+                 ReadOnly: true,
+                 Compulsory: false,
+                 VisibleBrowse: FieldSettings.FieldVisibility.Hide,
+                 VisibleEdit: FieldSettings.FieldVisibility.Hide,
+                 VisibleNew: FieldSettings.FieldVisibility.Hide,
+                 DefaultOrder: 0
+             } as FieldSettings.ShortTextFieldSetting,
+         ]
+         },
+];

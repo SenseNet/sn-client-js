@@ -2,33 +2,34 @@
  * @module HttpProviders
  *//** */
 
-import { Observable, AjaxRequest, Subject } from '@reactivex/rxjs';
-import { BaseHttpProvider } from './';
+import { Observable } from 'rxjs/Observable';
+import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
+import { Subject } from 'rxjs/Subject';
+
 import { SnConfigModel } from '../Config';
+import { BaseHttpProvider } from './';
+
+import 'rxjs/add/observable/dom/ajax';
 
 /**
  * This is the default RxJs-Ajax based Http calls.
  */
 export class RxAjaxHttpProvider extends BaseHttpProvider {
-    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & { url: string }): Observable<T> {
+    protected uploadInner<T>(returnType: new (...args: any[]) => T, File: File, options: AjaxRequest & { url: string, headers: string[], body: any}): Observable<T> {
         const subject = new Subject<T>();
         const formData = new FormData();
-        formData.append(File.name || 'File', File);
+        formData.append(File.name, File);
 
-        if (options.body) {
-            for (const index in options.body) {
-                formData.append(index, options.body[index]);
-            }
+        for (const index in options.body) {
+            formData.append(index, options.body[index]);
         }
 
         const request = new XMLHttpRequest();
         request.withCredentials = this.isCrossDomain(options.url);
         request.open('POST', options.url);
 
-        if (options.headers) {
-            for (const header in options.headers) {
-                request.setRequestHeader(header, options.headers[header]);
-            }
+        for (const header in options.headers) {
+            request.setRequestHeader(header, (options.headers as any)[header]);
         }
 
         request.onreadystatechange = () => {
@@ -44,10 +45,10 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
                         }
                         break;
                     default:
-                        subject.error({ message: 'Invalid Request status', request })
+                        subject.error({ message: 'Invalid Request status', request });
                 }
             }
-        }
+        };
         request.send(formData);
         return subject.asObservable();
     }
@@ -62,11 +63,11 @@ export class RxAjaxHttpProvider extends BaseHttpProvider {
         this.SetGlobalHeader('Accept', 'application/json');
     }
 
-    protected ajaxInner<T>(tReturnType, options: AjaxRequest): Observable<T> {
+    protected ajaxInner<T>(tReturnType: {new(...args: any[]): T}, options: AjaxRequest): Observable<T> {
 
         const crossDomain = this.isCrossDomain(options.url || '');
         options.withCredentials = crossDomain;
         options.crossDomain = crossDomain;
-        return Observable.ajax(options).map(req => req.response as T).share();
+        return Observable.ajax(options).map((req) => req.response as T).share();
     }
 }

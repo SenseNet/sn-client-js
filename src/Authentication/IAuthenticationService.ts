@@ -2,7 +2,7 @@
  * @module Authentication
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 import { LoginState } from './';
 
 /**
@@ -10,7 +10,8 @@ import { LoginState } from './';
  */
 export interface IAuthenticationService {
     /**
-     * This observable is a public API for subscribing the current state and it's changes. Recommended to work with a private BehaviorSubject in the backgroud.
+     * This observable is a public API for subscribing the current state and it's changes.
+     * Recommended to work with a private BehaviorSubject in the backgroud.
      */
     readonly State: Observable<LoginState>;
 

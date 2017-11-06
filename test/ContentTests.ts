@@ -1,38 +1,39 @@
 import * as Chai from 'chai';
-import { Observable } from '@reactivex/rxjs';
-import { MockRepository } from './Mocks';
+import { Observable } from 'rxjs/Observable';
 import { LoginState } from '../src/Authentication/LoginState';
-import { isDeferred, isContentOptions, isContentOptionList, SavedContent, Content } from '../src/Content';
+import { MediaResourceObject } from '../src/ComplexTypes';
+import { Content, ContentInternal, ISavedContent, isContent, isDeferred, isIContent, isIContentList, SavedContent } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';
-import { Task, ITaskOptions, Workspace, User, GenericContent } from '../src/ContentTypes';
-import { joinPaths } from '../src/ODataHelper';
-import { PermissionValues, Inheritance, PermissionLevel, IdentityKind } from '../src/Security';
+import { File as SnFile, GenericContent, Task, User, Workspace } from '../src/ContentTypes';
 import { QueryType } from '../src/Enums';
-import { Schema } from '../src/Schemas';
+import { joinPaths } from '../src/ODataHelper';
+import { isSchema } from '../src/Schemas';
+import { IdentityKind, Inheritance, PermissionLevel, PermissionValues } from '../src/Security';
+import { MockRepository } from './Mocks';
 const expect = Chai.expect;
 
 const CONTENT_TYPE = 'Task';
 const CONTENT_NAME = 'TestTask';
 const CONTENT_DUE_TEXT = 'DueText';
 
-
 export const contentTests = describe('Content', () => {
-    let content: Task;
+    let content: Content<Task>;
     let contentSaved: SavedContent<Task>;
     let repo: MockRepository;
 
     beforeEach(() => {
         repo = new MockRepository();
-        const options: ITaskOptions = {
+        const options: Task & ISavedContent = {
             Id: 1,
             Path: 'Root/Sites',
             DueDate: '2017-06-27T11:11:11Z',
             DueText: CONTENT_DUE_TEXT,
             Name: CONTENT_NAME,
-            DisplayName: ''
+            DisplayName: '',
+            Type: CONTENT_TYPE
         };
-        content = Content.Create(options, Task, repo);
-        contentSaved = repo.HandleLoadedContent(options as any, Task);
+        content = repo.CreateContent(options, Task);
+        contentSaved = repo.HandleLoadedContent<Task>(options);
         repo.Authentication.StateSubject.next(LoginState.Authenticated);
 
     });
@@ -54,28 +55,28 @@ export const contentTests = describe('Content', () => {
             });
         });
 
-        describe('#isContentOptions ', () => {
+        describe('#isIContent ', () => {
             it('should return true if an object Id, Path and Type', () => {
-                const isContentOptionsValue = isContentOptions({ Id: 1, Path: 'a/b', Type: 'Task' });
+                const isContentOptionsValue = isIContent({ Id: 1, Path: 'a/b', Type: 'Task' });
                 expect(isContentOptionsValue).to.be.eq(true);
             });
             it('should return false if an object does not have a Type', () => {
-                const isContentOptionsValue = isContentOptions({ Id: 1, Path: 'a/b' });
+                const isContentOptionsValue = isIContent({ Id: 1, Path: 'a/b' });
                 expect(isContentOptionsValue).to.be.eq(false);
             });
             it('should return false if an object does not have a Path', () => {
-                const isContentOptionsValue = isContentOptions({ Id: 1, Type: 'Task' });
+                const isContentOptionsValue = isIContent({ Id: 1, Type: 'Task' });
                 expect(isContentOptionsValue).to.be.eq(false);
             });
             it('should return false if an object does not have an Id', () => {
-                const isContentOptionsValue = isContentOptions({ Path: 'a/b', Type: 'Task' });
+                const isContentOptionsValue = isIContent({ Path: 'a/b', Type: 'Task' });
                 expect(isContentOptionsValue).to.be.eq(false);
             });
         });
 
-        describe('#isContentOptionList  ', () => {
+        describe('#isIContentList  ', () => {
             it('should return true if a list contains only values that have an object Id, Path and Type', () => {
-                const isContentOptionListValue = isContentOptionList([
+                const isContentOptionListValue = isIContentList([
                     { Id: 1, Path: 'a/b', Type: 'Task' },
                     { Id: 2, Path: 'a/b/c', Type: 'Task' },
                     { Id: 3, Path: 'a/b/c/d', Type: 'Task' }
@@ -83,16 +84,57 @@ export const contentTests = describe('Content', () => {
                 expect(isContentOptionListValue).to.be.eq(true);
             });
             it('should return false if an object does not have a length', () => {
-                const isContentOptionListValue = isContentOptionList(1 as any);
+                const isContentOptionListValue = isIContentList(1 as any);
                 expect(isContentOptionListValue).to.be.eq(false);
             });
             it('should return false if an object is not array-like', () => {
-                const isContentOptionListValue = isContentOptionList({ Path: 'a/b', Type: 'Task' } as any);
+                const isContentOptionListValue = isIContentList({ Path: 'a/b', Type: 'Task' } as any);
                 expect(isContentOptionListValue).to.be.eq(false);
             });
         });
 
+        describe('#isIContentList  ', () => {
+            it('should return false if an object is null or undefined', () => {
+                expect(isContent(null)).to.be.eq(false);
+            });
+            it('should return false if an object Id is null or undefined', () => {
+                expect(isContent({Id: null})).to.be.eq(false);
+            });
+            it('should return false if an object Path is null or undefined', () => {
+                expect(isContent({Path: null})).to.be.eq(false);
+            });
+            it('should return false if an object Type is null or undefined', () => {
+                expect(isContent({Type: null})).to.be.eq(false);
+            });
+            it('should return false if an object Type is zero-legth', () => {
+                expect(isContent({Type: ''})).to.be.eq(false);
+            });
+            it('should return true for Content instances', () => {
+                expect(isContent(content)).to.be.eq(true);
+            });
+        });
 
+        describe('#isSchema  ', () => {
+            it('should return false for null / undefined', () => {
+                expect(isSchema(null as any)).to.be.eq(false);
+            });
+            it('should return false for empty objects', () => {
+                expect(isSchema({} as any)).to.be.eq(false);
+            });
+            it('should return false if ContentTypeName is missing', () => {
+                expect(isSchema({ContentTypeName: null} as any)).to.be.eq(false);
+            });
+            it('should return false if FieldSettings are missing', () => {
+                expect(isSchema({ContentTypeName: 'Schema'} as any)).to.be.eq(false);
+            });
+            it('should return false if FieldSettings are not array-like', () => {
+                expect(isSchema({ContentTypeName: 'Schema', FieldSettings: 1} as any)).to.be.eq(false);
+            });
+            it('should return true for valid FieldSettings', () => {
+                expect(isSchema({ContentTypeName: 'Schema', FieldSettings: []} as any)).to.be.eq(true);
+            });
+
+        });
 
     });
 
@@ -102,23 +144,23 @@ export const contentTests = describe('Content', () => {
             expect(content).to.be.instanceof(Object);
         });
         it('should return an instance of a Content', () => {
-            expect(content).to.be.instanceof(Content);
-        })
+            expect(content).to.be.instanceof(ContentInternal);
+        });
         it('should return an object with the given type and id', () => {
             const type = content.Type;
             expect(type).to.eq(CONTENT_TYPE);
             expect(content.Id).to.eq(1);
         });
         it('should fill the Type field from the constructor name if not provided', () => {
-            let newContent = Content.Create({}, Content, repo);
-            expect(newContent.Type).to.be.eq('Content');
+            const newContent = repo.CreateContent({}, GenericContent);
+            expect(newContent.Type).to.be.eq('GenericContent');
         });
         it('should have a valid Type field when constructed with new T(options)', () => {
-            let newContent = new Content({}, repo);
-            expect(newContent.Type).to.be.eq('Content');
+            const newContent = new ContentInternal({}, repo, Task);
+            expect(newContent.Type).to.be.eq('Task');
         });
         it('shoul respect the type field, if provided from settings', () => {
-            let newContent = new Content({}, repo);
+            const newContent = new ContentInternal({Type: 'Task'}, repo, Task);
             newContent.Type = 'Task';
             expect(newContent.Type).to.be.eq('Task');
         });
@@ -141,8 +183,8 @@ export const contentTests = describe('Content', () => {
             expect(contentSaved).to.be.instanceof(Object);
         });
         it('should return an instance of a Content', () => {
-            expect(contentSaved).to.be.instanceof(Content);
-        })
+            expect(contentSaved).to.be.instanceof(ContentInternal);
+        });
         it('should return an object with the given type and id', () => {
             const type = content.Type;
             expect(type).to.eq(CONTENT_TYPE);
@@ -154,7 +196,7 @@ export const contentTests = describe('Content', () => {
 
         it('should have a list about Saved fields', () => {
             expect(contentSaved.SavedFields.DueText).to.be.eq(CONTENT_DUE_TEXT);
-            contentSaved.DueText = 'Modified'
+            contentSaved.DueText = 'Modified';
             expect(contentSaved.SavedFields.DueText).to.be.eq(CONTENT_DUE_TEXT);
         });
     });
@@ -167,8 +209,13 @@ export const contentTests = describe('Content', () => {
             content.Name = 'Modified DisplayName';
             expect(content.IsDirty).to.be.eq(true);
         });
-    });
 
+        it('should skip binary fields', () => {
+            const file = repo.HandleLoadedContent({Id: 71253, Path: 'asas', Name: 'Asdasdasd', Binary: null as any}, SnFile);
+            file.Binary.SaveBinaryText('alma');
+            expect(file.IsDirty).to.be.eq(false);
+        });
+    });
 
     describe('#GetChanges', () => {
         it('should return empty if the content is untouched', () => {
@@ -191,21 +238,21 @@ export const contentTests = describe('Content', () => {
                 Name: 'bbb',
                 Path: 'Root/Workspace',
                 Type: 'Workspace'
-            }
+            };
             repo.HttpProviderRef.AddResponse({ d: options });
-            contentSaved.ReloadFields('Workspace').subscribe(w => {
-                contentSaved.Workspace && contentSaved.Workspace.SetContent(repo.HandleLoadedContent({
+            contentSaved.ReloadFields('Workspace').subscribe((w) => {
+                contentSaved.Workspace.SetContent(repo.HandleLoadedContent<Workspace>({
                     Id: 92635,
                     Path: 'Root/MyWorkspace',
                     Type: 'Workspace',
                     Name: 'ExampleWorkspace'
-                }, Workspace));
+                }));
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
                 expect(changes.Workspace && changes.Workspace).to.be.eq('Root/MyWorkspace');
 
                 done();
-            }, err => done)
+            }, (err) => done);
         });
 
         it('should return an updated Path list if a reference list has been changed', (done) => {
@@ -214,20 +261,32 @@ export const contentTests = describe('Content', () => {
             (options.Versions as any) = [];
 
             repo.HttpProviderRef.AddResponse({ d: options });
-            contentSaved.ReloadFields('Versions').subscribe(w => {
-                contentSaved.Versions && contentSaved.Versions.SetContent([contentSaved]);
+            contentSaved.ReloadFields('Versions').subscribe((w) => {
+                contentSaved.Versions.SetContent([contentSaved]);
                 const changes = contentSaved.GetChanges();
                 expect(Object.keys(changes).length).to.be.eq(1);
                 expect(changes.Versions && (changes.Versions as any)[0]).to.be.eq(options.Path);
 
                 done();
-            }, err => done)
+            }, (err) => done);
+        });
+
+        it('should return a DownloadUrl for binary fields', () => {
+            const file = repo.HandleLoadedContent({
+                Binary: {
+                    __mediaresource: {
+                        media_src: '/binaryhandler.ashx/test'
+                    }
+                } as MediaResourceObject,
+            } as any, SnFile);
+
+            expect(file.GetFields().Binary).to.be.eq('/binaryhandler.ashx/test');
         });
     });
 
     describe('#IsValid', () => {
         it('should return false if there are missing fields', () => {
-            const emptyContent = Content.Create({}, Task, repo);
+            const emptyContent = ContentInternal.Create({}, Task, repo);
             expect(emptyContent.IsValid).to.be.eq(false);
         });
         it('should return true all complusory fields are filled', () => {
@@ -243,23 +302,23 @@ export const contentTests = describe('Content', () => {
         it('should trigger an OnContentDeleted event', (done) => {
             repo.Authentication.StateSubject.next(LoginState.Authenticated);
             repo.HttpProviderRef.AddResponse({});
-            repo.Events.OnContentDeleted.subscribe(d => {
+            repo.Events.OnContentDeleted.subscribe((d) => {
                 done();
-            }, err => done(err))
+            }, (err) => done(err));
             expect(content.Delete(false)).to.be.instanceof(Observable);
         });
 
         it('error should trigger an OnContentDeleteFailed event', (done) => {
             repo.Authentication.StateSubject.next(LoginState.Authenticated);
             repo.HttpProviderRef.AddError({});
-            repo.Events.OnContentDeleteFailed.subscribe(d => {
+            repo.Events.OnContentDeleteFailed.subscribe((d) => {
                 done();
-            }, err => done(err))
+            }, (err) => done(err));
             expect(content.Delete(false)).to.be.instanceof(Observable);
         });
 
         it('should return an Observable on not saved content', () => {
-            const unsavedContent = Content.Create({}, Task, repo);
+            const unsavedContent = ContentInternal.Create({}, Task, repo);
             expect(unsavedContent.Delete(false)).to.be.instanceof(Observable);
         });
     });
@@ -270,9 +329,9 @@ export const contentTests = describe('Content', () => {
                     DisplayName: 'aaa',
                     Name: 'bbb'
                 }
-            })
+            });
 
-            contentSaved.Rename('aaa', 'bbb').subscribe(result => {
+            contentSaved.Rename('aaa', 'bbb').subscribe((result) => {
                 expect(result.DisplayName).to.be.eq('aaa');
                 expect(result.Name).to.be.eq('bbb');
                 done();
@@ -284,19 +343,19 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw an error if no ID provided', () => {
-            const newContent = Content.Create({}, Task, repo);
-            expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
+            const newContent = ContentInternal.Create({}, Task, repo);
+            expect(() => { newContent.Rename('aaa', 'bbb'); }).to.throw();
         });
 
         it('should throw an error if trying to rename an unsaved content with Id', () => {
-            const newContent = Content.Create({ Id: 3 }, Task, repo);
-            expect(() => { newContent.Rename('aaa', 'bbb') }).to.throw()
+            const newContent = ContentInternal.Create({ Id: 3 }, Task, repo);
+            expect(() => { newContent.Rename('aaa', 'bbb'); }).to.throw();
         });
     });
     describe('#Save()', () => {
 
         it('should throw an error if trying to update, but not saved in the Repository', () => {
-            expect(() => { content.Save({ DisplayName: 'new' }, true) }).to.throw()
+            expect(() => { content.Save({ DisplayName: 'new' }, true); }).to.throw();
         });
 
         it('should return an Observable object and isOperationInProgress should be updated during the operation', () => {
@@ -311,29 +370,24 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const emptyContent = Content.Create({}, Task, repo);
+            const emptyContent = ContentInternal.Create({}, Task, repo);
             expect(() => {
-                const obs = emptyContent.Save({ DisplayName: 'new' })
+                const obs = emptyContent.Save({ DisplayName: 'new' });
                 obs.subscribe(() => {
                     expect(emptyContent.IsOperationInProgress).to.be.eq(false);
-                }, e => {
-
-                })
+                }, (e) => { /** */ });
                 expect(emptyContent.IsOperationInProgress).to.be.eq(true);
             }).to.throw();
         });
 
-
         it('should throw Error if no Id specified and isOperationInProgress should be updated during the operation', () => {
-            const savedContent = repo.HandleLoadedContent({ DisplayName: 'Original' } as any, Task);
+            const savedContent = repo.HandleLoadedContent<Task>({ DisplayName: 'Original' } as any);
             savedContent.DisplayName = 'Modified';
             expect(() => {
-                const obs = savedContent.Save()
+                const obs = savedContent.Save();
                 obs.subscribe(() => {
                     expect(savedContent.IsOperationInProgress).to.be.eq(false);
-                }, e => {
-
-                })
+                }, (e) => { /** */ });
                 expect(savedContent.IsOperationInProgress).to.be.eq(true);
             }).to.throw();
 
@@ -341,11 +395,11 @@ export const contentTests = describe('Content', () => {
 
         it('should throw Error is server returns Error, and isOperationInProgress should be set to False', (done) => {
             repo.HttpProviderRef.AddError({ message: 'serverErrorMessage' });
-            let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, Task);
+            const c = repo.HandleLoadedContent<Task>({ Id: 1, Path: 'Root/Test', Name: 'asd' });
 
-            c.Save({ DisplayName: 'new' }).subscribe(resp => {
+            c.Save({ DisplayName: 'new' }).subscribe((resp) => {
                 done('Error should be thrown here');
-            }, err => {
+            }, (err) => {
                 expect(c.IsOperationInProgress).to.be.eq(false);
                 done();
             }, done);
@@ -357,9 +411,9 @@ export const contentTests = describe('Content', () => {
                     DisplayName: 'new',
                 }
             });
-            let c = repo.HandleLoadedContent({ Id: 1, Path: 'Root/Test' }, Task);
+            const c = repo.HandleLoadedContent<Task>({ Id: 1, Path: 'Root/Test', Name: 'asd' });
 
-            c.Save({ DisplayName: 'new' }).subscribe(resp => {
+            c.Save({ DisplayName: 'new' }).subscribe((resp) => {
                 const lastOptions = repo.HttpProviderRef.LastOptions;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(c.DisplayName).to.be.eq('new');
@@ -372,8 +426,8 @@ export const contentTests = describe('Content', () => {
                 d: {
                     DisplayName: 'new2',
                 }
-            })
-            contentSaved.Save({ DisplayName: 'new2' }, true).subscribe(resp => {
+            });
+            contentSaved.Save({ DisplayName: 'new2' }, true).subscribe((resp) => {
                 const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('PUT');
                 expect(contentSaved.DisplayName).to.be.eq('new2');
@@ -381,15 +435,14 @@ export const contentTests = describe('Content', () => {
             });
         });
 
-
         it('should send a POST request if triggering Save on an unsaved Content', (done) => {
             repo.HttpProviderRef.AddResponse({
                 d: {
                     Id: 3,
                     DisplayName: 'new3',
                 }
-            })
-            content.Save().subscribe(resp => {
+            });
+            content.Save().subscribe((resp) => {
                 const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('POST');
                 expect(content.DisplayName).to.be.eq('new3');
@@ -397,10 +450,9 @@ export const contentTests = describe('Content', () => {
             });
         });
 
-
         it('should throw error when triggering Save on an unsaved Content without path', () => {
-            let c = Content.Create({}, Task, repo);
-            expect(() => { c.Save() }).to.throw();
+            const c = ContentInternal.Create({}, Task, repo);
+            expect(() => { c.Save(); }).to.throw();
         });
 
         it('should return an Observable without request on a non-dirty content', (done) => {
@@ -408,25 +460,24 @@ export const contentTests = describe('Content', () => {
                 d: {
                     DisplayName: 'new3',
                 }
-            })
-            let c = repo.HandleLoadedContent({ DisplayName: 'test', Path: 'Root/Test', Id: 3845 }, Task);
-            c.Save().subscribe(modifiedContent => {
+            });
+            const c = repo.HandleLoadedContent<Task>({ Id: 1, Path: 'Root/Test', Name: 'asd', DisplayName: 'test' });
+            c.Save().subscribe((modifiedContent) => {
                 expect(modifiedContent.DisplayName).to.be.eq('test');
                 done();
-            })
+            });
         });
-
 
         it('should send a PATCH request if triggering Save on an already saved Content', (done) => {
             repo.HttpProviderRef.AddResponse({
                 d: {
                     DisplayName: 'new3',
                 }
-            })
+            });
 
             contentSaved.DisplayName = 'new3';
 
-            contentSaved.Save().subscribe(resp => {
+            contentSaved.Save().subscribe((resp) => {
                 const lastOptions = repo.HttpProviderRef.RequestLog[repo.HttpProviderRef.RequestLog.length - 1].Options;
                 expect(lastOptions.method).to.be.eq('PATCH');
                 expect(contentSaved.DisplayName).to.be.eq('new3');
@@ -439,11 +490,11 @@ export const contentTests = describe('Content', () => {
                 d: {
                     DisplayName: 'new3',
                 }
-            })
+            });
             content.Save().subscribe(() => {
-                done('This shouldn\'t happened')
-            }, err => {
-                expect(err.message).to.be.eq('Error: No content Id in response!')
+                done('This shouldn\'t happened');
+            }, (err) => {
+                expect(err.message).to.be.eq('Error: No content Id in response!');
                 done();
             });
         });
@@ -454,8 +505,8 @@ export const contentTests = describe('Content', () => {
                     Id: 3,
                     DisplayName: 'new3',
                 }
-            })
-            repo.Events.OnContentCreated.subscribe(c => {
+            });
+            repo.Events.OnContentCreated.subscribe((c) => {
                 expect(c.Content.Id).to.be.eq(3);
                 done();
             });
@@ -465,8 +516,8 @@ export const contentTests = describe('Content', () => {
         it('should trigger an OnContentCreateFailed event on failure', (done) => {
             repo.HttpProviderRef.AddError({
                 message: ':('
-            })
-            repo.Events.OnContentCreateFailed.subscribe(c => {
+            });
+            repo.Events.OnContentCreateFailed.subscribe((c) => {
                 expect(c.Error.message).to.be.eq(':(');
                 done();
             });
@@ -479,37 +530,36 @@ export const contentTests = describe('Content', () => {
                     Id: 3,
                     DisplayName: 'new3',
                 }
-            })
+            });
 
-            repo.Events.OnContentModified.subscribe(c => {
+            repo.Events.OnContentModified.subscribe((c) => {
                 expect(c.Content.DisplayName).to.be.eq('new3');
                 done();
-            }, err => done(err));
+            }, (err) => done(err));
 
             contentSaved.DisplayName = 'old';
             contentSaved.Save();
         });
 
         it('should trigger an OnContentModificationFailed event on failed after update', (done) => {
-            repo.HttpProviderRef.AddError({ message: ':(' })
+            repo.HttpProviderRef.AddError({ message: ':(' });
 
-            repo.Events.OnContentModificationFailed.subscribe(c => {
+            repo.Events.OnContentModificationFailed.subscribe((c) => {
                 expect(c.Error.message).to.be.eq(':(');
                 done();
-            }, err => done(err));
+            }, (err) => done(err));
 
             contentSaved.DisplayName = 'old';
             contentSaved.Save();
         });
 
-
         it('should trigger an OnContentModificationFailed event on failed after update, when using Override', (done) => {
-            repo.HttpProviderRef.AddError({ message: ':(' })
+            repo.HttpProviderRef.AddError({ message: ':(' });
 
-            repo.Events.OnContentModificationFailed.subscribe(c => {
+            repo.Events.OnContentModificationFailed.subscribe((c) => {
                 expect(c.Error.message).to.be.eq(':(');
                 done();
-            }, err => done(err));
+            }, (err) => done(err));
 
             contentSaved.Save({
                 DisplayName: 'other'
@@ -525,10 +575,10 @@ export const contentTests = describe('Content', () => {
 
         it('should throw an error if no Path specified', () => {
             (contentSaved as any).Path = undefined;
-            expect(() => {contentSaved.Upload('Root/Example', 'example.txt'); }).to.throw('No Path provided!')
+            expect(() => {contentSaved.Upload('Root/Example', 'example.txt'); }).to.throw('No Path provided!');
         });
 
-    })
+    });
 
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
@@ -546,7 +596,7 @@ export const contentTests = describe('Content', () => {
                     ]
                 }
             });
-            contentSaved.Actions().subscribe(actions => {
+            contentSaved.Actions().subscribe((actions) => {
                 expect(actions[0].Name).to.be.eq('Action1');
                 done();
             }, done);
@@ -574,10 +624,10 @@ export const contentTests = describe('Content', () => {
                     ]
                 }
             });
-            contentSaved.GetAllowedChildTypes().subscribe(resp => {
+            contentSaved.GetAllowedChildTypes().subscribe((resp) => {
                 expect(resp[0].Name).to.be.eq('MyCustomType1');
                 done();
-            })
+            });
         });
         it('should return an Observable object', () => {
             expect(content.GetAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
@@ -641,8 +691,8 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw error if no path provided', () => {
-            const contentWithoutPath = repo.HandleLoadedContent({} as any, Task);
-            expect(() => { contentWithoutPath.Children() }).to.throw();
+            const contentWithoutPath = repo.HandleLoadedContent<Task>({} as any);
+            expect(() => { contentWithoutPath.Children(); }).to.throw();
         });
 
         it('should be resolved with a list of content', (done) => {
@@ -656,14 +706,13 @@ export const contentTests = describe('Content', () => {
                         }
                     ]
                 }
-            })
+            });
 
-            content.Children().subscribe(children => {
-                expect(children[0]).to.be.instanceof(Content);
+            content.Children().subscribe((children) => {
+                expect(children[0]).to.be.instanceof(ContentInternal);
                 done();
-            }, done)
+            }, done);
         });
-
 
     });
     describe('#Versions()', () => {
@@ -780,14 +829,14 @@ export const contentTests = describe('Content', () => {
             const newPath = joinPaths(toPath, contentSaved.Name || '');
 
             repo.HttpProviderRef.AddResponse({});
-            repo.Events.OnContentMoved.subscribe(move => {
+            repo.Events.OnContentMoved.subscribe((move) => {
                 expect(move.From).to.be.eq(originalPath);
                 expect(move.To).to.be.eq(toPath);
 
                 expect(move.Content.Path).to.be.eq(newPath);
                 expect(move.Content.SavedFields.Path).to.be.eq(newPath);
                 done();
-            }, err => done(err));
+            }, (err) => done(err));
             contentSaved.MoveTo(toPath);
         });
 
@@ -796,7 +845,7 @@ export const contentTests = describe('Content', () => {
             const toPath = 'workspaces/document';
 
             repo.HttpProviderRef.AddError({ message: ':(' });
-            repo.Events.OnContentMoveFailed.subscribe(move => {
+            repo.Events.OnContentMoveFailed.subscribe((move) => {
                 expect(move.Error.message).to.be.eq(':(');
                 expect(move.From).to.be.eq(originalPath);
                 expect(move.To).to.be.eq(toPath);
@@ -804,7 +853,7 @@ export const contentTests = describe('Content', () => {
                 expect(move.Content.Path).to.be.eq(originalPath);
                 expect(move.Content.SavedFields.Path).to.be.eq(originalPath);
                 done();
-            }, err => done(err));
+            }, (err) => done(err));
             contentSaved.MoveTo(toPath);
         });
 
@@ -826,8 +875,10 @@ export const contentTests = describe('Content', () => {
     });
 
     describe('#HandleLoadedContent()', () => {
-        it('should return a ContentType object', () => {
-            expect(Content.HandleLoadedContent(Task, { Id: 1, Path: 'a/b' }, repo)).to.be.instanceof(Task);
+        it('should return a Content object with the specified generic field(s)', () => {
+            const loaded = repo.HandleLoadedContent<Task>({ Id: 1, Path: 'a/b', Name: 'a/b', DueText: 'test' });
+            expect(loaded).to.be.instanceof(ContentInternal);
+            expect(loaded.DueText).to.be.eq('test');
         });
     });
 
@@ -851,12 +902,12 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw Error when called on a non-saved Content', () => {
-            expect(() => { content.Reload('view') }).to.throw('Content has to be saved to reload')
+            expect(() => { content.Reload('view'); }).to.throw('Content has to be saved to reload');
         });
 
         it('should throw Error when no Id provided', () => {
-            const invalidContent = repo.HandleLoadedContent({ Name: 'test' } as any, Task);
-            expect(() => { invalidContent.Reload('view') }).to.throw('Content Id or Path has to be provided')
+            const invalidContent = repo.HandleLoadedContent<Task>({ Name: 'test' } as any);
+            expect(() => { invalidContent.Reload('view'); }).to.throw('Content Id or Path has to be provided');
         });
     });
 
@@ -866,12 +917,12 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should throw Error when called on a non-saved Content', () => {
-            expect(() => { content.ReloadFields('Name') }).to.throw('Content has to be saved to reload')
+            expect(() => { content.ReloadFields('Name'); }).to.throw('Content has to be saved to reload');
         });
 
         it('should throw Error when no Id provided', () => {
-            const invalidContent = repo.HandleLoadedContent({ Name: 'Test' } as any, Task);
-            expect(() => { invalidContent.ReloadFields('Name') }).to.throw('Content Id or Path has to be provided')
+            const invalidContent = repo.HandleLoadedContent<Task>({ Name: 'Test' } as any);
+            expect(() => { invalidContent.ReloadFields('Name'); }).to.throw('Content Id or Path has to be provided');
         });
 
         it('should throw Error when no Id provided', (done) => {
@@ -884,19 +935,18 @@ export const contentTests = describe('Content', () => {
                 Name: 'bbb',
                 Path: 'Root/Workspace',
                 Type: 'Workspace'
-            }
-            repo.HttpProviderRef.AddResponse({ d: options })
-            contentSaved.ReloadFields('Workspace').subscribe(c => {
+            };
+            repo.HttpProviderRef.AddResponse({ d: options });
+            contentSaved.ReloadFields('Workspace').subscribe((c) => {
                 expect(contentSaved.Workspace).to.be.instanceof(ContentReferenceField);
-                contentSaved.Workspace && contentSaved.Workspace.GetContent().subscribe(c => {
-                    expect(c.DisplayName).to.be.eq('aaa')
+                contentSaved.Workspace.GetContent().subscribe((loaded) => {
+                    expect(loaded.DisplayName).to.be.eq('aaa');
                     done();
-                }, done)
-            }, done)
+                }, done);
+            }, done);
         });
 
     });
-
 
     describe('#SetPermissions()', () => {
         it('should return an Observable object', () => {
@@ -985,7 +1035,7 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should return an Observable object', () => {
-            const usr = repo.HandleLoadedContent({ Path: 'Root/Users/alba', Id: 124798 }, User);
+            const usr = repo.HandleLoadedContent<User>({ Path: 'Root/Users/alba', Id: 124798, Name: 'Name' });
             expect(contentSaved.HasPermission(['AddNew', 'Save'], usr)).to.be.instanceof(Observable);
         });
     });
@@ -1085,47 +1135,28 @@ export const contentTests = describe('Content', () => {
 
     describe('#GetSchema()', () => {
         it('should return a Schema object', () => {
-            expect(content.GetSchema()).to.be.instanceof(Schema);
+            expect(isSchema(content.GetSchema())).to.be.eq(true);
         });
         it('should return a Task', () => {
             const schema = content.GetSchema();
             expect(schema.Icon).to.eq('FormItem');
         });
         it('should return GenericContent Schema if no Schema found', () => {
-            class ContentWithoutSchema extends Content { };
-            const contentInstance = Content.Create({}, ContentWithoutSchema, repo);
-            const genericSchema = Content.GetSchema(GenericContent);
-            expect(contentInstance.GetSchema()).to.be.eq(genericSchema)
+            class ContentWithoutSchema extends Task { }
+            const contentInstance = ContentInternal.Create({}, ContentWithoutSchema, repo);
+            const genericSchema = repo.GetSchema(GenericContent);
+            expect(contentInstance.GetSchema()).to.be.deep.eq(genericSchema);
         });
 
-
-    });
-    describe('#static GetSchema()', () => {
-        it('should return a Schema object', () => {
-            expect(Content.GetSchema(Task)).to.be.instanceof(Schema);
-        });
-        it('should return a Schema object', () => {
-            let schema = Content.GetSchema(Task)
-            expect(schema.Icon).to.eq('FormItem');
-        });
-    });
-    describe('#Schema()', () => {
-        it('should return a Schema object', () => {
-            expect(content.GetSchema()).to.be.instanceof(Schema);
-        });
-        it('should return a Schema object', () => {
-            let schema = content.GetSchema()
-            expect(schema.Icon).to.eq('FormItem');
-        });
     });
 
     describe('#ParentPath', () => {
         it('should throw Error if no Path is provided', () => {
             const contentWithoutPath = repo.HandleLoadedContent({} as any);
-            expect(() => { return contentWithoutPath.ParentPath; }).to.throw();
+            expect(() => contentWithoutPath.ParentPath).to.throw();
         });
         it('should throw Error if a Content is not saved', () => {
-            expect(() => { return content.ParentPath; }).to.throw();
+            expect(() => content.ParentPath).to.throw();
         });
         it('should return a Path without a last segment', () => {
             expect(contentSaved.ParentPath).to.eq('Root');
@@ -1134,12 +1165,12 @@ export const contentTests = describe('Content', () => {
 
     describe('#IsParentOf', () => {
 
-        const repo = new MockRepository();
+        const repository = new MockRepository();
 
-        const rootContent = repo.HandleLoadedContent({ Path: 'Root', Id: 3 });
-        const childContent = repo.HandleLoadedContent({ Path: 'Root/Child', Id: 976235 });
-        const childContentById = repo.HandleLoadedContent({ ParentId: 3 } as any);
-        const notChildContent = repo.HandleLoadedContent({ Path: 'NotRoot/Child', Id: 973256 });
+        const rootContent = repository.HandleLoadedContent({ Path: 'Root', Id: 3, Name: 'Test' });
+        const childContent = repository.HandleLoadedContent({ Path: 'Root/Child', Id: 976235, Name: 'Test' });
+        const childContentById = repository.HandleLoadedContent({ ParentId: 3 } as any);
+        const notChildContent = repository.HandleLoadedContent({ Path: 'NotRoot/Child', Id: 973256, Name: 'Test' });
 
         it('should return true if content is a child', () => {
             expect(rootContent.IsParentOf(childContent)).to.be.eq(true);
@@ -1155,20 +1186,19 @@ export const contentTests = describe('Content', () => {
             expect(content.IsParentOf(childContent)).to.be.eq(false);
         });
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 97256 });
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 97256, Name: 'Test' });
             expect(rootContent.IsParentOf(otherChild)).to.be.eq(false);
         });
     });
 
-
     describe('#IsChildOf', () => {
 
-        const repo = new MockRepository();
+        const repository = new MockRepository();
 
-        const rootContent = repo.HandleLoadedContent({ Path: 'Root', Id: 33245 });
-        const childContent = repo.HandleLoadedContent({ Path: 'Root/Child', Id: 23545 });
-        const childContentById = repo.HandleLoadedContent({ ParentId: 33245, Id: 23597 } as any);
-        const notChildContent = repo.HandleLoadedContent({ Path: 'NotRoot/Child', Id: 235786 });
+        const rootContent = repository.HandleLoadedContent({ Path: 'Root', Id: 33245, Name: 'Test' });
+        const childContent = repository.HandleLoadedContent({ Path: 'Root/Child', Id: 23545, Name: 'Test' });
+        const childContentById = repository.HandleLoadedContent({ ParentId: 33245, Id: 23597 } as any);
+        const notChildContent = repository.HandleLoadedContent({ Path: 'NotRoot/Child', Id: 235786, Name: 'Test' });
 
         it('should return true if content is a child', () => {
             expect(childContent.IsChildOf(rootContent)).to.be.eq(true);
@@ -1187,19 +1217,18 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 235876 });
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 235876, Name: 'Test' });
             expect(otherChild.IsChildOf(rootContent)).to.be.eq(false);
         });
     });
 
-
     describe('#IsAncestorOf', () => {
 
-        const repo = new MockRepository();
+        const repository = new MockRepository();
 
-        const ancestor = repo.HandleLoadedContent({ Path: 'Root', Id: 232345 });
-        const descendant = repo.HandleLoadedContent({ Path: 'Root/test/test2/Child', Id: 43275 });
-        const notDescendant = repo.HandleLoadedContent({ Path: 'Root2/Child', Id: 2358967 });
+        const ancestor = repository.HandleLoadedContent({ Path: 'Root', Id: 232345, Name: 'Test' });
+        const descendant = repository.HandleLoadedContent({ Path: 'Root/test/test2/Child', Id: 43275, Name: 'Test' });
+        const notDescendant = repository.HandleLoadedContent({ Path: 'Root2/Child', Id: 2358967, Name: 'Test' });
 
         it('should return true if content is an ancestor', () => {
             expect(ancestor.IsAncestorOf(descendant)).to.be.eq(true);
@@ -1213,27 +1242,26 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 4562 });
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 4562, Name: 'Test' });
             expect(ancestor.IsAncestorOf(otherChild)).to.be.eq(false);
         });
         it('should throw an error if no ancestor path provided', () => {
-            const ancestorWithoutPath = repo.HandleLoadedContent({} as any);
-            expect(() => { return ancestorWithoutPath.IsAncestorOf(descendant) }).to.throw();
+            const ancestorWithoutPath = repository.HandleLoadedContent({} as any);
+            expect(() => ancestorWithoutPath.IsAncestorOf(descendant)).to.throw();
         });
         it('should throw an error if no descendant path provided', () => {
-            const descendantWithoutPath = repo.HandleLoadedContent({} as any);
-            expect(() => { return ancestor.IsAncestorOf(descendantWithoutPath) }).to.throw();
+            const descendantWithoutPath = repository.HandleLoadedContent({} as any);
+            expect(() => ancestor.IsAncestorOf(descendantWithoutPath)).to.throw();
         });
     });
 
-
     describe('#IsDescendantOf', () => {
 
-        const repo = new MockRepository();
+        const repository = new MockRepository();
 
-        const ancestor = repo.HandleLoadedContent({ Path: 'Root', Id: 12314 });
-        const descendant = repo.HandleLoadedContent({ Path: 'Root/test/test2/Child', Id: 212314 });
-        const notAncestor = repo.HandleLoadedContent({ Path: 'Root2', Id: 124314 });
+        const ancestor = repository.HandleLoadedContent({ Path: 'Root', Id: 12314, Name: 'Test' });
+        const descendant = repository.HandleLoadedContent({ Path: 'Root/test/test2/Child', Id: 212314, Name: 'Test' });
+        const notAncestor = repository.HandleLoadedContent({ Path: 'Root2', Id: 124314, Name: 'Test' });
 
         it('should return true if content is an ancestor', () => {
             expect(descendant.IsDescendantOf(ancestor)).to.be.eq(true);
@@ -1247,16 +1275,16 @@ export const contentTests = describe('Content', () => {
         });
 
         it('should return false on repository mismatch', () => {
-            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 123 });
+            const otherChild = new MockRepository().HandleLoadedContent({ Path: 'Root/Child', Id: 123, Name: 'Test' });
             expect(ancestor.IsDescendantOf(otherChild)).to.be.eq(false);
         });
         it('should throw an error if no ancestor path provided', () => {
-            const ancestorWithoutPath = repo.HandleLoadedContent({} as any);
-            expect(() => { return descendant.IsDescendantOf(ancestorWithoutPath) }).to.throw();
+            const ancestorWithoutPath = repository.HandleLoadedContent({} as any);
+            expect(() => descendant.IsDescendantOf(ancestorWithoutPath)).to.throw();
         });
         it('should throw an error if no descendant path provided', () => {
-            const descendantWithoutPath = repo.HandleLoadedContent({} as any);
-            expect(() => { return descendantWithoutPath.IsDescendantOf(ancestor) }).to.throw();
+            const descendantWithoutPath = repository.HandleLoadedContent({} as any);
+            expect(() => descendantWithoutPath.IsDescendantOf(ancestor)).to.throw();
         });
     });
 
@@ -1264,16 +1292,16 @@ export const contentTests = describe('Content', () => {
         it('should throw if Content is not saved', () => {
             expect(() => {
                 content.GetFullPath();
-            }).to.throw('Content has to be saved to get the full Path')
+            }).to.throw('Content has to be saved to get the full Path');
         });
 
         it('should throw if Content has no Id AND Path', () => {
             const c = repo.HandleLoadedContent({
                 Name: 'Test'
-            } as any)
+            } as any);
             expect(() => {
                 c.GetFullPath();
-            }).to.throw('Content Id or Path has to be provided to get the full Path')
+            }).to.throw('Content Id or Path has to be provided to get the full Path');
         });
 
         it('should return by Id if possible', () => {
@@ -1281,18 +1309,17 @@ export const contentTests = describe('Content', () => {
                 Name: 'Test',
                 Id: 1,
                 Path: 'Root/Test'
-            })
+            });
             expect(c.GetFullPath()).to.be.eq('/content(1)');
         });
-
 
         it('should return by Path if Id is not available possible', () => {
             const c = repo.HandleLoadedContent({
                 Name: 'Test',
                 Path: 'Root/Test'
-            } as any)
+            } as any);
             expect(c.GetFullPath()).to.be.eq("Root('Test')");
         });
-    })
+    });
 
 });

@@ -3,23 +3,23 @@
  * @preferred
  * @description Utility to serialize and deserialize Content instances.
  *
- * */ /** */
+ */ /** */
 
-import { Content } from './Content';
+import { IContent, SavedContent } from './Content';
 import { ODataHelper } from './SN';
 
 /**
  * Represents a serialized Content instance wich can be stringified using JSON.stringify()
  */
-export class SerializedContent<T extends Content>{
+export class SerializedContent<T extends IContent> {
     /**
      * The original content's field data
      */
-    Data: T['options'];
+    public Data: T;
     /**
      * The full original Path for the original Content (e.g.: 'https://my.sensenet.com/OData.svc/Root/Temp/MyContent)
      */
-    Origin: string;
+    public Origin: string;
 }
 
 export class ContentSerializer {
@@ -29,15 +29,12 @@ export class ContentSerializer {
      * @param {Content} content The Content that needs to be serialized
      * @returns {SerializedContent} the SerializedContent instance
      */
-    public static Serialize<T extends Content>(content: T): SerializedContent<T> {
-        if (!content.Path) {
-            throw new Error('Content Path required!');
-        }
+    public static Serialize<T extends IContent>(content: SavedContent<T>): SerializedContent<T> {
         const repoUrl = content.GetRepository().ODataBaseUrl;
         return {
             Data: content.GetFields(true),
             Origin: ODataHelper.joinPaths(`${repoUrl}`, content.Path)
-        }
+        };
     }
 
     /**
@@ -45,14 +42,14 @@ export class ContentSerializer {
      * @param content The Content instance that needs to be serialized
      * @returns {string} The Stringified content
      */
-    public static Stringify<T extends Content>(content: T) {
+    public static Stringify<T extends IContent>(content: SavedContent<T>) {
         return JSON.stringify(this.Serialize(content));
     }
     /**
      * Serializes a stringified SerializedContent string to a SerializedContent instance
      * @param contentString the stringified SerializedContent data
      */
-    public static Parse<T extends Content = Content>(contentString: string): SerializedContent<T> {
-        return JSON.parse(contentString) as SerializedContent<T>;
+    public static Parse<T extends IContent>(contentString: string): SerializedContent<SavedContent<T>> {
+        return JSON.parse(contentString) as SerializedContent<SavedContent<T>>;
     }
 }

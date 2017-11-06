@@ -2,17 +2,16 @@
  * @module Content
  */ /** */
 
-import { Content, SavedContent } from './Content';
+import { Observable } from 'rxjs/Observable';
 import { MediaResourceObject } from './ComplexTypes';
-import { Observable } from '@reactivex/rxjs';
-import { UploadProgressInfo } from './Repository/UploadModels';
+import { IContent, SavedContent } from './Content';
 import { BinaryFieldSetting } from './FieldSettings';
+import { UploadProgressInfo } from './Repository/UploadModels';
 
 /**
  * Represents a binary field instance
  */
-export class BinaryField<T extends SavedContent<Content>> {
-
+export class BinaryField<T extends IContent> {
 
     /**
      * Saves a File object instance (from a form input or drop event) into the binary field
@@ -23,8 +22,8 @@ export class BinaryField<T extends SavedContent<Content>> {
     = (file: File) =>
 
         this._contentReference.GetRepository().UploadFile({
-            File: new File([file], this._contentReference.Name || file.name),
-            Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath},
+            File: new File([file], this._contentReference.Name),
+            Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath} as SavedContent,
             PropertyName: this._fieldSettings.Name,
             ContentType: this._contentReference.constructor as { new(...args: any[]): T },
             Overwrite: true,
@@ -35,12 +34,15 @@ export class BinaryField<T extends SavedContent<Content>> {
      * @param {string} text The text to be saved
      * @returns {Observable<UploadProgressInfo<T>>} An observable that will update with the upload progress
      */
-    public SaveBinaryText: (text: string) => Observable<UploadProgressInfo<T>> = (text: string) => this.SaveBinaryFile(new File([text], this._contentReference.Name || 'File'));
+    public SaveBinaryText: (text: string) => Observable<UploadProgressInfo<T>> = (text: string) => this.SaveBinaryFile(new File([text], this._contentReference.Name));
 
     /**
      * Returns the download URL for the binary
      */
     public GetDownloadUrl(): string {
+        if (!this._mediaResourceObject || typeof this._mediaResourceObject !== 'object') {
+            return `/binaryhandler.ashx?nodeid=${this._contentReference.Id}&propertyname=${this._fieldSettings.Name}`;
+        }
         return this._mediaResourceObject.__mediaresource.media_src;
     }
 
@@ -58,7 +60,7 @@ export class BinaryField<T extends SavedContent<Content>> {
      * @param {BinaryFieldSetting} _fieldSettings The corresponding fieldsettings
      */
     constructor(private readonly _mediaResourceObject: MediaResourceObject,
-        private readonly _contentReference: T,
-        private readonly _fieldSettings: BinaryFieldSetting) {
+                private readonly _contentReference: SavedContent<T>,
+                private readonly _fieldSettings: BinaryFieldSetting) {
     }
 }

@@ -1,11 +1,14 @@
 /**
  * @module Mocks
  */ /** */
+import { BehaviorSubject,  } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+
 import { IAuthenticationService, LoginState } from '../../src/Authentication';
-import { Observable, BehaviorSubject, ReplaySubject } from '@reactivex/rxjs';
 
 export class MockAuthService implements IAuthenticationService {
-    CurrentUser: string = 'BuiltIn\\Visitor';
+    public CurrentUser: string = 'BuiltIn\\Visitor';
     public StateSubject: BehaviorSubject<LoginState>;
 
     constructor() {
@@ -13,21 +16,21 @@ export class MockAuthService implements IAuthenticationService {
     }
 
     public ValidUserName: string;
-    public ValidPassword: string
+    public ValidPassword: string;
 
-    public get State(): Observable<LoginState>{
+    public get State(): Observable<LoginState> {
         return this.StateSubject.asObservable();
     }
 
-    public get CurrentState(): LoginState{
+    public get CurrentState(): LoginState {
         return this.StateSubject.value;
     }
-    CheckForUpdate() {
+    public CheckForUpdate() {
         return Observable.from([false]);
     }
-    Login(username: string, password: string): Observable<boolean> {
-        let subject = new ReplaySubject<boolean>();
-        if (username === this.ValidUserName && password === this.ValidPassword){
+    public Login(username: string, password: string): Observable<boolean> {
+        const subject = new ReplaySubject<boolean>();
+        if (username === this.ValidUserName && password === this.ValidPassword) {
             subject.next(true);
         } else {
             subject.next(false);
@@ -35,7 +38,7 @@ export class MockAuthService implements IAuthenticationService {
         return subject.asObservable();
 
     }
-    Logout(): Observable<boolean> {
+    public Logout(): Observable<boolean> {
         return Observable.from([true]);
     }
 

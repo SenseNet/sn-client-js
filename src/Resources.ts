@@ -11,6 +11,9 @@
  * const editActionName = SenseNet.Resources.Actions["Edit"]
  * ```
  */ /** */
+
+ // tslint:disable:naming-convention class-name
+
  export class Ctd { }
  export class CtdApplication { }
  export class CtdApplicationOverride { }

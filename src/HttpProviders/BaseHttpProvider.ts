@@ -2,7 +2,8 @@
  * @module HttpProviders
  *//** */
 
-import { Observable, AjaxRequest } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
+import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
 /**
  *
  */
@@ -24,7 +25,7 @@ export abstract class BaseHttpProvider {
      *
      */
     public UnsetGlobalHeader(headerName: string) {
-        if (this._headers[headerName as any]){
+        if (this._headers[headerName as any]) {
             delete this._headers[headerName as any];
         }
     }
@@ -35,18 +36,20 @@ export abstract class BaseHttpProvider {
      * @param options Additional RxJs AjaxRequest options (the global headers will be overridden)
      */
     public Ajax<T>(tReturnType: { new (...args: any[]): T }, options: AjaxRequest, additionalHeaders: {name: string, value: string}[] = []): Observable<T> {
-        options.headers = options.headers || [];
-        for (let key in this._headers){
-            options.headers[key] = this._headers[key];
+        const headers = options.headers || [];
+        // tslint:disable-next-line:forin
+        for (const key in this._headers) {
+            headers[key] = this._headers[key];
         }
 
-        additionalHeaders.forEach(h => {
-            if (options.headers)
-                options.headers[h.name] = h.value;
-        })
+        additionalHeaders.forEach((h) => {
+            headers[h.name] = h.value;
+        });
+
+        options.headers = headers;
 
         return this.ajaxInner(tReturnType, options);
-    };
+    }
 
     /**
      * Public entry point for uploading files using a specific provider
@@ -57,7 +60,7 @@ export abstract class BaseHttpProvider {
         options.headers = options.headers || [];
 
         return this.uploadInner(tReturnType, File, options);
-    };
+    }
 
     /**
      * The inner implementation of the Ajax call
@@ -71,5 +74,5 @@ export abstract class BaseHttpProvider {
      * @param tReturnType The return type
      * @param options Additional RxJs AjaxRequest options (the global headers will be overridden)
      */
-    protected abstract uploadInner<T>(returnType: {new(...args: any[]): T}, File: File, options?: AjaxRequest & {url: string}): Observable<T>
+    protected abstract uploadInner<T>(returnType: {new(...args: any[]): T}, File: File, options?: AjaxRequest & {url: string}): Observable<T>;
 }
