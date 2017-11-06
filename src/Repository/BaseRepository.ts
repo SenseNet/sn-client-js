@@ -584,7 +584,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public MoveBatch(contentList: (SavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+    public MoveBatch(contentList: (SavedContent<{}>)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const action = this._odataApi.CreateCustomAction<ODataBatchResponse<ISavedContent>>({
             name: 'MoveBatch',
             path: rootContent.Path,
@@ -602,9 +602,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         action.subscribe((result) => {
             if (result.d.__count) {
                 result.d.results.forEach((moved) => {
-                    const from = contentList.find((a) => a.Id === moved.Id);
                     this.Events.Trigger.ContentMoved({
-                        From: from && from.Path || '',
+                        From: (contentList.find((a) => a.Id === moved.Id) as SavedContent).Path,
                         Content: this.HandleLoadedContent(moved),
                         To: targetPath
                     });
