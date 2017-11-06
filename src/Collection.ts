@@ -137,25 +137,9 @@
      * });
      * ```
      */
-    public Remove(arg: number | number[], permanently: boolean = false): Observable<any> {
-        if (typeof arg === 'number') {
-            const content = this._items[arg];
-            if (content && content.Id) {
-                this._items =
-                    this._items.slice(0, arg)
-                        .concat(this._items.slice(arg + 1));
-
-                return this._odata.Delete(content.Id, permanently ? permanently : false);
-            } else {
-                return Observable.of(undefined);
-            }
-        } else {
-            const ids = arg.map((i) => this._items[i].Id);
-            this._items =
-                this._items.filter((item, i) => arg.indexOf(i) > -1);
-            const action = new CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
-            return this._odata.CreateCustomAction(action, { data: [{ paths: ids }, { permanently }] });
-        }
+    public Remove(ids: number[], permanently: boolean = false): Observable<any> {
+        const contents = this._items.filter((item) => item.Id && ids.indexOf(item.Id) > -1);
+        return this._repository.DeleteBatch(contents, permanently);
     }
     /**
      * Method to fetch Content from the Content Repository.
@@ -179,7 +163,7 @@
      * });
      * ```
      */
-    public Read(path: string, options?: IODataParams<T>): Observable<any> {
+    public Read(path: string, options?: IODataParams<T>): Observable< any > {
         this.Path = path;
         const children = this._odata.Fetch<T>({
             params: options,
@@ -225,7 +209,7 @@
      * });
      * ```
      */
-    public Move(arg: number | number[], targetPath: string): Observable<any> {
+    public Move(arg: number | number[], targetPath: string): Observable < any > {
         if (typeof arg === 'number') {
             this._items =
                 this._items.slice(0, arg)
@@ -275,7 +259,7 @@
      * });
      * ```
      */
-    public Copy(arg: number | number[], targetPath: string): Observable<any> {
+    public Copy(arg: number | number[], targetPath: string): Observable < any > {
         if (typeof arg === 'number') {
             const action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
             return this._odata.CreateCustomAction(action, { data: [{ targetPath }] });
@@ -300,7 +284,7 @@
      * });
      * ```
      */
-    public AllowedChildTypes(options?: any): Observable<any> {
+    public AllowedChildTypes(options?: any): Observable < any > {
         const o: any = {};
         if (options) {
             o.params = options;
