@@ -1,6 +1,8 @@
-import { BehaviorSubject, Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
+import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+
 import { JwtService, LoginResponse, LoginState, TokenPersist, TokenStore } from '../src/Authentication';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 import { MockTokenFactory } from './Mocks/MockTokenFactory';

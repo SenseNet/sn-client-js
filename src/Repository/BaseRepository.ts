@@ -3,7 +3,9 @@
  */
 /** */
 
-import { BehaviorSubject, Observable, Subject } from '@reactivex/rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { IAuthenticationService, LoginState } from '../Authentication/';
 import { SnConfigModel } from '../Config/snconfigmodel';
 import { Content, ContentInternal, IContent, ISavedContent, SavedContent } from '../Content';
@@ -524,7 +526,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    public CreateQuery = <T extends IContent>(build: (first: QueryExpression<IContent>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params);
+    public CreateQuery = <T extends IContent>(build: (first: QueryExpression<T>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params);
 
     /**
      * Executes a DeleteBatch request to delete multiple content by a single request.
@@ -714,6 +716,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
     private _schemaCache: Map<string, Schema>;
     private _schemaStore: Schema[];
+
+    public SetSchemas(newSchemas: Schema[]) {
+        this._schemaStore = newSchemas;
+        this._schemaCache = new Map<string, Schema>();
+    }
+
     /**
      * Returns the Content Type Schema of the given Content Type;
      * @param type {string} The name of the Content Type;

@@ -7,14 +7,14 @@
  * a container ```Content``` with a type ```Folder``` or ```ContentList```, it could be also a result of a query. Since it is ```generic``` type of its children items is not defined strictly.
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
-import { Content, IContent } from './Content';
-import { CustomAction, IODataParams, IODataRequestOptions } from './ODataApi';
-import { BaseRepository } from './Repository/BaseRepository';
-import { UploadProgressInfo, UploadTextOptions, WithParentContent } from './Repository/UploadModels';
-import { ODataHelper } from './SN';
+ import { Observable } from 'rxjs/Observable';
+ import { Content, IContent } from './Content';
+ import { CustomAction, IODataParams, IODataRequestOptions } from './ODataApi';
+ import { BaseRepository } from './Repository/BaseRepository';
+ import { UploadProgressInfo, UploadTextOptions, WithParentContent } from './Repository/UploadModels';
+ import { ODataHelper } from './SN';
 
-export class Collection<T extends IContent> {
+ export class Collection<T extends IContent> {
     public Path: string = '';
 
     private get _odata() {

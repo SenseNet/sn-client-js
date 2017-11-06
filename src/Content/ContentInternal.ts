@@ -41,24 +41,24 @@
  * related to async data streams.
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
-import { BinaryField } from '../BinaryField';
-import { ContentListReferenceField, ContentReferenceField } from '../ContentReferences';
-import { ContentSerializer } from '../ContentSerializer';
-import { ContentType, Group, User, Workspace } from '../ContentTypes';
-import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
-import { IODataParams, ODataApi, ODataFieldParameter } from '../ODataApi';
-import { FinializedQuery, QueryExpression, QuerySegment } from '../Query';
-import { ActionModel } from '../Repository/ActionModel';
-import { BaseRepository } from '../Repository/BaseRepository';
-import { UploadFileOptions, UploadFromEventOptions, UploadProgressInfo, UploadTextOptions } from '../Repository/UploadModels';
-import { ContentTypes, Enums, FieldSettings, ODataHelper, Schemas, Security } from '../SN';
-import { IContent } from './IContent';
-import { ISavedContent } from './ISavedContent';
-import { isSavedContent } from './TypeGuards';
-import { Content, SavedContent } from './Types';
+ import { Observable } from 'rxjs/Observable';
+ import { BinaryField } from '../BinaryField';
+ import { ContentListReferenceField, ContentReferenceField } from '../ContentReferences';
+ import { ContentSerializer } from '../ContentSerializer';
+ import { ContentType, Group, User, Workspace } from '../ContentTypes';
+ import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
+ import { IODataParams, ODataApi, ODataFieldParameter } from '../ODataApi';
+ import { FinializedQuery, QueryExpression, QuerySegment } from '../Query';
+ import { ActionModel } from '../Repository/ActionModel';
+ import { BaseRepository } from '../Repository/BaseRepository';
+ import { UploadFileOptions, UploadFromEventOptions, UploadProgressInfo, UploadTextOptions } from '../Repository/UploadModels';
+ import { ContentTypes, Enums, FieldSettings, ODataHelper, Schemas, Security } from '../SN';
+ import { IContent } from './IContent';
+ import { ISavedContent } from './ISavedContent';
+ import { isSavedContent } from './TypeGuards';
+ import { Content, SavedContent } from './Types';
 
-export class ContentInternal<T extends IContent = IContent> {
+ export class ContentInternal<T extends IContent = IContent> {
 
     private get _odata(): ODataApi<BaseHttpProvider> {
         return this._repository.GetODataApi();
@@ -522,7 +522,7 @@ export class ContentInternal<T extends IContent = IContent> {
             }
         })
             .map((resp) => {
-                return (resp.d).Actions as ActionModel[];
+                return (resp.d as any).Actions as ActionModel[];
             });
     }
     /**

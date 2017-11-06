@@ -2,7 +2,7 @@
  * @module Authentication
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 import { LoginState } from './';
 
 /**

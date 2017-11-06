@@ -2,7 +2,9 @@
  * @module Authentication
  */ /** */
 
-import { BehaviorSubject, Observable, Subject } from '@reactivex/rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
 import { ODataHelper } from '../SN';
 import { IAuthenticationService, LoginResponse, LoginState, RefreshResponse, Token,

@@ -1,6 +1,7 @@
-import { Observable, Subject } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { LoginState } from '../src/Authentication';
 import { SnConfigModel } from '../src/Config';
 import { Content, ContentInternal } from '../src/Content';

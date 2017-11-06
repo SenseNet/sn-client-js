@@ -2,7 +2,8 @@
  * @module HttpProviders
  *//** */
 
-import { AjaxRequest, Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
+import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
 /**
  *
  */

@@ -2,7 +2,7 @@
  * @module Content
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 import { MediaResourceObject } from './ComplexTypes';
 import { IContent, SavedContent } from './Content';
 import { BinaryFieldSetting } from './FieldSettings';

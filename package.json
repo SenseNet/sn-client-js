@@ -1,6 +1,6 @@
 {
   "name": "sn-client-js",
-  "version": "3.0.0-development.1",
+  "version": "3.0.0-development.2",
   "description": "A JavaScript client for Sense/Net ECM that makes it easy to use the REST API of the Content Repository.",
   "main": "dist/src/SN.js",
   "files": [
@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/tslint --project tsconfig.json --type-check",
     "clean": "rimraf dist",
-    "precommit": "npm run lint",    
+    "precommit": "npm run lint",
     "commit": "git-cz",
     "pretest": "npm run build",
     "test": "nyc mocha -p tsconfig.json dist/test/index.js",
@@ -59,8 +59,8 @@
   },
   "homepage": "https://sensenet.com",
   "dependencies": {
-    "@reactivex/rxjs": "^5.5.2",
     "nyc": "^11.0.2",
+    "rxjs": "^5.5.2",
     "sensenet-kfi-cz-conventional-changelog": "^1.0.0"
   },
   "devDependencies": {

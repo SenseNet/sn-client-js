@@ -1,6 +1,6 @@
-import { AjaxRequest } from '@reactivex/rxjs';
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
+import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
 import { RxAjaxHttpProvider } from '../src/HttpProviders';
 import { MockHttpProvider } from './Mocks/MockHttpProvider';
 

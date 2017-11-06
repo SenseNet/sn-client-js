@@ -2,7 +2,10 @@
  * @module Mocks
  */ /** */
 
-import { AjaxRequest, Observable, ReplaySubject } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
+import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+
 import { BaseHttpProvider } from '../../src/HttpProviders';
 
 /**

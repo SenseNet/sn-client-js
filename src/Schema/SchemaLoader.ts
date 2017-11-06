@@ -26,7 +26,7 @@ export class SchemaLoader {
 
     private static async createSchemaFromCtd(xml: Document): Promise<Schema> {
         /**/
-        const schema = new Schema({});
+        const schema = new Schema();
 
         return schema;
     }

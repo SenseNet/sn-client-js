@@ -2,9 +2,14 @@
  * @module HttpProviders
  *//** */
 
-import { AjaxRequest, Observable, Subject } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
+import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
+import { Subject } from 'rxjs/Subject';
+
 import { SnConfigModel } from '../Config';
 import { BaseHttpProvider } from './';
+
+import 'rxjs/add/observable/dom/ajax';
 
 /**
  * This is the default RxJs-Ajax based Http calls.

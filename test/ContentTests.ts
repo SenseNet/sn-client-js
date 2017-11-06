@@ -1,5 +1,5 @@
-import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { Observable } from 'rxjs/Observable';
 import { LoginState } from '../src/Authentication/LoginState';
 import { Content, ContentInternal, ISavedContent, isContent, isDeferred, isIContent, isIContentList, SavedContent } from '../src/Content';
 import { ContentReferenceField } from '../src/ContentReferences';

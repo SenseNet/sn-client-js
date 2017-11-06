@@ -3,7 +3,9 @@
  */
 /** */
 
-import { Observable, Subject } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+
 import { IContent, SavedContent } from '../Content';
 import { ICustomActionOptions, IODataParams } from '../ODataApi';
 import { UploadProgressInfo } from './UploadModels';

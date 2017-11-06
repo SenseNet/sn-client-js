@@ -2,7 +2,7 @@
  * @module Query
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 import { QueryExpression, QueryResult, QuerySegment } from '.';
 import { IContent } from '../Content';
 import { IODataParams } from '../ODataApi';
@@ -66,7 +66,7 @@ export class Query<T extends IContent = IContent> {
  * Represents a finialized Query instance that has a Repository, path and OData Parameters set up
  */
 export class FinializedQuery<T extends IContent = IContent> extends Query<T> {
-    constructor(build: (first: QueryExpression<IContent>) => void,
+    constructor(build: (first: QueryExpression<T>) => void,
                 private readonly _repository: BaseRepository,
                 private readonly _path: string,
                 private readonly _odataParams: IODataParams<T> = {}) {

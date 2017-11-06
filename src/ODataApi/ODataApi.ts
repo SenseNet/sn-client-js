@@ -2,7 +2,7 @@
  * @module ODataApi
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 import { IContent, ISavedContent, SavedContent } from '../Content';
 import { BaseHttpProvider } from '../HttpProviders';
 import { BaseRepository } from '../Repository/BaseRepository';

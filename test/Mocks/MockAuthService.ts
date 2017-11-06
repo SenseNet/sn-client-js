@@ -1,7 +1,10 @@
 /**
  * @module Mocks
  */ /** */
-import { BehaviorSubject, Observable, ReplaySubject } from '@reactivex/rxjs';
+import { BehaviorSubject,  } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+
 import { IAuthenticationService, LoginState } from '../../src/Authentication';
 
 export class MockAuthService implements IAuthenticationService {

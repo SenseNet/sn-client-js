@@ -2,7 +2,7 @@
  * @module Content
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 import { DeferredObject } from './ComplexTypes';
 import { IContent, isDeferred, isIContent, SavedContent } from './Content';
 import { ReferenceFieldSetting } from './FieldSettings';

@@ -1,5 +1,5 @@
-import { Observable } from '@reactivex/rxjs';
 import * as Chai from 'chai';
+import { Observable } from 'rxjs/Observable';
 import { LoginState } from '../src/Authentication/LoginState';
 import { Collection } from '../src/Collection';
 import { Content, ContentInternal } from '../src/Content';
