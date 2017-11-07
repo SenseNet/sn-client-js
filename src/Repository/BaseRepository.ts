@@ -346,7 +346,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         this.Config = new SnConfigModel(config);
 
         // warning: Authentication constructor parameterization is not type-safe
-        this.Authentication = new authentication(this.HttpProviderRef, this.Config.RepositoryUrl, this.Config.JwtTokenKeyTemplate, this.Config.JwtTokenPersist);
+        this.Authentication = new authentication(this);
         this._odataApi = new ODataApi(this);
 
         this.initUserUpdate();
@@ -538,11 +538,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * })
      * ```
      *
-     * @param {Content[]} contentList An array of content to be deleted
+     * @param {(SavedContent | number | string)[]} contentList An array of content to be deleted. Can be a content (with id and/or path), a Path or an Id
      * @param {boolean} permanently Option to delete the content permanently or just move it to the trash
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public DeleteBatch(contentList: (Content & ISavedContent)[], permanent: boolean = false, rootContent = this._staticContent.PortalRoot) {
+    public DeleteBatch(contentList: (SavedContent | number | string)[], permanent: boolean = false, rootContent = this._staticContent.PortalRoot) {
         const action = this._odataApi.CreateCustomAction<ODataBatchResponse>({
             name: 'DeleteBatch',
             path: rootContent.Path,
@@ -550,7 +550,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             requiredParams: ['paths']
         }, {
                 data: {
-                    paths: contentList.map((c) => c.Id || c.Path).filter((c) => c !== undefined),
+                    paths: contentList.map((c) => c.Id || c.Path || c).filter((c) => c !== undefined),
                     permanent
                 }
 
@@ -580,11 +580,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * repository.MoveBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
      *  console.log('Contents moved.')
      * })
-     * @param {Content[]} contentList An array of content to move
+     * @param {(SavedContent | number | string)[]} contentList An array of content to move. Can be a content (with path) or a Path
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public MoveBatch(contentList: (SavedContent<{}>)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+    public MoveBatch(contentList: (SavedContent  | string)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const action = this._odataApi.CreateCustomAction<ODataBatchResponse<ISavedContent>>({
             name: 'MoveBatch',
             path: rootContent.Path,
@@ -593,7 +593,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }, {
                 data: [
                     {
-                        paths: contentList.map((c) => c.Path).filter((c) => c !== undefined),
+                        paths: contentList.map((c) => c.Path || c).filter((c) => c !== undefined),
                         targetPath
                     },
 
@@ -632,11 +632,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * repository.CopyBatch([content1, content2...], 'Root/NewFolder').subscribe(()=>{
      *  console.log('Contents copied.')
      * })
-     * @param {Content[]} contentList An array of content to copy
+     * @param {(SavedContent | number | string)[]} contentList An array of content to copy. Can be a content (with path) or a Path
      * @param {string} targetPath The target Path
      * @param {Content} rootContent The context node, the PortalRoot by default
      */
-    public CopyBatch(contentList: (SavedContent)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
+    public CopyBatch(contentList: (SavedContent | string)[], targetPath: string, rootContent: Content = this._staticContent.PortalRoot) {
         const action = this._odataApi.CreateCustomAction<ODataBatchResponse>({
             name: 'CopyBatch',
             path: rootContent.Path,
@@ -645,7 +645,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }, {
                 data: [
                     {
-                        paths: contentList.map((c) => c.Path).filter((c) => c !== undefined),
+                        paths: contentList.map((c) => c.Path || c).filter((c) => c !== undefined),
                         targetPath
                     },
 
