@@ -77,15 +77,15 @@ export const CollectionTests = describe('Collection', () => {
   });
   describe('#Remove()', () => {
     it('should return an observable', () => {
-      expect(collection.Remove(1, true)).to.be.instanceof(Observable);
+      expect(collection.Remove([1], true)).to.be.instanceof(Observable);
     });
 
     it('should return an observable', () => {
-      expect(collection.Remove(1)).to.be.instanceof(Observable);
+      expect(collection.Remove([1])).to.be.instanceof(Observable);
     });
 
     it('should return an observable', () => {
-      expect(collection.Remove(999)).to.be.instanceof(Observable);
+      expect(collection.Remove([999])).to.be.instanceof(Observable);
     });
 
     it('should return an observable', () => {
