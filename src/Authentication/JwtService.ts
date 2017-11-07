@@ -5,7 +5,7 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
+import { BaseRepository } from '../Repository/BaseRepository';
 import { ODataHelper } from '../SN';
 import { IAuthenticationService, LoginResponse, LoginState, RefreshResponse, Token,
         TokenPersist, TokenStore } from './';
@@ -45,7 +45,7 @@ export class JwtService implements IAuthenticationService {
      * The store for JWT tokens
      */
     private _tokenStore: TokenStore =
-        new TokenStore(this._repositoryUrl, this._tokenTemplate, (this.Persist === 'session') ? TokenPersist.Session : TokenPersist.Expiration);
+        new TokenStore(this._repository.Config.RepositoryUrl, this._repository.Config.JwtTokenKeyTemplate, (this._repository.Config.JwtTokenPersist === 'session') ? TokenPersist.Session : TokenPersist.Expiration);
 
     /**
      * Executed before each Ajax call. If the access token has been expired, but the refresh token is still valid, it triggers the token refreshing call
@@ -71,7 +71,7 @@ export class JwtService implements IAuthenticationService {
     private execTokenRefresh() {
         const refresh = this._httpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
-            url: ODataHelper.joinPaths(this._repositoryUrl, 'sn-token/refresh'),
+            url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/refresh'),
             headers: {
                 'X-Refresh-Data': this._tokenStore.RefreshToken.toString(),
                 'X-Authentication-Type': 'Token',
@@ -88,6 +88,10 @@ export class JwtService implements IAuthenticationService {
         return refresh.map((response) => true);
     }
 
+    private get _httpProviderRef() {
+        return this._repository.HttpProviderRef;
+    }
+
     /**
      * @param {BaseHttpProvider} httpProviderRef The Http Provider to use (e.g. login / logout / session renew requests)
      * @param {string} repositoryUrl The URL for the repository
@@ -95,10 +99,13 @@ export class JwtService implements IAuthenticationService {
      * @param {'session' | 'expiration'} persist Sets up if the tokens should be persisted per session (browser close) or per token expiration (based on the token)
      * @constructs JwtService
      */
-    constructor(private readonly _httpProviderRef: BaseHttpProvider,
-                private readonly _repositoryUrl: string,
-                private readonly _tokenTemplate: string,
-                public readonly Persist: 'session' | 'expiration') {
+    constructor(
+        private readonly _repository: BaseRepository
+        // private readonly _httpProviderRef: BaseHttpProvider,
+        // private readonly _repositoryUrl: string,
+        // private readonly _tokenTemplate: string,
+        // public readonly Persist: 'session' | 'expiration'
+            ) {
 
         this._stateSubject = new BehaviorSubject<LoginState>(LoginState.Pending);
 
@@ -151,7 +158,7 @@ export class JwtService implements IAuthenticationService {
 
         this._httpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: ODataHelper.joinPaths(this._repositoryUrl, 'sn-token/login'),
+            url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/login'),
             headers: {
                 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`,
@@ -181,7 +188,7 @@ export class JwtService implements IAuthenticationService {
 
         return this._httpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: ODataHelper.joinPaths(this._repositoryUrl, 'sn-token/logout'),
+            url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/logout'),
         }).map(() => true);
 
     }
