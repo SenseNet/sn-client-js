@@ -17,6 +17,9 @@ export class JwtService implements IAuthenticationService {
 
     private readonly _visitorName: string = 'BuiltIn\\Visitor';
 
+    /**
+     * Returns the current user's name as a string. In case of unauthenticated users, it will return 'BuiltIn\Visitor'
+     */
     public get CurrentUser(): string {
         if (this._tokenStore.AccessToken.IsValid() || this._tokenStore.RefreshToken.IsValid()) {
             return this._tokenStore.AccessToken.Username || this._tokenStore.RefreshToken.Username;
@@ -24,7 +27,7 @@ export class JwtService implements IAuthenticationService {
         return this._visitorName;
     }
     /**
-     * This subject indicates the current state of the service
+     * This observable indicates the current state of the service
      * @default LoginState.Pending
      */
     public get State(): Observable<LoginState> {
@@ -39,6 +42,9 @@ export class JwtService implements IAuthenticationService {
         return this._stateSubject.getValue();
     }
 
+    /**
+     * The private subject for tracking the login state
+     */
     private readonly _stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
 
     /**
@@ -69,7 +75,7 @@ export class JwtService implements IAuthenticationService {
      * @returns {Observable<boolean>} An observable that will be completed with true on a succesfull refresh
      */
     private execTokenRefresh() {
-        const refresh = this._httpProviderRef.Ajax(RefreshResponse, {
+        const refresh = this._repository.HttpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
             url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/refresh'),
             headers: {
@@ -88,32 +94,19 @@ export class JwtService implements IAuthenticationService {
         return refresh.map((response) => true);
     }
 
-    private get _httpProviderRef() {
-        return this._repository.HttpProviderRef;
-    }
-
     /**
-     * @param {BaseHttpProvider} httpProviderRef The Http Provider to use (e.g. login / logout / session renew requests)
-     * @param {string} repositoryUrl The URL for the repository
-     * @param {string} tokenTemplate The template to use when generating token keys in session/local storage or in a cookie. ${siteName} and ${tokenName} will be replaced.
-     * @param {'session' | 'expiration'} persist Sets up if the tokens should be persisted per session (browser close) or per token expiration (based on the token)
+     * @param {BaseRepository} _repository the Repository reference for the Authentication. The service will read its configuration and use its HttpProvider
      * @constructs JwtService
      */
-    constructor(
-        private readonly _repository: BaseRepository
-        // private readonly _httpProviderRef: BaseHttpProvider,
-        // private readonly _repositoryUrl: string,
-        // private readonly _tokenTemplate: string,
-        // public readonly Persist: 'session' | 'expiration'
-            ) {
+    constructor(protected readonly _repository: BaseRepository) {
 
         this._stateSubject = new BehaviorSubject<LoginState>(LoginState.Pending);
 
         this.State.subscribe((s) => {
             if (this._tokenStore.AccessToken.IsValid()) {
-                this._httpProviderRef.SetGlobalHeader('X-Access-Data', this._tokenStore.AccessToken.toString());
+                this._repository.HttpProviderRef.SetGlobalHeader('X-Access-Data', this._tokenStore.AccessToken.toString());
             } else {
-                this._httpProviderRef.UnsetGlobalHeader('X-Access-Data');
+                this._repository.HttpProviderRef.UnsetGlobalHeader('X-Access-Data');
             }
         });
         this.CheckForUpdate();
@@ -156,7 +149,7 @@ export class JwtService implements IAuthenticationService {
         this._stateSubject.next(LoginState.Pending);
         const authToken: string = new Buffer(`${username}:${password}`).toString('base64');
 
-        this._httpProviderRef.Ajax(LoginResponse, {
+        this._repository.HttpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
             url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/login'),
             headers: {
@@ -176,17 +169,15 @@ export class JwtService implements IAuthenticationService {
     }
 
     /**
-     * Logs out the current user, sets the tokens to 'empty'
-     * ```
-     * service.Logout();
-     * ```
+     * Logs out the current user, sets the tokens to 'empty' and sends a Logout request to invalidate all Http only cookies
+     * @returns {Observable<boolean>} An Observable that will be updated with the logout response
      */
     public Logout(): Observable<boolean> {
         this._tokenStore.AccessToken = Token.CreateEmpty();
         this._tokenStore.RefreshToken = Token.CreateEmpty();
         this._stateSubject.next(LoginState.Unauthenticated);
 
-        return this._httpProviderRef.Ajax(LoginResponse, {
+        return this._repository.HttpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
             url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/logout'),
         }).map(() => true);
