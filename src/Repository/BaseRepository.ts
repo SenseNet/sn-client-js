@@ -326,7 +326,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     /**
      * Reference to the Authentication Service used by the current repository
      */
-    public readonly Authentication: TAuthenticationServiceType;
+    public Authentication: TAuthenticationServiceType;
 
     /**
      * Reference to the configuration used by the current repository
