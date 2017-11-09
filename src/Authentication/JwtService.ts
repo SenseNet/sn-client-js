@@ -7,8 +7,8 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BaseRepository } from '../Repository/BaseRepository';
 import { ODataHelper } from '../SN';
-import { IAuthenticationService, LoginResponse, LoginState, RefreshResponse, Token,
-        TokenPersist, TokenStore } from './';
+import { IAuthenticationService, IOauthProvider, LoginResponse, LoginState, RefreshResponse,
+        Token, TokenPersist, TokenStore } from './';
 
 /**
  * This service class manages the JWT authentication, the session and the current login state.
@@ -16,6 +16,23 @@ import { IAuthenticationService, LoginResponse, LoginState, RefreshResponse, Tok
 export class JwtService implements IAuthenticationService {
 
     private readonly _visitorName: string = 'BuiltIn\\Visitor';
+
+    private _oauthProviders: Map<{new(...args): IOauthProvider}, IOauthProvider> = new Map();
+
+    public SetOauthProvider<T extends IOauthProvider>(provider: T) {
+        const providerCtor = provider.constructor as {new(...args)};
+        if (this._oauthProviders.has(providerCtor)) {
+            throw Error(`Provider for '${providerCtor.name}' already set`);
+        }
+        this._oauthProviders.set(providerCtor, provider);
+    }
+
+    public GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args): T}): T {
+        if (!this._oauthProviders.has(providerType)) {
+            throw Error(`OAuth provider not found for '${providerType.name}'`);
+        }
+        return this._oauthProviders.get(providerType) as T;
+    }
 
     /**
      * Returns the current user's name as a string. In case of unauthenticated users, it will return 'BuiltIn\Visitor'
@@ -45,7 +62,7 @@ export class JwtService implements IAuthenticationService {
     /**
      * The private subject for tracking the login state
      */
-    private readonly _stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
+    protected readonly _stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
 
     /**
      * The store for JWT tokens
@@ -112,7 +129,7 @@ export class JwtService implements IAuthenticationService {
         this.CheckForUpdate();
     }
 
-    private handleAuthenticationResponse(response: LoginResponse): boolean {
+    public HandleAuthenticationResponse(response: LoginResponse): boolean {
         this._tokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
         this._tokenStore.RefreshToken = Token.FromHeadAndPayload(response.refresh);
         if (this._tokenStore.AccessToken.IsValid()) {
@@ -158,7 +175,7 @@ export class JwtService implements IAuthenticationService {
             },
         })
             .subscribe((r) => {
-                const result = this.handleAuthenticationResponse(r);
+                const result = this.HandleAuthenticationResponse(r);
                 sub.next(result);
             }, (err) => {
                 this._stateSubject.next(LoginState.Unauthenticated);

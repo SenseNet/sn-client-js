@@ -5,9 +5,19 @@ import { BehaviorSubject,  } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 
-import { IAuthenticationService, LoginState } from '../../src/Authentication';
+import { IAuthenticationService, IOauthProvider, LoginResponse, LoginState } from '../../src/Authentication';
 
 export class MockAuthService implements IAuthenticationService {
+    public HandleAuthenticationResponse(response: LoginResponse): boolean {
+        throw new Error('Method not implemented.');
+    }
+    public SetOauthProvider<T extends IOauthProvider>(provider: T) {
+        throw new Error('Method not implemented.');
+    }
+    public GetOauthProvider<T extends IOauthProvider>(providerType: new (...args: any[]) => T): T {
+        throw new Error('Method not implemented.');
+    }
+
     public CurrentUser: string = 'BuiltIn\\Visitor';
     public StateSubject: BehaviorSubject<LoginState>;
 

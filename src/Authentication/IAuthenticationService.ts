@@ -3,7 +3,7 @@
  */ /** */
 
 import { Observable } from 'rxjs/Observable';
-import { LoginState } from './';
+import { IOauthProvider, LoginResponse, LoginState } from './';
 
 /**
  * Interface that describes how injectable Authentication Services should work
@@ -41,5 +41,9 @@ export interface IAuthenticationService {
     Logout(): Observable<boolean>;
 
     CurrentUser: string;
+
+    HandleAuthenticationResponse(response: LoginResponse): boolean;
+    SetOauthProvider<T extends IOauthProvider>(provider: T);
+    GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args): T}): T;
 
 }
