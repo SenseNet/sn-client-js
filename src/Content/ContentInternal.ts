@@ -314,7 +314,7 @@
             if (!this.Id) {
                 const err = new Error('Content Id not present');
                 this._repository.Events.Trigger.ContentModificationFailed({
-                    Content: this.tryGetAsSaved(),
+                    Content: this as any,
                     Fields: fields,
                     Error: err
                 });

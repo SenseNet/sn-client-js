@@ -405,6 +405,13 @@ export const contentTests = describe('Content', () => {
             }, done);
         });
 
+        it('should throw Error when trying to update specified fields and the Id is not provided', () => {
+            repo.HttpProviderRef.AddError({ message: 'serverErrorMessage' });
+            const c = repo.CreateContent({Path: 'Root/Test', Name: 'asd' }, Task);
+
+            expect(() => {c.Save({ DisplayName: 'new' }); }).to.throw();
+        });
+
         it('should send a PATCH request if fields are specified and override is false', (done) => {
             repo.HttpProviderRef.AddResponse({
                 d: {
