@@ -3,13 +3,23 @@ import { suite, test } from 'mocha-typescript';
 import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 
-import { JwtService, LoginResponse, LoginState, TokenPersist, TokenStore } from '../src/Authentication';
+import { IOauthProvider, JwtService, LoginResponse, LoginState, TokenPersist, TokenStore } from '../src/Authentication';
 import { MockRepository } from './Mocks/MockRepository';
 import { MockTokenFactory } from './Mocks/MockTokenFactory';
 
 // tslint:disable:no-string-literal
 
 const expect = Chai.expect;
+
+export class MockOauthProvider implements IOauthProvider {
+    public GetToken(): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+    public Login(token: string): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+
+}
 
 @suite('JwtService')
 export class JwtServiceTests {
@@ -207,6 +217,28 @@ export class JwtServiceTests {
         const store = t['_tokenStore'] as TokenStore;
         store.SetToken('refresh', MockTokenFactory.CreateValid());
         expect(t.CurrentUser).to.be.eq('BuiltIn\\Mock');
+    }
+
+    @test public 'SetOauthProvider should add an Oauth provider'() {
+        const t = new JwtService(this._repo);
+        const provider = new MockOauthProvider();
+        t.SetOauthProvider(provider);
+
+        expect(t.GetOauthProvider(MockOauthProvider)).to.be.eq(provider);
+    }
+
+    @test public 'SetOauthProvider should throw an error when for duplicated providers'() {
+        const t = new JwtService(this._repo);
+        const provider = new MockOauthProvider();
+        const provider2 = new MockOauthProvider();
+        t.SetOauthProvider(provider);
+
+        expect(() => {t.SetOauthProvider(provider2); }).to.throw();
+    }
+
+    @test public 'GetOauthProvider should throw an error if there is no Oauth provider registered'() {
+        const t = new JwtService(this._repo);
+        expect(() => {t.GetOauthProvider(MockOauthProvider); }).to.throw();
     }
 
 }
