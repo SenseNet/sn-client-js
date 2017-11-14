@@ -703,7 +703,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                     this._currentUserSubject.next(usr.Result[0]);
                                     this._lastKnownUserName = this.Authentication.CurrentUser;
                                 } else {
-                                    this._currentUserSubject.error(`Error getting current user: found multiple users with login name '${userName}' in domain '${userDomain}'`);
+                                    this._currentUserSubject.error(`Error getting current user: found ${usr.Count} user(s) with login name '${userName}' in domain '${userDomain}'`);
                                 }
                             });
                     }
