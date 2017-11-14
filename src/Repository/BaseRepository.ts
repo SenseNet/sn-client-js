@@ -89,7 +89,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
                     /** Non-chunked upload */
                     uploadOptions.Body.ChunkToken = '0*0*False*False';
-                    this.HttpProviderRef.Upload<TFile>((uploadOptions.ContentType || ContentInternal) as { new(...args: any[]): Content<TFile> }, uploadOptions.File, {
+                    this.HttpProviderRef.Upload<TFile>((uploadOptions.ContentType) as { new(...args: any[]): Content<TFile> }, uploadOptions.File, {
                         url: uploadPath,
                         body: uploadOptions.Body,
                     })
@@ -207,8 +207,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     const content = this.HandleLoadedContent<T>({
                         Id: contentId,
                         Path: 'asd',
-                        Name: options.File.name || 'File',
-                        Type: options.ContentType.name || 'File'
+                        Name: options.File.name,
+                        Type: options.ContentType.name
                     } as T & ISavedContent);
                     // tslint:disable-next-line:no-string-literal
                     content['_isOperationInProgress'] = true;
