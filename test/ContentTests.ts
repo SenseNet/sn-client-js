@@ -575,18 +575,6 @@ export const contentTests = describe('Content', () => {
 
     });
 
-    describe('#Upload', () => {
-        it('should return an Observable object', () => {
-            expect(contentSaved.Upload('Root/Example', 'example.txt', true, true, 'binary', 'example text')).to.be.instanceof(Observable);
-        });
-
-        it('should throw an error if no Path specified', () => {
-            (contentSaved as any).Path = undefined;
-            expect(() => {contentSaved.Upload('Root/Example', 'example.txt'); }).to.throw('No Path provided!');
-        });
-
-    });
-
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
             expect(contentSaved.Actions()).to.be.instanceof(Observable);
