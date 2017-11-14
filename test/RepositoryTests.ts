@@ -775,7 +775,7 @@ export class RepositoryTests {
         repo.GetCurrentUser().subscribe((u) => {
             done('Error should be thrown here.');
         }, (err) => {
-            expect(err).to.be.eq("Error getting current user: found multiple users with login name 'NewUser' in domain 'BuiltIn'");
+            expect(err).to.be.eq("Error getting current user: found 2 user(s) with login name 'NewUser' in domain 'BuiltIn'");
             done();
         });
 
