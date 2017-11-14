@@ -550,7 +550,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
             requiredParams: ['paths']
         }, {
                 data: {
-                    paths: contentList.map((c) => c.Id || c.Path || c).filter((c) => c !== undefined),
+                    paths: contentList.map((c) => c.Id || c.Path || c),
                     permanent
                 }
 
@@ -593,7 +593,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }, {
                 data: [
                     {
-                        paths: contentList.map((c) => c.Path || c).filter((c) => c !== undefined),
+                        paths: contentList.map((c) => c.Path || c),
                         targetPath
                     },
 
@@ -645,7 +645,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }, {
                 data: [
                     {
-                        paths: contentList.map((c) => c.Path || c).filter((c) => c !== undefined),
+                        paths: contentList.map((c) => c.Path || c),
                         targetPath
                     },
 
