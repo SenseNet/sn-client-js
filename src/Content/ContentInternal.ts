@@ -55,8 +55,7 @@
  import { ContentTypes, Enums, FieldSettings, ODataHelper, Schemas, Security } from '../SN';
  import { IContent } from './IContent';
  import { ISavedContent } from './ISavedContent';
- import { isSavedContent } from './TypeGuards';
- import { Content, SavedContent } from './Types';
+ import { Content, isSavedContent, SavedContent } from './Types';
 
  export class ContentInternal<T extends IContent = IContent> {
 
