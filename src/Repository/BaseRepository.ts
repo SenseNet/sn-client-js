@@ -401,31 +401,31 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
     /**
      * Creates a Content instance that is loaded from the Repository. This method should be used only to instantiate content from payload received from the backend.
-     * @param type {string} The Content will be a copy of the given type.
-     * @param options {SenseNet.IContentOptions} Optional list of fields and values.
-     * @returns {SenseNet.Content}
+     * @param {T & ISavedContent} contentData An object with the Content data
+     * @param {new(...args):T} contentType The Content type.
+     * @returns {SavedContent<T>}
      * ```ts
-     * var content = SenseNet.Content.HandleLoadedContent('Folder', { DisplayName: 'My folder' }); // content is an instance of the Folder with the DisplayName 'My folder'
+     * var content = SenseNet.Content.HandleLoadedContent({ Id: 123456, Path: 'Root/Example', DisplayName: 'My folder' }, ContentTypes.Folder); // content is an instance of the Folder with the DisplayName 'My folder'
      * ```
      */
-    public HandleLoadedContent<T extends IContent>(opt: T & ISavedContent, contentType?: { new(...args: any[]): T }): SavedContent<T> {
+    public HandleLoadedContent<T extends IContent>(contentData: T & ISavedContent, contentType?: { new(...args: any[]): T }): SavedContent<T> {
         let instance: Content<T>;
 
-        const realContentType = (contentType || (opt.Type && (ContentTypes as any)[opt.Type]) || Folder) as { new(...args: any[]): T };
+        const realContentType = (contentType || (contentData.Type && (ContentTypes as any)[contentData.Type]) || Folder) as { new(...args: any[]): T };
 
-        if (opt.Id) {
-            const cached = this._loadedContentReferenceCache.get(opt.Id);
+        if (contentData.Id) {
+            const cached = this._loadedContentReferenceCache.get(contentData.Id);
             if (cached) {
                 instance = cached as Content<T>;
                 // tslint:disable-next-line:no-string-literal
-                instance['updateLastSavedFields'](opt);
+                instance['updateLastSavedFields'](contentData);
             } else {
-                instance = ContentInternal.Create<T>(opt, realContentType, this);
-                this._loadedContentReferenceCache.set(opt.Id, instance as SavedContent<T>);
+                instance = ContentInternal.Create<T>(contentData, realContentType, this);
+                this._loadedContentReferenceCache.set(contentData.Id, instance as SavedContent<T>);
             }
 
         } else {
-            instance = ContentInternal.Create<T>(opt, realContentType, this);
+            instance = ContentInternal.Create<T>(contentData, realContentType, this);
         }
         // tslint:disable-next-line:no-string-literal
         instance['_isSaved'] = true;
@@ -473,7 +473,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     }
 
     /**
-     * Shortcut to Content.Create
+     * Shortcut to Content.Create. Creates a new, unsaved Content instance
+     * @param {TContentType} options An object with the initial content data
+     * @param {{ new(...args: any[]): TContentType }) => Content<TContentType>} contentType The type of the Content instance
+     * @returns {Content<TContentType>} the created, unsaved content instance
      */
     public CreateContent: <TContentType extends IContent = IContent>(options: TContentType, contentType: { new(...args: any[]): TContentType }) => Content<TContentType> =
     <TContentType>(options: TContentType, contentType: { new(...args: any[]): TContentType }) =>
