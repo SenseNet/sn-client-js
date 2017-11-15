@@ -35,7 +35,7 @@ export class Query<T extends IContent = IContent> {
         return this._segments.map((s) => s.toString()).join('');
     }
 
-    constructor(build: (first: QueryExpression<T>) => void) {
+    constructor(build: (first: QueryExpression<any>) => QuerySegment<T>) {
         const firstExpression = new QueryExpression<T>(this);
         build(firstExpression);
     }
@@ -66,7 +66,7 @@ export class Query<T extends IContent = IContent> {
  * Represents a finialized Query instance that has a Repository, path and OData Parameters set up
  */
 export class FinializedQuery<T extends IContent = IContent> extends Query<T> {
-    constructor(build: (first: QueryExpression<T>) => void,
+    constructor(build: (first: QueryExpression<any>) => QuerySegment<T>,
                 private readonly _repository: BaseRepository,
                 private readonly _path: string,
                 private readonly _odataParams: IODataParams<T> = {}) {
