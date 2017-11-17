@@ -145,29 +145,35 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     ).
                         flatMap((chunkToken) => {
                             const resp = new UploadResponse(...chunkToken.split('*'));
+                            const createdContent: SavedContent<TFile> = this.HandleLoadedContent<TFile>({
+                                Id: resp.ContentId,
+                                Path: uploadOptions.Parent.Path,
+                                Name: uploadOptions.File.name,
+                                Type: uploadOptions.ContentType.name
+                            } as TFile & ISavedContent);
 
-                            return this.Load(resp.ContentId, uploadOptions.OdataOptions).flatMap((reloaded) => {
-                                this.Events.Trigger.ContentCreated({
-                                    Content: reloaded
-                                });
-
-                                return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
-                                .map((c) => {
-
-                                    const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
-                                    // tslint:disable-next-line:no-string-literal
-                                    reloaded['_isOperationInProgress'] = false;
-                                    const progressInfo = {
-                                        Completed: true,
-                                        ChunkCount: chunkCount,
-                                        UploadedChunks: chunkCount,
-                                        CreatedContent: reloaded
-                                    } as UploadProgressInfo<TFile>;
-                                    this.Events.Trigger.UploadProgress(progressInfo);
-                                    return progressInfo;
-                                });
+                            this.Events.Trigger.ContentCreated({
+                                Content: createdContent
                             });
+
+                            return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
+                                .flatMap((c) => {
+                                    return this.Load<TFile>(resp.ContentId, uploadOptions.OdataOptions)
+                                    .map((content) => {
+                                        const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
+                                        // tslint:disable-next-line:no-string-literal
+                                        content['_isOperationInProgress'] = false;
+                                        const progressInfo = {
+                                            Completed: true,
+                                            ChunkCount: chunkCount,
+                                            UploadedChunks: chunkCount,
+                                            CreatedContent: content
+                                        } as UploadProgressInfo<TFile>;
+                                        this.Events.Trigger.UploadProgress(progressInfo);
+                                        return progressInfo;
+                                    });
                         });
+                    });
                 }
 
                 return uploadSubject.asObservable();
@@ -473,7 +479,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @returns {Content<TContentType>} the created, unsaved content instance
      */
     public CreateContent: <TContentType extends IContent = IContent>(options: TContentType, contentType: { new(...args: any[]): TContentType }) => Content<TContentType> =
-    <TContentType>(options: TContentType, contentType: { new(...args: any[]): TContentType }) =>
+<TContentType>(options: TContentType, contentType: { new(...args: any[]): TContentType }) =>
         ContentInternal.Create<TContentType>(options, contentType, this)
 
     /**
