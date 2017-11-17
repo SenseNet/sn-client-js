@@ -422,10 +422,10 @@ export class RepositoryTests {
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this._repo.HttpProviderRef
             .AddResponse('9865*chunk-token*true*true')              // first upload
+            .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } })  // Content reload;
             .AddResponse({})                                        // Mocked chunks
             .AddResponse({})
-            .AddResponse({})
-            .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } });  // Content reload;
+            .AddResponse({});
 
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
         let uploadReqCount = 0;
@@ -454,11 +454,11 @@ export class RepositoryTests {
         this._repo.Config.ChunkSize = 4;
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this._repo.HttpProviderRef
-            .AddResponse('9865*chunk-token*true*true')              // first upload
-            .AddResponse({})                                        // Mocked chunks
+            .AddResponse('9865*chunk-token*true*true')                  // first upload
+            .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } })  // Content reload;
+            .AddResponse({})                                            // Mocked chunks
             .AddResponse({})
-            .AddResponse({})
-            .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } });  // Content reload;
+            .AddResponse({});
 
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
 

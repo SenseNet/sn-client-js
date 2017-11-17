@@ -94,7 +94,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                         body: uploadOptions.Body,
                     })
                         .subscribe((created) => {
-                            this.HandleLoadedContent<TFile>(created as SavedContent<TFile>).Reload().subscribe((c) => {
+                            this.Load<TFile>((created as SavedContent<TFile>).Id, uploadOptions.OdataOptions).subscribe((c) => {
                                 this.Events.Trigger.ContentCreated({
                                     Content: c
                                 });
@@ -145,34 +145,28 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                     ).
                         flatMap((chunkToken) => {
                             const resp = new UploadResponse(...chunkToken.split('*'));
-                            const createdContent: SavedContent<TFile> = this.HandleLoadedContent<TFile>({
-                                Id: resp.ContentId,
-                                Path: uploadOptions.Parent.Path,
-                                Name: uploadOptions.File.name,
-                                Type: uploadOptions.ContentType.name
-                            } as TFile & ISavedContent);
 
-                            this.Events.Trigger.ContentCreated({
-                                Content: createdContent
-                            });
-
-                            return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
-                                .flatMap((c) => {
-                                    return this.Load<TFile>(resp.ContentId)
-                                        .map((content) => {
-                                            const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
-                                            // tslint:disable-next-line:no-string-literal
-                                            content['_isOperationInProgress'] = false;
-                                            const progressInfo = {
-                                                Completed: true,
-                                                ChunkCount: chunkCount,
-                                                UploadedChunks: chunkCount,
-                                                CreatedContent: content
-                                            } as UploadProgressInfo<TFile>;
-                                            this.Events.Trigger.UploadProgress(progressInfo);
-                                            return progressInfo;
-                                        });
+                            return this.Load(resp.ContentId, uploadOptions.OdataOptions).flatMap((reloaded) => {
+                                this.Events.Trigger.ContentCreated({
+                                    Content: reloaded
                                 });
+
+                                return this.sendChunk(uploadOptions, uploadPath, chunkToken.toString(), resp.ContentId)
+                                .map((c) => {
+
+                                    const chunkCount = Math.ceil(uploadOptions.File.size / this.Config.ChunkSize);
+                                    // tslint:disable-next-line:no-string-literal
+                                    reloaded['_isOperationInProgress'] = false;
+                                    const progressInfo = {
+                                        Completed: true,
+                                        ChunkCount: chunkCount,
+                                        UploadedChunks: chunkCount,
+                                        CreatedContent: reloaded
+                                    } as UploadProgressInfo<TFile>;
+                                    this.Events.Trigger.UploadProgress(progressInfo);
+                                    return progressInfo;
+                                });
+                            });
                         });
                 }
 
