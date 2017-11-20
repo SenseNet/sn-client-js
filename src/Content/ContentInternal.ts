@@ -331,6 +331,7 @@
                     if (!resp.Id) {
                         throw Error('Error: No content Id in response!');
                     }
+                    this._isOperationInProgress = false;
                     this.updateLastSavedFields(resp);
                     this._repository.HandleLoadedContent(this.tryGetAsSaved());
                     this._isSaved = true;
@@ -338,7 +339,7 @@
                 }).share();
 
             request.subscribe((c) => {
-                this._repository.Events.Trigger.ContentCreated({ Content: this.tryGetAsSaved() });
+                this._repository.Events.Trigger.ContentCreated({ Content: c });
             }, (err) => {
                 this._repository.Events.Trigger.ContentCreateFailed({ Content: this as IContent, Error: err });
             });
@@ -398,6 +399,7 @@
         this._isOperationInProgress = true;
         const saveObservable = this.saveContentInternal(fields, override).share();
         saveObservable.subscribe((success) => {
+            success._isOperationInProgress = false;
             this._isOperationInProgress = false;
         }, (err) => {
             this._isOperationInProgress = false;
