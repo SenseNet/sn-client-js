@@ -1,3 +1,7 @@
+/**
+ * @module Schemas
+ */ /** */
+
 import { BinaryField } from '../BinaryField';
 import { ContentType } from '../ContentTypes';
 import { BaseRepository } from '../Repository';

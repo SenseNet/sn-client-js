@@ -136,12 +136,6 @@ export const ODataApiTests = describe('ODataApi', () => {
     });
 
     describe('#Upload()', () => {
-        it('requests to upload a Content and returns an Observable object', () => {
-            expect(typeof odataApi.Upload('/workspaces/Project', {}, false)).to.be.eq('object');
-        });
-        it('requests to upload a Content and returns an Observable object', () => {
-            expect(typeof odataApi.Upload('/workspaces/Project', {}, true)).to.be.eq('object');
-        });
 
         it('Should insert a Slash after OData.Svc for custom actions, if missing ', (done) => {
             const http = service.HttpProviderRef;

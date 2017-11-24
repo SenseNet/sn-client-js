@@ -1,3 +1,7 @@
+/**
+ * @module Content
+ */ /** */
+
 export interface IContent {
     Type?: string;
     /**

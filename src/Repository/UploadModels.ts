@@ -4,6 +4,7 @@
  */ /** */
 
 import { IContent, SavedContent } from '../Content';
+import { IODataParams } from '../ODataApi/index';
 
 export type WithParentContent<T> = T & { Parent: SavedContent };
 
@@ -24,6 +25,10 @@ export class UploadOptions<T extends IContent> {
      * Additional options to post
      */
     public Body?: any;
+    /**
+     *
+     */
+    public OdataOptions?: IODataParams<T>;
 }
 
 export class UploadFileOptions<T extends IContent> extends UploadOptions<T> {

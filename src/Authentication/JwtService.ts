@@ -5,10 +5,10 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
+import { BaseRepository } from '../Repository/BaseRepository';
 import { ODataHelper } from '../SN';
-import { IAuthenticationService, LoginResponse, LoginState, RefreshResponse, Token,
-        TokenPersist, TokenStore } from './';
+import { IAuthenticationService, IOauthProvider, LoginResponse, LoginState, RefreshResponse,
+        Token, TokenPersist, TokenStore } from './';
 
 /**
  * This service class manages the JWT authentication, the session and the current login state.
@@ -17,6 +17,36 @@ export class JwtService implements IAuthenticationService {
 
     private readonly _visitorName: string = 'BuiltIn\\Visitor';
 
+    private _oauthProviders: Map<{new(...args): IOauthProvider}, IOauthProvider> = new Map();
+
+    /**
+     * Sets a specified OAuth provider
+     * @param {IOauthProvider} provider The provider instance to be set
+     * @throws if a provider with the specified type has already been set
+     */
+    public SetOauthProvider<T extends IOauthProvider>(provider: T) {
+        const providerCtor = provider.constructor as {new(...args)};
+        if (this._oauthProviders.has(providerCtor)) {
+            throw Error(`Provider for '${providerCtor.name}' already set`);
+        }
+        this._oauthProviders.set(providerCtor, provider);
+    }
+
+    /**
+     * Gets the specified OAuth provider instance
+     * @param {<T>} providerType The provider type to be retrieved
+     * @throws if the provider hasn't been registered
+     */
+    public GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args): T}): T {
+        if (!this._oauthProviders.has(providerType)) {
+            throw Error(`OAuth provider not found for '${providerType.name}'`);
+        }
+        return this._oauthProviders.get(providerType) as T;
+    }
+
+    /**
+     * Returns the current user's name as a string. In case of unauthenticated users, it will return 'BuiltIn\Visitor'
+     */
     public get CurrentUser(): string {
         if (this._tokenStore.AccessToken.IsValid() || this._tokenStore.RefreshToken.IsValid()) {
             return this._tokenStore.AccessToken.Username || this._tokenStore.RefreshToken.Username;
@@ -24,7 +54,7 @@ export class JwtService implements IAuthenticationService {
         return this._visitorName;
     }
     /**
-     * This subject indicates the current state of the service
+     * This observable indicates the current state of the service
      * @default LoginState.Pending
      */
     public get State(): Observable<LoginState> {
@@ -39,13 +69,16 @@ export class JwtService implements IAuthenticationService {
         return this._stateSubject.getValue();
     }
 
-    private readonly _stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
+    /**
+     * The private subject for tracking the login state
+     */
+    protected readonly _stateSubject: BehaviorSubject<LoginState> = new BehaviorSubject<LoginState>(LoginState.Pending);
 
     /**
      * The store for JWT tokens
      */
     private _tokenStore: TokenStore =
-        new TokenStore(this._repositoryUrl, this._tokenTemplate, (this.Persist === 'session') ? TokenPersist.Session : TokenPersist.Expiration);
+        new TokenStore(this._repository.Config.RepositoryUrl, this._repository.Config.JwtTokenKeyTemplate, (this._repository.Config.JwtTokenPersist === 'session') ? TokenPersist.Session : TokenPersist.Expiration);
 
     /**
      * Executed before each Ajax call. If the access token has been expired, but the refresh token is still valid, it triggers the token refreshing call
@@ -69,9 +102,9 @@ export class JwtService implements IAuthenticationService {
      * @returns {Observable<boolean>} An observable that will be completed with true on a succesfull refresh
      */
     private execTokenRefresh() {
-        const refresh = this._httpProviderRef.Ajax(RefreshResponse, {
+        const refresh = this._repository.HttpProviderRef.Ajax(RefreshResponse, {
             method: 'POST',
-            url: ODataHelper.joinPaths(this._repositoryUrl, 'sn-token/refresh'),
+            url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/refresh'),
             headers: {
                 'X-Refresh-Data': this._tokenStore.RefreshToken.toString(),
                 'X-Authentication-Type': 'Token',
@@ -89,30 +122,24 @@ export class JwtService implements IAuthenticationService {
     }
 
     /**
-     * @param {BaseHttpProvider} httpProviderRef The Http Provider to use (e.g. login / logout / session renew requests)
-     * @param {string} repositoryUrl The URL for the repository
-     * @param {string} tokenTemplate The template to use when generating token keys in session/local storage or in a cookie. ${siteName} and ${tokenName} will be replaced.
-     * @param {'session' | 'expiration'} persist Sets up if the tokens should be persisted per session (browser close) or per token expiration (based on the token)
+     * @param {BaseRepository} _repository the Repository reference for the Authentication. The service will read its configuration and use its HttpProvider
      * @constructs JwtService
      */
-    constructor(private readonly _httpProviderRef: BaseHttpProvider,
-                private readonly _repositoryUrl: string,
-                private readonly _tokenTemplate: string,
-                public readonly Persist: 'session' | 'expiration') {
+    constructor(protected readonly _repository: BaseRepository) {
 
         this._stateSubject = new BehaviorSubject<LoginState>(LoginState.Pending);
 
         this.State.subscribe((s) => {
             if (this._tokenStore.AccessToken.IsValid()) {
-                this._httpProviderRef.SetGlobalHeader('X-Access-Data', this._tokenStore.AccessToken.toString());
+                this._repository.HttpProviderRef.SetGlobalHeader('X-Access-Data', this._tokenStore.AccessToken.toString());
             } else {
-                this._httpProviderRef.UnsetGlobalHeader('X-Access-Data');
+                this._repository.HttpProviderRef.UnsetGlobalHeader('X-Access-Data');
             }
         });
         this.CheckForUpdate();
     }
 
-    private handleAuthenticationResponse(response: LoginResponse): boolean {
+    public HandleAuthenticationResponse(response: LoginResponse): boolean {
         this._tokenStore.AccessToken = Token.FromHeadAndPayload(response.access);
         this._tokenStore.RefreshToken = Token.FromHeadAndPayload(response.refresh);
         if (this._tokenStore.AccessToken.IsValid()) {
@@ -149,16 +176,16 @@ export class JwtService implements IAuthenticationService {
         this._stateSubject.next(LoginState.Pending);
         const authToken: string = new Buffer(`${username}:${password}`).toString('base64');
 
-        this._httpProviderRef.Ajax(LoginResponse, {
+        this._repository.HttpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: ODataHelper.joinPaths(this._repositoryUrl, 'sn-token/login'),
+            url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/login'),
             headers: {
                 'X-Authentication-Type': 'Token',
                 'Authorization': `Basic ${authToken}`,
             },
         })
             .subscribe((r) => {
-                const result = this.handleAuthenticationResponse(r);
+                const result = this.HandleAuthenticationResponse(r);
                 sub.next(result);
             }, (err) => {
                 this._stateSubject.next(LoginState.Unauthenticated);
@@ -169,19 +196,17 @@ export class JwtService implements IAuthenticationService {
     }
 
     /**
-     * Logs out the current user, sets the tokens to 'empty'
-     * ```
-     * service.Logout();
-     * ```
+     * Logs out the current user, sets the tokens to 'empty' and sends a Logout request to invalidate all Http only cookies
+     * @returns {Observable<boolean>} An Observable that will be updated with the logout response
      */
     public Logout(): Observable<boolean> {
         this._tokenStore.AccessToken = Token.CreateEmpty();
         this._tokenStore.RefreshToken = Token.CreateEmpty();
         this._stateSubject.next(LoginState.Unauthenticated);
 
-        return this._httpProviderRef.Ajax(LoginResponse, {
+        return this._repository.HttpProviderRef.Ajax(LoginResponse, {
             method: 'POST',
-            url: ODataHelper.joinPaths(this._repositoryUrl, 'sn-token/logout'),
+            url: ODataHelper.joinPaths(this._repository.Config.RepositoryUrl, 'sn-token/logout'),
         }).map(() => true);
 
     }

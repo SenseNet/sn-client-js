@@ -405,6 +405,13 @@ export const contentTests = describe('Content', () => {
             }, done);
         });
 
+        it('should throw Error when trying to update specified fields and the Id is not provided', () => {
+            repo.HttpProviderRef.AddError({ message: 'serverErrorMessage' });
+            const c = repo.CreateContent({Path: 'Root/Test', Name: 'asd' }, Task);
+
+            expect(() => {c.Save({ DisplayName: 'new' }); }).to.throw();
+        });
+
         it('should send a PATCH request if fields are specified and override is false', (done) => {
             repo.HttpProviderRef.AddResponse({
                 d: {
@@ -564,18 +571,6 @@ export const contentTests = describe('Content', () => {
             contentSaved.Save({
                 DisplayName: 'other'
             }, true);
-        });
-
-    });
-
-    describe('#Upload', () => {
-        it('should return an Observable object', () => {
-            expect(contentSaved.Upload('Root/Example', 'example.txt', true, true, 'binary', 'example text')).to.be.instanceof(Observable);
-        });
-
-        it('should throw an error if no Path specified', () => {
-            (contentSaved as any).Path = undefined;
-            expect(() => {contentSaved.Upload('Root/Example', 'example.txt'); }).to.throw('No Path provided!');
         });
 
     });

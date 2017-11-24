@@ -454,11 +454,11 @@ export class RepositoryTests {
         this._repo.Config.ChunkSize = 4;
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this._repo.HttpProviderRef
-            .AddResponse('9865*chunk-token*true*true')              // first upload
-            .AddResponse({})                                        // Mocked chunks
+            .AddResponse('9865*chunk-token*true*true')                  // first upload
+            .AddResponse({})                                            // Mocked chunks
             .AddResponse({})
             .AddResponse({})
-            .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } });  // Content reload;
+            .AddResponse({ d: { Id: 12356, Path: 'Root/Test/alma' } });  // Content reload
 
         const testContent = this._repo.HandleLoadedContent<Task>({ Id: 12345, Path: 'Root/Test', Name: 'task' });
 
@@ -775,7 +775,7 @@ export class RepositoryTests {
         repo.GetCurrentUser().subscribe((u) => {
             done('Error should be thrown here.');
         }, (err) => {
-            expect(err).to.be.eq("Error getting current user: found multiple users with login name 'NewUser' in domain 'BuiltIn'");
+            expect(err).to.be.eq("Error getting current user: found 2 user(s) with login name 'NewUser' in domain 'BuiltIn'");
             done();
         });
 

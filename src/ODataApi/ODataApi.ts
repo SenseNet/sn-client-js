@@ -253,14 +253,4 @@ export class ODataApi<THttpProvider extends BaseHttpProvider> {
             }
         }
     }
-
-    public Upload = (path: string, data: any, creation: boolean): Observable<any> => {
-        let url = `${ODataHelper.getContentURLbyPath(path)}/Upload`;
-        if (creation) {
-            url = `${url}?create=1`;
-        } else {
-            url = url;
-        }
-        return this._repository.Ajax(url, 'POST', Object, data);
-    }
 }
