@@ -5,6 +5,7 @@
  */ /** */
 
 export * from './IAuthenticationService';
+export * from './IOauthProvider';
 export * from './ITokenPayload';
 export * from './JwtService';
 export * from './LoginResponse';

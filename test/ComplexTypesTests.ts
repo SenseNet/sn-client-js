@@ -1,5 +1,5 @@
-import { ChoiceOption, DeferredObject, DeferredUriObject, MediaResourceObject, MediaObject } from '../src/ComplexTypes';
 import * as Chai from 'chai';
+import { ChoiceOption, DeferredObject, DeferredUriObject, MediaObject, MediaResourceObject } from '../src/ComplexTypes';
 const expect = Chai.expect;
 
 export const ComplexTypesTests = describe('ComplexTypes', () => {

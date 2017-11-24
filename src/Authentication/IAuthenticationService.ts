@@ -2,15 +2,16 @@
  * @module Authentication
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
-import { LoginState } from './';
+import { Observable } from 'rxjs/Observable';
+import { IOauthProvider, LoginResponse, LoginState } from './';
 
 /**
  * Interface that describes how injectable Authentication Services should work
  */
 export interface IAuthenticationService {
     /**
-     * This observable is a public API for subscribing the current state and it's changes. Recommended to work with a private BehaviorSubject in the backgroud.
+     * This observable is a public API for subscribing the current state and it's changes.
+     * Recommended to work with a private BehaviorSubject in the backgroud.
      */
     readonly State: Observable<LoginState>;
 
@@ -40,5 +41,9 @@ export interface IAuthenticationService {
     Logout(): Observable<boolean>;
 
     CurrentUser: string;
+
+    HandleAuthenticationResponse(response: LoginResponse): boolean;
+    SetOauthProvider<T extends IOauthProvider>(provider: T);
+    GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args): T}): T;
 
 }

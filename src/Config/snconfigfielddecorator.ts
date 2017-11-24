@@ -17,4 +17,4 @@ export const SnConfigField = (model: SnConfigFieldModel) => {
         model.StoreKey = `${target.constructor.name}.${propertyName}`;
         SnConfigFieldModelStore.Add(model);
     };
-}
+};

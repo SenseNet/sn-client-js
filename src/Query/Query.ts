@@ -1,12 +1,12 @@
 /**
  * @module Query
- * */ /** */
+ */ /** */
 
-import { Content } from '../Content';
-import { QuerySegment, QueryExpression, QueryResult } from '.';
-import { BaseRepository } from '../Repository/BaseRepository';
+import { Observable } from 'rxjs/Observable';
+import { QueryExpression, QueryResult, QuerySegment } from '.';
+import { IContent } from '../Content';
 import { IODataParams } from '../ODataApi';
-import { Observable } from '@reactivex/rxjs';
+import { BaseRepository } from '../Repository/BaseRepository';
 
 /**
  * Represents an instance of a Query expression.
@@ -16,7 +16,7 @@ import { Observable } from '@reactivex/rxjs';
  * console.log(query.toString());   // the content query expression
  * ```
  */
-export class Query<T extends Content = Content>{
+export class Query<T extends IContent = IContent> {
     private readonly _segments: QuerySegment<T>[] = [];
 
     /**
@@ -30,11 +30,12 @@ export class Query<T extends Content = Content>{
     /**
      * @returns {String} The Query expression as a sensenet Content Query
      */
-    public toString(): string{
-        return this._segments.map(s => s.toString()).join('');
+    // tslint:disable-next-line:naming-convention
+    public toString(): string {
+        return this._segments.map((s) => s.toString()).join('');
     }
 
-    constructor(build: (first: QueryExpression<T>) => void) {
+    constructor(build: (first: QueryExpression<any>) => QuerySegment<T>) {
         const firstExpression = new QueryExpression<T>(this);
         build(firstExpression);
     }
@@ -46,17 +47,17 @@ export class Query<T extends Content = Content>{
      * @param {ODataParams} odataParams Additional OData parameters (like $select, $expand, etc...)
      * @returns {Observable<QueryResult<TReturns>>} An Observable that will publish the Query result
      */
-    public Exec(repository: BaseRepository, path: string, odataParams: IODataParams<T> = {}): Observable<QueryResult<T>>{
+    public Exec(repository: BaseRepository, path: string, odataParams: IODataParams<T> = {}): Observable<QueryResult<T>> {
         odataParams.query = this.toString();
-        return repository.GetODataApi().Fetch({
+        return repository.GetODataApi().Fetch<T>({
                 path,
                 params: odataParams
-            }, Content)
-            .map(q => {
+            })
+            .map((q) => {
                 return {
-                    Result: q.d.results.map(c => repository.HandleLoadedContent<T, T['options']>(c as any)),
+                    Result: q.d.results.map((c) => repository.HandleLoadedContent<T>(c)),
                     Count: q.d.__count
-                }
+                };
             });
     }
 }
@@ -64,11 +65,11 @@ export class Query<T extends Content = Content>{
 /**
  * Represents a finialized Query instance that has a Repository, path and OData Parameters set up
  */
-export class FinializedQuery<T extends Content = Content> extends Query<T>{
-    constructor(build: (first: QueryExpression<Content>) => void,
-                        private readonly _repository: BaseRepository,
-                        private readonly _path: string,
-                        private readonly _odataParams: IODataParams<T> = {}) {
+export class FinializedQuery<T extends IContent = IContent> extends Query<T> {
+    constructor(build: (first: QueryExpression<any>) => QuerySegment<T>,
+                private readonly _repository: BaseRepository,
+                private readonly _path: string,
+                private readonly _odataParams: IODataParams<T> = {}) {
         super(build);
     }
 

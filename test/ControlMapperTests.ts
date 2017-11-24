@@ -1,12 +1,11 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ControlMapper } from '../src/ControlMapper';
-import { FieldSetting, ChoiceFieldSetting, ShortTextFieldSetting, FieldVisibility } from '../src/FieldSettings';
 import { Task, User } from '../src/ContentTypes';
 import * as ContentTypes from '../src/ContentTypes';
-import { Content } from '../src/Content';
+import { ControlMapper } from '../src/ControlMapper';
+import { ChoiceFieldSetting, FieldSetting, FieldVisibility, ShortTextFieldSetting } from '../src/FieldSettings';
+import { ContentInternal } from '../src/SN';
 import { MockRepository } from './Mocks/MockRepository';
-
 
 class ExampleControlBase { }
 
@@ -19,7 +18,7 @@ class ExampleModifiedControl2 extends ExampleControlBase { }
 class ExampleDefaultFieldControl extends ExampleControlBase { }
 
 class ExampleClientSetting {
-    constructor(public readonly FieldSetting: FieldSetting) {
+    constructor(public readonly Setting: FieldSetting) {
 
     }
 }
@@ -27,8 +26,11 @@ class ExampleClientSetting {
 @suite('ControlMapper')
 export class ControlMapperTests {
     private _mapper: ControlMapper<ExampleControlBase, ExampleClientSetting>;
-    before() {
-        this._mapper = new ControlMapper(ExampleControlBase, setting => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
+    private _repository: MockRepository;
+    // tslint:disable-next-line:naming-convention
+    public before() {
+        this._repository = new MockRepository();
+        this._mapper = new ControlMapper(this._repository, ExampleControlBase, (setting) => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
     }
 
     @test
@@ -38,13 +40,13 @@ export class ControlMapperTests {
 
     @test
     public 'Should be able to construct with BaseType and ClientControlSettingsFactory'() {
-        const mapper = new ControlMapper(ExampleControlBase, setting => new ExampleClientSetting(setting));
+        const mapper = new ControlMapper(this._repository, ExampleControlBase, (setting) => new ExampleClientSetting(setting));
         Chai.expect(mapper).to.be.instanceof(ControlMapper);
     }
 
     @test
     public 'Should be able to construct with all parameters'() {
-        const mapper = new ControlMapper(ExampleControlBase, setting => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
+        const mapper = new ControlMapper(this._repository, ExampleControlBase, (setting) => new ExampleClientSetting(setting), ExampleDefaultControl, ExampleDefaultFieldControl);
         Chai.expect(mapper).to.be.instanceof(ControlMapper);
     }
 
@@ -63,7 +65,7 @@ export class ControlMapperTests {
 
     @test
     public 'Should return correct Default Control for FieldSettings'() {
-        const fs = new ChoiceFieldSetting({});
+        const fs = {} as ChoiceFieldSetting;
         const controlType = this._mapper.GetControlForFieldSetting(fs);
         Chai.expect(controlType).to.be.eq(ExampleDefaultFieldControl);
     }
@@ -78,16 +80,14 @@ export class ControlMapperTests {
             return ExampleDefaultFieldControl;
         });
 
-        const fs = new ChoiceFieldSetting({ compulsory: true });
+        const fs = { Compulsory: true, Type: 'ChoiceFieldSetting' } as ChoiceFieldSetting;
         const controlType = this._mapper.GetControlForFieldSetting(fs);
         Chai.expect(controlType).to.be.eq(ExampleModifiedControl);
 
-        const fs2 = new ChoiceFieldSetting({ compulsory: false });
+        const fs2 = { Compulsory: false, Type: 'ChoiceFieldSetting' } as ChoiceFieldSetting;
         const controlType2 = this._mapper.GetControlForFieldSetting(fs2);
         Chai.expect(controlType2).to.be.eq(ExampleDefaultFieldControl);
     }
-
-
 
     @test
     public 'Should return a correct default control for a specified Content Field'() {
@@ -99,7 +99,7 @@ export class ControlMapperTests {
     public 'Should return a correct default control for a specified Content Field when FieldSetting has default value'() {
         this._mapper.SetupFieldSettingDefault(ShortTextFieldSetting, (setting) => {
             return ExampleModifiedControl;
-        })
+        });
         const control = this._mapper.GetControlForContentField(Task, 'DisplayName', 'new');
         Chai.expect(control).to.be.eq(ExampleModifiedControl);
 
@@ -115,7 +115,7 @@ export class ControlMapperTests {
     public 'Should return a correct default control for a specified Content Field when there is a ContentType bound setting specified'() {
         this._mapper.SetupFieldSettingForControl(Task, 'DisplayName', (setting) => {
             return ExampleModifiedControl2;
-        })
+        });
         const control = this._mapper.GetControlForContentField(Task, 'DisplayName', 'new');
         Chai.expect(control).to.be.eq(ExampleModifiedControl2);
 
@@ -125,32 +125,33 @@ export class ControlMapperTests {
 
     @test
     public 'CreateClientSetting should run with defult factory method by default'() {
-        const fieldSetting = new ShortTextFieldSetting({ displayName: 'TestField' });
+        const fieldSetting = { DisplayName: 'TestField' } as ShortTextFieldSetting;
         const clientSetting = this._mapper.CreateClientSetting(fieldSetting);
-        Chai.expect(clientSetting.FieldSetting.DisplayName).to.be.eq(fieldSetting.DisplayName);
+        Chai.expect(clientSetting.Setting.DisplayName).to.be.eq(fieldSetting.DisplayName);
     }
 
     @test
     public 'CreateClientSetting should be able to run with an overridden factory method'() {
-        const fieldSetting = new ShortTextFieldSetting({ displayName: 'TestField' });
-        this._mapper.SetClientControlFactory(ShortTextFieldSetting, (setting => {
-            setting.DisplayName = (setting.DisplayName || '').toUpperCase()
+        const fieldSetting = { DisplayName: 'TestField', Type: 'ShortTextFieldSetting' } as ShortTextFieldSetting;
+        this._mapper.SetClientControlFactory(ShortTextFieldSetting, ((setting) => {
+            setting.DisplayName = (setting.DisplayName || '').toUpperCase();
             return new ExampleClientSetting(setting);
-        }))
+        }));
 
         const clientSetting = this._mapper.CreateClientSetting(fieldSetting);
-        Chai.expect(clientSetting.FieldSetting.DisplayName).to.be.eq('TESTFIELD');
+        Chai.expect(clientSetting.Setting.DisplayName).to.be.eq('TESTFIELD');
     }
 
     @test
     public 'GetAllMappingsForContentTye should be able to return all mappings'() {
-        for (let key in ContentTypes) {
+        // tslint:disable-next-line:forin
+        for (const key in ContentTypes) {
             const fullMapping = this._mapper.GetFullSchemaForContentType((ContentTypes as any)[key], 'new');
             Chai.expect(fullMapping.FieldMappings.length).to.be.greaterThan(0);
-            fullMapping.FieldMappings.forEach(m => {
+            fullMapping.FieldMappings.forEach((m) => {
                 Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
                 Chai.expect(m.ControlType).to.be.eq(ExampleDefaultFieldControl);
-            })
+            });
         }
     }
 
@@ -158,45 +159,43 @@ export class ControlMapperTests {
     public 'GetAllMappingsForContentTye filtered to View should be able to return all mappings'() {
         const fullMapping = this._mapper.GetFullSchemaForContentType(Task, 'view').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
-        fullMapping.forEach(m => {
-            Chai.expect(m.ClientSettings.FieldSetting.VisibleBrowse).to.be.eq(FieldVisibility.Show);
+        fullMapping.forEach((m) => {
+            Chai.expect(m.ClientSettings.Setting.VisibleBrowse).to.be.eq(FieldVisibility.Show);
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
             Chai.expect(m.ControlType).to.be.eq(ExampleDefaultFieldControl);
-        })
+        });
     }
 
     @test
     public 'GetAllMappingsForContentTye filtered to Edit should be able to return all mappings'() {
         const fullMapping = this._mapper.GetFullSchemaForContentType(Task, 'edit').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
-        fullMapping.forEach(m => {
-            Chai.expect(m.ClientSettings.FieldSetting.VisibleEdit).to.be.eq(FieldVisibility.Show);
+        fullMapping.forEach((m) => {
+            Chai.expect(m.ClientSettings.Setting.VisibleEdit).to.be.eq(FieldVisibility.Show);
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
             Chai.expect(m.ControlType).to.be.eq(ExampleDefaultFieldControl);
-        })
+        });
     }
-
 
     @test
     public 'GetAllMappingsForContentTye filtered to New should be able to return all mappings'() {
         const fullMapping = this._mapper.GetFullSchemaForContentType(Task, 'new').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
-        fullMapping.forEach(m => {
-            Chai.expect(m.ClientSettings.FieldSetting.VisibleNew).to.be.eq(FieldVisibility.Show);
+        fullMapping.forEach((m) => {
+            Chai.expect(m.ClientSettings.Setting.VisibleNew).to.be.eq(FieldVisibility.Show);
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
             Chai.expect(m.ControlType).to.be.eq(ExampleDefaultFieldControl);
-        })
+        });
     }
 
     @test
     public 'GetFullSchemaForContent filtered to New should be able to return all mappings'() {
-        const fullMapping = this._mapper.GetFullSchemaForContent(Content.Create({DueDate: '2017-06-27T11:11:11Z', Name: 'Task1'}, Task, new MockRepository()), 'new').FieldMappings;
+        const fullMapping = this._mapper.GetFullSchemaForContent(ContentInternal.Create({DueDate: '2017-06-27T11:11:11Z', Name: 'Task1'}, Task, new MockRepository()), 'new').FieldMappings;
         Chai.expect(fullMapping.length).to.be.greaterThan(0);
-        fullMapping.forEach(m => {
+        fullMapping.forEach((m) => {
             Chai.expect(m.ClientSettings).to.be.instanceof(ExampleClientSetting);
             Chai.expect(m.ControlType).to.be.eq(ExampleDefaultFieldControl);
-        })
+        });
     }
-
 
 }

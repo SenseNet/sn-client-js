@@ -6,6 +6,7 @@
  */ /** */
 export * from './CustomAction';
 export * from './ODataApi';
+export * from './ODataBatchResponse';
 export * from './ODataParams';
 export * from './ODataRequestOptions';
 export * from './ODataResponse';

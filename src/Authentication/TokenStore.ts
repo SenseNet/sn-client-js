@@ -8,28 +8,27 @@ import { Token, TokenPersist, TokenStoreType } from './';
  */
 export type TokenType = 'access' | 'refresh';
 
-
 /**
  * This class is intended to store token data in LocalStorage or in-memory storage.
  */
 export class TokenStore {
 
     /**
-    * @param {strnig} baseUrl The Base URL to the related site
-    * @param {string} keyTemplate The template to use when generating keys in the local/session storage or for a cookie. ${siteName} and ${tokenName} will be replaced. Example: 'sn-${siteName}-${tokenName}'
-    * @param {TokenPersist} tokenPersist Setting that indicates if the token should be persisted per session (browser close) or per Token expiration (based on the token `exp` property)
-    * @param {Partial<Document>} documentRef The Document reference (used by unit tests)
-    * @param {Storage} localStorageRef The localStorage reference (used by unit tests)
-    * @param {Storage} sessionStorageRef The sessionStorage reference (used by unit tests)
+     * @param {strnig} baseUrl The Base URL to the related site
+     * @param {string} keyTemplate The template to use when generating keys in the local/session storage or for a cookie. ${siteName} and ${tokenName} will be replaced. Example: 'sn-${siteName}-${tokenName}'
+     * @param {TokenPersist} tokenPersist Setting that indicates if the token should be persisted per session (browser close) or per Token expiration (based on the token `exp` property)
+     * @param {Partial<Document>} documentRef The Document reference (used by unit tests)
+     * @param {Storage} localStorageRef The localStorage reference (used by unit tests)
+     * @param {Storage} sessionStorageRef The sessionStorage reference (used by unit tests)
      */
     constructor(private readonly _baseUrl: string,
-        private readonly _keyTemplate: string,
-        private readonly _tokenPersist: TokenPersist,
-        private _documentRef = (typeof document === 'object') ? document : undefined,
-        private _localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
-        private _sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
-        let storesAvailable = (typeof this._localStorageRef !== 'undefined' && typeof this._sessionStorageRef !== 'undefined');
-        let cookieAvailable = (typeof this._documentRef !== 'undefined' && typeof this._documentRef.cookie !== 'undefined');
+                private readonly _keyTemplate: string,
+                private readonly _tokenPersist: TokenPersist,
+                private _documentRef = (typeof document === 'object') ? document : undefined,
+                private _localStorageRef = (typeof localStorage === 'object') ? localStorage : undefined,
+                private _sessionStorageRef = (typeof sessionStorage === 'object') ? sessionStorage : undefined) {
+        const storesAvailable = (typeof this._localStorageRef !== 'undefined' && typeof this._sessionStorageRef !== 'undefined');
+        const cookieAvailable = (typeof this._documentRef !== 'undefined' && typeof this._documentRef.cookie !== 'undefined');
 
         if (!storesAvailable && !cookieAvailable) {
             this.TokenStoreType = TokenStoreType.InMemory;
@@ -56,21 +55,21 @@ export class TokenStore {
 
     private getTokenFromCookie(key: string, document: Document): Token {
         const prefix = key + '=';
-        if (document && document.cookie){
+        if (document && document.cookie) {
             const cookieVal = document.cookie.split(';')
-                .map(v => v.trim())
-                .find(v => v.trim().indexOf(prefix) === 0);
-            if (cookieVal){
+                .map((v) => v.trim())
+                .find((v) => v.trim().indexOf(prefix) === 0);
+            if (cookieVal) {
                 return Token.FromHeadAndPayload(cookieVal.substring(prefix.length));
             }
         }
         return Token.CreateEmpty();
     }
 
-    private setTokenToCookie(key: string, Token: Token, persist: TokenPersist, doc: Document): void {
-        let cookie = `${key}=${Token.toString()}`;
+    private setTokenToCookie(key: string, token: Token, persist: TokenPersist, doc: Document): void {
+        let cookie = `${key}=${token.toString()}`;
         if (persist === TokenPersist.Expiration) {
-            cookie += `; expires=${Token.ExpirationTime.toUTCString()};`
+            cookie += `; expires=${token.ExpirationTime.toUTCString()};`;
         }
         doc.cookie = cookie;
     }
@@ -85,7 +84,7 @@ export class TokenStore {
         try {
             switch (this.TokenStoreType) {
                 case TokenStoreType.InMemory:
-                    return Token.FromHeadAndPayload(this._innerStore[storeKey as any]);
+                    return Token.FromHeadAndPayload(this._innerStore[storeKey]);
                 case TokenStoreType.LocalStorage:
                     return Token.FromHeadAndPayload((this._localStorageRef as any).getItem(storeKey));
                 case TokenStoreType.SessionStorage:
@@ -107,16 +106,16 @@ export class TokenStore {
      */
     public SetToken(key: TokenType, token: Token) {
         const storeKey = this.getStoreKey(key);
-        let dtaString = token.toString();
+        const dtaString = token.toString();
         switch (this.TokenStoreType) {
             case TokenStoreType.InMemory:
-                this._innerStore[storeKey as any] = dtaString;
+                this._innerStore[storeKey] = dtaString;
                 break;
             case TokenStoreType.LocalStorage:
-                this._localStorageRef && this._localStorageRef.setItem(storeKey, dtaString);
+                (this._localStorageRef as Storage).setItem(storeKey, dtaString);
                 break;
             case TokenStoreType.SessionStorage:
-                this._sessionStorageRef && this._sessionStorageRef.setItem(storeKey, dtaString);
+                (this._sessionStorageRef as Storage).setItem(storeKey, dtaString);
                 break;
             case TokenStoreType.ExpirationCookie:
                 this.setTokenToCookie(storeKey, token, TokenPersist.Expiration, this._documentRef as Document);

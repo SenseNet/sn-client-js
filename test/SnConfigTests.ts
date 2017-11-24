@@ -37,7 +37,6 @@ export class SnConfigTests {
         expect(add).to.throw(Error);
     }
 
-
     @test
     public 'SnConfigFieldModelStore Should throw an error if you try to add a field without StoreKey'() {
         const add = () => { SnConfigFieldModelStore.Add({ FieldName: 'Example', Question: 'ExampleQuestion', Behavior: SnConfigBehavior.Default }); };

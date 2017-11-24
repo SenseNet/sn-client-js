@@ -23,25 +23,27 @@
  * ```
  */ /** */
 
-import { Content } from './Content';
+import { IContent } from './Content';
 import * as FieldSettings from './FieldSettings';
+import { BaseRepository } from './Repository/index';
 import { Schemas } from './SN';
 
 export type ActionName = 'new' | 'edit' | 'view';
 
 export class ControlSchema<TControlBaseType, TClientControlSettings> {
-    ContentTypeControl: {new(...args: any[]): TControlBaseType};
-    Schema: Schemas.Schema<Content>;
-    FieldMappings: {FieldSettings: FieldSettings.FieldSetting, ControlType: {new(...args: any[]): TControlBaseType}, ClientSettings: TClientControlSettings}[];
+    public ContentTypeControl: { new(...args: any[]): TControlBaseType };
+    public Schema: Schemas.Schema;
+    public FieldMappings: { FieldSettings: FieldSettings.FieldSetting, ControlType: { new(...args: any[]): TControlBaseType }, ClientSettings: TClientControlSettings }[];
 }
 
 export class ControlMapper<TControlBaseType, TClientControlSettings> {
 
     constructor(
-        public readonly controlBaseType: { new (...args: any[]): TControlBaseType },
+        private readonly _repository: BaseRepository,
+        public readonly ControlBaseType: { new(...args: any[]): TControlBaseType },
         private readonly _clientControlSettingsFactory: (fieldSetting: FieldSettings.FieldSetting) => TClientControlSettings,
-        private readonly _defaultControlType?: { new (...args: any[]): TControlBaseType },
-        private readonly _defaultFieldSettingControlType?: { new (...args: any[]): TControlBaseType },
+        private readonly _defaultControlType?: { new(...args: any[]): TControlBaseType },
+        private readonly _defaultFieldSettingControlType?: { new(...args: any[]): TControlBaseType },
     ) {
     }
 
@@ -50,11 +52,11 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param contentType The type of the content (e.g. ContentTypes.Task)
      * @param actionName The name of the action. Can be 'new' / 'view' / 'edit'
      */
-    private getTypeSchema<TContentType extends Content>(contentType: { new (args: any[]): TContentType }, actionName: ActionName): Schemas.Schema<TContentType> {
-        const schema = new Schemas.Schema<TContentType>(Content.GetSchema(contentType));
+    private getTypeSchema<TContentType extends IContent>(contentType: { new(args: any[]): TContentType }, actionName: ActionName): Schemas.Schema {
+        const schema = this._repository.GetSchema(contentType);
 
         if (actionName) {
-            schema.FieldSettings = schema.FieldSettings.filter(s => {
+            schema.FieldSettings = schema.FieldSettings.filter((s) => {
                 switch (actionName) {
                     case 'new':
                         return s.VisibleNew === FieldSettings.FieldVisibility.Show;
@@ -63,12 +65,12 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
                     case 'view':
                         return s.VisibleBrowse === FieldSettings.FieldVisibility.Show;
                 }
-            })
+            });
         }
         return schema;
     }
 
-    private _contentTypeControlMaps: { new (...args: any[]): TControlBaseType }[] = [];
+    private _contentTypeControlMaps: { new(...args: any[]): TControlBaseType }[] = [];
 
     /**
      * Maps a specified Control to a Content type
@@ -76,8 +78,8 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param control The Control for the content
      * @returns {ControlMapper}
      */
-    public MapContentTypeToControl(contentType: { new (...args: any[]): Content }, control: { new (...args: any[]): TControlBaseType }) {
-        this._contentTypeControlMaps[contentType.name as any] = control;
+    public MapContentTypeToControl(contentType: { new(...args: any[]): IContent }, control: { new(...args: any[]): TControlBaseType }) {
+        this._contentTypeControlMaps[contentType.name] = control;
         return this;
     }
 
@@ -86,13 +88,11 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param content The content to get the control for.
      * @returns {TControlBaseType} The mapped control, Default if nothing is mapped.
      */
-    public GetControlForContentType<TContentType extends Content>(contentType: { new (...args: any[]): TContentType }) {
-        return this._contentTypeControlMaps[contentType.name as any] || this._defaultControlType;
+    public GetControlForContentType<TContentType extends IContent>(contentType: { new(...args: any[]): TContentType }) {
+        return this._contentTypeControlMaps[contentType.name] || this._defaultControlType;
     }
 
-
-    private _fieldSettingDefaults: ((fieldSetting: FieldSettings.FieldSetting) => { new (...args: any[]): TControlBaseType })[] = [];
-
+    private _fieldSettingDefaults: Map<string, ((fieldSetting: FieldSettings.FieldSetting) => { new(...args: any[]): TControlBaseType })> = new Map();
 
     /**
      *
@@ -101,10 +101,10 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns the Mapper instance (can be used fluently)
      */
     public SetupFieldSettingDefault<TFieldSettingType extends FieldSettings.FieldSetting>(
-        fieldSetting: { new (...args: any[]): TFieldSettingType },
-        setupControl: (fieldSetting: TFieldSettingType) => { new (...args: any[]): TControlBaseType }
+        fieldSetting: { new(...args: any[]): TFieldSettingType },
+        setupControl: (fieldSetting: TFieldSettingType) => { new(...args: any[]): TControlBaseType }
     ) {
-        this._fieldSettingDefaults[fieldSetting.name as any] = setupControl;
+        this._fieldSettingDefaults.set(fieldSetting.name, setupControl as any);
         return this;
     }
 
@@ -112,12 +112,12 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns {TControlBaseType} The specified FieldSetting control
      * @param fieldSetting The FieldSetting to get the control class.
      */
-    public GetControlForFieldSetting<TFieldSettingType extends FieldSettings.FieldSetting>(fieldSetting: TFieldSettingType): { new (...args: any[]): TControlBaseType } {
-        const fieldSettingSetup = this._fieldSettingDefaults[fieldSetting.constructor.name as any];
+    public GetControlForFieldSetting<TFieldSettingType extends FieldSettings.FieldSetting>(fieldSetting: TFieldSettingType): { new(...args: any[]): TControlBaseType } {
+        const fieldSettingSetup = this._fieldSettingDefaults.get(fieldSetting.Type) as any as (fieldSetting) => { new(...args: any[]): TControlBaseType };
         return fieldSettingSetup && fieldSettingSetup(fieldSetting) || this._defaultFieldSettingControlType;
     }
 
-    private _contentTypeBoundfieldSettings: ((fieldSetting: FieldSettings.FieldSetting) => { new (...args: any[]): TControlBaseType })[] = [];
+    private _contentTypeBoundfieldSettings: Map<string, ((fieldSetting: FieldSettings.FieldSetting) => { new(...args: any[]): TControlBaseType })> = new Map();
 
     /**
      *
@@ -127,17 +127,16 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param fieldSetting Optional type hint for the FieldSetting
      */
 
-    public SetupFieldSettingForControl<TFieldSettingType extends FieldSettings.FieldSetting, TContentType extends Content, TField extends keyof TContentType>(
-        contentType: { new (...args: any[]): TContentType },
+    public SetupFieldSettingForControl<TFieldSettingType extends FieldSettings.FieldSetting, TContentType extends IContent, TField extends keyof TContentType>(
+        contentType: { new(...args: any[]): TContentType },
         fieldName: TField,
-        setupControl: (fieldSetting: TFieldSettingType) => { new (...args: any[]): TControlBaseType },
-        fieldSetting?: { new (...args: any[]): TFieldSettingType },
+        setupControl: (fieldSetting: TFieldSettingType) => { new(...args: any[]): TControlBaseType },
+        fieldSetting?: { new(...args: any[]): TFieldSettingType },
 
     ) {
-        this._contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any] = setupControl;
+        this._contentTypeBoundfieldSettings.set(`${contentType.name}-${fieldName}`, setupControl as any);
         return this;
     }
-
 
     /**
      *
@@ -146,31 +145,30 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns The assigned Control constructor or the default Field control
      */
-    public GetControlForContentField<TContentType extends Content, TField extends keyof TContentType>(
-        contentType: { new (...args: any[]): TContentType },
+    public GetControlForContentField<TContentType extends IContent, TField extends keyof TContentType>(
+        contentType: { new(...args: any[]): TContentType },
         fieldName: TField,
         actionName: ActionName
-    ): {new(...args: any[]): TControlBaseType} {
+    ): { new(...args: any[]): TControlBaseType } {
 
-        const fieldSetting = this.getTypeSchema(contentType, actionName).FieldSettings.filter(s => s.Name === fieldName)[0];
+        const fieldSetting = this.getTypeSchema(contentType, actionName).FieldSettings.filter((s) => s.Name === fieldName)[0];
 
-        if (this._contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any]) {
-            return this._contentTypeBoundfieldSettings[`${contentType.name}-${fieldName}` as any](fieldSetting);
-        }
-        else {
+        if (this._contentTypeBoundfieldSettings.has(`${contentType.name}-${fieldName}`)) {
+            return (this._contentTypeBoundfieldSettings.get(`${contentType.name}-${fieldName}`) as any)(fieldSetting);
+        } else {
             return this.GetControlForFieldSetting(fieldSetting);
         }
     }
 
-    private _fieldSettingBoundClientSettingFactories: ((setting: FieldSettings.FieldSetting) => TClientControlSettings)[] = []
+    private _fieldSettingBoundClientSettingFactories: Map<string, ((setting: FieldSettings.FieldSetting) => TClientControlSettings)> = new Map();
 
     /**
      * Sets up a Factory method to create library-specific settings from FieldSettings per type
      * @param fieldSettingType The type of the FieldSetting (e.g. FieldSettings.ShortTextFieldSetting)
      * @param factoryMethod The factory method that constructs or transforms the Settings object
      */
-    public SetClientControlFactory<TFieldSetting extends FieldSettings.FieldSetting>(fieldSettingType: {new(...args: any[]): TFieldSetting}, factoryMethod: (setting: TFieldSetting) => TClientControlSettings){
-        this._fieldSettingBoundClientSettingFactories[fieldSettingType.name as any] = factoryMethod;
+    public SetClientControlFactory<TFieldSetting extends FieldSettings.FieldSetting>(fieldSettingType: { new(...args: any[]): TFieldSetting }, factoryMethod: (setting: TFieldSetting) => TClientControlSettings) {
+        this._fieldSettingBoundClientSettingFactories.set(fieldSettingType.name, factoryMethod as any);
         return this;
     }
 
@@ -179,8 +177,8 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param fieldSetting The FieldSetting object that should be used for creating the new Setting entry
      * @returns the created or transformed Client Setting
      */
-    public CreateClientSetting<TFieldSetting extends FieldSettings.FieldSetting>(fieldSetting: TFieldSetting){
-        const factoryMethod = this._fieldSettingBoundClientSettingFactories[fieldSetting.constructor.name as any] || this._clientControlSettingsFactory;
+    public CreateClientSetting<TFieldSetting extends FieldSettings.FieldSetting>(fieldSetting: TFieldSetting) {
+        const factoryMethod = this._fieldSettingBoundClientSettingFactories.get(fieldSetting.Type) || this._clientControlSettingsFactory;
         return factoryMethod(fieldSetting);
     }
 
@@ -190,14 +188,14 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns the fully created ControlSchema
      */
-    public GetFullSchemaForContentType<TContentType extends Content, K extends keyof TContentType>(
-        contentType: { new (...args: any[]): TContentType },
+    public GetFullSchemaForContentType<TContentType extends IContent, K extends keyof TContentType>(
+        contentType: { new(...args: any[]): TContentType },
         actionName: ActionName):
         ControlSchema<TControlBaseType, TClientControlSettings> {
         const schema = this.getTypeSchema(contentType, actionName);
-        const mappings = schema.FieldSettings.map(f => {
+        const mappings = schema.FieldSettings.map((f) => {
             const clientSetting: TClientControlSettings = this.CreateClientSetting(f);
-            const control: {new(...args: any[]): TControlBaseType} = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K, actionName);
+            const control: { new(...args: any[]): TControlBaseType } = this.GetControlForContentField<TContentType, K>(contentType, f.Name as K, actionName);
             return {
                 FieldSettings: f,
                 ClientSettings: clientSetting,
@@ -208,7 +206,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
             Schema: schema,
             ContentTypeControl: this.GetControlForContentType(contentType),
             FieldMappings: mappings
-        }
+        };
     }
 
     /**
@@ -217,7 +215,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param actionName The name of the Action (can be 'new' / 'edit' / 'view')
      * @returns the fully created ControlSchema
      */
-    public GetFullSchemaForContent<TContentType extends Content>(content: TContentType, actionName: ActionName){
-        return this.GetFullSchemaForContentType(content.constructor as {new(...args: any[])}, actionName);
+    public GetFullSchemaForContent<TContentType extends IContent>(content: TContentType, actionName: ActionName) {
+        return this.GetFullSchemaForContentType(content.constructor as { new(...args: any[]): TContentType }, actionName);
     }
 }

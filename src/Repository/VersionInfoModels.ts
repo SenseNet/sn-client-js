@@ -5,11 +5,10 @@
  * @description This module contains models for Sense/Net ECM's GetVersionInfo custom action
  */ /** */
 
-
 /**
  * The type of a specific package
  */
-export enum PackageType{
+export enum PackageType {
     /**
      * Can contain small repeatable activities that do not perform significant changes but can be important because of business or technical reasons. A good example is performing an undo checkout on multiple content. Executing a package of this level does not change the application's or the product's version number but the execution is logged and registered
      */
@@ -29,7 +28,7 @@ export enum PackageType{
 /**
  * Represents a .NET Assembly in the Version Info
  */
-export class Assembly{
+export class Assembly {
     public CodeBase: string;
     public IsDynamic: boolean;
     public Name: string;
@@ -39,7 +38,7 @@ export class Assembly{
 /**
  * Represents a Sense/NET ECM Component in the Version Info
  */
-export class Component{
+export class Component {
     public ComponentId: string;
     public Version: string;
     public AcceptableVersion: string;
@@ -54,9 +53,9 @@ export class Package {
     public ComponentVersion: string;
     public Description: string;
     public ExecutionDate: Date;
-    public ExecutionError: Object;
+    public ExecutionError: any;
     public Id: number;
-    public Manifest: Object;
+    public Manifest: any;
     public PackageType: PackageType;
     public ReleaseDate: Date;
 }

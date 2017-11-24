@@ -2,16 +2,17 @@
  * @module ODataApi
  */ /** */
 
+import { IContent } from '../Content';
 import { IODataParams } from './';
-import { Content } from '../Content';
 
+// tslint:disable:naming-convention
 
-export class IODataRequestOptions<T extends Content> {
-    path: string;
-    params?: IODataParams<T>;
-    async?: boolean;
-    type?: string;
-    success?: Function;
-    error?: Function;
-    complete?: Function;
+export class IODataRequestOptions<T extends IContent> {
+    public path: string;
+    public params?: IODataParams<T>;
+    public async?: boolean;
+    public type?: string;
+    public success?: () => void;
+    public error?: () => void;
+    public complete?: () => void;
 }

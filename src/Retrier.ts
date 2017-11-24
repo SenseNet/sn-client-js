@@ -4,8 +4,7 @@
  *
  * @description Module for Retrier.
  *
- * */ /** */
-
+ */ /** */
 
 /**
  * Options class for Retrier
@@ -36,7 +35,6 @@ export class RetrierOptions {
         this._retryIntervalMs = v;
     }
 
-
     public static readonly TIMEOUT_MS_DEFAULT = 1000;
     private _timeoutMs: number;
     /**
@@ -62,7 +60,6 @@ export class RetrierOptions {
      */
     public OnFail?: () => void;
 }
-
 
 /**
  * Utility class for retrying operations.
@@ -113,8 +110,8 @@ export class Retrier {
      * @throws Error if the Retrier is running.
      * @returns the Retrier instance
      */
-    public Setup(options: Partial<RetrierOptions>){
-        if (this._isRunning){
+    public Setup(options: Partial<RetrierOptions>) {
+        if (this._isRunning) {
             throw Error('Retrier already started!');
         }
         Object.assign(this.Options, options);
@@ -128,7 +125,7 @@ export class Retrier {
      */
     public async Run(): Promise<boolean> {
 
-        if (this._isRunning){
+        if (this._isRunning) {
             throw Error('Retrier already started!');
         }
 
@@ -146,19 +143,21 @@ export class Retrier {
 
         while (!succeeded && !timedOut && (this.Options.Retries > retries)) {
             retries++;
-            if (this.Options.OnTry){
+            if (this.Options.OnTry) {
                 this.Options.OnTry();
             }
             succeeded = await this._callback();
-            !succeeded && await this.wait(this.Options.RetryIntervalMs);
+            if (!succeeded) {
+                await this.wait(this.Options.RetryIntervalMs);
+            }
         }
 
-        if (succeeded){
-            if (!timedOut && this.Options.OnSuccess){
+        if (succeeded) {
+            if (!timedOut && this.Options.OnSuccess) {
                 this.Options.OnSuccess();
             }
         } else {
-            if (this.Options.OnFail){
+            if (this.Options.OnFail) {
                 this.Options.OnFail();
             }
         }

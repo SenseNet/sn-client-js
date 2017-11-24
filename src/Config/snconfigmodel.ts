@@ -2,10 +2,10 @@
  * @module Config
  *//** */
 
+import { Content } from '../Content';
+import { ODataFieldParameter, ODataMetadataType } from '../ODataApi/ODataParams';
 import { SnConfigBehavior } from './snconfigbehavior';
 import { SnConfigField } from './snconfigfielddecorator';
-import { ODataMetadataType, ODataFieldParameter } from '../ODataApi/ODataParams';
-import { Content } from '../Content';
 
 /**
  * Class that represents a typed model for the Sense/Net related configuration for an NPM Package. The values can be populated from sn.config.js.
@@ -16,8 +16,9 @@ export class SnConfigModel {
      * The default base URL, returns window.location if available
      */
     public static get DEFAULT_BASE_URL(): string {
-        if (typeof window !== 'undefined')
+        if (typeof window !== 'undefined') {
             return (window && window.location && window.location.origin) || '';
+        }
         return '';
     }
 
@@ -25,7 +26,6 @@ export class SnConfigModel {
      * The default Sense/Net OData Service token (odata.svc)
      */
     public static readonly DEFAULT_SERVICE_TOKEN: string = 'odata.svc';
-
 
     /**
      * The root URL for the Sense/Net repository (e.g.: demo.sensenet.com)
@@ -45,6 +45,7 @@ export class SnConfigModel {
         FieldDescription: 'The service token for the OData Endpoint',
         Question: 'Please enter your Sense/Net Site URL(e.g.:demo.sensenet.com):',
     })
+    // tslint:disable-next-line:naming-convention
     public ODataToken: string = SnConfigModel.DEFAULT_SERVICE_TOKEN;
 
     /**
@@ -56,7 +57,6 @@ export class SnConfigModel {
         Question: 'Please specify the template format for the key of the JWT Web Token in the localStorage (e.g.: sn-${siteName}-${tokenName})'
     })
     public JwtTokenKeyTemplate: string = 'sn-${siteName}-${tokenName}';
-
 
     /**
      * This string describes how long the JWT token should be persisted.
@@ -76,8 +76,7 @@ export class SnConfigModel {
         FieldDescription: 'The default values to select when triggering an OData Action',
         Question: ''
     })
-    public DefaultSelect: ODataFieldParameter<Content> | 'all' = ['DisplayName', 'Description', 'Icon']
-
+    public DefaultSelect: ODataFieldParameter<Content> | 'all' = ['DisplayName', 'Description', 'Icon'];
 
     /**
      * This parameter describes what fields should always be included in the OData $select statements
@@ -87,7 +86,7 @@ export class SnConfigModel {
         FieldDescription: 'The values are required when triggering an OData Action and will be always included in Select statements',
         Question: ''
     })
-    public RequiredSelect: ODataFieldParameter<Content> = ['Id', 'Path', 'Name', 'Type']
+    public RequiredSelect: ODataFieldParameter<Content> = ['Id', 'Path', 'Name', 'Type'];
 
     /**
      * This field sets the default OData $metadata value
@@ -107,7 +106,7 @@ export class SnConfigModel {
         FieldDescription: 'The default OData inline count option',
         Question: ''
     })
-    public DefaultInlineCount: 'allpages' | 'none' = 'allpages'
+    public DefaultInlineCount: 'allpages' | 'none' = 'allpages';
 
     /**
      * This field describes what fields should be expanded on every OData request by default
@@ -146,7 +145,7 @@ export class SnConfigModel {
      */
     constructor(config?: Partial<SnConfigModel>) {
         if (config) {
-            for (let key in config) {
+            for (const key in config) {
                 if (config[key]) {
                     this[key] = config[key];
                 }

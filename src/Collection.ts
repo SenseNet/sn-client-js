@@ -7,26 +7,29 @@
  * a container ```Content``` with a type ```Folder``` or ```ContentList```, it could be also a result of a query. Since it is ```generic``` type of its children items is not defined strictly.
  */ /** */
 
-import { Observable } from '@reactivex/rxjs';
-import { CustomAction, IODataParams, IODataRequestOptions, ODataApi } from './ODataApi';
-import { ODataHelper } from './SN';
-import { Content } from './Content';
-import { BaseRepository } from './Repository/BaseRepository';
-import { BaseHttpProvider } from './HttpProviders/BaseHttpProvider';
+ import { Observable } from 'rxjs/Observable';
+ import { Content, IContent } from './Content';
+ import { CustomAction, IODataParams, IODataRequestOptions } from './ODataApi';
+ import { BaseRepository } from './Repository/BaseRepository';
+ import { UploadProgressInfo, UploadTextOptions, WithParentContent } from './Repository/UploadModels';
+ import { ODataHelper } from './SN';
 
-export class Collection<T extends Content> {
-    odata: ODataApi<BaseHttpProvider>;
-    Path: string = '';
+ export class Collection<T extends IContent> {
+    public Path: string = '';
+
+    private get _odata() {
+        return this._repository.GetODataApi();
+    }
 
     /**
-    * @constructs Collection
-    * @param {T[]} items An array that holds items.
-    * @param { IODataApi<any, any> } service The service to use as API Endpoint
-    */
-    constructor(private _items: T[],
-        private _repository: BaseRepository,
-        private readonly _contentType: { new(...args: any[]): T } = Content as { new(...args: any[]): any }) {
-        this.odata = _repository.GetODataApi();
+     * @constructs Collection
+     * @param {T[]} items An array that holds items.
+     * @param { IODataApi<any, any> } service The service to use as API Endpoint
+     */
+    constructor(private _items: Content<T>[],
+                private _repository: BaseRepository,
+                contentType: { new(...args: any[]): T }
+            ) {
     }
 
     /**
@@ -49,7 +52,7 @@ export class Collection<T extends Content> {
      * ```
      */
     public Item(id: number): T | undefined {
-        return this._items.find(i => i.Id === id);
+        return this._items.find((i) => i.Id === id);
     }
 
     /**
@@ -63,8 +66,8 @@ export class Collection<T extends Content> {
         return this._items.length;
     }
     /**
-    * Method to add an item to a local collection and to the Content Repository through OData REST API at the same time.
-    *
+     * Method to add an item to a local collection and to the Content Repository through OData REST API at the same time.
+     *
      * Calls the method [CreateContent]{@link ODataApi.CreateContent} with the current collections path and the given content as parameters.
      * @param content {Content} The item that has to be saved.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
@@ -80,10 +83,10 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Add(content: T['options']): Observable<T> {
-        const newcontent = this.odata.Post(this.Path, content, this._contentType)
-            .map(resp => {
-                return this._repository.HandleLoadedContent(resp as any, this._contentType);
+    public Add(content: Content<T>): Observable<Content<T>> {
+        const newcontent = this._odata.Post<T>(this.Path, content.GetFields())
+            .map((resp) => {
+                return this._repository.HandleLoadedContent<T>(resp);
             });
         newcontent
             .subscribe({
@@ -134,26 +137,9 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Remove(arg: number | number[], permanently: boolean = false): Observable<any> {
-        if (typeof arg === 'number') {
-            let content = this._items[arg];
-            if (content && content.Id) {
-                this._items =
-                    this._items.slice(0, arg)
-                        .concat(this._items.slice(arg + 1));
-
-                return this.odata.Delete(content.Id, permanently ? permanently : false);
-            } else {
-                return Observable.of(undefined);
-            }
-        }
-        else {
-            let ids = arg.map(i => this._items[i].Id);
-            this._items =
-                this._items.filter((item, i) => arg.indexOf(i) > -1);
-            let action = new CustomAction({ name: 'DeleteBatch', path: this.Path, isAction: true, requiredParams: ['paths'] });
-            return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids }, { 'permanently': permanently }] });
-        }
+    public Remove(ids: number[], permanently: boolean = false): Observable<any> {
+        const contents = this._items.filter((item) => item.Id && ids.indexOf(item.Id) > -1);
+        return this._repository.DeleteBatch(contents, permanently);
     }
     /**
      * Method to fetch Content from the Content Repository.
@@ -177,14 +163,15 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Read(path: string, options?: IODataParams<T>): Observable<any> {
+    public Read(path: string, options?: IODataParams<T>): Observable< any > {
         this.Path = path;
-        const children = this.odata.Fetch<T>({
+        const children = this._odata.Fetch<T>({
             params: options,
-            path: path
+            path
         })
-            .map(items => {
-                return items.d.results.map(c => this._repository.HandleLoadedContent(c as any, this._contentType));
+            .map((items) => {
+                return items.d.results.map((c) =>
+                    this._repository.HandleLoadedContent<T>(c));
             });
         return children;
     }
@@ -222,20 +209,19 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public Move(arg: number | number[], targetPath: string): Observable<any> {
+    public Move(arg: number | number[], targetPath: string): Observable < any > {
         if (typeof arg === 'number') {
             this._items =
                 this._items.slice(0, arg)
                     .concat(this._items.slice(arg + 1));
-            let action = new CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
-            return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
-        }
-        else {
-            let ids = arg.map(i => this._items[i].Id);
+            const action = new CustomAction({ name: 'Move', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            return this._odata.CreateCustomAction(action, { data: [{ targetPath }] });
+        }        else {
+            const ids = arg.map((i) => this._items[i].Id);
             this._items =
                 this._items.filter((item, i) => arg.indexOf(i) > -1);
-            let action = new CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
-            return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
+            const action = new CustomAction({ name: 'MoveBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
+            return this._odata.CreateCustomAction(action, { data: [{ paths: ids, targetPath }] });
         }
     }
     /**
@@ -257,31 +243,30 @@ export class Collection<T extends Content> {
      */
 
     /**
-    * Method to copy multiple content to another container.
-    * @param items {number[]} number array of content indexes.
-    * @params targetPath {string} Path of the target container.
-    * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
-    * ```
-    * let copy = myCollection.Copy([3, 5], '/Root/MyContent/MyFolder');
-    * copy
-    *     .subscribe({
-    *        next: response => {
-    *            //do something after copy
-    *        },
-    *        error: error => console.error('something wrong occurred: ' + error),
-    *        complete: () => console.log('done'),
-    * });
-    * ```
-    */
-    public Copy(arg: number | number[], targetPath: string): Observable<any> {
+     * Method to copy multiple content to another container.
+     * @param items {number[]} number array of content indexes.
+     * @params targetPath {string} Path of the target container.
+     * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
+     * ```
+     * let copy = myCollection.Copy([3, 5], '/Root/MyContent/MyFolder');
+     * copy
+     *     .subscribe({
+     *        next: response => {
+     *            //do something after copy
+     *        },
+     *        error: error => console.error('something wrong occurred: ' + error),
+     *        complete: () => console.log('done'),
+     * });
+     * ```
+     */
+    public Copy(arg: number | number[], targetPath: string): Observable < any > {
         if (typeof arg === 'number') {
-            let action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
-            return this.odata.CreateCustomAction(action, { data: [{ 'targetPath': targetPath }] });
-        }
-        else {
-            let ids = arg.map(i => this._items[i].Id);
-            let action = new CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
-            return this.odata.CreateCustomAction(action, { data: [{ 'paths': ids, 'targetPath': targetPath }] });
+            const action = new CustomAction({ name: 'Copy', id: arg, isAction: true, requiredParams: ['targetPath'] });
+            return this._odata.CreateCustomAction(action, { data: [{ targetPath }] });
+        }        else {
+            const ids = arg.map((i) => this._items[i].Id);
+            const action = new CustomAction({ name: 'CopyBatch', path: this.Path, isAction: true, requiredParams: ['paths', 'targetPath'] });
+            return this._odata.CreateCustomAction(action, { data: [{ paths: ids, targetPath }] });
         }
     }
     /**
@@ -299,14 +284,14 @@ export class Collection<T extends Content> {
      * });
      * ```
      */
-    public AllowedChildTypes(options?: Object): Observable<any> {
-        let o: any = {};
+    public AllowedChildTypes(options?: any): Observable < any > {
+        const o: any = {};
         if (options) {
-            o['params'] = options;
+            o.params = options;
         }
-        o['path'] = ODataHelper.getContentURLbyPath(this.Path);
-        let optionList = o as IODataRequestOptions<T>;
-        return this.odata.Get<T>(optionList);
+        o.path = ODataHelper.getContentURLbyPath(this.Path);
+        const optionList = o as IODataRequestOptions<T>;
+        return this._odata.Get<T>(optionList);
     }
     /**
      * Uploads a stream or text to a content binary field (e.g. a file).
@@ -323,32 +308,11 @@ export class Collection<T extends Content> {
      * @params {FileText} In case you do not have the file as a real file in the file system but a text in the browser, you can provide the raw text in this parameter.
      * @returns {Observable} Returns an RxJS observable that you can subscribe of in your code.
      */
-    public Upload(contentType: string, fileName: string, overwrite: boolean = true, useChunk: boolean = false, propertyName?: string, fileText?: string): Observable<any> {
-        const data: any = {
-            ContentType: contentType,
-            FileName: fileName,
-            Overwrite: overwrite,
-            UseChunk: useChunk
-        };
-        if (typeof propertyName !== 'undefined') {
-            data['PropertyName'] = propertyName;
-        }
-        if (typeof fileText !== 'undefined') {
-            data['FileText'] = fileText;
-        }
-        let uploadCreation = this.odata.Upload(this.Path, data, true);
-        uploadCreation.subscribe({
-            next: (response) => {
-                const data = {
-                    ContentType: contentType,
-                    FileName: fileName,
-                    Overwrite: overwrite,
-                    ChunkToken: response
-                };
-                return this.odata.Upload(this.Path, data, false);
-            }
+    public Upload(options: WithParentContent<UploadTextOptions<T>> ) {
+        const uploadRequest = this._repository.UploadTextAsFile(options);
+        uploadRequest.first().subscribe((progress) => {
+            this._items.push((progress as UploadProgressInfo<T>).CreatedContent);
         });
-        return uploadCreation;
+        return uploadRequest;
     }
 }
-

@@ -2,7 +2,6 @@
  * @module Config
  *//** */
 
-
 /**
  * This enum represents an SnConfig field behavior. Values can be used as flags.
  */
