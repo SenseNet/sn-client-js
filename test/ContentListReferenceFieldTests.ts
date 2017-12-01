@@ -17,10 +17,13 @@ export class ContentListReferenceFieldTests {
     private _unloadedRef: ContentListReferenceField<Task>;
     private _loadedRef: ContentListReferenceField<Task>;
 
+    private _ownerContent: Task;
+
     private _repo: MockRepository;
     // tslint:disable-next-line:naming-convention
     public before() {
         this._repo = new MockRepository();
+        this._ownerContent = this._repo.HandleLoadedContent({Id: 123765, Path: 'Root/Tests', Name: 'TestOwnerContent'}, Task);
         this._repo.Authentication.StateSubject.next(LoginState.Authenticated);
         this._loadedRef = new ContentListReferenceField(
             [{
@@ -29,12 +32,12 @@ export class ContentListReferenceFieldTests {
                 Name: 'Name',
                 Type: 'Task',
                 DueText: 'testDueText'
-            } as Task], {} as ReferenceFieldSetting, this._repo);
+            } as Task], {} as ReferenceFieldSetting, this._ownerContent, this._repo);
         this._unloadedRef = new ContentListReferenceField({
             __deferred: {
                 uri: 'a/b/c'
             }
-        } as DeferredObject, {} as ReferenceFieldSetting, this._repo);
+        } as DeferredObject, {} as ReferenceFieldSetting, this._ownerContent, this._repo);
     }
 
     @test
