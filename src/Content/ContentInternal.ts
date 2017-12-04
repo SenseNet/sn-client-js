@@ -187,7 +187,7 @@
         if (isSavedContent<T>(this)) {
             return this as SavedContent<T>;
         }
-        throw new Error('Contnet is not saved.');
+        throw new Error('Content is not saved.');
     }
 
     /**
