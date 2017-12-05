@@ -467,14 +467,20 @@
      * @param {string} scenario
      * @returns {Observable<ActionModel[]>} Returns an RxJS observable that you can subscribe of in your code.
      * ```
-     * content.Actions('ListItem')
+     * content.GetActions('ListItem')
      *   .subscribe(response => {
      *        console.log(response);
      *    },
      *    error: error => console.error('something wrong occurred: ' + error.responseJSON.error.message.value));
      * ```
      */
-    public Actions(scenario?: string): Observable<ActionModel[]> {
+     public Actions(scenario?: string): Observable<ActionModel[]> {
+         // tslint:disable-next-line:no-console
+         console.warn(`Method 'content.Action() is deprecated' and will be removed. Please use content.GetActions() instead`);
+         return this.GetActions(scenario);
+     }
+
+    public GetActions(scenario?: string): Observable<ActionModel[]> {
         return this._odata.Get({
             path: ODataHelper.joinPaths(this.GetFullPath(), 'Actions'),
             params: {
