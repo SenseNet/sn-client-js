@@ -591,22 +591,22 @@ export const contentTests = describe('Content', () => {
                     ]
                 }
             });
-            contentSaved.Actions().subscribe((actions) => {
+            contentSaved.GetActions().subscribe((actions) => {
                 expect(actions[0].Name).to.be.eq('Action1');
                 done();
             }, done);
-            expect(contentSaved.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.GetActions()).to.be.instanceof(Observable);
         });
 
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(contentSaved.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.GetActions()).to.be.instanceof(Observable);
         });
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(contentSaved.Actions('ListItem')).to.be.instanceof(Observable);
+            expect(contentSaved.GetActions('ListItem')).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedChildTypes()', () => {
@@ -625,7 +625,7 @@ export const contentTests = describe('Content', () => {
             });
         });
         it('should return an Observable object', () => {
-            expect(content.GetAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.GetAllowedChildTypes({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#GetEffectiveAllowedChildTypes()', () => {
@@ -638,51 +638,51 @@ export const contentTests = describe('Content', () => {
     });
     describe('#GetOwner()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetOwner()).to.be.instanceof(Observable);
+            expect(contentSaved.GetOwner()).to.be.instanceof(Observable);
         });
     });
     describe('#GetOwner()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetOwner({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.GetOwner({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Creator()', () => {
         it('should return an Observable object', () => {
-            expect(content.Creator()).to.be.instanceof(Observable);
+            expect(contentSaved.Creator()).to.be.instanceof(Observable);
         });
     });
     describe('#Creator()', () => {
         it('should return an Observable object', () => {
-            expect(content.Creator({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.Creator({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Modifier()', () => {
         it('should return an Observable object', () => {
-            expect(content.Modifier()).to.be.instanceof(Observable);
+            expect(contentSaved.Modifier()).to.be.instanceof(Observable);
         });
     });
     describe('#Modifier()', () => {
         it('should return an Observable object', () => {
-            expect(content.Modifier({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.Modifier({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#CheckedOutBy()', () => {
         it('should return an Observable object', () => {
-            expect(content.CheckedOutBy()).to.be.instanceof(Observable);
+            expect(contentSaved.CheckedOutBy()).to.be.instanceof(Observable);
         });
     });
     describe('#CheckedOutBy()', () => {
         it('should return an Observable object', () => {
-            expect(content.CheckedOutBy({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.CheckedOutBy({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Children()', () => {
         it('should return an Observable object', () => {
-            expect(content.Children()).to.be.instanceof(Observable);
+            expect(contentSaved.Children()).to.be.instanceof(Observable);
         });
 
         it('should return an Observable object', () => {
-            expect(content.Children({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.Children({ select: ['Name'] })).to.be.instanceof(Observable);
         });
 
         it('should throw error if no path provided', () => {
@@ -712,22 +712,22 @@ export const contentTests = describe('Content', () => {
     });
     describe('#Versions()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetVersions()).to.be.instanceof(Observable);
+            expect(contentSaved.GetVersions()).to.be.instanceof(Observable);
         });
     });
     describe('#Versions()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetVersions({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.GetVersions({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetWorkspace()).to.be.instanceof(Observable);
+            expect(contentSaved.GetWorkspace()).to.be.instanceof(Observable);
         });
     });
     describe('#Workspace()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetWorkspace({ select: ['Name'] })).to.be.instanceof(Observable);
+            expect(contentSaved.GetWorkspace({ select: ['Name'] })).to.be.instanceof(Observable);
         });
     });
     describe('#Checkout()', () => {

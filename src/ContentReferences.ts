@@ -7,6 +7,7 @@ import { DeferredObject } from './ComplexTypes';
 import { IContent, isDeferred, isIContent, SavedContent } from './Content';
 import { ReferenceFieldSetting } from './FieldSettings';
 import { IODataParams } from './ODataApi/ODataParams';
+import { joinPaths } from './ODataHelper';
 import { FinializedQuery } from './Query';
 import { BaseRepository } from './Repository/BaseRepository';
 import { ContentTypes, isIContentList } from './SN';
@@ -101,10 +102,12 @@ export class ContentReferenceField<T extends IContent> extends ReferenceAbstract
      * @returns {Observable<T>} An observable that will publish the referenced content
      */
     public GetContent(odataOptions?: IODataParams<T>): Observable<SavedContent<T>> {
-        if (this._contentReference !== undefined) {
+        if (!this._ownerContent.IsSaved || this._contentReference !== undefined) {
             return Observable.of(this._contentReference);
         }
-        const request = this.Repository.GetODataApi().Get({ path: this._referenceUrl, params: odataOptions })
+        const request = this.Repository.GetODataApi().Get({
+            path: this._referenceUrl || joinPaths(this._ownerContent.GetFullPath(), this.FieldSetting.Name),
+            params: odataOptions })
             .map((r) => {
                 return r && r.d && this.Repository.HandleLoadedContent<T>(r.d);
             }).share();
@@ -137,6 +140,7 @@ export class ContentReferenceField<T extends IContent> extends ReferenceAbstract
 
     constructor(fieldData: DeferredObject | SavedContent<T>,
                 public readonly FieldSetting: ReferenceFieldSetting,
+                private readonly _ownerContent: SavedContent,
                 public readonly Repository: BaseRepository) {
         super();
         this.HandleLoaded(fieldData);
@@ -174,12 +178,12 @@ export class ContentListReferenceField<T extends IContent> extends ReferenceAbst
      * @returns {Observable<T[]>} An observable that will publish the list of the referenced content
      */
     public GetContent(odataOptions?: IODataParams<T>): Observable<SavedContent<T>[]> {
-        if (this._contentReferences) {
+        if (!this._ownerContent.IsSaved || this._contentReferences) {
             return Observable.of(this._contentReferences);
         }
         //
         const request = this.Repository.GetODataApi().Fetch<T>({
-            path: this._referenceUrl,
+            path: this._referenceUrl || joinPaths(this._ownerContent.GetFullPath(), this.FieldSetting.Name),
             params: odataOptions
         }).map((resp) => {
             return resp && resp.d && resp.d.results.map((c) => this.Repository.HandleLoadedContent<T>(c)) || [];
@@ -217,6 +221,8 @@ export class ContentListReferenceField<T extends IContent> extends ReferenceAbst
 
     constructor(fieldData: DeferredObject | T[],
                 public readonly FieldSetting: ReferenceFieldSetting,
+                private readonly _ownerContent: SavedContent,
+
                 public readonly Repository: BaseRepository) {
         super();
         this.HandleLoaded(fieldData);

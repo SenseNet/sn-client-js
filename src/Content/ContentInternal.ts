@@ -167,7 +167,7 @@
         referenceSettings.forEach((f) => {
 
             if (!this._fieldHandlerCache[f.Name]) {
-                this._fieldHandlerCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this._repository) : new ContentReferenceField(this[f.Name], f, this._repository);
+                this._fieldHandlerCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this, this._repository) : new ContentReferenceField(this[f.Name], f, this, this._repository);
             } else {
                 this._fieldHandlerCache[f.Name].HandleLoaded(this[f.Name]);
             }
@@ -187,7 +187,7 @@
         if (isSavedContent<T>(this)) {
             return this as SavedContent<T>;
         }
-        throw new Error('Contnet is not saved.');
+        throw new Error('Content is not saved.');
     }
 
     /**
@@ -467,14 +467,20 @@
      * @param {string} scenario
      * @returns {Observable<ActionModel[]>} Returns an RxJS observable that you can subscribe of in your code.
      * ```
-     * content.Actions('ListItem')
+     * content.GetActions('ListItem')
      *   .subscribe(response => {
      *        console.log(response);
      *    },
      *    error: error => console.error('something wrong occurred: ' + error.responseJSON.error.message.value));
      * ```
      */
-    public Actions(scenario?: string): Observable<ActionModel[]> {
+     public Actions(scenario?: string): Observable<ActionModel[]> {
+         // tslint:disable-next-line:no-console
+         console.warn(`Method 'content.Action() is deprecated' and will be removed. Please use content.GetActions() instead`);
+         return this.GetActions(scenario);
+     }
+
+    public GetActions(scenario?: string): Observable<ActionModel[]> {
         return this._odata.Get({
             path: ODataHelper.joinPaths(this.GetFullPath(), 'Actions'),
             params: {
