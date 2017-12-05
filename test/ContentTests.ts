@@ -591,22 +591,22 @@ export const contentTests = describe('Content', () => {
                     ]
                 }
             });
-            contentSaved.Actions().subscribe((actions) => {
+            contentSaved.GetActions().subscribe((actions) => {
                 expect(actions[0].Name).to.be.eq('Action1');
                 done();
             }, done);
-            expect(contentSaved.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.GetActions()).to.be.instanceof(Observable);
         });
 
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(contentSaved.Actions()).to.be.instanceof(Observable);
+            expect(contentSaved.GetActions()).to.be.instanceof(Observable);
         });
     });
     describe('#Actions()', () => {
         it('should return an Observable object', () => {
-            expect(contentSaved.Actions('ListItem')).to.be.instanceof(Observable);
+            expect(contentSaved.GetActions('ListItem')).to.be.instanceof(Observable);
         });
     });
     describe('#GetAllowedChildTypes()', () => {
