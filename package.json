@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@types/app-root-path": "1.2.4",
-    "@types/chai": "4.0.4",
+    "@types/chai": "4.0.5",
     "@types/mocha": "2.2.44",
     "@types/node": "^8.0.0",
     "chai": "4.1.2",
@@ -75,7 +75,7 @@
     "mocha-typescript": "^1.0.23",
     "rimraf": "^2.6.1",
     "tslint": "^5.8.0",
-    "tslint-consistent-codestyle": "^1.9.0",
+    "tslint-consistent-codestyle": "^1.10.2",
     "typedoc": "^0.9.0",
     "typedoc-plugin-external-module-name": "^1.0.9",
     "typescript": "^2.6.1"

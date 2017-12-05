@@ -167,7 +167,7 @@
         referenceSettings.forEach((f) => {
 
             if (!this._fieldHandlerCache[f.Name]) {
-                this._fieldHandlerCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this._repository) : new ContentReferenceField(this[f.Name], f, this._repository);
+                this._fieldHandlerCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this, this._repository) : new ContentReferenceField(this[f.Name], f, this, this._repository);
             } else {
                 this._fieldHandlerCache[f.Name].HandleLoaded(this[f.Name]);
             }
