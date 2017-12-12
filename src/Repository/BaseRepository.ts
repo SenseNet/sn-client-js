@@ -116,7 +116,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                     Id: null,
                                     Path: null,
                                     Name: fileName
-                                } as any,
+                                } as Content,
                                 Error: error
                             });
                             uploadSubject.error(error);
@@ -241,7 +241,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         await new Promise((resolve, reject) => {
             FileEntry.file((f) => {
                 Scope.UploadFile({
-                    File: f as any,
+                    File: f as any as File,
                     ...options
                 })
                     .skipWhile((progress) => !progress.Completed)
