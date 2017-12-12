@@ -13,7 +13,7 @@ export class SnConfigFieldModelStore {
     /**
      * An array that contains the field definitions.
      */
-    private static _store: SnConfigFieldModel[] = [];
+    private static _store: Map<string, SnConfigFieldModel> = new Map();
 
     /**
      * Adds a new model to the store
@@ -27,7 +27,7 @@ export class SnConfigFieldModelStore {
         if (this.Contains(newModel.StoreKey)) {
             throw new Error(`Field ${newModel.StoreKey} for configuration model already in the store!`);
         }
-        this._store[newModel.StoreKey] = newModel;
+        this._store.set(newModel.StoreKey, newModel);
     }
 
     /**
@@ -36,11 +36,11 @@ export class SnConfigFieldModelStore {
      * @throws error {error} if the store doesn't contain entry for the field.
      */
     public static Get(storeKey: string): SnConfigFieldModel {
-        const found = this._store[storeKey];
+        const found = this._store.get(storeKey);
         if (!found) {
             throw new Error(`No entry found with the field name '${storeKey}'`);
         }
-        return this._store[storeKey];
+        return found;
     }
 
     /**
@@ -48,8 +48,7 @@ export class SnConfigFieldModelStore {
      * @param fieldName fieldName {string} The field's name to search for
      */
     public static Contains(fieldName: string): boolean {
-        const found = this._store[fieldName];
-        return found !== undefined;
+        return this._store.has(fieldName);
     }
 
     /**
@@ -59,8 +58,9 @@ export class SnConfigFieldModelStore {
     public static GetCommandOptions(): SnConfigFieldModel[] {
         const items: SnConfigFieldModel[] = [];
         for (const field in this._store) {
-            if (field && (this._store[field].Behavior & SnConfigBehavior.AllowFromCommandLine) === SnConfigBehavior.AllowFromCommandLine) {
-                items.push(this._store[field]);
+            const found = this._store.get(field);
+            if (field && found && (found.Behavior & SnConfigBehavior.AllowFromCommandLine) === SnConfigBehavior.AllowFromCommandLine) {
+                items.push(found);
             }
         }
         return items;
