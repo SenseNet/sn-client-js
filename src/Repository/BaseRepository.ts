@@ -237,7 +237,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         });
     }
 
-    private async webkitFileHandler<T extends IContent>(FileEntry: WebKitFileEntry, Scope: Content, options: UploadOptions<T>) {
+    private async webkitFileHandler<T extends IContent>(FileEntry: WebKitFileEntry, Scope: ContentInternal, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
             FileEntry.file((f) => {
                 Scope.UploadFile({
@@ -283,10 +283,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
     }
 
-    public async UploadFromDropEvent<T extends IContent = IContent>(options: UploadFromEventOptions<T> & { Parent: Content }) {
+    public async UploadFromDropEvent<T extends IContent = IContent>(options: UploadFromEventOptions<T> & { Parent: ContentInternal }) {
         if ((window as any).webkitRequestFileSystem) {
             const entries: (WebKitFileEntry | WebKitDirectoryEntry)[] =
-                [].map.call(options.Event.dataTransfer.items, (i) => i.webkitGetAsEntry());
+                [].map.call(options.Event.dataTransfer.items, (i: DataTransferItem) => i.webkitGetAsEntry());
 
             await this.webkitItemListHandler<T>(entries, options.Parent, options.CreateFolders, options);
         } else {
