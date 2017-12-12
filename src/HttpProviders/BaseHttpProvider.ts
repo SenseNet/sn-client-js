@@ -8,7 +8,7 @@ import { AjaxRequest } from 'rxjs/observable/dom/AjaxObservable';
  *
  */
 export abstract class BaseHttpProvider {
-    protected _headers: string[] = [];
+    protected _headers: Map<string, string> = new Map();
 
     /**
      * Sets a specified HTTP header to a specified value. The header will be the same on each request.
@@ -16,7 +16,7 @@ export abstract class BaseHttpProvider {
      * @param headerValue The value of the header
      */
     public SetGlobalHeader(headerName: string, headerValue: string) {
-        this._headers[headerName as any] = headerValue;
+        this._headers.set(headerName, headerValue);
     }
 
     /**
@@ -25,9 +25,7 @@ export abstract class BaseHttpProvider {
      *
      */
     public UnsetGlobalHeader(headerName: string) {
-        if (this._headers[headerName as any]) {
-            delete this._headers[headerName as any];
-        }
+        this._headers.delete(headerName);
     }
 
     /**
@@ -37,13 +35,12 @@ export abstract class BaseHttpProvider {
      */
     public Ajax<T>(tReturnType: { new (...args: any[]): T }, options: AjaxRequest, additionalHeaders: {name: string, value: string}[] = []): Observable<T> {
         const headers = options.headers || [];
-        // tslint:disable-next-line:forin
         for (const key in this._headers) {
-            headers[key] = this._headers[key];
+            (headers as any)[key] = this._headers.get(key);
         }
 
         additionalHeaders.forEach((h) => {
-            headers[h.name] = h.value;
+            (headers as any)[h.name] = h.value;
         });
 
         options.headers = headers;
