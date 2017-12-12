@@ -104,7 +104,7 @@
                 } else if (currentField instanceof BinaryField) {
                     /* skip, binaries cannot be compared */
                 } else {
-                    changedFields[field] = (this as any)[field];
+                    changedFields[field] = currentField;
                 }
             }
         }
@@ -115,19 +115,20 @@
      * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
      */
     public GetFields(skipEmpties?: boolean): T {
-        const fieldsToPost = {} as any;
+        const fieldsToPost: T  = {} as T;
         this.GetSchema().FieldSettings.forEach((s) => {
-            let value = (this as any)[s.Name];
-            if ((this as any)[s.Name] && (this as any)[s.Name].GetValue) {
-                value = (this as any)[s.Name].GetValue();
+            const fieldName = s.Name as keyof this;
+            let value = this[fieldName];
+            if (this[fieldName] && ((this[fieldName] as any).GetValue)) {
+                value = (this[fieldName] as any).GetValue();
             }
 
-            if ((this as any)[s.Name] && ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl) {
-                value = ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl();
+            if (this[fieldName] && (this[fieldName] as BinaryField<any>).GetDownloadUrl) {
+                value = (this[fieldName] as BinaryField<any>).GetDownloadUrl();
             }
 
             if ((!skipEmpties && value !== undefined) || (skipEmpties && value)) {
-                fieldsToPost[s.Name] = value;
+                fieldsToPost[(fieldName as any as keyof T)] = value;
             }
         });
         return fieldsToPost as T;
@@ -155,7 +156,7 @@
     public get IsValid(): boolean {
         const schema = this.GetSchema();
         const missings = schema.FieldSettings
-            .filter((s) => s.Compulsory && !(this as any)[s.Name]);
+            .filter((s) => s.Compulsory && !this[s.Name as keyof this]);
 
         return missings.length === 0;
     }
@@ -167,22 +168,23 @@
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting));
         referenceSettings.push(...[{ Type: 'ReferenceFieldSetting', Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, { Type: 'ReferenceFieldSetting', Name: 'AllowedChildTypes', AllowMultiple: true }]);
         referenceSettings.forEach((f) => {
-
-            if (!this._fieldHandlerCache.has(f.Name)) {
-                this._fieldHandlerCache.set(f.Name, f.AllowMultiple ? new ContentListReferenceField((this as any)[f.Name], f, this, this._repository) : new ContentReferenceField((this as any)[f.Name], f, this, this._repository));
+            const fieldName = f.Name as keyof this;
+            if (!this._fieldHandlerCache.has(fieldName)) {
+                this._fieldHandlerCache.set(fieldName, f.AllowMultiple ? new ContentListReferenceField(this[fieldName], f, this, this._repository) : new ContentReferenceField(this[fieldName], f, this, this._repository));
             } else {
                 f.AllowMultiple ?
-                    (this._fieldHandlerCache.get(f.Name) as ContentListReferenceField<Content>).HandleLoaded((this as any)[f.Name]) :
-                    (this._fieldHandlerCache.get(f.Name) as ContentReferenceField<Content>).HandleLoaded((this as any)[f.Name]);
+                    (this._fieldHandlerCache.get(fieldName) as ContentListReferenceField<Content>).HandleLoaded(this[fieldName]) :
+                    (this._fieldHandlerCache.get(fieldName) as ContentReferenceField<Content>).HandleLoaded(this[fieldName]);
             }
-            (this as any)[f.Name] = this._fieldHandlerCache.get(f.Name);
+            this[fieldName] = this._fieldHandlerCache.get(fieldName);
         });
         const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.BinaryFieldSetting));
 
         binarySettings.forEach((s) => {
-            if (!((this as any)[s.Name] instanceof BinaryField)) {
-                const mediaResourceObject = (this as any)[s.Name];
-                (this as any)[s.Name] = new BinaryField<T>(mediaResourceObject, this as SavedContent, s);
+            const fieldName = s.Name as keyof this;
+            if (!((this[fieldName] as any) instanceof BinaryField)) {
+                const mediaResourceObject = this[fieldName];
+                this[fieldName] = new BinaryField<T>(mediaResourceObject, this as SavedContent, s);
             }
         });
     }
@@ -275,7 +277,7 @@
             if (!this.Id) {
                 const err = new Error('Content Id not present');
                 this._repository.Events.Trigger.ContentModificationFailed({
-                    Content: this as any,
+                    Content: this,
                     Fields: fields,
                     Error: err
                 });
@@ -437,7 +439,7 @@
                 .map((f) => f.Name) as ODataFieldParameter<T>;
         }
 
-        return this._repository.Load(this.Id || this.Path as any, {
+        return this._repository.Load(this.Id || this.Path as string, {
             select: selectFields,
             expand: expandFields
         } as IODataParams<T>);
@@ -458,9 +460,9 @@
             throw new Error('Content Id or Path has to be provided');
         }
 
-        const toExpand = this.GetSchema().FieldSettings.filter((f) => fields.indexOf(f.Name as any) >= 0 && FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting))
+        const toExpand = this.GetSchema().FieldSettings.filter((f) => fields.indexOf(f.Name as keyof T) >= 0 && FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting))
             .map((f) => f.Name) as ODataFieldParameter<T>;
-        return this._repository.Load<T>(this.Id || this.Path as any, {
+        return this._repository.Load<T>(this.Id || this.Path as string, {
             select: fields,
             expand: toExpand
         } as IODataParams<T>);
