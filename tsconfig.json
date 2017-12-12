@@ -2,7 +2,7 @@
     "compilerOptions": {
         "strict": true,
         "removeComments": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "noUnusedLocals": true,
         "target": "es2015",
         "module": "commonjs",
