@@ -17,7 +17,7 @@ export class JwtService implements IAuthenticationService {
 
     private readonly _visitorName: string = 'BuiltIn\\Visitor';
 
-    private _oauthProviders: Map<{new(...args): IOauthProvider}, IOauthProvider> = new Map();
+    private _oauthProviders: Map<{new(...args: any[]): IOauthProvider}, IOauthProvider> = new Map();
 
     /**
      * Sets a specified OAuth provider
@@ -25,7 +25,7 @@ export class JwtService implements IAuthenticationService {
      * @throws if a provider with the specified type has already been set
      */
     public SetOauthProvider<T extends IOauthProvider>(provider: T) {
-        const providerCtor = provider.constructor as {new(...args)};
+        const providerCtor = provider.constructor as {new(...args: any[]): IOauthProvider};
         if (this._oauthProviders.has(providerCtor)) {
             throw Error(`Provider for '${providerCtor.name}' already set`);
         }
@@ -37,7 +37,7 @@ export class JwtService implements IAuthenticationService {
      * @param {<T>} providerType The provider type to be retrieved
      * @throws if the provider hasn't been registered
      */
-    public GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args): T}): T {
+    public GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args: any[]): T}): T {
         if (!this._oauthProviders.has(providerType)) {
             throw Error(`OAuth provider not found for '${providerType.name}'`);
         }
