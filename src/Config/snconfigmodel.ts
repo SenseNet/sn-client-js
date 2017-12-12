@@ -144,12 +144,6 @@ export class SnConfigModel {
      * @constructs {SnConfigModel}
      */
     constructor(config?: Partial<SnConfigModel>) {
-        if (config) {
-            for (const key in config) {
-                if (config[key]) {
-                    this[key] = config[key];
-                }
-            }
-        }
+        config && Object.assign(this, config);
     }
 }

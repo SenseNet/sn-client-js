@@ -70,7 +70,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
         return schema;
     }
 
-    private _contentTypeControlMaps: { new(...args: any[]): TControlBaseType }[] = [];
+    private _contentTypeControlMaps: Map<string, { new(...args: any[]): TControlBaseType }> = new Map();
 
     /**
      * Maps a specified Control to a Content type
@@ -79,7 +79,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @returns {ControlMapper}
      */
     public MapContentTypeToControl(contentType: { new(...args: any[]): IContent }, control: { new(...args: any[]): TControlBaseType }) {
-        this._contentTypeControlMaps[contentType.name] = control;
+        this._contentTypeControlMaps.set(contentType.name, control);
         return this;
     }
 
@@ -88,8 +88,12 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param content The content to get the control for.
      * @returns {TControlBaseType} The mapped control, Default if nothing is mapped.
      */
-    public GetControlForContentType<TContentType extends IContent>(contentType: { new(...args: any[]): TContentType }) {
-        return this._contentTypeControlMaps[contentType.name] || this._defaultControlType;
+    public GetControlForContentType<TContentType extends IContent>(contentType: { new(...args: any[]): TContentType }): { new(...args: any[]): TControlBaseType } {
+        const control = this._contentTypeControlMaps.get(contentType.name) || this._defaultControlType;
+        if (!control) {
+            throw Error('');
+        }
+        return control as ({ new(...args: any[]): TControlBaseType });
     }
 
     private _fieldSettingDefaults: Map<string, ((fieldSetting: FieldSettings.FieldSetting) => { new(...args: any[]): TControlBaseType })> = new Map();
@@ -104,7 +108,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
         fieldSetting: { new(...args: any[]): TFieldSettingType },
         setupControl: (fieldSetting: TFieldSettingType) => { new(...args: any[]): TControlBaseType }
     ) {
-        this._fieldSettingDefaults.set(fieldSetting.name, setupControl as any);
+        this._fieldSettingDefaults.set(fieldSetting.name, setupControl as (fieldSetting: FieldSettings.FieldSetting) => { new(...args: any[]): TControlBaseType });
         return this;
     }
 
@@ -113,7 +117,7 @@ export class ControlMapper<TControlBaseType, TClientControlSettings> {
      * @param fieldSetting The FieldSetting to get the control class.
      */
     public GetControlForFieldSetting<TFieldSettingType extends FieldSettings.FieldSetting>(fieldSetting: TFieldSettingType): { new(...args: any[]): TControlBaseType } {
-        const fieldSettingSetup = this._fieldSettingDefaults.get(fieldSetting.Type) as any as (fieldSetting) => { new(...args: any[]): TControlBaseType };
+        const fieldSettingSetup = this._fieldSettingDefaults.get(fieldSetting.Type) as (fieldSetting: any) => { new(...args: any[]): TControlBaseType };
         return fieldSettingSetup && fieldSettingSetup(fieldSetting) || this._defaultFieldSettingControlType;
     }
 

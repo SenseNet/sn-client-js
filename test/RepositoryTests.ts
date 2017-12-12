@@ -5,7 +5,7 @@ import { Subject } from 'rxjs/Subject';
 import { LoginState } from '../src/Authentication';
 import { SnConfigModel } from '../src/Config';
 import { Content, ContentInternal } from '../src/Content';
-import { ContentType, File as SnFile, Task, User } from '../src/ContentTypes';
+import { ContentType, File as SnFile, Folder, Task, User } from '../src/ContentTypes';
 import { ODataApi, ODataBatchResponse, ODataCollectionResponse } from '../src/ODataApi';
 import { SnRepository, UploadProgressInfo, UploadResponse, VersionInfo } from '../src/Repository';
 import { Schema, SchemaStore } from '../src/Schemas';
@@ -515,7 +515,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }, Folder)
         });
     }
 
@@ -543,7 +543,7 @@ export class RepositoryTests {
             ContentType: SnFile,
             CreateFolders: false,
             PropertyName: 'Binary',
-            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' })
+            Parent: this._repo.HandleLoadedContent({ Id: 12379846, Path: '/Root/Text', Name: 'asd' }, Folder)
         });
     }
 

@@ -116,7 +116,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                                     Id: null,
                                     Path: null,
                                     Name: fileName
-                                } as any,
+                                } as Content,
                                 Error: error
                             });
                             uploadSubject.error(error);
@@ -237,11 +237,11 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         });
     }
 
-    private async webkitFileHandler<T extends IContent>(FileEntry: WebKitFileEntry, Scope: Content, options: UploadOptions<T>) {
+    private async webkitFileHandler<T extends IContent>(FileEntry: WebKitFileEntry, Scope: ContentInternal, options: UploadOptions<T>) {
         await new Promise((resolve, reject) => {
             FileEntry.file((f) => {
                 Scope.UploadFile({
-                    File: f as any,
+                    File: f as any as File,
                     ...options
                 })
                     .skipWhile((progress) => !progress.Completed)
@@ -283,10 +283,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         }
     }
 
-    public async UploadFromDropEvent<T extends IContent = IContent>(options: UploadFromEventOptions<T> & { Parent: Content }) {
+    public async UploadFromDropEvent<T extends IContent = IContent>(options: UploadFromEventOptions<T> & { Parent: ContentInternal }) {
         if ((window as any).webkitRequestFileSystem) {
             const entries: (WebKitFileEntry | WebKitDirectoryEntry)[] =
-                [].map.call(options.Event.dataTransfer.items, (i) => i.webkitGetAsEntry());
+                [].map.call(options.Event.dataTransfer.items, (i: DataTransferItem) => i.webkitGetAsEntry());
 
             await this.webkitItemListHandler<T>(entries, options.Parent, options.CreateFolders, options);
         } else {
@@ -529,7 +529,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    public CreateQuery = <T extends IContent>(build: (first: QueryExpression<T>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params);
+    public CreateQuery =
+        <T extends IContent>(build: (first: QueryExpression<T>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params)
 
     /**
      * Executes a DeleteBatch request to delete multiple content by a single request.

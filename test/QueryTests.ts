@@ -1,7 +1,7 @@
 import * as Chai from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { LoginState } from '../src/Authentication/LoginState';
-import { Task } from '../src/ContentTypes';
+import { Folder, Task } from '../src/ContentTypes';
 import { Query } from '../src/Query';
 import { ContentInternal, ContentTypes } from '../src/SN';
 import { MockRepository } from './Mocks/index';
@@ -49,8 +49,9 @@ export class QueryTests {
 
         const content = repo.HandleLoadedContent({
             Id: 3,
-            Type: 'Folder',
-        } as any);
+            Name: 'ExampleFolder',
+            Type: 'Folder'
+        } as any, Folder);
 
         expect(() => content.CreateQuery((q) => q.TypeIs(ContentTypes.Folder))).to.throw('No Content path provided for querying');
     }

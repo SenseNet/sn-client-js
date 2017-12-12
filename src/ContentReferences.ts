@@ -52,7 +52,7 @@ export abstract class ReferenceAbstract<T extends IContent> {
             }
 
             if (this.FieldSetting.AllowedTypes && this.FieldSetting.AllowedTypes.length) {
-                const foundTypes = this.FieldSetting.AllowedTypes.map((type) => ContentTypes[type] as {new(...args: any[]): T}).filter((a) => a !== undefined);
+                const foundTypes = this.FieldSetting.AllowedTypes.map((type) => (ContentTypes as any)[type] as {new(...args: any[]): T}).filter((a) => a !== undefined);
                 if (foundTypes.length > 0) {
                     query = query.And.Query((innerTypes) => {
                         foundTypes.forEach((type, index, thisArray) => {
