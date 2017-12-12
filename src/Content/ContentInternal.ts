@@ -88,9 +88,9 @@
     public GetChanges(): T {
         const changedFields: T = {} as T;
 
-        // tslint:disable-next-line:forin
         for (const field in this.GetFields()) {
-            const currentField = this[field as any];
+
+            const currentField = (this as any)[field];
             if (currentField !== this._lastSavedFields[field]) {
 
                 if (currentField instanceof ContentReferenceField) {
@@ -104,7 +104,7 @@
                 } else if (currentField instanceof BinaryField) {
                     /* skip, binaries cannot be compared */
                 } else {
-                    changedFields[field] = this[field as any];
+                    changedFields[field] = (this as any)[field];
                 }
             }
         }
@@ -115,22 +115,22 @@
      * Returns all Fields based on the Schema, that can be used for API calls (e.g. POSTing a new content)
      */
     public GetFields(skipEmpties?: boolean): T {
-        const fieldsToPost = {} as T;
+        const fieldsToPost = {} as any;
         this.GetSchema().FieldSettings.forEach((s) => {
-            let value = this[s.Name];
-            if (this[s.Name] && this[s.Name].GetValue) {
-                value = this[s.Name].GetValue();
+            let value = (this as any)[s.Name];
+            if ((this as any)[s.Name] && (this as any)[s.Name].GetValue) {
+                value = (this as any)[s.Name].GetValue();
             }
 
-            if (this[s.Name] && (this[s.Name] as BinaryField<any>).GetDownloadUrl) {
-                value = (this[s.Name] as BinaryField<any>).GetDownloadUrl();
+            if ((this as any)[s.Name] && ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl) {
+                value = ((this as any)[s.Name] as BinaryField<any>).GetDownloadUrl();
             }
 
             if ((!skipEmpties && value !== undefined) || (skipEmpties && value)) {
                 fieldsToPost[s.Name] = value;
             }
         });
-        return fieldsToPost;
+        return fieldsToPost as T;
     }
 
     /**
@@ -160,25 +160,29 @@
         return missings.length === 0;
     }
 
-    private _fieldHandlerCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = [];
+    // private _fieldHandlerCache: (ContentListReferenceField<Content> | ContentReferenceField<Content>)[] = [];
+    private _fieldHandlerCache: Map<string, (ContentListReferenceField<Content> | ContentReferenceField<Content>)> = new Map();
+
     private updateReferenceFields() {
         const referenceSettings: FieldSettings.ReferenceFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.ReferenceFieldSetting));
         referenceSettings.push(...[{ Type: 'ReferenceFieldSetting', Name: 'EffectiveAllowedChildTypes', AllowMultiple: true }, { Type: 'ReferenceFieldSetting', Name: 'AllowedChildTypes', AllowMultiple: true }]);
         referenceSettings.forEach((f) => {
 
-            if (!this._fieldHandlerCache[f.Name]) {
-                this._fieldHandlerCache[f.Name] = f.AllowMultiple ? new ContentListReferenceField(this[f.Name], f, this, this._repository) : new ContentReferenceField(this[f.Name], f, this, this._repository);
+            if (!this._fieldHandlerCache.has(f.Name)) {
+                this._fieldHandlerCache.set(f.Name, f.AllowMultiple ? new ContentListReferenceField((this as any)[f.Name], f, this, this._repository) : new ContentReferenceField((this as any)[f.Name], f, this, this._repository));
             } else {
-                this._fieldHandlerCache[f.Name].HandleLoaded(this[f.Name]);
+                f.AllowMultiple ?
+                    (this._fieldHandlerCache.get(f.Name) as ContentListReferenceField<Content>).HandleLoaded((this as any)[f.Name]) :
+                    (this._fieldHandlerCache.get(f.Name) as ContentReferenceField<Content>).HandleLoaded((this as any)[f.Name]);
             }
-            this[f.Name] = this._fieldHandlerCache[f.Name];
+            (this as any)[f.Name] = this._fieldHandlerCache.get(f.Name);
         });
         const binarySettings: FieldSettings.BinaryFieldSetting[] = this.GetSchema().FieldSettings.filter((f) => FieldSettings.isFieldSettingOfType(f, FieldSettings.BinaryFieldSetting));
 
         binarySettings.forEach((s) => {
-            if (!(this[s.Name] instanceof BinaryField)) {
-                const mediaResourceObject = this[s.Name];
-                this[s.Name] = new BinaryField<T>(mediaResourceObject, this as SavedContent, s);
+            if (!((this as any)[s.Name] instanceof BinaryField)) {
+                const mediaResourceObject = (this as any)[s.Name];
+                (this as any)[s.Name] = new BinaryField<T>(mediaResourceObject, this as SavedContent, s);
             }
         });
     }
@@ -195,7 +199,7 @@
      * @param {IContentOptions} options An object with the required content data
      * @param {IRepository} repository The Repository instance
      */
-    constructor(_options: T, private _repository: BaseRepository, private readonly _contentType: {new(...args): T}) {
+    constructor(_options: T, private _repository: BaseRepository, private readonly _contentType: {new(...args: any[]): T}) {
         Object.assign(this, _options);
         Object.assign(this._lastSavedFields, _options);
         this.updateReferenceFields();
