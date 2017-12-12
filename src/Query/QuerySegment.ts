@@ -62,7 +62,7 @@ export class QuerySegment<TReturns extends IContent> {
 
     }
 
-    protected finializeSegment() {
+    protected finializeSegment(): QuerySegment<TReturns> {
         this._queryRef.AddSegment(this);
         return new QuerySegment(this._queryRef);
     }

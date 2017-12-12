@@ -42,7 +42,7 @@ export class TokenStore {
     /**
      * If localStorage is not available, stores the token data in this in-memory array
      */
-    private _innerStore: string[] = [];
+    private _innerStore: Map<string, string> = new Map();
 
     /**
      * The type of the generated Token Store
@@ -84,7 +84,7 @@ export class TokenStore {
         try {
             switch (this.TokenStoreType) {
                 case TokenStoreType.InMemory:
-                    return Token.FromHeadAndPayload(this._innerStore[storeKey]);
+                    return this._innerStore.has(storeKey) ? Token.FromHeadAndPayload(this._innerStore.get(storeKey) as string) : Token.CreateEmpty();
                 case TokenStoreType.LocalStorage:
                     return Token.FromHeadAndPayload((this._localStorageRef as any).getItem(storeKey));
                 case TokenStoreType.SessionStorage:
@@ -109,7 +109,7 @@ export class TokenStore {
         const dtaString = token.toString();
         switch (this.TokenStoreType) {
             case TokenStoreType.InMemory:
-                this._innerStore[storeKey] = dtaString;
+                this._innerStore.set(storeKey, dtaString);
                 break;
             case TokenStoreType.LocalStorage:
                 (this._localStorageRef as Storage).setItem(storeKey, dtaString);

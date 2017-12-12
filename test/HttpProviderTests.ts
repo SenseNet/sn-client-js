@@ -17,43 +17,43 @@ export class HttpProviderTests {
     public SetGlobalHeaders() {
         const p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
-        const headers = p.ActualHeaders;
-        Chai.expect(headers[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
+        Chai.expect(p.ActualHeaders.get(this._testHeaderName)).to.be.eq(this._testHeaderValue);
     }
 
     @test
     public UnsetGlobalHeaders() {
         const p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
-        let headers = p.ActualHeaders;
-        Chai.expect(headers[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
+        Chai.expect(p.ActualHeaders.get(this._testHeaderName)).to.be.eq(this._testHeaderValue);
 
         p.UnsetGlobalHeader(this._testHeaderName);
-        headers = p.ActualHeaders;
-        Chai.expect(headers[this._testHeaderName as any]).to.be.eq(undefined);
+        Chai.expect(p.ActualHeaders.get(this._testHeaderName)).to.be.eq(undefined);
     }
 
     @test
     public 'globalHeaders should override options.headers'() {
         const p = new MockHttpProvider();
+        p.UseTimeout = false;
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
 
         const options: AjaxRequest = {
             headers: {
             }
         };
+        p.AddResponse({});
         (options.headers as any)[this._testHeaderName] = 'modifiedValue';
-        p.Ajax(Object, options).toPromise();
-        expect((p.ActualHeaders as any)[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
+        p.Ajax(Object, options).share();
+        expect((p.RequestLog[0].Options.headers as any)[this._testHeaderName]).to.be.eq(this._testHeaderValue);
     }
 
     @test
     public 'globalHeaders should be overridden by additional headers'() {
         const p = new MockHttpProvider();
         p.SetGlobalHeader(this._testHeaderName, this._testHeaderValue);
-
+        p.AddResponse({});
+        p.UseTimeout = false;
         p.Ajax(Object, {}, [{name: this._testHeaderName, value: 'modifiedValue'}]).toPromise();
-        expect((p.ActualHeaders as any)[this._testHeaderName as any]).to.be.eq(this._testHeaderValue);
+        expect((p.RequestLog[0].Options.headers as any)[this._testHeaderName]).to.be.eq('modifiedValue');
     }
 
     @test

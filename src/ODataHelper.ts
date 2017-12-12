@@ -54,7 +54,7 @@ export const buildUrlParamString: <T extends IContent = IContent>(config: SnConf
         // tslint:disable-next-line:forin
         for (const key in options) {
             const name = ODATA_PARAMS.indexOf(key) > -1 ? `$${key}` : key;
-            const plainValue = options[key];
+            const plainValue = (options as any)[key];
             let parsedValue = plainValue;
             if (plainValue instanceof Array && plainValue.length && plainValue.length > 0) {
                 parsedValue = plainValue.map((v) => v.join && v.join(' ') || v).join(',');
