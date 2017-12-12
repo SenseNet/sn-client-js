@@ -43,7 +43,7 @@ export interface IAuthenticationService {
     CurrentUser: string;
 
     HandleAuthenticationResponse(response: LoginResponse): boolean;
-    SetOauthProvider<T extends IOauthProvider>(provider: T);
-    GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args): T}): T;
+    SetOauthProvider<T extends IOauthProvider>(provider: T): void;
+    GetOauthProvider<T extends IOauthProvider>(providerType: {new(...args: any[]): T}): T;
 
 }
