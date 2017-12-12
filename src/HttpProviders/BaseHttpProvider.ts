@@ -35,7 +35,7 @@ export abstract class BaseHttpProvider {
      */
     public Ajax<T>(tReturnType: { new (...args: any[]): T }, options: AjaxRequest, additionalHeaders: {name: string, value: string}[] = []): Observable<T> {
         const headers = options.headers || [];
-        for (const key in this._headers) {
+        for (const key of this._headers.keys()) {
             (headers as any)[key] = this._headers.get(key);
         }
 

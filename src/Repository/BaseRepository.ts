@@ -529,7 +529,8 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * ```
      * @returns {Observable<QueryResult<T>>} An observable with the Query result.
      */
-    public CreateQuery = <T extends IContent>(build: (first: QueryExpression<T>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params);
+    public CreateQuery =
+        <T extends IContent>(build: (first: QueryExpression<T>) => QuerySegment<T>, params?: IODataParams<T>) => new FinializedQuery<T>(build, this, 'Root', params)
 
     /**
      * Executes a DeleteBatch request to delete multiple content by a single request.

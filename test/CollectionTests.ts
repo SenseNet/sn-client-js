@@ -135,7 +135,7 @@ export const CollectionTests = describe('Collection', () => {
   describe('#Upload()', () => {
     it('should return an observable', () => {
       collection.Path = '/workspaces/project';
-      expect(collection.Upload({Text: 'alma', FileName: 'alma.txt', Parent: collection.Items[0], PropertyName: 'Binary', ContentType: SnFile, Body: {}, Overwrite: true})).to.be.instanceof(Observable);
+      expect(collection.Upload({Text: 'alma', FileName: 'alma.txt', Parent: collection.Items()[0], PropertyName: 'Binary', ContentType: SnFile, Body: {}, Overwrite: true})).to.be.instanceof(Observable);
     });
   });
   describe('#Read()', () => {
