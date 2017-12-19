@@ -4,16 +4,28 @@
  * @description    Module for security related stuff
  */ /** */
 
- // tslint:disable:naming-convention
+// tslint:disable:naming-convention
 
 /**
  * Provides metadata about identity kind.
  */
-export enum IdentityKind { All, Users, Groups, OrganizationalUnits, UsersAndGroups, UsersAndOrganizationalUnits, GroupsAndOrganizationalUnits }
+export enum IdentityKind {
+    All = 'All',
+    Users = 'Users',
+    Groups = 'Groups',
+    OrganizationalUnits = 'OrganizationalUnits',
+    UsersAndGroups = 'UsersAndGroups',
+    UsersAndOrganizationalUnits = 'UsersAndOrganizationalUnits',
+    GroupsAndOrganizationalUnits = 'GroupsAndOrganizationalUnits'
+}
 /**
  * Provides metadata about permission level.
  */
-export enum PermissionLevel { AllowedOrDenied, Allowed, Denied }
+export enum PermissionLevel {
+    AllowedOrDenied = 'AllowedOrDenied',
+    Allowed = 'Allowed',
+    Denied = 'Denied'
+}
 /**
  * Type to provide an Object with the permission information that has to be set.
  */
