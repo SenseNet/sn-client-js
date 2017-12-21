@@ -965,7 +965,11 @@
      * ```
      */
     public GetSchema(): Schemas.Schema {
-        return this._repository.GetSchema(this._contentType);
+        return this._repository.GetSchemaByName(this.Type);
+    }
+
+    public GetSchemaWithParents(): Schemas.Schema[] {
+        return this._repository.GetSchemaWithParents(this.Type);
     }
 
     /**

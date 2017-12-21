@@ -736,6 +736,15 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
         return this.GetSchemaByName(currentType.name);
     }
 
+    public GetSchemaWithParents(typeName: string): Schema[] {
+        const schemas: Schema[] = [];
+        let current = this.GetSchemaByName(typeName);
+        while (current && current.ParentTypeName) {
+            schemas.push(current);
+            current = this.GetSchemaByName(current.ParentTypeName);
+        }
+        return schemas;
+    }
     public GetSchemaByName(schemaName: string) {
         if (!this._schemaCache) {
             this._schemaCache = new Map<string, Schema>();
