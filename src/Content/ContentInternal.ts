@@ -8,10 +8,11 @@
  import { ContentSerializer } from '../ContentSerializer';
  import { ContentType, Group, User, Workspace } from '../ContentTypes';
  import { BaseHttpProvider } from '../HttpProviders/BaseHttpProvider';
- import { IODataParams, ODataApi, ODataFieldParameter } from '../ODataApi';
+ import { IODataParams, ODataApi, ODataCollectionResponse, ODataFieldParameter } from '../ODataApi';
  import { FinializedQuery, QueryExpression, QuerySegment } from '../Query';
  import { ActionModel } from '../Repository/ActionModel';
  import { BaseRepository } from '../Repository/BaseRepository';
+ import { PermissionResponseModel } from '../Repository/PermissionModel';
  import { UploadFileOptions, UploadFromEventOptions, UploadProgressInfo, UploadTextOptions } from '../Repository/UploadModels';
  import { ContentTypes, Enums, FieldSettings, ODataHelper, Schemas, Security } from '../SN';
  import { IContent } from './IContent';
@@ -1047,9 +1048,9 @@
      * });
      * ```
      */
-    public GetPermission(identity?: string) {
-        return this._odata.CreateCustomAction({ name: 'GetPermission', id: this.Id, isAction: false, params: ['identity'] },
-            { data: { identity: identity ? identity : '' } });
+    public GetPermissions(identity?: SavedContent): Observable<PermissionResponseModel> {
+        return this._odata.CreateCustomAction({ name: 'GetPermissions', id: this.Id, isAction: false, params: ['identity'] },
+            { data: { identity: identity && identity.Path || '' } });
     }
     /**
      * Gets if the given user (or if it is not given than the current user) has the specified permissions for the requested content.
@@ -1387,7 +1388,7 @@
      * });
      * ```
      */
-    public GetRelatedIdentities(level: Security.PermissionLevel, kind: Security.IdentityKind) {
+    public GetRelatedIdentities(level: Security.PermissionLevel, kind: Security.IdentityKind): Observable<ODataCollectionResponse<User | Group>> {
         return this._odata.CreateCustomAction({ name: 'GetRelatedIdentities', id: this.Id, isAction: true, requiredParams: ['level', 'kind'] },
             { data: { level, kind } });
     }
@@ -1410,9 +1411,9 @@
      * });
      * ```
      */
-    public GetRelatedPermissions(level: Security.PermissionLevel, explicitOnly: boolean, member: string, includedTypes?: string[]) {
+    public GetRelatedPermissions<TMemberType extends (User | Group & {Path: string}) = User>(level: Security.PermissionLevel, explicitOnly: boolean, member: TMemberType, includedTypes?: string[]): Observable<ODataCollectionResponse<TMemberType>> {
         return this._odata.CreateCustomAction({ name: 'GetRelatedPermissions', id: this.Id, isAction: true, requiredParams: ['level', 'explicitOnly', 'member', 'includedTypes'] },
-            { data: { level, explicitOnly, member, includedTypes } });
+            { data: { level, explicitOnly, member: member.Path, includedTypes } });
     }
     /**
      * Content list that have explicite/effective permission setting for the selected user in the current subtree.

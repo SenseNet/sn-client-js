@@ -958,11 +958,11 @@ export const contentTests = describe('Content', () => {
     });
     describe('#GetPermission()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetPermission('/Root/IMS/BuiltIn/Portal/Visitor')).to.be.instanceof(Observable);
+            expect(content.GetPermissions('/Root/IMS/BuiltIn/Portal/Visitor')).to.be.instanceof(Observable);
         });
 
         it('should return an Observable object', () => {
-            expect(content.GetPermission()).to.be.instanceof(Observable);
+            expect(content.GetPermissions()).to.be.instanceof(Observable);
         });
     });
     describe('#GetQueries()', () => {
@@ -1089,7 +1089,7 @@ export const contentTests = describe('Content', () => {
     });
     describe('#GetRelatedPermissions()', () => {
         it('should return an Observable object', () => {
-            expect(content.GetRelatedPermissions(PermissionLevel.AllowedOrDenied, true, '/Root/IMS/BuiltIn/Portal/EveryOne')).to.be.instanceof(Observable);
+            expect(content.GetRelatedPermissions(PermissionLevel.AllowedOrDenied, true, {Path: '/Root/IMS/BuiltIn/Portal/EveryOne'})).to.be.instanceof(Observable);
         });
     });
     describe('#GetRelatedItems()', () => {
