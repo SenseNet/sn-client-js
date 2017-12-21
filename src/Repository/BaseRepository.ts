@@ -51,7 +51,9 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
                    returnsType?: { new(...args: any[]): T },
                    body?: any,
-                   additionalHeaders?: { name: string, value: string }[]
+                   additionalHeaders?: { name: string, value: string }[],
+                   isODataRequest: boolean = true,
+                   responseType: string = 'json'
     ): Observable<T> {
         this.Authentication.CheckForUpdate();
         return this.WaitForAuthStateReady()
@@ -61,10 +63,10 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
                 }
                 return this.HttpProviderRef.Ajax<T>(returnsType,
                     {
-                        url: ODataHelper.joinPaths(this.ODataBaseUrl, path),
+                        url: ODataHelper.joinPaths(isODataRequest ? this.ODataBaseUrl : this.Config.RepositoryUrl, path),
                         method,
                         body,
-                        responseType: 'json',
+                        responseType,
                     }, additionalHeaders);
             });
     }
