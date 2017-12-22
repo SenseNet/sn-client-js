@@ -26,6 +26,7 @@
  export class Schema {
      public ContentTypeName: string;
      public ParentTypeName?: string;
+     public ParentSchema?: Schema;
 
      public Icon: string;
      public DisplayName: string;

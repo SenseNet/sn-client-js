@@ -739,11 +739,12 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
     }
 
     public GetSchemaWithParents(typeName: string): Schema[] {
-        const schemas: Schema[] = [];
-        let current = this.GetSchemaByName(typeName);
-        while (current && current.ParentTypeName) {
-            schemas.push(current);
-            current = this.GetSchemaByName(current.ParentTypeName);
+        const current = this.GetSchemaByName(typeName);
+        const schemas: Schema[] = [current];
+        let parent = current.ParentSchema;
+        while (parent && schemas.indexOf(parent) === -1) {
+            schemas.push(parent);
+            parent = parent.ParentSchema;
         }
         return schemas;
     }
@@ -768,6 +769,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
         if (parentSchema) {
             schema.FieldSettings = [...schema.FieldSettings, ...parentSchema.FieldSettings];
+            schema.ParentSchema = parentSchema;
         }
         this._schemaCache.set(schemaName, schema);
         return schema;
