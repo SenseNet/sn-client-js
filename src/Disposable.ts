@@ -1,19 +1,19 @@
 export interface IDisposable {
-    dispose: () => void;
+    Dispose: () => void;
 }
 
 export const using = <T extends IDisposable>(resource: T, callback: (resource: T) => void) => {
     try {
         callback(resource);
     } finally {
-        resource.dispose();
+        resource.Dispose();
     }
 };
 
-export const usingAsync = async <T extends IDisposable>(resource: T, callback: (resource: T) => Promise<void>) => {
+export const usingAsync = async <T extends IDisposable, K>(resource: T, callback: (resource: T) => Promise<K>) => {
     try {
         await callback(resource);
     } finally {
-        resource.dispose();
+        resource.Dispose();
     }
 };
