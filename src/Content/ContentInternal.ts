@@ -961,11 +961,22 @@
      * Returns the Content Type Schema of the Content.
      * @returns {Schemas.Schema} Array of fieldsettings.
      * ```ts
-     * let schema = SenseNet.Content.GetSchema(Content);
+     * let schema = content.GetSchema();
      * ```
      */
     public GetSchema(): Schemas.Schema {
-        return this._repository.GetSchema(this._contentType);
+        return this._repository.GetSchemaByName(this.Type);
+    }
+
+    /**
+     * Returns an array of Schema that contains the content's schema and its parent schemas
+     * @returns {Schemas.Schema} Array of fieldsettings.
+     * ```ts
+     * let schema = content.GetSchemaWithParents();
+     * ```
+     */
+    public GetSchemaWithParents(): Schemas.Schema[] {
+        return this._repository.GetSchemaWithParents(this.Type);
     }
 
     /**

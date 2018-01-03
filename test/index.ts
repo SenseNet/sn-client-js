@@ -17,7 +17,8 @@ export * from './SnConfigTests';
 export * from './TokenTests';
 export * from './TokenStoreTests';
 
-export *  from './QueryTests';
+export * from './QueryTests';
+export * from './DisposableTests';
 
 // tslint:disable:naming-convention
 

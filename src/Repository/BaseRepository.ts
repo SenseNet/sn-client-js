@@ -731,13 +731,38 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
      * @param type {string} The name of the Content Type;
      * @returns {Schemas.Schema}
      * ```ts
-     * var genericContentSchema = SenseNet.Content.getSchema(Content);
+     * var contentSchema = repository.getSchema(Content);
      * ```
      */
     public GetSchema<TType extends IContent>(currentType: { new(...args: any[]): TType }): Schema {
         return this.GetSchemaByName(currentType.name);
     }
 
+    /**
+     * Returns an array of Schema objects from a Content Type Schema and its parents;
+     * @param {string} type The name of the Content Type;
+     * @returns {Schemas.Schema} the content Schema and its parents
+     * ```ts
+     * var contentSchemaWithParents = repository.GetSchemaWithParents(Content);
+     * ```
+     */
+    public GetSchemaWithParents(typeName: string): Schema[] {
+        const current = this.GetSchemaByName(typeName);
+        const schemas: Schema[] = [current];
+        let parent = current.ParentSchema;
+        while (parent && schemas.indexOf(parent) === -1) {
+            schemas.push(parent);
+            parent = parent.ParentSchema;
+        }
+        return schemas;
+    }
+    /**
+     * Returns the Content Type Schema of the given Content Type;
+     * @param {string} schemaName the name of the content type
+     * ```ts
+     * var contentSchema = repository.GetSchemaByName('User');
+     * ```
+     */
     public GetSchemaByName(schemaName: string) {
         if (!this._schemaCache) {
             this._schemaCache = new Map<string, Schema>();
@@ -759,6 +784,7 @@ export class BaseRepository<TProviderType extends BaseHttpProvider = BaseHttpPro
 
         if (parentSchema) {
             schema.FieldSettings = [...schema.FieldSettings, ...parentSchema.FieldSettings];
+            schema.ParentSchema = parentSchema;
         }
         this._schemaCache.set(schemaName, schema);
         return schema;

@@ -23,6 +23,7 @@
   import * as ContentTypes from './ContentTypes';
   import * as Repository from './Repository';
   export * from './Content';
+  export * from './Disposable';
   export * from './ContentSerializer';
   export * from './ContentReferences';
   import * as FieldSettings from './FieldSettings';

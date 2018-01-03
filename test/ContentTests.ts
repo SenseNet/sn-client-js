@@ -1145,6 +1145,15 @@ export const contentTests = describe('Content', () => {
 
     });
 
+    describe('#GetSchema()', () => {
+        it('should return an array of Schema objects', () => {
+            const schemas = content.GetSchemaWithParents();
+            schemas.forEach((schema) => {
+                expect(isSchema(schema)).to.be.eq(true);
+            });
+        });
+    });
+
     describe('#ParentPath', () => {
         it('should throw Error if no Path is provided', () => {
             const contentWithoutPath = repo.HandleLoadedContent({} as any);

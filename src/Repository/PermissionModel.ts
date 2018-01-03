@@ -1,3 +1,8 @@
+/**
+ * @module Repository
+ */
+/** */
+
 // tslint:disable:naming-convention
 import { IdentityKind } from '../Security';
 

@@ -25,7 +25,7 @@ export class BinaryField<T extends IContent> {
             File: new File([file], this._contentReference.Name),
             Parent: {GetFullPath: () => this._contentReference.ParentContentPath, Path: this._contentReference.ParentPath} as SavedContent,
             PropertyName: this._fieldSettings.Name,
-            ContentType: this._contentReference.constructor as { new(...args: any[]): T },
+            ContentType: {name: this._contentReference.Type} as {new(...args: any[]): any},
             Overwrite: true,
         })
 
