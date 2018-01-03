@@ -1,6 +1,11 @@
 /**
  * @module Disposable
  * @preferred
+ *
+ * You can implement *IDisposable* resources and use them with a *using()* or *usingAsync()* syntax.
+ *
+ * Usage example:
+ *
  * ```ts
  * class Resource implements IDisposable{
  *       Dispose(){
