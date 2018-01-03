@@ -1,6 +1,22 @@
 /**
  * @module Disposable
  * @preferred
+ * ```ts
+ * class Resource implements IDisposable{
+ *       Dispose(){
+ *           // cleanup logics
+ *      }
+ * }
+ *
+ *
+ * using(new Resource(), (resource)=>{
+ *      // do something with the resource
+ * })
+ *
+ * usingAsync(new Resource(), async (resource)=>{
+ *      // do something with the resource, allows awaiting promises
+ * })
+ * ```
  */
 /** */
 
@@ -17,18 +33,7 @@ export interface IDisposable {
 /**
  * Method that accepts an IDisposable resource that will be disposed after the callback
  * @param {IDisposable} resource The resource that is used in the callback and will be disposed afterwards
- * @param {()=>void}callback The callback that will be executed synchrounously before the resource will be disposed
- * ```ts
- * class Resource implements IDisposable{
- *       Dispose(){
- *           // cleanup logics
- *      }
- * }
- *
- * using(new Resource(), (resource)=>{
- *      // do something with the resource
- * })
- * ```
+ * @param {function} callback The callback that will be executed synchrounously before the resource will be disposed
  */
 export const using = <T extends IDisposable>(resource: T, callback: (resource: T) => void) => {
     try {
@@ -41,18 +46,7 @@ export const using = <T extends IDisposable>(resource: T, callback: (resource: T
 /**
  * Method that accepts an IDisposable resource that will be disposed after the callback
  * @param {IDisposable} resource The resource that is used in the callback and will be disposed afterwards
- * @param {()=>Promise<{}>} callback The callback that will be executed asynchrounously before the resource will be disposed
- * ```ts
- * class Resource implements IDisposable{
- *       Dispose(){
- *           // cleanup logics
- *      }
- * }
- *
- * using(new Resource(), async (resource)=>{
- *      // do something with the resource
- * })
- * ```
+ * @param {function} callback The callback that will be executed asynchrounously before the resource will be disposed
  */
 export const usingAsync = async <T extends IDisposable, K>(resource: T, callback: (resource: T) => Promise<K>) => {
     try {
