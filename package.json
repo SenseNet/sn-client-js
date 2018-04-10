@@ -67,7 +67,7 @@
     "@types/app-root-path": "^1.2.4",
     "@types/chai": "^4.1.2",
     "@types/mocha": "^2.2.47",
-    "@types/node": "^9.3.0",
+    "@types/node": "^9.6.3",
     "chai": "^4.1.2",
     "codecov": "^3.0.0",
     "commitizen": "^2.9.6",
