@@ -11,6 +11,8 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat)](http://commitizen.github.io/cz-cli/)
 [![Greenkeeper badge](https://badges.greenkeeper.io/SenseNet/sn-client-js.svg)](https://greenkeeper.io/)
 
+> sn-client-js has been refactored into several smaller packages within the **[@sensenet](https://www.npmjs.com/search?q=%40sensenet)** scope in NPM, therefore sn-client-js will not be updated. Please switch to the @sensenet scoped packages if possible. You can find more details in this [post](https://community.sensenet.com/blog/2018/02/21/scoped-packages)
+
 This component lets you work with the [sensenet ECM](https://github.com/SenseNet) Content Repository (create or manage content, execute queries, etc.) by providing a JavaScript client API for the main content operations.
 The library connects to a sensenet ECM portal's REST API, but hides the underlying HTTP requests. You can work with simple load or create Content operations in JavaScript, instead of
 having to construct ajax requests yourself.
