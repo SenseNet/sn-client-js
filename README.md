@@ -1,5 +1,9 @@
 # sn-client-js
 
+------
+### This package is not under active development. You can find our latest packages in the [sensenset/sn-client](https://github.com/sensenet/sn-client) monorepo.
+------
+
 [![Gitter chat](https://img.shields.io/gitter/room/SenseNet/SN7ClientAPI.svg?style=flat)](https://gitter.im/SenseNet/SN7ClientAPI)
 [![Build status](https://img.shields.io/travis/SenseNet/sn-client-js.svg?style=flat)](https://travis-ci.org/SenseNet/sn-client-js)
 [![Coverage](https://img.shields.io/codecov/c/github/SenseNet/sn-client-js.svg?style=flat)](https://codecov.io/gh/SenseNet/sn-client-js)
